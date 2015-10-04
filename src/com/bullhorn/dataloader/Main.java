@@ -36,7 +36,7 @@ public class Main {
 			
 			String entity = args[0];
 			String filePath = args[1];
-			String BhRestToken = props.getProperty("BhRestToken");
+			String BhRestToken = args[2];
 			String numThreads = props.getProperty("numThreads");
 			String dateFormat = props.getProperty("dateFormat");
 			
