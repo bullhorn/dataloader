@@ -49,7 +49,7 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 			contact.setIsDeleted("false");
 			
 			// Save
-			JSONObject jsResp = bhapi.mapAndSave(contact, postURL, type);
+			JSONObject jsResp = bhapi.save(contact, postURL, type);
 			
 			// Get ID of the created/updated record
 			int clientContactID = jsResp.getInt("changedEntityId");

@@ -48,7 +48,7 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 			candidate.setIsEditable("true");
 			
 			//Save
-			JSONObject jsResp = bhapi.mapAndSave(candidate, postURL, type);
+			JSONObject jsResp = bhapi.save(candidate, postURL, type);
 			
 			// Get ID of the created/updated record
 			int candidateID = jsResp.getInt("changedEntityId");

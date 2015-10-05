@@ -101,6 +101,12 @@ public class BullhornAPI {
 		return responseJson;
 	}
 	
+	public JSONObject delete(String postURL) throws Exception {
+		DeleteMethod method = new DeleteMethod(postURL);
+		JSONObject responseJson = this.delete(method);
+		return responseJson;
+	}
+	
 	public JSONObject delete(DeleteMethod method) throws Exception {
 		JSONObject responseJson = call("delete", method);
 		return responseJson;
@@ -153,14 +159,30 @@ public class BullhornAPI {
 		return qryJSON;
 	}
 	
-	public JSONObject mapAndSave(Object obj, String postURL, String type) throws Exception {
+	
+	// POJO to JSON via Jackson. Don't include null properties during serialization
+	public String serialize(Object obj) throws Exception {
 		
-		// POJO to JSON via Jackson. Don't include null properties during serialization
 		ObjectMapper mapper = new ObjectMapper();
 		mapper.setSerializationInclusion(Inclusion.NON_NULL);
 		mapper.setSerializationInclusion(Inclusion.NON_DEFAULT);
 		
 		String jsString = mapper.writeValueAsString(obj);
+		
+		return jsString;
+	}
+	
+	// Serialize an object and save it
+	public JSONObject save(Object obj, String postURL, String type) throws Exception {
+		
+		String jsString = serialize(obj);
+		JSONObject jsResp = save(jsString, postURL, type);
+		
+		return jsResp;
+	}
+	
+	// Save a stringify'd object
+	public JSONObject save(String jsString, String postURL, String type) throws Exception {
 		
 		// Post to BH
 		StringRequestEntity requestEntity = new StringRequestEntity(jsString,"application/json","UTF-8");

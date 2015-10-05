@@ -146,7 +146,7 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 				opportunity.setBusinessSector(busID);
 			}
 			
-			JSONObject jsResp = bhapi.mapAndSave(opportunity, postURL, type);
+			JSONObject jsResp = bhapi.save(opportunity, postURL, type);
 			
 			// Get ID of the created/updated record
 			int opportunityID = jsResp.getInt("changedEntityId");

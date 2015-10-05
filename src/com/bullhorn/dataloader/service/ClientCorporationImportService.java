@@ -52,7 +52,7 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
 				corp.setAddress(address);
 			}
 			
-			JSONObject jsResp = bhapi.mapAndSave(corp, postURL, type);
+			JSONObject jsResp = bhapi.save(corp, postURL, type);
 			
 			// Get ID of the created/updated record
 			int clientCorporationID = jsResp.getInt("changedEntityId");

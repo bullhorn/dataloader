@@ -1,12 +1,7 @@
 package com.bullhorn.dataloader.service;
 
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -32,43 +27,25 @@ public class CustomObjectImportService implements Runnable, ConcurrentServiceInt
 			co.setCustomObjectName(co.getCustomObjectName() + "s");
 			
 			// If there's an ID, disassociate then re-create
-			// DELETE https://bhnext.bullhornstaffing.com/core/entity/Candidate/32056/customObject1s/3680
 			if (co.getId() != null && co.getId().length() > 0) {
 				String postURL = "https://bhnext.bullhornstaffing.com/core/entity/" + co.getEntity() + "/" + co.getEntityID() + "/" + co.getCustomObjectName() + "/" + co.getId();
 				postURL = postURL + "?BhRestToken=" + BhRestToken;
-				JSONObject jsResp = new JSONObject();
-				DeleteMethod method = new DeleteMethod(postURL);
-				jsResp = bhapi.delete(method);
-				
-				System.out.println(jsResp);
+				bhapi.delete(postURL);
 			}
-			
-			
-			ObjectMapper mapper = new ObjectMapper();
-			mapper.setSerializationInclusion(Inclusion.NON_NULL);
-			mapper.setSerializationInclusion(Inclusion.NON_DEFAULT);
-			
+						
 			JSONObject coObj = new JSONObject();
 			JSONArray jsonArray = new JSONArray();
-			jsonArray.put(new JSONObject(mapper.writeValueAsString(co)));
+			jsonArray.put(new JSONObject(bhapi.serialize(co)));
 			
 			coObj.put(co.getCustomObjectName(), jsonArray);
 			String jsString = coObj.toString();
 			
 			// Post to BH
-			//https://bhnext.bullhornstaffing.com/core/entity/Candidate/32039
-			//{"customObject2s":[{"id":3649,"int1":7},{"int1":4}]}
 			String postURL = "https://bhnext.bullhornstaffing.com/core/entity/" + co.getEntity() + "/" + co.getEntityID();
 			postURL = postURL + "?BhRestToken=" + BhRestToken;
-			StringRequestEntity requestEntity = new StringRequestEntity(jsString,"application/json","UTF-8");
-			JSONObject jsResp = new JSONObject();
-			PostMethod method = new PostMethod(postURL);
-			method.setRequestEntity(requestEntity);
-			jsResp = bhapi.post(method);
 			
-			System.out.println(jsString);
-			System.out.println(jsResp);
-						
+			bhapi.save(jsString, postURL, "post");
+			
 			
 		} catch (Exception e) {
 			log.error(e);
