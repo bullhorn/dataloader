@@ -10,5 +10,6 @@ import java.lang.annotation.Target;
 public @interface TranslatedType {
 	
 	public boolean isDate() default false;
+	public boolean isID() default false;
 
 }

@@ -12,6 +12,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 public class ClientCorporation {
 	
+	@TranslatedType(isID = true)
 	public String clientCorporationID;
 	public ID clientCorporation;
 	public Address address;

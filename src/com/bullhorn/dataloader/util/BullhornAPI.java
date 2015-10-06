@@ -1,16 +1,22 @@
 package com.bullhorn.dataloader.util;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.net.URLEncoder;
+import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.json.JSONObject;
+
+import com.bullhorn.dataloader.domain.TranslatedType;
 
 public class BullhornAPI {
 	
@@ -29,6 +35,12 @@ public class BullhornAPI {
 	String authorizeUrl;
 	String clientId;
 	
+	FileUtil fileUtil = new FileUtil();
+	Properties props = fileUtil.getProps("dataloader.properties");
+	
+	public BullhornAPI() throws Exception {
+		this.setRestURL(props.getProperty("restURL"));
+	}
 	
 	public void createSession() {
 			try {
@@ -141,15 +153,33 @@ public class BullhornAPI {
 		return responseJson;
 	}
 	
+	public JSONObject doesRecordExist(String entity, Object obj) throws Exception {
+		// Get class
+		Class cls = obj.getClass();
+		// Get field used for determining if record exists
+		String field = props.getProperty(WordUtils.uncapitalize(entity + "ExistField"));
+		Field fld = cls.getField(field);
+		// If there's an isID annotation, change the field to "id" (from opportunityID for example)
+		if (fld.isAnnotationPresent(TranslatedType.class)) {
+			Annotation annotation = fld.getAnnotation(TranslatedType.class);
+			TranslatedType tt = (TranslatedType) annotation;
+			if (tt.isID()) field = "id";
+		}
+
+		String value = fld.get(obj).toString();
+		
+		return doesRecordExist(entity, field, value);
+	}
+	
 	public JSONObject doesRecordExist(String entity, String field, String value) throws Exception {
 		String getURL = "";
 		if (field.equalsIgnoreCase("id")) {
-			getURL = "https://bhnext.bullhornstaffing.com/core/entity/" + entity + "/" + value;
+			getURL = this.getRestURL() + "entity/" + entity + "/" + value;
 			getURL = getURL + "?fields=*&BhRestToken=" + BhRestToken;
 		} else {
 			// Determine if candidate already exists in BH by using email address
 			String where = field + ":(+" + value + ")";
-			getURL = "https://bhnext.bullhornstaffing.com/core/search/" + entity + "/?fields=id&query=" + URLEncoder.encode(where, "UTF-8");
+			getURL = this.getRestURL() + "search/" + entity + "/?fields=id&query=" + URLEncoder.encode(where, "UTF-8");
 			getURL = getURL + "&BhRestToken=" + BhRestToken;
 		}
 		

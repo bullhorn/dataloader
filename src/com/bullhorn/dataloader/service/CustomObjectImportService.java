@@ -28,7 +28,7 @@ public class CustomObjectImportService implements Runnable, ConcurrentServiceInt
 			
 			// If there's an ID, disassociate then re-create
 			if (co.getId() != null && co.getId().length() > 0) {
-				String postURL = "https://bhnext.bullhornstaffing.com/core/entity/" + co.getEntity() + "/" + co.getEntityID() + "/" + co.getCustomObjectName() + "/" + co.getId();
+				String postURL = bhapi.getRestURL() + "entity/" + co.getEntity() + "/" + co.getEntityID() + "/" + co.getCustomObjectName() + "/" + co.getId();
 				postURL = postURL + "?BhRestToken=" + BhRestToken;
 				bhapi.delete(postURL);
 			}
@@ -41,7 +41,7 @@ public class CustomObjectImportService implements Runnable, ConcurrentServiceInt
 			String jsString = coObj.toString();
 			
 			// Post to BH
-			String postURL = "https://bhnext.bullhornstaffing.com/core/entity/" + co.getEntity() + "/" + co.getEntityID();
+			String postURL = bhapi.getRestURL() + "entity/" + co.getEntity() + "/" + co.getEntityID();
 			postURL = postURL + "?BhRestToken=" + BhRestToken;
 			
 			bhapi.save(jsString, postURL, "post");

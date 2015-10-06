@@ -24,7 +24,6 @@ public class MasterDataService {
 	
 	String BhRestToken;
 	MasterData masterData = new MasterData();
-	BullhornAPI bhapi = new BullhornAPI();
 	
 	// Generate map
 	private HashMap<Integer, String> generateMap(String entity) {
@@ -36,7 +35,7 @@ public class MasterDataService {
 			BullhornAPI bhapi = new BullhornAPI();
 			
 			String where = "id>0";
-			String getURL = "https://bhnext.bullhornstaffing.com/core/query/" + entity + "/?fields=id,name&where=" + URLEncoder.encode(where, "UTF-8") + "&count=500";
+			String getURL = bhapi.getRestURL() + "query/" + entity + "/?fields=id,name&where=" + URLEncoder.encode(where, "UTF-8") + "&count=500";
 			getURL = getURL + "&BhRestToken=" + BhRestToken;
 			GetMethod queryBH = new GetMethod(getURL);
 			JSONObject qryJSON = bhapi.get(queryBH);
@@ -58,6 +57,8 @@ public class MasterDataService {
 	
 	public void associateCategories(Integer id, String categories, String entity) throws Exception {
 		
+		BullhornAPI bhapi = new BullhornAPI();
+		
 		List<String> categoryList = Arrays.asList(categories.split(","));
 		
 		// Master list of categories
@@ -75,7 +76,7 @@ public class MasterDataService {
 		}
 		
 		
-		String postURL = "https://bhnext.bullhornstaffing.com/core/entity/" + entity + "/" + id + "/categories/" + categoryIdList + "?BhRestToken=" + BhRestToken;
+		String postURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/categories/" + categoryIdList + "?BhRestToken=" + BhRestToken;
 		
 		PutMethod method = new PutMethod(postURL);
 		JSONObject jsResp = new JSONObject();

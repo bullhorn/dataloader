@@ -27,11 +27,11 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 			bhapi.setBhRestToken(BhRestToken);
 			Opportunity opportunity = (Opportunity) obj;
 			
-			JSONObject qryJSON = bhapi.doesRecordExist("Opportunity", "id", opportunity.getOpportunityID());
+			JSONObject qryJSON = bhapi.doesRecordExist("Opportunity", opportunity);
 			
 			// Assemble URL
 			String type = "put";
-			String postURL = "https://bhnext.bullhornstaffing.com/core/entity/Opportunity";
+			String postURL = bhapi.getRestURL() + "entity/Opportunity";
 			if (opportunity.getOpportunityID() != null && opportunity.getOpportunityID().length() > 0) {
 				if (qryJSON.getJSONObject("data").getInt("id") > 0) {
 					postURL = postURL + "/" +  qryJSON.getJSONObject("data").getInt("id");

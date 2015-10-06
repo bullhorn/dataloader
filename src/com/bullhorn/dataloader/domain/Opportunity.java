@@ -22,6 +22,7 @@ import com.bullhorn.dataloader.domain.TranslatedType;
 
 public class Opportunity {
 	
+	@TranslatedType(isID = true)
 	public String opportunityID;
 	public String title;
 	public ID clientContact; //used for REST

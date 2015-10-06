@@ -40,8 +40,6 @@ public class Main {
 			csv.setDateFormat(dateFormat);
 			csv.setEntity(entity);
 			csv.setFilePath(filePath);
-			csv.setMasterData(masterData);
-			csv.setNumThreads(numThreads);
 			
 			List<Object> records = csv.map();
 			

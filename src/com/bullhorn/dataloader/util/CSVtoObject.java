@@ -11,9 +11,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.domain.Candidate;
+import com.bullhorn.dataloader.domain.ClientContact;
 import com.bullhorn.dataloader.domain.ClientCorporation;
 import com.bullhorn.dataloader.domain.CustomObject;
-import com.bullhorn.dataloader.domain.MasterData;
 import com.bullhorn.dataloader.domain.Opportunity;
 import com.bullhorn.dataloader.domain.TranslatedType;
 import com.csvreader.CsvReader;
@@ -25,8 +25,6 @@ public class CSVtoObject {
 	
 	String entity;
 	String filePath;
-	MasterData masterData;
-	String numThreads;
 	String dateFormat;
 	
 	public <T> List<Object> map() throws Exception {
@@ -95,6 +93,7 @@ public class CSVtoObject {
 		if (entity.equalsIgnoreCase("candidate")) return (T) new Candidate();
 		if (entity.equalsIgnoreCase("opportunity")) return (T) new Opportunity();
 		if (entity.equalsIgnoreCase("clientcorporation")) return (T) new ClientCorporation();
+		if (entity.equalsIgnoreCase("clientcontact")) return (T) new ClientContact();
 		if (entity.equalsIgnoreCase("customobject")) return (T) new CustomObject();
 		
 		return null;
@@ -121,18 +120,6 @@ public class CSVtoObject {
 	}
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
-	}
-	public MasterData getMasterData() {
-		return masterData;
-	}
-	public void setMasterData(MasterData masterData) {
-		this.masterData = masterData;
-	}
-	public String getNumThreads() {
-		return numThreads;
-	}
-	public void setNumThreads(String numThreads) {
-		this.numThreads = numThreads;
 	}
 	public String getDateFormat() {
 		return dateFormat;
