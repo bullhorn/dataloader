@@ -26,7 +26,7 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 			Candidate candidate = (Candidate) obj;
 			
 			// Check if record exists in BH
-			JSONObject qryJSON = bhapi.doesRecordExist("Candidate", candidate);
+			JSONObject qryJSON = bhapi.doesRecordExist(candidate);
 			
 			// Assemble URL
 			String type = "put";

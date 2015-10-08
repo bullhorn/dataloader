@@ -26,7 +26,7 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 			ClientContact contact = (ClientContact) obj;
 			
 			// Check if record exists in BH
-			JSONObject qryJSON = bhapi.doesRecordExist("ClientContact", contact);
+			JSONObject qryJSON = bhapi.doesRecordExist(contact);
 			
 			// Assemble URL
 			String type = "put";

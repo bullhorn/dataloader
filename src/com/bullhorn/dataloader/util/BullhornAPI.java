@@ -153,9 +153,11 @@ public class BullhornAPI {
 		return responseJson;
 	}
 	
-	public JSONObject doesRecordExist(String entity, Object obj) throws Exception {
+	public JSONObject doesRecordExist(Object obj) throws Exception {
 		// Get class
-		Class cls = obj.getClass();
+		Class<?> cls = obj.getClass();
+		// Domain object name = entity
+		String entity = cls.getSimpleName();
 		// Get field used for determining if record exists
 		String field = props.getProperty(WordUtils.uncapitalize(entity + "ExistField"));
 		Field fld = cls.getField(field);
