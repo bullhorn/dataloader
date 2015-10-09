@@ -18,7 +18,9 @@ import com.bullhorn.dataloader.domain.TranslatedType;
 						"categories",
 						"businessSectors",
 						"primaryCategory",
-						"primaryBusinessSector"})
+						"primaryBusinessSector",
+						"ownerID",
+						"ownerName"})
 
 public class Opportunity {
 	
@@ -31,6 +33,9 @@ public class Opportunity {
 	public String clientContactID; // can pass in ID
 	public String clientContactName; // can pass in name
 	public String clientCorporationName; // can pass in name
+	public ID owner; // used for REST
+	public String ownerName; // can pass in name
+	public String ownerID; // can pass in ID
 	@TranslatedType(isDate = true)
 	public long estimatedStartDate = -1;
 	public String isDeleted;
@@ -665,5 +670,23 @@ public class Opportunity {
 	}
 	public void setCustomDate3(long customDate3) {
 		this.customDate3 = customDate3;
+	}
+	public ID getOwner() {
+		return owner;
+	}
+	public void setOwner(ID owner) {
+		this.owner = owner;
+	}
+	public String getOwnerName() {
+		return ownerName;
+	}
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
+	}
+	public String getOwnerID() {
+		return ownerID;
+	}
+	public void setOwnerID(String ownerID) {
+		this.ownerID = ownerID;
 	}
 }

@@ -135,6 +135,19 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 			mds.setMasterData(masterData);
 			mds.setBhRestToken(BhRestToken);
 			
+			// Determine owner. If owner isn't passed in, it uses session user 
+			ID ownerID = new ID();
+			// If an ID is passed in
+			if (opportunity.getOwnerID() != null && opportunity.getOwnerID().length() >= 0) {
+				ownerID.setId(opportunity.getOwnerID());
+				opportunity.setOwner(ownerID);
+			// Else look up by name
+			} else if (opportunity.getOwnerName() != null && opportunity.getOwnerName().length() >=0) {
+				ownerID.setId(String.valueOf(mds.getKeyByValue(masterData.getInternalUsers(), opportunity.getOwnerName())));
+				opportunity.setOwner(ownerID);
+			}
+			
+			// Primary category and business sector
 			if (opportunity.getPrimaryCategory() != null && opportunity.getPrimaryCategory().length() > 0) {
 				ID catID = new ID();
 				catID.setId(String.valueOf(mds.getKeyByValue(masterData.getCategories(), opportunity.getPrimaryCategory())));
@@ -146,6 +159,7 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 				opportunity.setBusinessSector(busID);
 			}
 			
+			// Save
 			JSONObject jsResp = bhapi.save(opportunity, postURL, type);
 			
 			// Get ID of the created/updated record

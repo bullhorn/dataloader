@@ -102,6 +102,7 @@ public class MasterDataService {
 		masterData.setCategories(generateMap("Category"));
 		masterData.setSkills(generateMap("Skill"));
 		masterData.setBusinessSectors(generateMap("BusinessSector"));
+		masterData.setInternalUsers(generateMap("CorporateUser"));
 		
 		return masterData;
 	}

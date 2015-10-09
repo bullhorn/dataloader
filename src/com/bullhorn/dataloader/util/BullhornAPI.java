@@ -152,7 +152,7 @@ public class BullhornAPI {
 		
 		return responseJson;
 	}
-	
+		
 	public JSONObject doesRecordExist(Object obj) throws Exception {
 		// Get class
 		Class<?> cls = obj.getClass();

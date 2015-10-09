@@ -7,6 +7,7 @@ public class MasterData {
 	HashMap<Integer, String> categories;
 	HashMap<Integer, String> skills;
 	HashMap<Integer, String> businessSectors;
+	HashMap<Integer, String> internalUsers;
 	
 	public HashMap<Integer, String> getCategories() {
 		return categories;
@@ -26,6 +27,11 @@ public class MasterData {
 	public void setBusinessSectors(HashMap<Integer, String> businessSectors) {
 		this.businessSectors = businessSectors;
 	}
-	
+	public HashMap<Integer, String> getInternalUsers() {
+		return internalUsers;
+	}
+	public void setInternalUsers(HashMap<Integer, String> internalUsers) {
+		this.internalUsers = internalUsers;
+	}
 
 }

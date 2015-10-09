@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import com.bullhorn.dataloader.domain.Address;
 import com.bullhorn.dataloader.domain.ClientCorporation;
+import com.bullhorn.dataloader.domain.ID;
 import com.bullhorn.dataloader.domain.MasterData;
 import com.bullhorn.dataloader.util.BullhornAPI;
 
@@ -50,6 +51,15 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
 				address.setState(corp.getState());
 				address.setZip(corp.getZip());
 				corp.setAddress(address);
+			}
+			
+			// If there's a parent corporation, associate it
+			if (corp.getParentClientCorporation() == null && 
+					corp.getParentClientCorporationID() != null &&
+					corp.getParentClientCorporationID().length() > 0) {
+				ID parentClientCorporationID = new ID();
+				parentClientCorporationID.setId(corp.getParentClientCorporationID());
+				corp.setParentClientCorporation(parentClientCorporationID);
 			}
 			
 			JSONObject jsResp = bhapi.save(corp, postURL, type);
