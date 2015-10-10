@@ -16,14 +16,12 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
 	
 	Object obj;
 	MasterData masterData;
-	String BhRestToken;
+	BullhornAPI bhapi;
 	
 	public Integer clientCorporation() {
 		
 		try {
 			
-			BullhornAPI bhapi = new BullhornAPI();
-			bhapi.setBhRestToken(BhRestToken);
 			ClientCorporation corp = (ClientCorporation) obj;
 			
 			// Check if record exists in BH
@@ -39,7 +37,7 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
 				}
 			}
 			
-			postURL = postURL + "?BhRestToken=" + BhRestToken;
+			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
 			
 			// Populate address fields
 			if (corp.getAddress() == null) {
@@ -96,12 +94,12 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 
 }

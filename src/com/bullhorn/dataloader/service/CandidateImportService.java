@@ -16,13 +16,11 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 	
 	Object obj;
 	MasterData masterData;
-	String BhRestToken;
+	BullhornAPI bhapi;
 	
 	public void run() {
 		try {
 			
-			BullhornAPI bhapi = new BullhornAPI();
-			bhapi.setBhRestToken(BhRestToken);
 			Candidate candidate = (Candidate) obj;
 			
 			// Check if record exists in BH
@@ -36,7 +34,7 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 				type = "post";
 			}
 			
-			postURL = postURL + "?BhRestToken=" + BhRestToken;
+			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
 			
 			// Set username/password properties (which will not be defined in the CSV)
 			if (qryJSON.getInt("count") <= 0) {
@@ -58,7 +56,7 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 			// Remember to pass it a MasterData object so that it uses the cached object
 			MasterDataService mds = new MasterDataService();
 			mds.setMasterData(masterData);
-			mds.setBhRestToken(BhRestToken);
+			mds.setBhapi(bhapi);
 			
 			// Note: associations are expicitly excluded from serialization as they need to be handled separately
 			if (candidate.getCategories() != null && candidate.getCategories().length() > 0) {
@@ -87,12 +85,12 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 
 }

@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.bullhorn.dataloader.domain.MasterData;
 import com.bullhorn.dataloader.service.ConcurrentService;
 import com.bullhorn.dataloader.service.MasterDataService;
+import com.bullhorn.dataloader.util.BullhornAPI;
 import com.bullhorn.dataloader.util.CSVtoObject;
 import com.bullhorn.dataloader.util.FileUtil;
 
@@ -21,18 +22,21 @@ public class Main {
 			
 		try {
 			
+			// Create API object and create REST session
+			BullhornAPI bhapi = new BullhornAPI();
+			bhapi.createSession();
+			
 			FileUtil fileUtil = new FileUtil();
 			Properties props = fileUtil.getProps("dataloader.properties");
 			
 			String entity = args[0];
 			String filePath = args[1];
-			String BhRestToken = args[2];
 			String numThreads = props.getProperty("numThreads");
 			String dateFormat = props.getProperty("dateFormat");
 			
 			// Cache master data
 			MasterDataService mds = new MasterDataService();
-			mds.setBhRestToken(BhRestToken);
+			mds.setBhapi(bhapi);
 			MasterData masterData = mds.getMasterData();
 			
 			// Read CSV and map to domain model
@@ -49,7 +53,7 @@ public class Main {
 			impSvc.setEntity(WordUtils.capitalize(entity) + "Import");
 			impSvc.setRecords(records);
 			impSvc.setMasterData(masterData);
-			impSvc.setBhRestToken(BhRestToken);
+			impSvc.setBhapi(bhapi);
 			
 			// Start import
 			impSvc.runProcess();

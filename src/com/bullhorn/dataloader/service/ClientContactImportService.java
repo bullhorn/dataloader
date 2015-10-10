@@ -16,13 +16,11 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 	
 	Object obj;
 	MasterData masterData;
-	String BhRestToken;
+	BullhornAPI bhapi;
 	
 	public Integer clientContact() {
 		try {
 			
-			BullhornAPI bhapi = new BullhornAPI();
-			bhapi.setBhRestToken(BhRestToken);
 			ClientContact contact = (ClientContact) obj;
 			
 			// Check if record exists in BH
@@ -38,7 +36,7 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 				}
 			}
 			
-			postURL = postURL + "?BhRestToken=" + BhRestToken;
+			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
 			
 			// Set username/password properties (which will not be defined in the CSV)
 			if (type.equalsIgnoreCase("put")) {
@@ -59,7 +57,7 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 			// Remember to pass it a MasterData object so that it uses the cached object
 			MasterDataService mds = new MasterDataService();
 			mds.setMasterData(masterData);
-			mds.setBhRestToken(BhRestToken);
+			mds.setBhapi(bhapi);
 			
 			// Note: associations are expicitly excluded from serialization as they need to be handled separately
 			if (contact.getCategories() != null && contact.getCategories().length() > 0) {
@@ -97,12 +95,12 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 
 }

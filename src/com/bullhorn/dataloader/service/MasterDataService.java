@@ -22,7 +22,7 @@ public class MasterDataService {
 
 	private static Log log = LogFactory.getLog(MasterDataService.class);	
 	
-	String BhRestToken;
+	BullhornAPI bhapi;
 	MasterData masterData = new MasterData();
 	
 	// Generate map
@@ -32,11 +32,9 @@ public class MasterDataService {
 		
 		try {
 			
-			BullhornAPI bhapi = new BullhornAPI();
-			
 			String where = "id>0";
-			String getURL = bhapi.getRestURL() + "query/" + entity + "/?fields=id,name&where=" + URLEncoder.encode(where, "UTF-8") + "&count=500";
-			getURL = getURL + "&BhRestToken=" + BhRestToken;
+			String getURL = bhapi.getRestURL() + "query/" + entity + "?fields=id,name&where=" + URLEncoder.encode(where, "UTF-8") + "&count=500";
+			getURL = getURL + "&BhRestToken=" + bhapi.getBhRestToken();
 			GetMethod queryBH = new GetMethod(getURL);
 			JSONObject qryJSON = bhapi.get(queryBH);
 			if (qryJSON.getInt("count") > 0) {
@@ -57,8 +55,6 @@ public class MasterDataService {
 	
 	public void associateCategories(Integer id, String categories, String entity) throws Exception {
 		
-		BullhornAPI bhapi = new BullhornAPI();
-		
 		List<String> categoryList = Arrays.asList(categories.split(","));
 		
 		// Master list of categories
@@ -76,7 +72,7 @@ public class MasterDataService {
 		}
 		
 		
-		String postURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/categories/" + categoryIdList + "?BhRestToken=" + BhRestToken;
+		String postURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/categories/" + categoryIdList + "?BhRestToken=" + bhapi.getBhRestToken();
 		
 		PutMethod method = new PutMethod(postURL);
 		JSONObject jsResp = new JSONObject();
@@ -112,11 +108,11 @@ public class MasterDataService {
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 }

@@ -18,13 +18,11 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 	
 	Object obj;
 	MasterData masterData;
-	String BhRestToken;
+	BullhornAPI bhapi;
 	
 	public void run() {
 		try {
 			
-			BullhornAPI bhapi = new BullhornAPI();
-			bhapi.setBhRestToken(BhRestToken);
 			Opportunity opportunity = (Opportunity) obj;
 			
 			JSONObject qryJSON = bhapi.doesRecordExist(opportunity);
@@ -39,7 +37,7 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 				}
 			}
 			
-			postURL = postURL + "?BhRestToken=" + BhRestToken;
+			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
 			
 			// If we don't have an opportunity, setup customer/contact
 			// Else, allow customer and contact to be updated by ID only
@@ -60,7 +58,7 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 					corp.setStatus("New");
 					
 					ClientCorporationImportService corpImpSvc = new ClientCorporationImportService();
-					corpImpSvc.setBhRestToken(BhRestToken);
+					corpImpSvc.setBhapi(bhapi);
 					corpImpSvc.setObj(corp);
 					
 					// set clientCorporation to the resulting ID
@@ -93,7 +91,7 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 					contact.setClientCorporation(clientCorporationID);
 					
 					ClientContactImportService contactImpSvc = new ClientContactImportService();
-					contactImpSvc.setBhRestToken(BhRestToken);
+					contactImpSvc.setBhapi(bhapi);
 					contactImpSvc.setObj(contact);
 					
 					// set clientContact to the resulting ID
@@ -107,12 +105,12 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 					opportunity.setClientContact(clientContactID);
 				}
 			} else{
-				if (opportunity.getClientContactID() != null && opportunity.getClientContactID().length() >= 0) {
+				if (opportunity.getClientContactID() != null && opportunity.getClientContactID().length() > 0) {
 					ID clientContactID = new ID();
 					clientContactID.setId(opportunity.getClientContactID());
 					opportunity.setClientContact(clientContactID);
 				}
-				if (opportunity.getClientCorporationID() != null && opportunity.getClientCorporationID().length() >= 0) {
+				if (opportunity.getClientCorporationID() != null && opportunity.getClientCorporationID().length() > 0) {
 					ID clientCorpID = new ID();
 					clientCorpID.setId(opportunity.getClientCorporationID());
 					opportunity.setClientCorporation(clientCorpID);
@@ -133,16 +131,16 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 			
 			MasterDataService mds = new MasterDataService();
 			mds.setMasterData(masterData);
-			mds.setBhRestToken(BhRestToken);
+			mds.setBhapi(bhapi);
 			
 			// Determine owner. If owner isn't passed in, it uses session user 
 			ID ownerID = new ID();
 			// If an ID is passed in
-			if (opportunity.getOwnerID() != null && opportunity.getOwnerID().length() >= 0) {
+			if (opportunity.getOwnerID() != null && opportunity.getOwnerID().length() > 0) {
 				ownerID.setId(opportunity.getOwnerID());
 				opportunity.setOwner(ownerID);
 			// Else look up by name
-			} else if (opportunity.getOwnerName() != null && opportunity.getOwnerName().length() >=0) {
+			} else if (opportunity.getOwnerName() != null && opportunity.getOwnerName().length() > 0) {
 				ownerID.setId(String.valueOf(mds.getKeyByValue(masterData.getInternalUsers(), opportunity.getOwnerName())));
 				opportunity.setOwner(ownerID);
 			}
@@ -196,12 +194,12 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 
 }

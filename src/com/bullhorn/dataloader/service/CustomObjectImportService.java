@@ -15,21 +15,19 @@ public class CustomObjectImportService implements Runnable, ConcurrentServiceInt
 	
 	Object obj;
 	MasterData masterData;
-	String BhRestToken;
+	BullhornAPI bhapi;
 	
 	public void run() {
 		
 		try {
 			
-			BullhornAPI bhapi = new BullhornAPI();
-			bhapi.setBhRestToken(BhRestToken);
 			CustomObject co = (CustomObject) obj;
 			co.setCustomObjectName(co.getCustomObjectName() + "s");
 			
 			// If there's an ID, disassociate then re-create
 			if (co.getId() != null && co.getId().length() > 0) {
 				String postURL = bhapi.getRestURL() + "entity/" + co.getEntity() + "/" + co.getEntityID() + "/" + co.getCustomObjectName() + "/" + co.getId();
-				postURL = postURL + "?BhRestToken=" + BhRestToken;
+				postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
 				bhapi.delete(postURL);
 			}
 						
@@ -42,7 +40,7 @@ public class CustomObjectImportService implements Runnable, ConcurrentServiceInt
 			
 			// Post to BH
 			String postURL = bhapi.getRestURL() + "entity/" + co.getEntity() + "/" + co.getEntityID();
-			postURL = postURL + "?BhRestToken=" + BhRestToken;
+			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
 			
 			bhapi.save(jsString, postURL, "post");
 			
@@ -69,12 +67,14 @@ public class CustomObjectImportService implements Runnable, ConcurrentServiceInt
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 
 }

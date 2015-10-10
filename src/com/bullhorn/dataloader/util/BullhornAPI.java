@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -17,6 +18,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.domain.TranslatedType;
+import com.google.common.base.Splitter;
 
 public class BullhornAPI {
 	
@@ -24,63 +26,67 @@ public class BullhornAPI {
 	String AUTH_CODE_RESPONSE_TYPE = "code";
 	String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
 	String REFRESH_TOKEN_GRANT_TYPE = "refresh_token";
-	String wsdlURL = "https://api.bullhornstaffing.com/webservices-2.5/?wsdl";
 	String username;
 	String password;
-	String apiKey;
 	String BhRestToken;
 	String restURL;
-	String originalRestURL;
-	String accessToken;
 	String authorizeUrl;
+	String tokenUrl;
 	String clientId;
+	String clientSecret;
 	
 	FileUtil fileUtil = new FileUtil();
 	Properties props = fileUtil.getProps("dataloader.properties");
 	
 	public BullhornAPI() throws Exception {
-		this.setRestURL(props.getProperty("restURL"));
+		this.setUsername(props.getProperty("username"));
+		this.setPassword(props.getProperty("password"));
+		this.setAuthorizeUrl(props.getProperty("authorizeUrl"));
+		this.setTokenUrl(props.getProperty("tokenUrl"));
+		this.setClientId(props.getProperty("clientId"));
+		this.setClientSecret(props.getProperty("clientSecret"));
 	}
 	
 	public void createSession() {
 			try {
 				String authCode = getAuthorizationCode();
-				getAccessToken(authCode);
-				loginREST();
+				String accessToken = getAccessToken(authCode);
+				loginREST(accessToken);
 			} catch (Exception e) {
 		}
 	}
 
 	private String getAuthorizationCode() throws Exception {
 		
-		String authCode = null;
+		authorizeUrl = authorizeUrl + "?client_id=" + clientId + "&response_type=" + AUTH_CODE_RESPONSE_TYPE + "&action=" + AUTH_CODE_ACTION + "&username=" + username + "&password=" + password;
 
+		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod(authorizeUrl);
-		method.addParameter("client_id", clientId);
-		method.addParameter("response_type", AUTH_CODE_RESPONSE_TYPE);
-		method.addParameter("username", username);
-		method.addParameter("password", password);
-
-		try {
 		
-		} catch (Exception e) {
-			
-		}
+		client.executeMethod(method);
+		String returnURL = method.getResponseHeader("Location").getValue();
+		returnURL = returnURL.substring(returnURL.indexOf("?") + 1);
+		Map<String, String> map = Splitter.on("&").trimResults().withKeyValueSeparator('=').split(returnURL);
 
-		return authCode;
-	}
-	
-	
-	private void getAccessToken(String authCode) throws Exception {
+		return map.get("code");
 
 	}
 	
-	private void loginREST() {
+	private String getAccessToken(String authCode) throws Exception {
+
+		String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE + "&code=" + authCode + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+		PostMethod pst = new PostMethod(url);
+		JSONObject jsObj = this.post(pst);
+		
+		return jsObj.getString("access_token");
+	}
+	
+	private void loginREST(String accessToken) {
 
 		JSONObject responseJson = null;
 		try {
 			String accessTokenString = URLEncoder.encode(accessToken, "UTF-8");
-			String loginUrl = originalRestURL;
+			String loginUrl = "https://rest9.bullhornstaffing.com/rest-services/login";
 			String sessionMinutesToLive = "3000";
 			String url = loginUrl + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
 			GetMethod get = new GetMethod(url);
@@ -90,8 +96,8 @@ public class BullhornAPI {
 			String responseStr = get.getResponseBodyAsString();
 			responseJson = new JSONObject(responseStr);
 
-			BhRestToken = responseJson.getString("BhRestToken");
-			restURL = (String) responseJson.get("restUrl");			
+			this.BhRestToken = responseJson.getString("BhRestToken");
+			this.restURL = (String) responseJson.get("restUrl");			
 			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
@@ -177,12 +183,12 @@ public class BullhornAPI {
 		String getURL = "";
 		if (field.equalsIgnoreCase("id")) {
 			getURL = this.getRestURL() + "entity/" + entity + "/" + value;
-			getURL = getURL + "?fields=*&BhRestToken=" + BhRestToken;
+			getURL = getURL + "?fields=*&BhRestToken=" + this.BhRestToken;
 		} else {
 			// Determine if candidate already exists in BH by using email address
 			String where = field + ":(+" + value + ")";
 			getURL = this.getRestURL() + "search/" + entity + "/?fields=id&query=" + URLEncoder.encode(where, "UTF-8");
-			getURL = getURL + "&BhRestToken=" + BhRestToken;
+			getURL = getURL + "&BhRestToken=" + this.BhRestToken;
 		}
 		
 		GetMethod queryBH = new GetMethod(getURL);
@@ -252,14 +258,6 @@ public class BullhornAPI {
 		this.password = password;
 	}
 
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
 	public String getBhRestToken() {
 		return BhRestToken;
 	}
@@ -276,22 +274,6 @@ public class BullhornAPI {
 		this.restURL = restURL;
 	}
 
-	public String getOriginalRestURL() {
-		return originalRestURL;
-	}
-
-	public void setOriginalRestURL(String originalRestURL) {
-		this.originalRestURL = originalRestURL;
-	}
-
-	public String getAccessToken() {
-		return accessToken;
-	}
-
-	public void setAccessToken(String accessToken) {
-		this.accessToken = accessToken;
-	}
-
 	public String getAuthorizeUrl() {
 		return authorizeUrl;
 	}
@@ -306,6 +288,22 @@ public class BullhornAPI {
 
 	public void setClientId(String clientId) {
 		this.clientId = clientId;
+	}
+
+	public String getTokenUrl() {
+		return tokenUrl;
+	}
+
+	public void setTokenUrl(String tokenUrl) {
+		this.tokenUrl = tokenUrl;
+	}
+
+	public String getClientSecret() {
+		return clientSecret;
+	}
+
+	public void setClientSecret(String clientSecret) {
+		this.clientSecret = clientSecret;
 	}
 
 }

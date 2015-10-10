@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.domain.MasterData;
+import com.bullhorn.dataloader.util.BullhornAPI;
 
 
 public class ConcurrentService {
@@ -17,7 +18,7 @@ public class ConcurrentService {
 	String entity;
 	List<Object> records;
 	MasterData masterData;
-	String BhRestToken;
+	BullhornAPI bhapi;
 	
 	private static Log log = LogFactory.getLog(ConcurrentService.class);
 	
@@ -38,7 +39,7 @@ public class ConcurrentService {
 				// pass master data cache
 				service.setMasterData(masterData);
 				// pass token
-				service.setBhRestToken(BhRestToken);
+				service.setBhapi(bhapi);
 				// execute
 				exec.execute((Runnable) service);
 			}
@@ -89,12 +90,12 @@ public class ConcurrentService {
 		this.masterData = masterData;
 	}
 
-	public String getBhRestToken() {
-		return BhRestToken;
+	public BullhornAPI getBhapi() {
+		return bhapi;
 	}
 
-	public void setBhRestToken(String bhRestToken) {
-		BhRestToken = bhRestToken;
+	public void setBhapi(BullhornAPI bhapi) {
+		this.bhapi = bhapi;
 	}
 
 }
