@@ -34,6 +34,7 @@ public class BullhornAPI {
 	String tokenUrl;
 	String clientId;
 	String clientSecret;
+	String loginUrl;
 	
 	FileUtil fileUtil = new FileUtil();
 	Properties props = fileUtil.getProps("dataloader.properties");
@@ -45,6 +46,7 @@ public class BullhornAPI {
 		this.setTokenUrl(props.getProperty("tokenUrl"));
 		this.setClientId(props.getProperty("clientId"));
 		this.setClientSecret(props.getProperty("clientSecret"));
+		this.setLoginUrl(props.getProperty("loginUrl"));
 	}
 	
 	public void createSession() {
@@ -86,7 +88,6 @@ public class BullhornAPI {
 		JSONObject responseJson = null;
 		try {
 			String accessTokenString = URLEncoder.encode(accessToken, "UTF-8");
-			String loginUrl = "https://rest9.bullhornstaffing.com/rest-services/login";
 			String sessionMinutesToLive = "3000";
 			String url = loginUrl + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
 			GetMethod get = new GetMethod(url);
@@ -304,6 +305,14 @@ public class BullhornAPI {
 
 	public void setClientSecret(String clientSecret) {
 		this.clientSecret = clientSecret;
+	}
+
+	public String getLoginUrl() {
+		return loginUrl;
+	}
+
+	public void setLoginUrl(String loginUrl) {
+		this.loginUrl = loginUrl;
 	}
 
 }
