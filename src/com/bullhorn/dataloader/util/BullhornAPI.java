@@ -194,7 +194,11 @@ public class BullhornAPI {
 			if (tt.isID()) field = "id";
 		}
 
-		String value = fld.get(obj).toString();
+		String value = "-1";
+		Object fldObj = fld.get(obj);
+		if (fldObj != null) {
+			value = fldObj.toString();
+		}
 		
 		return doesRecordExist(entity, field, value);
 	}
