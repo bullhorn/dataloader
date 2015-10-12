@@ -22,10 +22,11 @@ public class Main {
 			
 		try {
 			
-			// Create API object and create REST session
+			// Create API object. Pass this object to each import service via ConcurrentService
+			// BullhornAPI contains REST session and helper methods to communicate with Bullhorn
 			BullhornAPI bhapi = new BullhornAPI();
-			bhapi.createSession();
 			
+			// Entity to be imported and path to the CSV are passed in at runtime
 			FileUtil fileUtil = new FileUtil();
 			Properties props = fileUtil.getProps("dataloader.properties");
 			
@@ -34,7 +35,7 @@ public class Main {
 			String numThreads = props.getProperty("numThreads");
 			String dateFormat = props.getProperty("dateFormat");
 			
-			// Cache master data
+			// Cache master data - category, skill, business sector, internal users
 			MasterDataService mds = new MasterDataService();
 			mds.setBhapi(bhapi);
 			MasterData masterData = mds.getMasterData();

@@ -12,6 +12,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
@@ -36,6 +38,8 @@ public class BullhornAPI {
 	String clientSecret;
 	String loginUrl;
 	
+	private static Log log = LogFactory.getLog(BullhornAPI.class);
+	
 	FileUtil fileUtil = new FileUtil();
 	Properties props = fileUtil.getProps("dataloader.properties");
 	
@@ -47,25 +51,34 @@ public class BullhornAPI {
 		this.setClientId(props.getProperty("clientId"));
 		this.setClientSecret(props.getProperty("clientSecret"));
 		this.setLoginUrl(props.getProperty("loginUrl"));
+		createSession();
 	}
 	
 	public void createSession() {
-			try {
-				String authCode = getAuthorizationCode();
-				String accessToken = getAccessToken(authCode);
-				loginREST(accessToken);
-			} catch (Exception e) {
+		try {
+			String authCode = getAuthorizationCode();
+			String accessToken = getAccessToken(authCode);
+			loginREST(accessToken);
+		} 
+		catch (Exception e) {
+			log.error(e);
 		}
 	}
 
 	private String getAuthorizationCode() throws Exception {
 		
-		authorizeUrl = authorizeUrl + "?client_id=" + clientId + "&response_type=" + AUTH_CODE_RESPONSE_TYPE + "&action=" + AUTH_CODE_ACTION + "&username=" + username + "&password=" + password;
+		// Construct authorize URL
+		authorizeUrl = authorizeUrl + "?client_id=" + clientId + 
+									"&response_type=" + AUTH_CODE_RESPONSE_TYPE + 
+									"&action=" + AUTH_CODE_ACTION + 
+									"&username=" + username + 
+									"&password=" + password;
 
 		HttpClient client = new HttpClient();
 		PostMethod method = new PostMethod(authorizeUrl);
-		
 		client.executeMethod(method);
+		
+		// Return URL contains access code
 		String returnURL = method.getResponseHeader("Location").getValue();
 		returnURL = returnURL.substring(returnURL.indexOf("?") + 1);
 		Map<String, String> map = Splitter.on("&").trimResults().withKeyValueSeparator('=').split(returnURL);
@@ -76,7 +89,12 @@ public class BullhornAPI {
 	
 	private String getAccessToken(String authCode) throws Exception {
 
-		String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE + "&code=" + authCode + "&client_id=" + clientId + "&client_secret=" + clientSecret;
+		// Get access token based on auth code returned from getAuthorizationCode()
+		String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE + 
+								"&code=" + authCode + 
+								"&client_id=" + clientId + 
+								"&client_secret=" + clientSecret;
+		
 		PostMethod pst = new PostMethod(url);
 		JSONObject jsObj = this.post(pst);
 		
@@ -97,6 +115,7 @@ public class BullhornAPI {
 			String responseStr = get.getResponseBodyAsString();
 			responseJson = new JSONObject(responseStr);
 
+			// Cache BhRestToken and REST URL
 			this.BhRestToken = responseJson.getString("BhRestToken");
 			this.restURL = (String) responseJson.get("restUrl");			
 			
