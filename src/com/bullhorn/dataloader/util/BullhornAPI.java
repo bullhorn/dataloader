@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.domain.TranslatedType;
@@ -179,7 +180,7 @@ public class BullhornAPI {
 		return responseJson;
 	}
 		
-	public JSONObject doesRecordExist(Object obj) throws Exception {
+	public String[] getPostURL(Object obj) throws Exception {
 		// Get class
 		Class<?> cls = obj.getClass();
 		// Domain object name = entity
@@ -200,7 +201,37 @@ public class BullhornAPI {
 			value = fldObj.toString();
 		}
 		
-		return doesRecordExist(entity, field, value);
+		JSONObject qryJSON = doesRecordExist(entity, field, value);
+		
+		// Assemble URL
+		String type = "put";
+		String postURL = this.getRestURL() + "entity/" + entity;
+		
+		JSONArray optJsa = qryJSON.optJSONArray("data");
+		// If it's not an array, check if it's an object
+		if (optJsa == null) {
+			JSONObject optJso = qryJSON.optJSONObject("data");
+			// If it is an object, use it
+			if(optJso != null) {
+				postURL = postURL + "/" +  optJso.getInt("id");
+				type = "post";
+			}
+		// If an array is returned, use the ID of the first record 
+		} else {
+			postURL = postURL + "/" +  optJsa.getJSONObject(0).getInt("id");
+			type = "post";
+		}
+		
+		// Append REST token
+		postURL = postURL + "?BhRestToken=" + this.getBhRestToken();
+		
+		// return type and URL
+		String[] retArr = new String[2];
+		retArr[0] = type;
+		retArr[1] = postURL;
+		
+		return retArr;
+	
 	}
 	
 	public JSONObject doesRecordExist(String entity, String field, String value) throws Exception {
@@ -209,10 +240,10 @@ public class BullhornAPI {
 			getURL = this.getRestURL() + "entity/" + entity + "/" + value;
 			getURL = getURL + "?fields=*&BhRestToken=" + this.BhRestToken;
 		} else {
-			// Determine if candidate already exists in BH by using email address
-			String where = field + ":(+" + value + ")";
-			getURL = this.getRestURL() + "search/" + entity + "/?fields=id&query=" + URLEncoder.encode(where, "UTF-8");
-			getURL = getURL + "&BhRestToken=" + this.BhRestToken;
+			// Determine if record already exists in BH by using email address
+			String where = field + ":(+" + "\"" + value + "\"" + ")";
+			getURL = this.getRestURL() + "search/" + entity + "?fields=id&query=" + URLEncoder.encode(where, "UTF-8");
+			getURL = getURL + "&count=1&BhRestToken=" + this.BhRestToken;
 		}
 		
 		GetMethod queryBH = new GetMethod(getURL);

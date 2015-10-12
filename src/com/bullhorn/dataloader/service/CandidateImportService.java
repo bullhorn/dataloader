@@ -23,23 +23,15 @@ public class CandidateImportService implements Runnable, ConcurrentServiceInterf
 			
 			Candidate candidate = (Candidate) obj;
 			
-			// Check if record exists in BH
-			JSONObject qryJSON = bhapi.doesRecordExist(candidate);
-			
-			// Assemble URL
-			String type = "put";
-			String postURL = bhapi.getRestURL() + "entity/Candidate";
-			if (qryJSON.getInt("count") > 0) {
-				postURL = postURL + "/" +  qryJSON.getJSONArray("data").getJSONObject(0).getInt("id");
-				type = "post";
-			}
-			
-			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
+			// Check if record exists in BH and get postURL
+			String[] postInfo = bhapi.getPostURL(candidate);
+			String type = postInfo[0];
+			String postURL = postInfo[1];
 			
 			// Set username/password properties (which will not be defined in the CSV)
-			if (qryJSON.getInt("count") <= 0) {
+			if (type.equalsIgnoreCase("put")) {
 				Random randomGenerator = new Random();
-				candidate.setUsername(candidate.getLastName() + randomGenerator.nextInt(1000));
+				candidate.setUsername(candidate.getLastName() + randomGenerator.nextInt(10000));
 				candidate.setPassword("testpw12345");
 			}
 			candidate.setIsDeleted("false");

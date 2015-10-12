@@ -25,19 +25,10 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 			
 			Opportunity opportunity = (Opportunity) obj;
 			
-			JSONObject qryJSON = bhapi.doesRecordExist(opportunity);
-			
-			// Assemble URL
-			String type = "put";
-			String postURL = bhapi.getRestURL() + "entity/Opportunity";
-			if (opportunity.getOpportunityID() != null && opportunity.getOpportunityID().length() > 0) {
-				if (qryJSON.getJSONObject("data").getInt("id") > 0) {
-					postURL = postURL + "/" +  qryJSON.getJSONObject("data").getInt("id");
-					type = "post";
-				}
-			}
-			
-			postURL = postURL + "?BhRestToken=" + bhapi.getBhRestToken();
+			// Check if record exists in BH and get postURL
+			String[] postInfo = bhapi.getPostURL(opportunity);
+			String type = postInfo[0];
+			String postURL = postInfo[1];
 			
 			// If we don't have an opportunity, setup customer/contact
 			// Else, allow customer and contact to be updated by ID only
