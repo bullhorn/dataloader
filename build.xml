@@ -1,29 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. --><project basedir="." default="build" name="DataLoader">
+<project basedir="." default="build" name="dataloader">
     <property environment="env"/>
-    <property name="ECLIPSE_HOME" value="../../../../eclipse/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
-    <path id="DataLoader.classpath">
+    <path id="dataloader.classpath">
         <pathelement location="bin"/>
+		<pathelement location="bin"/>
         <pathelement location="lib/axis.jar"/>
-        <pathelement location="lib/javax.wsdl_1.6.2.v201012040545.jar"/>
-        <pathelement location="lib/jaxrpc.jar"/>
-        <pathelement location="lib/jaxws-api-2.1.jar"/>
-        <pathelement location="lib/jsoup-1.7.2.jar"/>
-        <pathelement location="lib/saaj.jar"/>
-        <pathelement location="lib/sqljdbc4.jar"/>
-        <pathelement location="lib/wsc-23.jar"/>
         <pathelement location="lib/log4j-1.2.15.jar"/>
-        <pathelement location="../../../../eclipse/eclipse/plugins/javax.wsdl_1.6.2.v201012040545.jar"/>
-        <pathelement location="../../../../eclipse/eclipse/plugins/org.apache.commons.logging_1.0.4.v201101211617.jar"/>
         <pathelement location="lib/javacsv.jar"/>
-        <pathelement location="lib/mysql-connector-java-5.1.30-bin.jar"/>
         <pathelement location="lib/commons-discovery-0.2.jar"/>
         <pathelement location="lib/commons-io-2.4.jar"/>
         <pathelement location="lib/commons-logging-1.1.1.jar"/>
@@ -40,13 +26,13 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
     </target>
     <target name="clean">
         <delete dir="bin"/>
+		<delete dir="dist"/>
     </target>
     <target depends="clean" name="cleanall"/>
     <target depends="build-subprojects,build-project" name="build"/>
@@ -55,27 +41,33 @@
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}">
             <src path="src"/>
-            <classpath refid="DataLoader.classpath"/>
+            <classpath refid="dataloader.classpath"/>
         </javac>
-    </target>
-    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
-    </target>
-    <target name="Main">
-        <java classname="com.bullhorn.dataloader.Main" failonerror="true" fork="yes">
-            <arg line="CustomObject c:/testimport_customobject1.csv"/>
-            <classpath refid="DataLoader.classpath"/>
-        </java>
+    	<jar destfile="${basedir}/dist/dataloader.jar" filesetmanifest="mergewithoutmain">
+	        <manifest>
+	            <attribute name="Main-Class" value="com.bullhorn.dataloader.Main"/>
+	            <attribute name="Class-Path" value="."/>
+	        </manifest>
+	        <fileset dir="${basedir}/bin"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/axis.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/log4j-1.2.15.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/javacsv.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/commons-discovery-0.2.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/commons-io-2.4.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/commons-logging-1.1.1.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/commons-httpclient-3.1.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/commons-codec-1.9.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/java-json.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/jackson-core-2.5.4.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/jackson-mapper-asl-1.9.13.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/jackson-core-asl-1.9.13.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/commons-lang3-3.4.jar"/>
+			<zipfileset excludes="META-INF/*.SF" src="lib/guava-18.0.jar"/>
+	    </jar>
+		<copy todir="${basedir}/dist">
+		  <fileset dir="${basedir}">
+			 <include name="*.properties"/>
+		  </fileset>
+		</copy>
     </target>
 </project>

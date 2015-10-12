@@ -27,7 +27,7 @@ public class CSVtoObject {
 	String filePath;
 	String dateFormat;
 	
-	public <T> List<Object> map() throws Exception {
+	public List<Object> map() throws Exception {
 		
 		// Read CSV
 		CsvReader imp = new CsvReader(filePath);
@@ -40,9 +40,8 @@ public class CSVtoObject {
 		while(imp.readRecord()) {
 			try {
 				// Get generic object based on entity that is being imported
-				T obj = getMappedObject(entity);
-				@SuppressWarnings("rawtypes")
-				Class cls = obj.getClass();
+				Object obj = getMappedObject(entity);
+				Class<?> cls = obj.getClass();
 				// Iterate through columns in CSV
 				for (String s : columns) {
 					try {
@@ -87,14 +86,13 @@ public class CSVtoObject {
 	}
 	
 		
-	@SuppressWarnings("unchecked")
-	public <T> T getMappedObject(String entity) {
+	public Object getMappedObject(String entity) {
 		
-		if (entity.equalsIgnoreCase("candidate")) return (T) new Candidate();
-		if (entity.equalsIgnoreCase("opportunity")) return (T) new Opportunity();
-		if (entity.equalsIgnoreCase("clientcorporation")) return (T) new ClientCorporation();
-		if (entity.equalsIgnoreCase("clientcontact")) return (T) new ClientContact();
-		if (entity.equalsIgnoreCase("customobject")) return (T) new CustomObject();
+		if (entity.equalsIgnoreCase("candidate")) return new Candidate();
+		if (entity.equalsIgnoreCase("opportunity")) return new Opportunity();
+		if (entity.equalsIgnoreCase("clientcorporation")) return new ClientCorporation();
+		if (entity.equalsIgnoreCase("clientcontact")) return new ClientContact();
+		if (entity.equalsIgnoreCase("customobject")) return new CustomObject();
 		
 		return null;
 		
