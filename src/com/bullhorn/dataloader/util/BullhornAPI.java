@@ -207,8 +207,8 @@ public class BullhornAPI {
 		String type = "put";
 		String postURL = this.getRestURL() + "entity/" + entity;
 		
-		JSONArray optJsa = qryJSON.optJSONArray("data");
 		// If it's not an array, check if it's an object
+		JSONArray optJsa = qryJSON.optJSONArray("data");
 		if (optJsa == null) {
 			JSONObject optJso = qryJSON.optJSONObject("data");
 			// If it is an object, use it
@@ -218,8 +218,11 @@ public class BullhornAPI {
 			}
 		// If an array is returned, use the ID of the first record 
 		} else {
-			postURL = postURL + "/" +  optJsa.getJSONObject(0).getInt("id");
-			type = "post";
+			JSONObject optJso = optJsa.optJSONObject(0);
+			if(optJso != null) {
+				postURL = postURL + "/" +  optJsa.getJSONObject(0).getInt("id");
+				type = "post";
+			}
 		}
 		
 		// Append REST token
