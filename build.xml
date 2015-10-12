@@ -5,9 +5,8 @@
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
     <path id="dataloader.classpath">
-        <pathelement location="bin"/>
 		<pathelement location="bin"/>
-        <pathelement location="lib/axis.jar"/>
+		<pathelement location="lib/axis.jar"/>
         <pathelement location="lib/log4j-1.2.15.jar"/>
         <pathelement location="lib/javacsv.jar"/>
         <pathelement location="lib/commons-discovery-0.2.jar"/>
