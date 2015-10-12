@@ -54,10 +54,15 @@ public class FileUtil {
         return list;
     }
 	
+	
 	public InputStream getPropertiesInputStream(String fileName) throws Exception {
-		File directory = new File(".");
-		String path = directory.getCanonicalPath() + "/" + fileName;
-		InputStream inputStream = new FileInputStream(path);
+		
+		String os = System.getProperty("os.name").toLowerCase();
+		String path = "/usr/local/bullhorn/conf/";
+		if (os.contains("windows")) {
+			path = "C:\\bullhorn\\conf\\";
+		}
+		InputStream inputStream = new FileInputStream(path + fileName);
 		
 		return inputStream;
 	}
