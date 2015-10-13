@@ -12,7 +12,9 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 						"zip",
 						"country",
 						"categories",
-						"businessSectors"})
+						"businessSectors",
+						"ownerID",
+						"ownerName"})
 
 public class ClientContact {
 	
@@ -45,6 +47,9 @@ public class ClientContact {
 	public ID category; // used in REST to set primary category
 	public String primaryCategory; // Pass in primary category name
 	public String categories; // comma separated list of to-many categories
+	public ID owner; // used for REST
+	public String ownerName; // can pass in name
+	public String ownerID; // can pass in ID
 	@TranslatedType(isDate = true)
 	public long customDate1 = -1;
 	@TranslatedType(isDate = true)
@@ -679,6 +684,24 @@ public class ClientContact {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+	public ID getOwner() {
+		return owner;
+	}
+	public void setOwner(ID owner) {
+		this.owner = owner;
+	}
+	public String getOwnerName() {
+		return ownerName;
+	}
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
+	}
+	public String getOwnerID() {
+		return ownerID;
+	}
+	public void setOwnerID(String ownerID) {
+		this.ownerID = ownerID;
 	}
 
 }

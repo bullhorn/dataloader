@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.domain.ClientContact;
+import com.bullhorn.dataloader.domain.ID;
 import com.bullhorn.dataloader.domain.MasterData;
 import com.bullhorn.dataloader.util.BullhornAPI;
 
@@ -36,18 +37,29 @@ public class ClientContactImportService implements Runnable, ConcurrentServiceIn
 			}
 			contact.setIsDeleted("false");
 			
-			// Save
-			JSONObject jsResp = bhapi.save(contact, postURL, type);
-			
-			// Get ID of the created/updated record
-			int clientContactID = jsResp.getInt("changedEntityId");
-			
-			// If it's an insert and you need to add associations, do it now
 			// Instantiate new master data service as association functions are encapsulated in that service
 			// Remember to pass it a MasterData object so that it uses the cached object
 			MasterDataService mds = new MasterDataService();
 			mds.setMasterData(masterData);
 			mds.setBhapi(bhapi);
+			
+			// Determine owner. If owner isn't passed in, it uses session user 
+			ID ownerID = new ID();
+			// If an ID is passed in
+			if (contact.getOwnerID() != null && contact.getOwnerID().length() > 0) {
+				ownerID.setId(contact.getOwnerID());
+				contact.setOwner(ownerID);
+			// Else look up by name
+			} else if (contact.getOwnerName() != null && contact.getOwnerName().length() > 0) {
+				ownerID.setId(String.valueOf(mds.getKeyByValue(masterData.getInternalUsers(), contact.getOwnerName())));
+				contact.setOwner(ownerID);
+			}
+			
+			// Save
+			JSONObject jsResp = bhapi.save(contact, postURL, type);
+			
+			// Get ID of the created/updated record
+			int clientContactID = jsResp.getInt("changedEntityId");
 			
 			// Note: associations are expicitly excluded from serialization as they need to be handled separately
 			if (contact.getCategories() != null && contact.getCategories().length() > 0) {

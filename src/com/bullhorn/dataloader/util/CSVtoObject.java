@@ -14,6 +14,7 @@ import com.bullhorn.dataloader.domain.Candidate;
 import com.bullhorn.dataloader.domain.ClientContact;
 import com.bullhorn.dataloader.domain.ClientCorporation;
 import com.bullhorn.dataloader.domain.CustomObject;
+import com.bullhorn.dataloader.domain.Lead;
 import com.bullhorn.dataloader.domain.Opportunity;
 import com.bullhorn.dataloader.domain.TranslatedType;
 import com.csvreader.CsvReader;
@@ -93,6 +94,7 @@ public class CSVtoObject {
 		if (entity.equalsIgnoreCase("clientcorporation")) return new ClientCorporation();
 		if (entity.equalsIgnoreCase("clientcontact")) return new ClientContact();
 		if (entity.equalsIgnoreCase("customobject")) return new CustomObject();
+		if (entity.equalsIgnoreCase("lead")) return new Lead();
 		
 		return null;
 		

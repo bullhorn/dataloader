@@ -121,7 +121,7 @@ public class BullhornAPI {
 			this.restURL = (String) responseJson.get("restUrl");			
 			
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			log.error(e);
 		}
 	}
 	
@@ -294,8 +294,8 @@ public class BullhornAPI {
 			jsResp = this.post(method);
 		}
 		
-		System.out.println(jsString);
-		System.out.println(jsResp);
+		log.info(jsString);
+		log.info(jsResp);
 		
 		return jsResp;
 	}
