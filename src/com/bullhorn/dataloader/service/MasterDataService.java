@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Map.Entry;
 
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.logging.Log;
@@ -53,33 +54,75 @@ public class MasterDataService {
 		
 	}
 	
-	public void associateCategories(Integer id, String categories, String entity) throws Exception {
+	private void associate(Integer id, String associationName, String assocationList, String entity) throws Exception {
 		
-		List<String> categoryList = Arrays.asList(categories.split(","));
+		List<String> asscList = Arrays.asList(assocationList.split(","));
+		HashMap<Integer, String> associatons = null;
 		
-		// Master list of categories
-		HashMap<Integer, String> masterCategories = masterData.getCategories();
-		
-		// Loop through categories in spreadsheet. They will be a comma separated list of names
-		// Get the associated key based on the value and construct a comma separate list of values
-		String categoryIdList = "";
-		for (String s : categoryList) {
-			if (categoryIdList.length() <= 0) {
-				categoryIdList = String.valueOf(getKeyByValue(masterCategories, s));
-			} else {
-				categoryIdList = categoryIdList + "," + String.valueOf(getKeyByValue(masterCategories, s));
-			}
+		// Master list of associations
+		if (associationName.equalsIgnoreCase("categories")) {
+			associatons = masterData.getCategories();
+		} else if (associationName.equalsIgnoreCase("skills")) {
+			associatons = masterData.getSkills();
+		} else if (associationName.equalsIgnoreCase("businesssectors")) {
+			associatons = masterData.getBusinessSectors();		
 		}
 		
-		
-		String postURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/categories/" + categoryIdList + "?BhRestToken=" + bhapi.getBhRestToken();
-		
-		PutMethod method = new PutMethod(postURL);
-		JSONObject jsResp = new JSONObject();
-		jsResp = bhapi.put(method);
-		
-		System.out.println(jsResp);
-		
+		// Loop through assocations in spreadsheet. They will be a comma separated list of names
+		// Get the associated key based on the value and construct a comma separate list of values
+		if (associatons != null) {
+			
+			String asscIdList = "";
+			for (String s : asscList) {
+				if (asscIdList.length() <= 0) {
+					asscIdList = String.valueOf(getKeyByValue(associatons, s));
+				} else {
+					asscIdList = asscIdList + "," + String.valueOf(getKeyByValue(associatons, s));
+				}
+			}
+			
+			//Disassociate then re-associate in order to do a "replace"
+			String getURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/" + associationName + "?fields=id" + "&BhRestToken=" + bhapi.getBhRestToken();
+			
+			GetMethod getMethod = new GetMethod(getURL);
+			JSONObject ascIDJSON = bhapi.get(getMethod);
+			log.info(ascIDJSON);
+			
+			if (ascIDJSON.getInt("count") > 0) {
+				JSONArray jsAr = ascIDJSON.getJSONArray("data");
+				String existingAssc = "";
+				 for (int i = 0 ; i < jsAr.length(); i++) {
+				        JSONObject obj = jsAr.getJSONObject(i);
+				        existingAssc = existingAssc + obj.getInt("id") + ",";
+				 }
+				 
+				// There's no delete all, so have to get existing ID's and disassociate
+				String deleteURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/" + associationName + "/" + existingAssc + "?BhRestToken=" + bhapi.getBhRestToken();
+				DeleteMethod deleteMethod = new DeleteMethod(deleteURL);
+				JSONObject deleteJsResp = bhapi.delete(deleteMethod);
+				log.info(deleteJsResp);
+			}
+			
+			// Associate the id's in the spreadsheet
+			String putURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/" + associationName + "/" + asscIdList + "?BhRestToken=" + bhapi.getBhRestToken();
+			
+			PutMethod method = new PutMethod(putURL);
+			JSONObject jsResp = new JSONObject();
+			jsResp = bhapi.put(method);
+			log.info(jsResp);
+		}
+	}
+	
+	public void associateCategories(Integer id, String categories, String entity) throws Exception {
+		associate(id, "categories", categories, entity);
+	}
+	
+	public void associateSkills(Integer id, String skills, String entity) throws Exception {
+		associate(id, "skills", skills, entity);
+	}
+	
+	public void associateBusinessSectors(Integer id, String businessSectors, String entity) throws Exception {
+		associate(id, "businesssectors", businessSectors, entity);
 	}
 	
 	// Lookup key by value
@@ -89,7 +132,7 @@ public class MasterDataService {
 	            return entry.getKey();
 	        }
 	    }
-	    return null;
+	    return 0;
 	}
 
 	// When you request master data, rehydrate the MasterData object from BH

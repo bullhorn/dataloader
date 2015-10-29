@@ -17,6 +17,7 @@ import com.bullhorn.dataloader.domain.TranslatedType;
 						"country",
 						"categories",
 						"businessSectors",
+						"skills",
 						"primaryCategory",
 						"primaryBusinessSector",
 						"ownerID",
@@ -117,6 +118,7 @@ public class Opportunity {
 	public ID category; // used in REST to set primary category
 	public String primaryCategory; // Pass in primary category name
 	public String categories; // comma separated list of to-many categories
+	public String skills; // comma separated list of to-many skills
 	public String reasonClosed;
 	public String reportTo;
 	public String source;
@@ -688,5 +690,11 @@ public class Opportunity {
 	}
 	public void setOwnerID(String ownerID) {
 		this.ownerID = ownerID;
+	}
+	public String getSkills() {
+		return skills;
+	}
+	public void setSkills(String skills) {
+		this.skills = skills;
 	}
 }

@@ -11,6 +11,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -113,7 +114,7 @@ public class BullhornAPI {
 
 			HttpClient client = new HttpClient();
 			client.executeMethod(get);
-			String responseStr = get.getResponseBodyAsString();
+			String responseStr = IOUtils.toString(get.getResponseBodyAsStream());
 			responseJson = new JSONObject(responseStr);
 
 			// Cache BhRestToken and REST URL
@@ -160,19 +161,19 @@ public class BullhornAPI {
 		if (type.equalsIgnoreCase("get")) {
 			GetMethod method = (GetMethod) meth;
 			client.executeMethod(method);
-			responseStr = method.getResponseBodyAsString();
+			responseStr = IOUtils.toString(method.getResponseBodyAsStream());
 		} else if (type.equalsIgnoreCase("put")) {
 			PutMethod method = (PutMethod) meth;
 			client.executeMethod(method);
-			responseStr = method.getResponseBodyAsString();
+			responseStr = IOUtils.toString(method.getResponseBodyAsStream());
 		} else if (type.equalsIgnoreCase("delete")) {
 			DeleteMethod method = (DeleteMethod) meth;
 			client.executeMethod(method);
-			responseStr = method.getResponseBodyAsString();
+			responseStr = IOUtils.toString(method.getResponseBodyAsStream());
 		} else {
 			PostMethod method = (PostMethod) meth;
 			client.executeMethod(method);
-			responseStr = method.getResponseBodyAsString();
+			responseStr = IOUtils.toString(method.getResponseBodyAsStream());
 		}
 		
 		responseJson = new JSONObject(responseStr);

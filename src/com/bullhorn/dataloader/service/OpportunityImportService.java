@@ -154,13 +154,16 @@ public class OpportunityImportService implements Runnable, ConcurrentServiceInte
 			// Get ID of the created/updated record
 			int opportunityID = jsResp.getInt("changedEntityId");
 			
-			// If it's an insert and you need to add associations, do it now
-			// Instantiate new master data service as association functions are encapsulated in that service
-			// Remember to pass it a MasterData object so that it uses the cached object
-			
 			// Note: associations are expicitly excluded from serialization as they need to be handled separately
+			// Assocations in the spreadsheet will replace existing associations
 			if (opportunity.getCategories() != null && opportunity.getCategories().length() > 0) {
 				mds.associateCategories(opportunityID, opportunity.getCategories(), "Opportunity");				
+			}
+			if (opportunity.getSkills() != null && opportunity.getSkills().length() > 0) {
+				mds.associateSkills(opportunityID, opportunity.getSkills(), "Opportunity");
+			}
+			if (opportunity.getBusinessSectors() != null && opportunity.getBusinessSectors().length() > 0) {
+				mds.associateBusinessSectors(opportunityID, opportunity.getBusinessSectors(), "Opportunity");
 			}
 				
 
