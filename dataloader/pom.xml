@@ -3,13 +3,25 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>dataloader</artifactId>
+    <artifactId>dataloader-importer</artifactId>
     <groupId>com.bullhorn.dataloader</groupId>
     <version>0.1</version>
     <packaging>jar</packaging>
 
     <name>dataloader</name>
     <description>Bullhorn Data Uploading Utility</description>
+    <url>https://github.com/bullhorn/dataloader</url>
+
+    <developers>
+        <developer>
+            <name>Jacob Mick</name>
+            <email>jmick@bullhorn.com</email>
+            <timezone>America/St_Louis</timezone>
+            <roles>
+                <role>committer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <properties>
         <commons-codec.version>1.1.1</commons-codec.version>
@@ -119,9 +131,30 @@
         </dependency>
 
     </dependencies>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven.javadoc.version}</version>
+            </plugin>
+        </plugins>
+    </reporting>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -155,7 +188,8 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced.xml</dependencyReducedPomLocation>
+                            <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced.xml
+                            </dependencyReducedPomLocation>
                             <transformers>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
@@ -171,5 +205,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <scm>
+        <connection>scm:git:git://github.com/bullhorn/dataloader.git</connection>
+        <developerConnection>scm:git:git@github.com:bullhorn/dataloader.git</developerConnection>
+        <url>https://github.com/bullhorn/dataloader</url>
+        <tag>HEAD</tag>
+    </scm>
 
 </project>
