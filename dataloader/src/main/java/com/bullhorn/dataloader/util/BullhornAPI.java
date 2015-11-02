@@ -26,33 +26,31 @@ import com.google.common.base.Splitter;
 
 public class BullhornAPI {
 
-    String AUTH_CODE_ACTION = "Login";
-    String AUTH_CODE_RESPONSE_TYPE = "code";
-    String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
-    String REFRESH_TOKEN_GRANT_TYPE = "refresh_token";
-    String username;
-    String password;
-    String BhRestToken;
-    String restURL;
-    String authorizeUrl;
-    String tokenUrl;
-    String clientId;
-    String clientSecret;
-    String loginUrl;
+    private final Properties properties;
+    private final String AUTH_CODE_ACTION = "Login";
+    private final String AUTH_CODE_RESPONSE_TYPE = "code";
+    private final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
+    private String username;
+    private String password;
+    private String BhRestToken;
+    private String restURL;
+    private String authorizeUrl;
+    private String tokenUrl;
+    private String clientId;
+    private String clientSecret;
+    private String loginUrl;
 
     private static Log log = LogFactory.getLog(BullhornAPI.class);
 
-    FileUtil fileUtil = new FileUtil();
-    Properties props = fileUtil.getProps("dataloader.properties");
-
-    public BullhornAPI() throws Exception {
-        this.setUsername(props.getProperty("username"));
-        this.setPassword(props.getProperty("password"));
-        this.setAuthorizeUrl(props.getProperty("authorizeUrl"));
-        this.setTokenUrl(props.getProperty("tokenUrl"));
-        this.setClientId(props.getProperty("clientId"));
-        this.setClientSecret(props.getProperty("clientSecret"));
-        this.setLoginUrl(props.getProperty("loginUrl"));
+    public BullhornAPI(Properties properties) throws Exception {
+        this.properties = properties;
+        this.setUsername(properties.getProperty("username"));
+        this.setPassword(properties.getProperty("password"));
+        this.setAuthorizeUrl(properties.getProperty("authorizeUrl"));
+        this.setTokenUrl(properties.getProperty("tokenUrl"));
+        this.setClientId(properties.getProperty("clientId"));
+        this.setClientSecret(properties.getProperty("clientSecret"));
+        this.setLoginUrl(properties.getProperty("loginUrl"));
         createSession();
     }
 
@@ -186,7 +184,7 @@ public class BullhornAPI {
         // Domain object name = entity
         String entity = cls.getSimpleName();
         // Get field used for determining if record exists
-        String field = props.getProperty(WordUtils.uncapitalize(entity + "ExistField"));
+        String field = properties.getProperty(WordUtils.uncapitalize(entity + "ExistField"));
         Field fld = cls.getField(field);
         // If there's an isID annotation, change the field to "id" (from opportunityID for example)
         if (fld.isAnnotationPresent(TranslatedType.class)) {

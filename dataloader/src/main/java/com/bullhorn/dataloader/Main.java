@@ -22,13 +22,14 @@ public class Main {
 
         try {
 
-            // Create API object. Pass this object to each import service via ConcurrentService
-            // BullhornAPI contains REST session and helper methods to communicate with Bullhorn
-            BullhornAPI bhapi = new BullhornAPI();
-
             // Entity to be imported and path to the CSV are passed in at runtime
             FileUtil fileUtil = new FileUtil();
             Properties props = fileUtil.getProps("dataloader.properties");
+
+            // Create API object. Pass this object to each import service via ConcurrentService
+            // BullhornAPI contains REST session and helper methods to communicate with Bullhorn
+            BullhornAPI bhapi = new BullhornAPI(props);
+
 
             String entity = args[0];
             String filePath = args[1];
