@@ -1,4 +1,4 @@
-package bullhorn.dataloader.domain;
+package com.bullhorn.dataloader.domain;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface TranslatedType {
-	
-	public boolean isDate() default false;
-	public boolean isID() default false;
+
+    boolean isDate() default false;
+
+    boolean isID() default false;
 
 }
