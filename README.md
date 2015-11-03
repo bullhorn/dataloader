@@ -6,12 +6,35 @@
 
 ## Build
 
-Dataloader build with Apache Maven and Java 1.8. Running `mvn clean package` will produce a `dataloader-{version}.jar` file.
-The jar retrieves all of the dependencies and adds them to the jar.
+Dataloader builds with Apache Maven 3.0 and Java 1.8. Running `mvn clean package`
+will produce `dataloader-importer-{version}.jar` in dataloader/target.
+This has all of the dependencies necessary to run it.
 
 ## Usage
 
-Edit dataloader.properties to point to the correct credentials.
+The properties for dataloader must be placed in
+`C:\\bullhorn\\conf\\dataloader.properties` for Windows or
+`/usr/local/bullhorn/conf/dataloader.properties` for Linux.
 
-Run with:
-    java -jar dataloader-{version}.jar
+A sample configuration is given below.
+
+```
+numThreads=20
+dateFormat=MM/dd/yyyy
+candidateExistField=candidateID
+clientContactExistField=clientContactID
+opportunityExistField=opportunityID
+clientCorporationExistField=clientCorporationID
+leadExistField=leadID
+username=
+password=
+authorizeUrl=https://auth9.bullhornstaffing.com/oauth/authorize
+tokenUrl=https://auth9.bullhornstaffing.com/oauth/token
+loginUrl=https://rest9.bullhornstaffing.com/rest-services/login
+clientId=
+clientSecret=
+```
+
+The jar file is executed with
+
+```java -jar dataloader-importer-{version}.jar <Entity> /path/to/csv```
