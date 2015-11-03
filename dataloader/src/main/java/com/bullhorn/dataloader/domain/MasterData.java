@@ -4,10 +4,10 @@ import java.util.HashMap;
 
 public class MasterData {
 
-    HashMap<Integer, String> categories;
-    HashMap<Integer, String> skills;
-    HashMap<Integer, String> businessSectors;
-    HashMap<Integer, String> internalUsers;
+    private HashMap<Integer, String> categories;
+    private HashMap<Integer, String> skills;
+    private HashMap<Integer, String> businessSectors;
+    private HashMap<Integer, String> internalUsers;
 
     public HashMap<Integer, String> getCategories() {
         return categories;

@@ -15,8 +15,7 @@ import org.codehaus.jackson.annotate.JsonIgnoreProperties;
         "businessSectors",
         "ownerID",
         "ownerName"})
-
-public class ClientContact {
+public class ClientContact extends User {
 
     @TranslatedType(isID = true)
     public String clientContactID;
@@ -32,8 +31,6 @@ public class ClientContact {
     public String comments;
     public String isDeleted;
     public String isEditable;
-    public String username;
-    public String password;
     public Address address;
     public String address1;
     public String address2;
@@ -175,22 +172,6 @@ public class ClientContact {
 
     public void setComments(String comments) {
         this.comments = comments;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getIsDeleted() {

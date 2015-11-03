@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.domain.MasterData;
 import com.bullhorn.dataloader.util.BullhornAPI;
 
-public interface ConcurrentServiceInterface {
+interface ConcurrentServiceInterface {
 
     void setObj(Object obj);
 
-    void setMasterData(MasterData md);
+    void setMasterDataService(MasterDataService md);
 
     void setBhapi(BullhornAPI bhapi);
 

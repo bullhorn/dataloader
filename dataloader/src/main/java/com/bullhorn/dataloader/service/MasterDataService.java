@@ -21,15 +21,15 @@ import com.bullhorn.dataloader.util.BullhornAPI;
 
 public class MasterDataService {
 
-    private static Log log = LogFactory.getLog(MasterDataService.class);
+    private final Log log = LogFactory.getLog(MasterDataService.class);
 
-    BullhornAPI bhapi;
-    MasterData masterData = new MasterData();
+    private BullhornAPI bhapi;
+    private MasterData masterData;
 
     // Generate map
     private HashMap<Integer, String> generateMap(String entity) {
 
-        HashMap<Integer, String> map = new HashMap<Integer, String>();
+        HashMap<Integer, String> map = new HashMap<>();
 
         try {
 
@@ -107,7 +107,7 @@ public class MasterDataService {
             String putURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/" + associationName + "/" + asscIdList + "?BhRestToken=" + bhapi.getBhRestToken();
 
             PutMethod method = new PutMethod(putURL);
-            JSONObject jsResp = new JSONObject();
+            JSONObject jsResp;
             jsResp = bhapi.put(method);
             log.info(jsResp);
         }
@@ -126,7 +126,7 @@ public class MasterDataService {
     }
 
     // Lookup key by value
-    public Integer getKeyByValue(Map<Integer, String> map, String value) {
+    private Integer getKeyByValue(Map<Integer, String> map, String value) {
         for (Entry<Integer, String> entry : map.entrySet()) {
             if (Objects.equals(value, entry.getValue())) {
                 return entry.getKey();
@@ -136,7 +136,7 @@ public class MasterDataService {
     }
 
     // When you request master data, rehydrate the MasterData object from BH
-    public MasterData getMasterData() {
+    private MasterData getMasterData() {
 
         masterData.setCategories(generateMap("Category"));
         masterData.setSkills(generateMap("Skill"));
@@ -157,5 +157,17 @@ public class MasterDataService {
 
     public void setBhapi(BullhornAPI bhapi) {
         this.bhapi = bhapi;
+    }
+
+    public String getOwnerID(String ownerName) {
+        return String.valueOf(getKeyByValue(getMasterData().getInternalUsers(), ownerName));
+    }
+
+    public String getCategoryID(String primaryCategory) {
+        return String.valueOf(getKeyByValue(getMasterData().getCategories(), primaryCategory));
+    }
+
+    public String getBusinessSectorID(String primaryBusinessSector) {
+        return String.valueOf(getKeyByValue(getMasterData().getCategories(), primaryBusinessSector));
     }
 }

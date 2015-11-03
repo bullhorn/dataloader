@@ -1,24 +1,14 @@
 package com.bullhorn.dataloader.service;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.domain.Address;
 import com.bullhorn.dataloader.domain.ClientCorporation;
 import com.bullhorn.dataloader.domain.ID;
-import com.bullhorn.dataloader.domain.MasterData;
-import com.bullhorn.dataloader.util.BullhornAPI;
 
-public class ClientCorporationImportService implements Runnable, ConcurrentServiceInterface {
+class ClientCorporationImportService extends AbstractEntityImportService {
 
-    private static Log log = LogFactory.getLog(ClientCorporationImportService.class);
-
-    Object obj;
-    MasterData masterData;
-    BullhornAPI bhapi;
-
-    public Integer clientCorporation() {
+    Integer clientCorporation() {
 
         try {
 
@@ -53,9 +43,7 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
             JSONObject jsResp = bhapi.save(corp, postURL, type);
 
             // Get ID of the created/updated record
-            int clientCorporationID = jsResp.getInt("changedEntityId");
-
-            return clientCorporationID;
+            return jsResp.getInt("changedEntityId");
 
         } catch (Exception e) {
             log.error(e);
@@ -66,30 +54,6 @@ public class ClientCorporationImportService implements Runnable, ConcurrentServi
 
     public void run() {
         clientCorporation();
-    }
-
-    public Object getObj() {
-        return obj;
-    }
-
-    public void setObj(Object obj) {
-        this.obj = obj;
-    }
-
-    public MasterData getMasterData() {
-        return masterData;
-    }
-
-    public void setMasterData(MasterData masterData) {
-        this.masterData = masterData;
-    }
-
-    public BullhornAPI getBhapi() {
-        return bhapi;
-    }
-
-    public void setBhapi(BullhornAPI bhapi) {
-        this.bhapi = bhapi;
     }
 
 }

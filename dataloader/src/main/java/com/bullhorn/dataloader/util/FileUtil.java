@@ -17,7 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class FileUtil {
 
-    private static Log log = LogFactory.getLog(FileUtil.class);
+    private final Log log = LogFactory.getLog(FileUtil.class);
 
     public void deleteFile(String fileName) {
         // A File object to represent the filename

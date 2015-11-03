@@ -34,7 +34,6 @@
         <jackson.version>1.9.13</jackson.version>
         <java.version>1.8</java.version>
         <javacsv.version>2.0</javacsv.version>
-        <jmockit.version>1.19</jmockit.version>
         <json-path.version>0.9.1</json-path.version>
         <json.version>20150729</json.version>
         <junit.version>4.12</junit.version>
@@ -44,6 +43,7 @@
         <maven.compiler.version>3.3</maven.compiler.version>
         <maven.javadoc.version>2.10.3</maven.javadoc.version>
         <maven.shade.version>2.4.1</maven.shade.version>
+        <mockito.version>1.10.19</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -116,10 +116,11 @@
             <version>${json.version}</version>
         </dependency>
 
+
         <dependency>
-            <groupId>org.jmockit</groupId>
-            <artifactId>jmockit</artifactId>
-            <version>${jmockit.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
 

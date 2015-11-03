@@ -24,21 +24,21 @@ public class CSVtoObject {
 
     private static Log log = LogFactory.getLog(CSVtoObject.class);
 
-    String entity;
-    String filePath;
-    String dateFormat;
+    private String entity;
+    private String filePath;
+    private String dateFormat;
 
     public List<Object> map() throws Exception {
 
         // Read CSV
-        CsvReader imp = new CsvReader(filePath);
-        imp.readHeaders();
-        String[] columns = imp.getHeaders();
+        CsvReader csvReader = new CsvReader(filePath);
+        csvReader.readHeaders();
+        String[] columns = csvReader.getHeaders();
 
-        List<Object> records = new ArrayList<Object>();
+        List<Object> records = new ArrayList<>();
 
         // Iterate through CSV. Map headers to domain object. Skip anything that doesn't map
-        while (imp.readRecord()) {
+        while (csvReader.readRecord()) {
             try {
                 // Get generic object based on entity that is being imported
                 Object obj = getMappedObject(entity);
@@ -62,12 +62,12 @@ public class CSVtoObject {
                                 Annotation annotation = fld.getAnnotation(TranslatedType.class);
                                 TranslatedType tt = (TranslatedType) annotation;
                                 if (tt.isDate()) {
-                                    fld.set(obj, convertDate(imp.get(s), dateFormat));
+                                    fld.set(obj, convertDate(csvReader.get(s), dateFormat));
                                 } else {
-                                    fld.set(obj, imp.get(s));
+                                    fld.set(obj, csvReader.get(s));
                                 }
                             } else {
-                                fld.set(obj, imp.get(s));
+                                fld.set(obj, csvReader.get(s));
                             }
                         }
                     } catch (Exception e) {
@@ -81,7 +81,7 @@ public class CSVtoObject {
         }
 
         // Close CSV Reader
-        imp.close();
+        csvReader.close();
 
         return records;
     }

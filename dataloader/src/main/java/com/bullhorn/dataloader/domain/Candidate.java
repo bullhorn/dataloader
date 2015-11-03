@@ -3,7 +3,7 @@ package com.bullhorn.dataloader.domain;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 
 @JsonIgnoreProperties({"categories"})
-public class Candidate {
+public class Candidate extends User {
 
     public String firstName;
     public String lastName;
@@ -15,8 +15,6 @@ public class Candidate {
     public String employeeType;
     public String isDeleted;
     public String isEditable;
-    public String username;
-    public String password;
     public String customText5;
     public String categories;
 
@@ -90,22 +88,6 @@ public class Candidate {
 
     public void setEmployeeType(String employeeType) {
         this.employeeType = employeeType;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getIsDeleted() {
