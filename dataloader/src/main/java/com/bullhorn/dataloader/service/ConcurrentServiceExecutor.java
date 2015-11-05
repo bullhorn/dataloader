@@ -1,52 +1,40 @@
 package com.bullhorn.dataloader.service;
 
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.util.BullhornAPI;
+import com.bullhorn.dataloader.util.CsvToJson;
 
 
 public class ConcurrentServiceExecutor {
 
-    private final MasterDataService masterDataService;
     private final ExecutorService executorService;
-    private final String className;
-    private final List<Object> records;
-    private final BullhornAPI bhapi;
+    private final String entityName;
+    private final CsvToJson csvItr;
+    private final BullhornAPI bhApi;
 
     private final Log log = LogFactory.getLog(ConcurrentServiceExecutor.class);
 
-    public ConcurrentServiceExecutor(String className, List<Object> records,
-                                     MasterDataService masterDataService, BullhornAPI bhapi,
-                                     ExecutorService executorService) {
-        this.className = className;
-        this.records = records;
-        this.masterDataService = masterDataService;
-        this.bhapi = bhapi;
+    public ConcurrentServiceExecutor(String entityName, CsvToJson csvItr, BullhornAPI bhApi, ExecutorService executorService) {
+        this.entityName = entityName;
+        this.bhApi = bhApi;
         this.executorService = executorService;
+        this.csvItr = csvItr;
     }
 
     public void runProcess() {
         try {
 
             // loop through records
-            for (Object obj : records) {
-                // generic concurrent import implementation
-                // there is a 1-1 mapping of entity and service
-                Class<?> serviceClass = Class.forName(this.getClass().getPackage().getName() + "." + className);
-                // instantiate it
-                ConcurrentServiceInterface service = (ConcurrentServiceInterface) serviceClass.newInstance();
-                // pass the domain object returned from CSV
-                service.setObj(obj);
-                // pass master data cache
-                service.setMasterDataService(masterDataService);
-                // pass token
-                service.setBhapi(bhapi);
-                // execute
-                executorService.execute((Runnable) service);
+            for(Map<String, Object> row : csvItr) {
+                JsonService service = new JsonService(entityName, bhApi, row);
+                service.setEntity(entityName);
+
+                executorService.execute(service);
             }
 
             // shut the executor service down
@@ -60,5 +48,4 @@ public class ConcurrentServiceExecutor {
             log.error(e);
         }
     }
-
 }

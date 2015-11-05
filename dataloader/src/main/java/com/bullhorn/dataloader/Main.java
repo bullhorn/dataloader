@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader;
 
-import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +11,7 @@ import org.apache.commons.logging.LogFactory;
 import com.bullhorn.dataloader.service.ConcurrentServiceExecutor;
 import com.bullhorn.dataloader.service.MasterDataService;
 import com.bullhorn.dataloader.util.BullhornAPI;
-import com.bullhorn.dataloader.util.CSVtoObject;
+import com.bullhorn.dataloader.util.CsvToJson;
 import com.bullhorn.dataloader.util.FileUtil;
 
 public class Main {
@@ -35,24 +34,21 @@ public class Main {
             String entity = args[0];
             String filePath = args[1];
             Integer numThreads = Integer.valueOf(props.getProperty("numThreads"));
-            String dateFormat = props.getProperty("dateFormat");
 
             // Cache master data - category, skill, business sector, internal users
             MasterDataService masterDataService = new MasterDataService();
             masterDataService.setBhapi(bhapi);
 
-            // Read CSV and map to domain model
-            CSVtoObject csv = new CSVtoObject();
-            csv.setDateFormat(dateFormat);
-            csv.setEntity(entity);
-            csv.setFilePath(filePath);
-
-            List<Object> records = csv.map();
-
+            CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
             ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
             // Import to Bullhorn
-            ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(WordUtils.capitalize(entity) + "ImportService", records,
-                    masterDataService, bhapi, executorService);
+
+            ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
+                    WordUtils.capitalize(entity),
+                    csvToJson,
+                    bhapi,
+                    executorService
+            );
 
             // Start import
             impSvc.runProcess();
