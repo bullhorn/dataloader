@@ -316,6 +316,14 @@ public class BullhornAPI {
         } catch (JSONException e) {
             subFields = null;
         }
+        if(subFields == null) {
+            try {
+                JSONObject associatedEntity = field.getJSONObject("associatedEntity");
+                subFields = associatedEntity.getJSONArray("fields");
+            } catch (JSONException e) {
+                subFields = null;
+            }
+        }
         return subFields;
     }
 
