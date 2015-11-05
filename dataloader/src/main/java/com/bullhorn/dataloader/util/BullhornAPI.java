@@ -1,8 +1,9 @@
 package com.bullhorn.dataloader.util;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
 import java.util.Properties;
 
@@ -19,9 +20,10 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.domain.TranslatedType;
+import com.bullhorn.dataloader.domain.MetaMap;
 import com.google.common.base.Splitter;
 
 public class BullhornAPI {
@@ -102,7 +104,7 @@ public class BullhornAPI {
 
     private void loginREST(String accessToken) {
 
-        JSONObject responseJson = null;
+        JSONObject responseJson;
         try {
             String accessTokenString = URLEncoder.encode(accessToken, "UTF-8");
             String sessionMinutesToLive = "3000";
@@ -187,11 +189,11 @@ public class BullhornAPI {
         String field = properties.getProperty(WordUtils.uncapitalize(entity + "ExistField"));
         Field fld = cls.getField(field);
         // If there's an isID annotation, change the field to "id" (from opportunityID for example)
-        if (fld.isAnnotationPresent(TranslatedType.class)) {
-            Annotation annotation = fld.getAnnotation(TranslatedType.class);
-            TranslatedType tt = (TranslatedType) annotation;
-            if (tt.isID()) field = "id";
-        }
+//        if (fld.isAnnotationPresent(TranslatedType.class)) {
+//            Annotation annotation = fld.getAnnotation(TranslatedType.class);
+//            TranslatedType tt = (TranslatedType) annotation;
+//            if (tt.isID()) field = "id";
+//        }
 
         String value = "-1";
         Object fldObj = fld.get(obj);
@@ -236,7 +238,7 @@ public class BullhornAPI {
     }
 
     public JSONObject doesRecordExist(String entity, String field, String value) throws Exception {
-        String getURL = "";
+        String getURL;
         if (field.equalsIgnoreCase("id")) {
             getURL = this.getRestURL() + "entity/" + entity + "/" + value;
             getURL = getURL + "?fields=*&BhRestToken=" + this.BhRestToken;
@@ -253,6 +255,69 @@ public class BullhornAPI {
         return qryJSON;
     }
 
+    public MetaMap getMetaDataTypes(String entity) throws Exception {
+        String url = this.getRestURL() + "meta/" + entity + "?fields=*&BhRestToken=" + this.getBhRestToken();
+        GetMethod method = new GetMethod(url);
+        JSONObject jsonObject = get(method);
+
+        JSONArray fields = jsonObject.getJSONArray("fields");
+
+        Deque<JsonObjectFields> deque = new ArrayDeque<>();
+        JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
+        deque.add(jsonObjectFields);
+
+        MetaMap meta = new MetaMap();
+        while (!deque.isEmpty()) {
+            jsonObjectFields = deque.pop();
+            fields = jsonObjectFields.getJsonArray();
+
+            addEachFieldToMetaAndQueueNestedFields(fields, deque, jsonObjectFields, meta);
+        }
+        return meta;
+    }
+
+    private void addEachFieldToMetaAndQueueNestedFields(JSONArray fields,
+                                                        Deque<JsonObjectFields> deque,
+                                                        JsonObjectFields jsonObjectFields,
+                                                        MetaMap meta) {
+        for (int i = 0; i < fields.length(); i++) {
+            JSONObject field = fields.getJSONObject(i);
+
+            JSONArray subFields = getSubField(field);
+
+            String label, name, dataType;
+            name = field.getString("name");
+
+            if(null != subFields) {
+                String path = jsonObjectFields.getPath();
+                path = path.isEmpty() ? name + "." : path + name + ".";
+                JsonObjectFields nestedFields = new JsonObjectFields(path, subFields);
+                deque.add(nestedFields);
+            } else {
+                try {
+                    dataType = field.getString("dataType");
+                } catch (JSONException e) {
+                    dataType = "String"; // default type
+                }
+                try {
+                    label = field.getString("label");
+                } catch (JSONException e) {
+                    label = "";
+                }
+                meta.addMeta(jsonObjectFields.getPath() + name, label, dataType);
+            }
+        }
+    }
+
+    private JSONArray getSubField(JSONObject field) {
+        JSONArray subFields;
+        try {
+            subFields = field.getJSONArray("fields");
+        } catch (JSONException e) {
+            subFields = null;
+        }
+        return subFields;
+    }
 
     // POJO to JSON via Jackson. Don't include null properties during serialization
     public String serialize(Object obj) throws Exception {
@@ -280,7 +345,7 @@ public class BullhornAPI {
 
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, "application/json", "UTF-8");
-        JSONObject jsResp = new JSONObject();
+        JSONObject jsResp;
         if (type.equalsIgnoreCase("put")) {
             PutMethod method = new PutMethod(postURL);
             method.setRequestEntity(requestEntity);
