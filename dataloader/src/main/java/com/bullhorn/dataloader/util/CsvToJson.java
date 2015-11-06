@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.util;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -9,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.domain.MetaMap;
 import com.csvreader.CsvReader;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class CsvToJson implements Iterator, Iterable<Map<String, Object>> {
@@ -34,9 +36,25 @@ public class CsvToJson implements Iterator, Iterable<Map<String, Object>> {
             for(int i = 0; i < nestedProperties.length - 1; i++) {
                 String nestedProperty = nestedProperties[i];
                 if(!tmpMap.containsKey(nestedProperty)) {
-                    tmpMap.put(nestedProperty, Maps.newHashMap());
+                    if("TO_MANY".equalsIgnoreCase(metaMap.getTypeByName(nestedProperty))) {
+                        List<Map<String, Object>> list = Lists.newArrayList();
+                        Map<String, Object> m = Maps.newHashMap();
+                        list.add(m);
+                        tmpMap.put(nestedProperty, list);
+                        tmpMap = m;
+                    } else {
+                        Map<String, Object> m = Maps.newHashMap();
+                        tmpMap.put(nestedProperty, m);
+                        tmpMap = m;
+                    }
+                } else {
+                    if("TO_MANY".equalsIgnoreCase(metaMap.getTypeByName(nestedProperty))) {
+                        List<Map<String, Object>> list = (List<Map<String, Object>>)tmpMap.get(nestedProperty);
+                        tmpMap = list.get(0);
+                    } else {
+                        tmpMap = (Map<String, Object>)tmpMap.get(nestedProperty);
+                    }
                 }
-                tmpMap = (Map<String, Object>)tmpMap.get(nestedProperty);
             }
             Object val;
             try {

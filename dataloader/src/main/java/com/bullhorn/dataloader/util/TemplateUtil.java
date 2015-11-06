@@ -1,32 +1,29 @@
-package com.bullhorn.dataloader;
+package com.bullhorn.dataloader.util;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-
-import org.junit.Test;
 
 import com.bullhorn.dataloader.domain.MetaMap;
 import com.bullhorn.dataloader.service.MasterDataService;
-import com.bullhorn.dataloader.util.BullhornAPI;
-import com.bullhorn.dataloader.util.FileUtil;
 
-public class GenerateExampleData {
+public class TemplateUtil {
 
-    private void writeExampleEntityCsv(String entity) throws Exception {
-        FileUtil fileUtil = new FileUtil();
-        Properties props = fileUtil.getProps("dataloader.properties");
+    private final BullhornAPI bullhornAPI;
 
-        BullhornAPI bhapi = new BullhornAPI(props);
+    public TemplateUtil(BullhornAPI bullhornAPI) {
+        this.bullhornAPI = bullhornAPI;
+    }
 
+    public void writeExampleEntityCsv(String entity) throws IOException, NoSuchFieldException, IllegalAccessException {
         String filePath = entity + "Example.csv";
 
         MasterDataService masterDataService = new MasterDataService();
-        masterDataService.setBhapi(bhapi);
+        masterDataService.setBhapi(bullhornAPI);
 
-        MetaMap metaMap = bhapi.getMetaDataTypes(entity);
+        MetaMap metaMap = bullhornAPI.getMetaDataTypes(entity);
 
         Field nameToDataTypeMap = MetaMap.class.getDeclaredField("nameToDataType");
         nameToDataTypeMap.setAccessible(true);
@@ -49,13 +46,4 @@ public class GenerateExampleData {
         fileOutputStream.close();
     }
 
-    @Test
-    public void generateEntityCsvExamples() throws Exception {
-        String[] entities = new String[] {
-                "Candidate", "ClientCorporation", "ClientContact", "Lead", "Opportunity", "JobOrder"
-        };
-        for(String entity : entities) {
-            writeExampleEntityCsv(entity);
-        }
-    }
 }

@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.util.ArrayDeque;
@@ -44,7 +45,7 @@ public class BullhornAPI {
 
     private static Log log = LogFactory.getLog(BullhornAPI.class);
 
-    public BullhornAPI(Properties properties) throws Exception {
+    public BullhornAPI(Properties properties) {
         this.properties = properties;
         this.setUsername(properties.getProperty("username"));
         this.setPassword(properties.getProperty("password"));
@@ -66,7 +67,7 @@ public class BullhornAPI {
         }
     }
 
-    private String getAuthorizationCode() throws Exception {
+    private String getAuthorizationCode() throws IOException {
 
         // Construct authorize URL
         authorizeUrl = authorizeUrl + "?client_id=" + clientId +
@@ -88,7 +89,7 @@ public class BullhornAPI {
 
     }
 
-    private String getAccessToken(String authCode) throws Exception {
+    private String getAccessToken(String authCode) throws IOException {
 
         // Get access token based on auth code returned from getAuthorizationCode()
         String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE +
@@ -125,33 +126,33 @@ public class BullhornAPI {
         }
     }
 
-    public JSONObject get(GetMethod method) throws Exception {
+    public JSONObject get(GetMethod method) throws IOException {
         JSONObject responseJson = call("get", method);
         return responseJson;
     }
 
-    public JSONObject put(PutMethod method) throws Exception {
+    public JSONObject put(PutMethod method) throws IOException {
         JSONObject responseJson = call("put", method);
         return responseJson;
     }
 
-    public JSONObject post(PostMethod method) throws Exception {
+    public JSONObject post(PostMethod method) throws IOException {
         JSONObject responseJson = call("post", method);
         return responseJson;
     }
 
-    public JSONObject delete(String postURL) throws Exception {
+    public JSONObject delete(String postURL) throws IOException {
         DeleteMethod method = new DeleteMethod(postURL);
         JSONObject responseJson = this.delete(method);
         return responseJson;
     }
 
-    public JSONObject delete(DeleteMethod method) throws Exception {
+    public JSONObject delete(DeleteMethod method) throws IOException {
         JSONObject responseJson = call("delete", method);
         return responseJson;
     }
 
-    public JSONObject call(String type, Object meth) throws Exception {
+    public JSONObject call(String type, Object meth) throws IOException {
 
         JSONObject responseJson = null;
         HttpClient client = new HttpClient();
@@ -180,7 +181,7 @@ public class BullhornAPI {
         return responseJson;
     }
 
-    public String[] getPostURL(Object obj) throws Exception {
+    public String[] getPostURL(Object obj) throws IOException, IllegalAccessException, NoSuchFieldException {
         // Get class
         Class<?> cls = obj.getClass();
         // Domain object name = entity
@@ -237,7 +238,7 @@ public class BullhornAPI {
 
     }
 
-    public JSONObject doesRecordExist(String entity, String field, String value) throws Exception {
+    public JSONObject doesRecordExist(String entity, String field, String value) throws IOException {
         String getURL;
         if (field.equalsIgnoreCase("id")) {
             getURL = this.getRestURL() + "entity/" + entity + "/" + value;
@@ -255,7 +256,7 @@ public class BullhornAPI {
         return qryJSON;
     }
 
-    public MetaMap getMetaDataTypes(String entity) throws Exception {
+    public MetaMap getMetaDataTypes(String entity) throws IOException {
         String url = this.getRestURL() + "meta/" + entity + "?fields=*&BhRestToken=" + this.getBhRestToken();
         GetMethod method = new GetMethod(url);
         JSONObject jsonObject = get(method);
@@ -285,13 +286,25 @@ public class BullhornAPI {
 
             JSONArray subFields = getSubField(field);
 
-            String label, name, dataType;
+            String label, name, dataType, type;
             name = field.getString("name");
+            type = field.getString("type");
 
             if(null != subFields) {
                 String path = jsonObjectFields.getPath();
                 path = path.isEmpty() ? name + "." : path + name + ".";
                 JsonObjectFields nestedFields = new JsonObjectFields(path, subFields);
+                try {
+                    dataType = field.getString("dataType");
+                } catch (JSONException e) {
+                    dataType = "String"; // default type
+                }
+                try {
+                    label = field.getString("label");
+                } catch (JSONException e) {
+                    label = "";
+                }
+                meta.addMeta(path.substring(0, path.length() - 1), label, dataType, type);
                 deque.add(nestedFields);
             } else {
                 try {
@@ -304,7 +317,7 @@ public class BullhornAPI {
                 } catch (JSONException e) {
                     label = "";
                 }
-                meta.addMeta(jsonObjectFields.getPath() + name, label, dataType);
+                meta.addMeta(jsonObjectFields.getPath() + name, label, dataType, type);
             }
         }
     }
@@ -316,11 +329,19 @@ public class BullhornAPI {
         } catch (JSONException e) {
             subFields = null;
         }
+        if(subFields == null) {
+            try {
+                JSONObject associatedEntity = field.getJSONObject("associatedEntity");
+                subFields = associatedEntity.getJSONArray("fields");
+            } catch (JSONException e) {
+                subFields = null;
+            }
+        }
         return subFields;
     }
 
     // POJO to JSON via Jackson. Don't include null properties during serialization
-    public String serialize(Object obj) throws Exception {
+    public String serialize(Object obj) throws IOException {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Inclusion.NON_NULL);
@@ -332,7 +353,7 @@ public class BullhornAPI {
     }
 
     // Serialize an object and save it
-    public JSONObject save(Object obj, String postURL, String type) throws Exception {
+    public JSONObject save(Object obj, String postURL, String type) throws IOException {
 
         String jsString = serialize(obj);
         JSONObject jsResp = save(jsString, postURL, type);
@@ -341,7 +362,7 @@ public class BullhornAPI {
     }
 
     // Save a stringify'd object
-    public JSONObject save(String jsString, String postURL, String type) throws Exception {
+    public JSONObject save(String jsString, String postURL, String type) throws IOException {
 
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, "application/json", "UTF-8");
