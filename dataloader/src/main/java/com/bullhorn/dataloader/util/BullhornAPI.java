@@ -285,13 +285,25 @@ public class BullhornAPI {
 
             JSONArray subFields = getSubField(field);
 
-            String label, name, dataType;
+            String label, name, dataType, type;
             name = field.getString("name");
+            type = field.getString("type");
 
             if(null != subFields) {
                 String path = jsonObjectFields.getPath();
                 path = path.isEmpty() ? name + "." : path + name + ".";
                 JsonObjectFields nestedFields = new JsonObjectFields(path, subFields);
+                try {
+                    dataType = field.getString("dataType");
+                } catch (JSONException e) {
+                    dataType = "String"; // default type
+                }
+                try {
+                    label = field.getString("label");
+                } catch (JSONException e) {
+                    label = "";
+                }
+                meta.addMeta(path.substring(0, path.length() - 1), label, dataType, type);
                 deque.add(nestedFields);
             } else {
                 try {
@@ -304,7 +316,7 @@ public class BullhornAPI {
                 } catch (JSONException e) {
                     label = "";
                 }
-                meta.addMeta(jsonObjectFields.getPath() + name, label, dataType);
+                meta.addMeta(jsonObjectFields.getPath() + name, label, dataType, type);
             }
         }
     }
