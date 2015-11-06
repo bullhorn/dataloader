@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,7 @@ public class TemplateUtil {
         this.bullhornAPI = bullhornAPI;
     }
 
-    public void writeExampleEntityCsv(String entity) throws Exception {
+    public void writeExampleEntityCsv(String entity) throws IOException, NoSuchFieldException, IllegalAccessException {
         String filePath = entity + "Example.csv";
 
         MasterDataService masterDataService = new MasterDataService();
