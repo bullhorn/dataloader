@@ -8,10 +8,12 @@ import com.google.common.collect.Maps;
 public class MetaMap {
     private Map<String, String> nameToDataType = Maps.newHashMap();
     private Map<String, String> labelToDataType = Maps.newHashMap();
+    private Map<String, String> associationType = Maps.newHashMap();
 
-    public void addMeta(String name, String label, String dataType) {
+    public void addMeta(String name, String label, String dataType, String type) {
         nameToDataType.put(name, dataType);
         labelToDataType.put(label, dataType);
+        associationType.put(name, type);
     }
 
     public Optional<String> getDataTypeByName(String name) {
@@ -22,7 +24,11 @@ public class MetaMap {
         return Optional.ofNullable(labelToDataType.get(label));
     }
 
-    public Object convertType(String columnName, String value) throws Exception {
+    public String getTypeByName(String name) {
+        return associationType.get(name);
+    }
+
+    public Object convertType(String columnName, String value) {
         Optional<String> dataType = getDataTypeByName(columnName);
         if(!dataType.isPresent()) {
             dataType = getDataTypeByLabel(columnName);

@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.service;
 
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +29,7 @@ public class ConcurrentServiceExecutor {
         try {
 
             // loop through records
-            for(Map<String, Object> row : csvItr) {
+            for(JsonRow row : csvItr) {
                 JsonService service = new JsonService(entityName, bhApi, row);
                 service.setEntity(entityName);
 
