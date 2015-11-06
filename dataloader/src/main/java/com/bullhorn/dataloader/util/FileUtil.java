@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +56,7 @@ public class FileUtil {
     }
 
 
-    public InputStream getPropertiesInputStream(String fileName) throws Exception {
+    public InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
 
         String os = System.getProperty("os.name").toLowerCase();
         String path = "/usr/local/bullhorn/conf/";
@@ -67,7 +68,7 @@ public class FileUtil {
         return inputStream;
     }
 
-    public Properties getProps(String fileName) throws Exception {
+    public Properties getProps(String fileName) throws IOException {
         InputStream inputStream = getPropertiesInputStream(fileName);
         Properties properties = new Properties();
         properties.load(inputStream);

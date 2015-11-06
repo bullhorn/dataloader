@@ -44,7 +44,7 @@ public class BullhornAPI {
 
     private static Log log = LogFactory.getLog(BullhornAPI.class);
 
-    public BullhornAPI(Properties properties) throws Exception {
+    public BullhornAPI(Properties properties) {
         this.properties = properties;
         this.setUsername(properties.getProperty("username"));
         this.setPassword(properties.getProperty("password"));
