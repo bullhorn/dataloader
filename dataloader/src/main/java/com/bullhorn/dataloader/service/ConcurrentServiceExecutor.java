@@ -1,12 +1,15 @@
 package com.bullhorn.dataloader.service;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.bullhorn.dataloader.service.query.AssociationQuery;
 import com.bullhorn.dataloader.util.BullhornAPI;
 import com.bullhorn.dataloader.util.CsvToJson;
+import com.google.common.cache.LoadingCache;
 
 
 public class ConcurrentServiceExecutor {
@@ -15,14 +18,19 @@ public class ConcurrentServiceExecutor {
     private final String entityName;
     private final CsvToJson csvItr;
     private final BullhornAPI bhApi;
+    private final LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
 
     private final Log log = LogFactory.getLog(ConcurrentServiceExecutor.class);
 
-    public ConcurrentServiceExecutor(String entityName, CsvToJson csvItr, BullhornAPI bhApi, ExecutorService executorService) {
+    public ConcurrentServiceExecutor(String entityName,
+                                     CsvToJson csvItr,
+                                     BullhornAPI bhApi,
+                                     ExecutorService executorService, LoadingCache<AssociationQuery, Optional<Integer>> assocationCache) {
         this.entityName = entityName;
         this.bhApi = bhApi;
         this.executorService = executorService;
         this.csvItr = csvItr;
+        this.associationCache = assocationCache;
     }
 
     public void runProcess() {
@@ -30,9 +38,8 @@ public class ConcurrentServiceExecutor {
 
             // loop through records
             for(JsonRow row : csvItr) {
-                JsonService service = new JsonService(entityName, bhApi, row);
+                JsonService service = new JsonService(entityName, bhApi, row, associationCache);
                 service.setEntity(entityName);
-
                 executorService.execute(service);
             }
 

@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,12 +10,15 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.bullhorn.dataloader.service.AssociationCache;
 import com.bullhorn.dataloader.service.ConcurrentServiceExecutor;
-import com.bullhorn.dataloader.service.MasterDataService;
+import com.bullhorn.dataloader.service.query.AssociationQuery;
 import com.bullhorn.dataloader.util.BullhornAPI;
 import com.bullhorn.dataloader.util.CsvToJson;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 
 public class Main {
 
@@ -25,9 +29,14 @@ public class Main {
         // Entity to be imported and path to the CSV are passed in at runtime
         FileUtil fileUtil = new FileUtil();
         Properties properties = fileUtil.getProps("dataloader.properties");
+        // Cache master data - category, skill, business sector, internal users
+
         // Create API object. Pass this object to each import service via ConcurrentServiceExecutor
         // BullhornAPI contains REST session and helper methods to communicate with Bullhorn
         BullhornAPI bhapi = new BullhornAPI(properties);
+        LoadingCache<AssociationQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
+                .maximumSize(10000)
+                .build(new AssociationCache(bhapi));
 
         if ("template".equals(args[0])) {
             TemplateUtil templateUtil = new TemplateUtil(bhapi);
@@ -42,19 +51,16 @@ public class Main {
                 String filePath = args[1];
                 Integer numThreads = Integer.valueOf(properties.getProperty("numThreads"));
 
-                // Cache master data - category, skill, business sector, internal users
-                MasterDataService masterDataService = new MasterDataService();
-                masterDataService.setBhapi(bhapi);
-
                 CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
                 ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
-                // Import to Bullhorn
 
+                // Import to Bullhorn
                 ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
                         WordUtils.capitalize(entity),
                         csvToJson,
                         bhapi,
-                        executorService
+                        executorService,
+                        associationCache
                 );
 
                 // Start import

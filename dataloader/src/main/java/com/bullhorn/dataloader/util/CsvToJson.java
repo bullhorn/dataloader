@@ -64,13 +64,15 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
 
     @Override
     public JsonRow next() {
-        readLine();
         try {
-            return mapRow();
+            if (hasNextLine) {
+                readLine();
+                return mapRow();
+            }
         } catch (IOException e) {
             log.error(e);
-            return null;
         }
+        return null;
     }
 
     @Override

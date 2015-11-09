@@ -384,23 +384,6 @@ public class BullhornAPI {
         return jsResp;
     }
 
-    public void saveToMany(JSONObject response, Map<String, Object> toManyProperties, String entityBase, String bhRestToken, String put) {
-        int entityId = response.getInt("changedEntityId");
-        for (String associatedEntity : toManyProperties.keySet()) {
-            String url = entityBase + "/"
-                    + entityId + "/"
-                    + associatedEntity + "/"
-                    + ((Map<String, Object>) toManyProperties.get(associatedEntity)).get("id")
-                    + bhRestToken;
-            PutMethod putMethod = new PutMethod(url);
-            try {
-                this.put(putMethod);
-            } catch (IOException e) {
-                log.error(e);
-            }
-        }
-    }
-
     public String getUsername() {
         return username;
     }

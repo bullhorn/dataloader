@@ -107,8 +107,7 @@ public class MasterDataService {
             String putURL = bhapi.getRestURL() + "entity/" + entity + "/" + id + "/" + associationName + "/" + asscIdList + "?BhRestToken=" + bhapi.getBhRestToken();
 
             PutMethod method = new PutMethod(putURL);
-            JSONObject jsResp;
-            jsResp = bhapi.put(method);
+            JSONObject jsResp = bhapi.put(method);
             log.info(jsResp);
         }
     }
