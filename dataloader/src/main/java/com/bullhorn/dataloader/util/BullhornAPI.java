@@ -290,7 +290,7 @@ public class BullhornAPI {
             name = field.getString("name");
             type = field.getString("type");
 
-            if(null != subFields) {
+            if (null != subFields) {
                 String path = jsonObjectFields.getPath();
                 path = path.isEmpty() ? name + "." : path + name + ".";
                 JsonObjectFields nestedFields = new JsonObjectFields(path, subFields);
@@ -329,7 +329,7 @@ public class BullhornAPI {
         } catch (JSONException e) {
             subFields = null;
         }
-        if(subFields == null) {
+        if (subFields == null) {
             try {
                 JSONObject associatedEntity = field.getJSONObject("associatedEntity");
                 subFields = associatedEntity.getJSONArray("fields");
