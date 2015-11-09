@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.util;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
@@ -42,6 +43,7 @@ public class BullhornAPI {
     private String clientId;
     private String clientSecret;
     private String loginUrl;
+    private SimpleDateFormat dateParser;
 
     private static Log log = LogFactory.getLog(BullhornAPI.class);
 
@@ -54,6 +56,7 @@ public class BullhornAPI {
         this.setClientId(properties.getProperty("clientId"));
         this.setClientSecret(properties.getProperty("clientSecret"));
         this.setLoginUrl(properties.getProperty("loginUrl"));
+        this.setDateParser(properties.getProperty("dateFormat"));
         createSession();
     }
 
@@ -267,7 +270,7 @@ public class BullhornAPI {
         JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
         deque.add(jsonObjectFields);
 
-        MetaMap meta = new MetaMap();
+        MetaMap meta = new MetaMap(getDateParser());
         while (!deque.isEmpty()) {
             jsonObjectFields = deque.pop();
             fields = jsonObjectFields.getJsonArray();
@@ -454,5 +457,13 @@ public class BullhornAPI {
 
     public void setLoginUrl(String loginUrl) {
         this.loginUrl = loginUrl;
+    }
+
+    private void setDateParser(String format) {
+        this.dateParser = new SimpleDateFormat(format);
+    }
+
+    private SimpleDateFormat getDateParser() {
+        return dateParser;
     }
 }

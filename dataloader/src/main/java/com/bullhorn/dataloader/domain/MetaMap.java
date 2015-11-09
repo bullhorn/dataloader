@@ -1,14 +1,27 @@
 package com.bullhorn.dataloader.domain;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Optional;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.google.common.collect.Maps;
 
 public class MetaMap {
+    private final Log log = LogFactory.getLog(MetaMap.class);
+
+    private final SimpleDateFormat simpleDateFormat;
+
     private Map<String, String> nameToDataType = Maps.newHashMap();
     private Map<String, String> labelToDataType = Maps.newHashMap();
     private Map<String, String> associationType = Maps.newHashMap();
+
+    public MetaMap(SimpleDateFormat simpleDateFormat) {
+        this.simpleDateFormat = simpleDateFormat;
+    }
 
     public void addMeta(String name, String label, String dataType, String type) {
         nameToDataType.put(name, dataType);
@@ -56,6 +69,17 @@ public class MetaMap {
                         return false;
                     } else {
                         return Boolean.valueOf(value);
+                    }
+                case "Timestamp":
+                    if(value.isEmpty()) {
+                        return null;
+                    } else {
+                        try {
+                            return simpleDateFormat.parse(value);
+                        } catch (ParseException e) {
+                            log.error(e);
+                            return value;
+                        }
                     }
             }
         }
