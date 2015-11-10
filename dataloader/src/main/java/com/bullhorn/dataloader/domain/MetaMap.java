@@ -18,15 +18,30 @@ public class MetaMap {
     private Map<String, String> nameToDataType = Maps.newHashMap();
     private Map<String, String> labelToDataType = Maps.newHashMap();
     private Map<String, String> associationType = Maps.newHashMap();
+    private Map<String, String> nameToLabel = Maps.newHashMap();
 
     public MetaMap(SimpleDateFormat simpleDateFormat) {
         this.simpleDateFormat = simpleDateFormat;
     }
 
-    public void addMeta(String name, String label, String dataType, String type) {
+    public void setNameToAssociatedEntityName(String name, String label) {
+        nameToLabel.put(name, label);
+    }
+
+    public Optional<String> getLabelByName(String name) {
+        return Optional.ofNullable(nameToLabel.get(name));
+    }
+
+    public void setNameToDataType(String name, String dataType) {
         nameToDataType.put(name, dataType);
+    }
+
+    public void setLabelToDataType(String label, String dataType) {
         labelToDataType.put(label, dataType);
-        associationType.put(name, type);
+    }
+
+    public void setAssociationToType(String association, String type) {
+        associationType.put(association, type);
     }
 
     public Optional<String> getDataTypeByName(String name) {

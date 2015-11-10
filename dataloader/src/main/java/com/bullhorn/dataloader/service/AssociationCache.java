@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
@@ -48,8 +47,8 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     }
 
     private Optional<Integer> query(AssociationQuery associationQuery) throws IOException {
-        String getURL = bhapi.getRestURL() + "query/" +
-                associationQuery.getEntity() + "?fields=id,name&where="
+        String getURL = bhapi.getRestURL() + "query/"
+                + toLabel(associationQuery.getEntity()) + "?fields=id&where="
                 + associationQuery.getWhereClause()
                 + "&count=2"
                 + "&BhRestToken=" + bhapi.getBhRestToken();
@@ -67,9 +66,18 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
 
     }
 
+    private String toLabel(String entity) {
+        Optional<String> label = bhapi.getLabelByName(entity);
+        if (!label.isPresent()) {
+            throw new IllegalArgumentException("Entity does not exist" + entity);
+        }
+        return label.get();
+    }
+
     private Integer insert(AssociationQuery associationQuery) {
         String insertionNotImplemented = "Inserts for associations not yet implemented";
         log.error(insertionNotImplemented);
-        throw new NotImplementedException(insertionNotImplemented);
+        //throw new NotImplementedException(insertionNotImplemented);
+        return 1;
     }
 }

@@ -36,14 +36,15 @@ public class JsonService implements Runnable {
         String entityBase = bhapi.getRestURL() + "entity/" + getEntity();
         String restToken = "?BhRestToken=" + bhapi.getBhRestToken();
         String postURL = entityBase + restToken;
-
+        JSONObject response = null;
         try {
-            JSONObject response = bhapi.saveNonToMany(data.getNonToManyProperties(), postURL, "PUT");
+            response = bhapi.saveNonToMany(data.getNonToManyProperties(), postURL, "PUT");
             // ResponseId is
             // response.getInt("changedEntityId");
             saveToMany(data.getToManyProperties());
         } catch (Exception e) {
             log.error("Error saving entity", e);
+            log.error(response);
         }
     }
 

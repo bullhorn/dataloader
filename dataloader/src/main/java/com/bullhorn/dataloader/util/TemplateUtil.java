@@ -39,7 +39,8 @@ public class TemplateUtil {
         StringBuilder exampleRow = new StringBuilder();
         for (String column : nameColumns) {
             String datatype = metaMap.getDataTypeByName(column).get();
-            if (!isCompositeType(datatype) && !hasId(column)) {
+            if (!isCompositeType(datatype)
+                    && !hasId(column)) {
                 header.append(column).append(",");
                 exampleRow.append(datatype).append(",");
             }

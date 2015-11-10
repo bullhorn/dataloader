@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpClient;
@@ -46,6 +47,7 @@ public class BullhornAPI {
     private SimpleDateFormat dateParser;
 
     private static Log log = LogFactory.getLog(BullhornAPI.class);
+    private MetaMap metaMap;
 
     public BullhornAPI(Properties properties) {
         this.properties = properties;
@@ -260,24 +262,26 @@ public class BullhornAPI {
     }
 
     public MetaMap getMetaDataTypes(String entity) throws IOException {
-        String url = this.getRestURL() + "meta/" + entity + "?fields=*&BhRestToken=" + this.getBhRestToken();
-        GetMethod method = new GetMethod(url);
-        JSONObject jsonObject = get(method);
+        if (null == metaMap) {
+            String url = this.getRestURL() + "meta/" + entity + "?fields=*&BhRestToken=" + this.getBhRestToken();
+            GetMethod method = new GetMethod(url);
+            JSONObject jsonObject = get(method);
 
-        JSONArray fields = jsonObject.getJSONArray("fields");
+            JSONArray fields = jsonObject.getJSONArray("fields");
 
-        Deque<JsonObjectFields> deque = new ArrayDeque<>();
-        JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
-        deque.add(jsonObjectFields);
+            Deque<JsonObjectFields> deque = new ArrayDeque<>();
+            JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
+            deque.add(jsonObjectFields);
 
-        MetaMap meta = new MetaMap(getDateParser());
-        while (!deque.isEmpty()) {
-            jsonObjectFields = deque.pop();
-            fields = jsonObjectFields.getJsonArray();
+            metaMap = new MetaMap(getDateParser());
+            while (!deque.isEmpty()) {
+                jsonObjectFields = deque.pop();
+                fields = jsonObjectFields.getJsonArray();
 
-            addEachFieldToMetaAndQueueNestedFields(fields, deque, jsonObjectFields, meta);
+                addEachFieldToMetaAndQueueNestedFields(fields, deque, jsonObjectFields, metaMap);
+            }
         }
-        return meta;
+        return metaMap;
     }
 
     private void addEachFieldToMetaAndQueueNestedFields(JSONArray fields,
@@ -289,40 +293,62 @@ public class BullhornAPI {
 
             JSONArray subFields = getSubField(field);
 
-            String label, name, dataType, type;
-            name = field.getString("name");
-            type = field.getString("type");
+            String name = field.getString("name");
+            String type = field.getString("type");
 
-            if (null != subFields) {
+            if (subFields != null) {
                 String path = jsonObjectFields.getPath();
                 path = path.isEmpty() ? name + "." : path + name + ".";
                 JsonObjectFields nestedFields = new JsonObjectFields(path, subFields);
-                try {
-                    dataType = field.getString("dataType");
-                } catch (JSONException e) {
-                    dataType = "String"; // default type
+                String dataType = getDataType(field);
+                String label = getLabel(field);
+                Optional<String> associatedEntity = getAssociatedEntity(field);
+                String entityName = path.substring(0, path.length() - 1);
+                if (associatedEntity.isPresent()) {
+                    meta.setNameToAssociatedEntityName(entityName, associatedEntity.get());
                 }
-                try {
-                    label = field.getString("label");
-                } catch (JSONException e) {
-                    label = "";
-                }
-                meta.addMeta(path.substring(0, path.length() - 1), label, dataType, type);
+                meta.setLabelToDataType(label, dataType);
+                meta.setNameToDataType(entityName, dataType);
+                meta.setAssociationToType(entityName, type);
                 deque.add(nestedFields);
             } else {
-                try {
-                    dataType = field.getString("dataType");
-                } catch (JSONException e) {
-                    dataType = "String"; // default type
-                }
-                try {
-                    label = field.getString("label");
-                } catch (JSONException e) {
-                    label = "";
-                }
-                meta.addMeta(jsonObjectFields.getPath() + name, label, dataType, type);
+                String dataType = getDataType(field);
+                String label = getLabel(field);
+                String entityUniversalResourceName = jsonObjectFields.getPath() + name;
+                meta.setLabelToDataType(label, dataType);
+                meta.setNameToDataType(entityUniversalResourceName, dataType);
+                meta.setAssociationToType(entityUniversalResourceName, type);
             }
         }
+    }
+
+    private Optional<String> getAssociatedEntity(JSONObject field) {
+        try {
+            return Optional.of(field.getJSONObject("associatedEntity").getString("entity"));
+        } catch (JSONException e) {
+            return Optional.empty();
+        }
+
+    }
+
+    private String getLabel(JSONObject field) {
+        String label;
+        try {
+            label = field.getString("label");
+        } catch (JSONException e) {
+            label = "";
+        }
+        return label;
+    }
+
+    private String getDataType(JSONObject field) {
+        String dataType;
+        try {
+            dataType = field.getString("dataType");
+        } catch (JSONException e) {
+            dataType = "String"; // default type
+        }
+        return dataType;
     }
 
     private JSONArray getSubField(JSONObject field) {
@@ -385,6 +411,10 @@ public class BullhornAPI {
         log.info(jsResp);
 
         return jsResp;
+    }
+
+    public Optional<String> getLabelByName(String entity) {
+        return metaMap.getLabelByName(entity);
     }
 
     public String getUsername() {
