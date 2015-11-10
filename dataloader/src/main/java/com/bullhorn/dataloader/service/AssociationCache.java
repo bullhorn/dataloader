@@ -54,16 +54,17 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
                 + "&BhRestToken=" + bhapi.getBhRestToken();
         GetMethod queryBH = new GetMethod(getURL);
         JSONObject qryJSON = bhapi.get(queryBH);
-        if (qryJSON.getInt("count") == 0) {
+
+        int count = qryJSON.getInt("count");
+        if (count == 0) { // no match
             Integer id = insert(associationQuery);
             return Optional.of(id);
-        } else if (qryJSON.getInt("count") == 1) {
+        } else if (count == 1) { // exact match
             return Optional.of(qryJSON.getJSONArray("data").getJSONObject(0).getInt("id"));
-        } else {
+        } else { // too vague
             // More than one entity retrieved by the query so we cannot use the result for anything
             return Optional.empty();
         }
-
     }
 
     private String toLabel(String entity) {

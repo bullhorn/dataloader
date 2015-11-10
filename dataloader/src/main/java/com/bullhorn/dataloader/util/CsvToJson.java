@@ -15,6 +15,7 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
 
     private final MetaMap metaMap;
     private CsvReader csvReader;
+    private JsonRow nextRow;
     private boolean hasNextLine = true;
     private String[] columns;
 
@@ -23,6 +24,7 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
         csvReader.readHeaders();
         columns = csvReader.getHeaders();
         this.metaMap = metaMap;
+        readLine();
     }
 
     private JsonRow mapRow() throws IOException {
@@ -52,6 +54,7 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
     private void readLine() {
         try {
             hasNextLine = csvReader.readRecord();
+            nextRow = mapRow();
         } catch (IOException e) {
             hasNextLine = false;
         }
@@ -64,13 +67,10 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
 
     @Override
     public JsonRow next() {
-        try {
-            if (hasNextLine) {
-                readLine();
-                return mapRow();
-            }
-        } catch (IOException e) {
-            log.error(e);
+        if (hasNextLine) {
+            JsonRow currentRow = nextRow;
+            readLine();
+            return currentRow;
         }
         return null;
     }
