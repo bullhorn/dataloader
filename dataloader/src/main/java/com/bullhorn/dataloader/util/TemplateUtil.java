@@ -38,7 +38,7 @@ public class TemplateUtil {
         StringBuilder header = new StringBuilder();
         StringBuilder exampleRow = new StringBuilder();
         for (String column : nameColumns) {
-            String datatype = metaMap.getDataTypeByName(column).get();
+            String datatype = metaMap.getDataTypeByFieldName(column).get();
             if (!isCompositeType(datatype)
                     && !hasId(column)) {
                 header.append(column).append(",");
@@ -56,7 +56,7 @@ public class TemplateUtil {
     }
 
     private boolean hasId(String column) {
-        return metaMap.getDataTypeByName(column + ".id").isPresent();
+        return metaMap.getDataTypeByFieldName(column + ".id").isPresent();
     }
 
     private boolean isCompositeType(String datetype) {

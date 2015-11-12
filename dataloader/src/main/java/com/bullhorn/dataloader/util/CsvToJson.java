@@ -31,8 +31,8 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
         JsonRow JsonRow = new JsonRow();
         for (String column : columns) {
             String[] jsonPath = column.split("\\.");
-            Object convertType = metaMap.convertType(column, get(column));
-            if ("TO_MANY".equalsIgnoreCase(metaMap.getTypeByName(jsonPath[0]))) {
+            Object convertType = metaMap.convertFieldValue(column, get(column));
+            if ("TO_MANY".equalsIgnoreCase(metaMap.getAssociationTypeByFieldName(jsonPath[0]))) {
                 JsonRow.addDeferredAction(jsonPath, convertType);
             } else {
                 JsonRow.addImmediateAction(jsonPath, convertType);

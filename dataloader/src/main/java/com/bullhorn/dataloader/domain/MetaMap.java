@@ -1,103 +1,78 @@
 package com.bullhorn.dataloader.domain;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Optional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.google.common.collect.Maps;
 
 public class MetaMap {
-    private final Log log = LogFactory.getLog(MetaMap.class);
 
     private final SimpleDateFormat simpleDateFormat;
 
-    private Map<String, String> nameToDataType = Maps.newHashMap();
-    private Map<String, String> labelToDataType = Maps.newHashMap();
-    private Map<String, String> associationType = Maps.newHashMap();
-    private Map<String, String> nameToLabel = Maps.newHashMap();
+    private Map<String, String> fieldNameToDataType = Maps.newHashMap();
+    private Map<String, String> fieldMapLabelToDataType = Maps.newHashMap();
+    private Map<String, String> fieldNameToAssociationType = Maps.newHashMap();
+    private Map<String, String> rootFieldNameToEntityName = Maps.newHashMap(); //rootFieldName is the base entity for the "dot" notation (e.g. clientCompany for clientCompany.name)
 
     public MetaMap(SimpleDateFormat simpleDateFormat) {
         this.simpleDateFormat = simpleDateFormat;
     }
 
-    public void setNameToAssociatedEntityName(String name, String label) {
-        nameToLabel.put(name, label);
+    public void setRootFieldNameToEntityName(String rootFieldName, String entityName) {
+        rootFieldNameToEntityName.put(rootFieldName, entityName);
     }
 
-    public Optional<String> getLabelByName(String name) {
-        return Optional.ofNullable(nameToLabel.get(name));
+    public Optional<String> getEntityNameByRootFieldName(String rootFieldName) {
+        return Optional.ofNullable(rootFieldNameToEntityName.get(rootFieldName));
     }
 
-    public void setNameToDataType(String name, String dataType) {
-        nameToDataType.put(name, dataType);
+    public void setFieldNameToDataType(String fieldName, String dataType) {
+        fieldNameToDataType.put(fieldName, dataType);
     }
 
-    public void setLabelToDataType(String label, String dataType) {
-        labelToDataType.put(label, dataType);
+    public void setFieldMapLabelToDataType(String fieldMapLabel, String dataType) {
+        fieldMapLabelToDataType.put(fieldMapLabel, dataType);
     }
 
-    public void setAssociationToType(String association, String type) {
-        associationType.put(association, type);
+    public void setFieldNameToAssociationType(String fieldName, String associationType) {
+        fieldNameToAssociationType.put(fieldName, associationType);
     }
 
-    public Optional<String> getDataTypeByName(String name) {
-        return Optional.ofNullable(nameToDataType.get(name));
+    public Optional<String> getDataTypeByFieldName(String fieldName) {
+        return Optional.ofNullable(fieldNameToDataType.get(fieldName));
     }
 
-    public Optional<String> getDataTypeByLabel(String label) {
-        return Optional.ofNullable(labelToDataType.get(label));
+    public Optional<String> getDataTypeByFieldMapLabel(String fieldMapLabel) {
+        return Optional.ofNullable(fieldMapLabelToDataType.get(fieldMapLabel));
     }
 
-    public String getTypeByName(String name) {
-        return associationType.get(name);
+    public String getAssociationTypeByFieldName(String fieldName) {
+        return fieldNameToAssociationType.get(fieldName);
     }
 
-    public Object convertType(String columnName, String value) {
-        Optional<String> dataType = getDataTypeByName(columnName);
-        if(!dataType.isPresent()) {
-            dataType = getDataTypeByLabel(columnName);
-        }
-
+    public Object convertFieldValue(String fieldName, String value) {
+        Optional<String> dataType = determineDataType(fieldName);
         if(dataType.isPresent()) {
-            String type = dataType.get();
-            switch (type) {
-                case "String":
-                    return String.valueOf(value);
-                case "Integer":
-                    if(value.isEmpty()) {
-                        return 0;
-                    } else {
-                        return Integer.valueOf(value);
-                    }
-                case "Double":
-                    if(value.isEmpty()) {
-                        return 0.0d;
-                    } else {
-                        return Double.valueOf(value);
-                    }
-                case "Boolean":
-                    if(value.isEmpty()) {
-                        return false;
-                    } else {
-                        return Boolean.valueOf(value);
-                    }
-                case "Timestamp":
-                    if(value.isEmpty()) {
-                        return null;
-                    } else {
-                        try {
-                            return simpleDateFormat.parse(value);
-                        } catch (ParseException e) {
-                            log.error(e);
-                            return value;
-                        }
-                    }
+            MetaDataType metaDataType = MetaDataType.fromName(dataType.get());
+            if(metaDataType != null) {
+                return metaDataType.convertFieldValue(value, simpleDateFormat);
             }
         }
         return value;
     }
+
+    /**
+     * CSV supports both field name or field map labels
+     * @param fieldName
+     * @return dataType
+     */
+    protected Optional<String> determineDataType(String fieldName) {
+        Optional<String> dataType = getDataTypeByFieldName(fieldName);
+        if (!dataType.isPresent()) {
+            dataType = getDataTypeByFieldMapLabel(fieldName);
+        }
+        return dataType;
+    }
+
 }

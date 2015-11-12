@@ -305,19 +305,19 @@ public class BullhornAPI {
                 Optional<String> associatedEntity = getAssociatedEntity(field);
                 String entityName = path.substring(0, path.length() - 1);
                 if (associatedEntity.isPresent()) {
-                    meta.setNameToAssociatedEntityName(entityName, associatedEntity.get());
+                    meta.setRootFieldNameToEntityName(entityName, associatedEntity.get());
                 }
-                meta.setLabelToDataType(label, dataType);
-                meta.setNameToDataType(entityName, dataType);
-                meta.setAssociationToType(entityName, type);
+                meta.setFieldMapLabelToDataType(label, dataType);
+                meta.setFieldNameToDataType(entityName, dataType);
+                meta.setFieldNameToAssociationType(entityName, type);
                 deque.add(nestedFields);
             } else {
                 String dataType = getDataType(field);
                 String label = getLabel(field);
                 String entityUniversalResourceName = jsonObjectFields.getPath() + name;
-                meta.setLabelToDataType(label, dataType);
-                meta.setNameToDataType(entityUniversalResourceName, dataType);
-                meta.setAssociationToType(entityUniversalResourceName, type);
+                meta.setFieldMapLabelToDataType(label, dataType);
+                meta.setFieldNameToDataType(entityUniversalResourceName, dataType);
+                meta.setFieldNameToAssociationType(entityUniversalResourceName, type);
             }
         }
     }
@@ -414,7 +414,7 @@ public class BullhornAPI {
     }
 
     public Optional<String> getLabelByName(String entity) {
-        return metaMap.getLabelByName(entity);
+        return metaMap.getEntityNameByRootFieldName(entity);
     }
 
     public String getUsername() {
