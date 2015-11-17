@@ -5,23 +5,31 @@ import java.util.Map;
 
 import com.google.common.collect.Maps;
 
+
+/**
+ * JsonRow maps JSON objects to tree structures using nested hash maps. The leaves are the type-casted values and the
+ * internal nodes are strings that form the URI to access the values.
+ *
+ * The JsonRow knows about immediate and deferred actions. Immediate actions are run before deferred actions. There is
+ * no implied ordering in executing the actions.
+ */
 public class JsonRow {
 
-    private final Map<String, Object> toManyProperties;
+    private final Map<String, Object> deferredActions;
 
-    private final Map<String, Object> nonToManyProperties;
+    private final Map<String, Object> immediateActions;
 
     public JsonRow() {
-        this.nonToManyProperties = Maps.newHashMap();
-        this.toManyProperties = Maps.newHashMap();
+        this.immediateActions = Maps.newHashMap();
+        this.deferredActions = Maps.newHashMap();
     }
 
     public void addImmediateAction(String[] jsonPath, Object convertedValue) {
-        addAction(jsonPath, convertedValue, nonToManyProperties);
+        addAction(jsonPath, convertedValue, immediateActions);
     }
 
     public void addDeferredAction(String[] jsonPath, Object convertedValue) {
-        addAction(jsonPath, convertedValue, toManyProperties);
+        addAction(jsonPath, convertedValue, deferredActions);
     }
 
     void addAction(String[] jsonPath, Object convertedValue, Map<String, Object> toManyProperties) {
@@ -32,8 +40,7 @@ public class JsonRow {
     private Map<String, Object> getOrCreateNested(Map<String, Object> actions, String[] jsonPath) {
         Map<String, Object> tmpMap = actions;
         for (int i = 0; i < jsonPath.length - 1; i++) {
-            String path = jsonPath[i];
-            tmpMap = getOrCreateMap(tmpMap, path);
+            tmpMap = getOrCreateMap(tmpMap, jsonPath[i]);
         }
         return tmpMap;
     }
@@ -44,11 +51,11 @@ public class JsonRow {
         }
         return (Map<String, Object>) tmpMap.get(path);
     }
-    public Map<String, Object> getNonToManyProperties() {
-        return nonToManyProperties;
+    public Map<String, Object> getImmediateActions() {
+        return immediateActions;
     }
 
-    public Map<String, Object> getToManyProperties() {
-        return toManyProperties;
+    public Map<String, Object> getDeferredActions() {
+        return deferredActions;
     }
 }

@@ -39,10 +39,10 @@ public class JsonService implements Runnable {
         String postURL = entityBase + restToken;
         JSONObject response = null;
         try {
-            response = bhapi.saveNonToMany(data.getNonToManyProperties(), postURL, "PUT");
+            response = bhapi.saveNonToMany(data.getImmediateActions(), postURL, "PUT");
             // ResponseId is
             // response.getInt("changedEntityId");
-            saveToMany(data.getToManyProperties());
+            saveToMany(data.getDeferredActions());
         } catch (Exception e) {
             log.error("Error saving entity", e);
             log.error(response);
