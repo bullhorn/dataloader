@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.service.api;
 
 import org.json.JSONArray;
 

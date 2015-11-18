@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader.service.executor;
 
 import java.util.Map;
 import java.util.Optional;
@@ -8,8 +8,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
+import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.AssociationQuery;
-import com.bullhorn.dataloader.util.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.google.common.cache.LoadingCache;
 
 public class JsonService implements Runnable {

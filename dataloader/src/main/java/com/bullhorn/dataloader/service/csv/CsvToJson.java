@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.service.csv;
 
 import java.io.IOException;
 import java.util.Iterator;
@@ -6,8 +6,8 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.bullhorn.dataloader.domain.MetaMap;
-import com.bullhorn.dataloader.service.JsonRow;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.csvreader.CsvReader;
 
 public class CsvToJson implements Iterator, Iterable<JsonRow> {
@@ -28,18 +28,18 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
     }
 
     private JsonRow mapRow() throws IOException {
-        JsonRow JsonRow = new JsonRow();
+        JsonRow jsonRow = new JsonRow();
         for (String column : columns) {
             String[] jsonPath = column.split("\\.");
             Object convertType = metaMap.convertFieldValue(column, get(column));
-            if ("TO_MANY".equalsIgnoreCase(metaMap.getAssociationTypeByFieldName(jsonPath[0]))) {
-                JsonRow.addDeferredAction(jsonPath, convertType);
+            if (CaseInsensitiveStringPredicate.isToMany(metaMap.getAssociationTypeByFieldName(jsonPath[0]))) {
+                jsonRow.addDeferredAction(jsonPath, convertType);
             } else {
-                JsonRow.addImmediateAction(jsonPath, convertType);
+                jsonRow.addImmediateAction(jsonPath, convertType);
             }
 
         }
-        return JsonRow;
+        return jsonRow;
     }
 
     private String get(String column) throws IOException {

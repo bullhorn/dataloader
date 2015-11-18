@@ -10,11 +10,11 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.bullhorn.dataloader.service.AssociationCache;
-import com.bullhorn.dataloader.service.ConcurrentServiceExecutor;
+import com.bullhorn.dataloader.service.query.AssociationCache;
+import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
 import com.bullhorn.dataloader.service.query.AssociationQuery;
-import com.bullhorn.dataloader.util.BullhornAPI;
-import com.bullhorn.dataloader.util.CsvToJson;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.google.common.cache.CacheBuilder;

@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.domain;
+package com.bullhorn.dataloader.meta;
 
 import java.util.HashMap;
 

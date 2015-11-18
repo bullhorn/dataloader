@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader.service.csv;
 
 import java.util.HashMap;
 import java.util.Map;

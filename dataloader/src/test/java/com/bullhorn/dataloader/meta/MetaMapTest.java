@@ -1,16 +1,14 @@
-package com.bullhorn.dataloader.domain;
-
-import junit.framework.Assert;
-import org.junit.Test;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Optional;
-import java.util.TimeZone;
+package com.bullhorn.dataloader.meta;
 
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Optional;
+
+import org.junit.Test;
 
 public class MetaMapTest {
 

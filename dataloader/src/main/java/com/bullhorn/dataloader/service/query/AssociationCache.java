@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader.service.query;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -8,8 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.service.query.AssociationQuery;
-import com.bullhorn.dataloader.util.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.google.common.cache.CacheLoader;
 
 /**

@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader.service.api;
 
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -16,8 +16,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.domain.MasterData;
-import com.bullhorn.dataloader.util.BullhornAPI;
+import com.bullhorn.dataloader.meta.MasterData;
+import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 
 public class MasterDataService {
 
@@ -60,11 +60,11 @@ public class MasterDataService {
         HashMap<Integer, String> associatons = null;
 
         // Master list of associations
-        if (associationName.equalsIgnoreCase("categories")) {
+        if (CaseInsensitiveStringPredicate.isCategories(associationName)) {
             associatons = masterData.getCategories();
-        } else if (associationName.equalsIgnoreCase("skills")) {
+        } else if (CaseInsensitiveStringPredicate.isSkills(associationName)) {
             associatons = masterData.getSkills();
-        } else if (associationName.equalsIgnoreCase("businesssectors")) {
+        } else if (CaseInsensitiveStringPredicate.isBusinessSectors(associationName)) {
             associatons = masterData.getBusinessSectors();
         }
 

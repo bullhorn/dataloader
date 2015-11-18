@@ -1,10 +1,10 @@
-package com.bullhorn.dataloader.domain;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+package com.bullhorn.dataloader.meta;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 public enum MetaDataType {
     STRING("String") {

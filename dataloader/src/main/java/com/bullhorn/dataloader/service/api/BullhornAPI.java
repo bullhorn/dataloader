@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.service.api;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -26,7 +26,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.domain.MetaMap;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.google.common.base.Splitter;
 
 public class BullhornAPI {
@@ -163,15 +164,15 @@ public class BullhornAPI {
         HttpClient client = new HttpClient();
         String responseStr = "";
 
-        if (type.equalsIgnoreCase("get")) {
+        if (CaseInsensitiveStringPredicate.isGet(type)) {
             GetMethod method = (GetMethod) meth;
             client.executeMethod(method);
             responseStr = IOUtils.toString(method.getResponseBodyAsStream());
-        } else if (type.equalsIgnoreCase("put")) {
+        } else if (CaseInsensitiveStringPredicate.isPut(type)) {
             PutMethod method = (PutMethod) meth;
             client.executeMethod(method);
             responseStr = IOUtils.toString(method.getResponseBodyAsStream());
-        } else if (type.equalsIgnoreCase("delete")) {
+        } else if (CaseInsensitiveStringPredicate.isDelete(type)) {
             DeleteMethod method = (DeleteMethod) meth;
             client.executeMethod(method);
             responseStr = IOUtils.toString(method.getResponseBodyAsStream());
@@ -245,7 +246,7 @@ public class BullhornAPI {
 
     public JSONObject doesRecordExist(String entity, String field, String value) throws IOException {
         String getURL;
-        if (field.equalsIgnoreCase("id")) {
+        if (CaseInsensitiveStringPredicate.isId(field)) {
             getURL = this.getRestURL() + "entity/" + entity + "/" + value;
             getURL = getURL + "?fields=*&BhRestToken=" + this.BhRestToken;
         } else {
@@ -396,7 +397,7 @@ public class BullhornAPI {
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, "application/json", "UTF-8");
         JSONObject jsResp;
-        if (type.equalsIgnoreCase("put")) {
+        if (CaseInsensitiveStringPredicate.isPut(type)) {
             PutMethod method = new PutMethod(url);
             method.setRequestEntity(requestEntity);
             jsResp = this.put(method);

@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader.service.executor;
 
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -6,9 +6,10 @@ import java.util.concurrent.ExecutorService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.bullhorn.dataloader.service.csv.CsvToJson;
+import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.AssociationQuery;
-import com.bullhorn.dataloader.util.BullhornAPI;
-import com.bullhorn.dataloader.util.CsvToJson;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.google.common.cache.LoadingCache;
 
 

@@ -6,8 +6,9 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 
-import com.bullhorn.dataloader.domain.MetaMap;
-import com.bullhorn.dataloader.service.MasterDataService;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.MasterDataService;
 import com.google.common.collect.Sets;
 
 public class TemplateUtil {
