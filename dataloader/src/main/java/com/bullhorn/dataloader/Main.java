@@ -3,6 +3,7 @@ package com.bullhorn.dataloader;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -10,15 +11,17 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.bullhorn.dataloader.service.query.AssociationCache;
-import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
-import com.bullhorn.dataloader.service.query.AssociationQuery;
+import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
+import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
+import com.bullhorn.dataloader.service.query.AssociationCache;
+import com.bullhorn.dataloader.service.query.AssociationQuery;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Sets;
 
 public class Main {
 
@@ -34,9 +37,11 @@ public class Main {
         // Create API object. Pass this object to each import service via ConcurrentServiceExecutor
         // BullhornAPI contains REST session and helper methods to communicate with Bullhorn
         BullhornAPI bhapi = new BullhornAPI(properties);
+        Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
         LoadingCache<AssociationQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
                 .maximumSize(10000)
-                .build(new AssociationCache(bhapi));
+                .build(new AssociationCache(bhapi, seenFlag));
+
 
         if ("template".equals(args[0])) {
             TemplateUtil templateUtil = new TemplateUtil(bhapi);
@@ -60,7 +65,8 @@ public class Main {
                         csvToJson,
                         bhapi,
                         executorService,
-                        associationCache
+                        associationCache,
+                        seenFlag
                 );
 
                 // Start import

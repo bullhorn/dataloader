@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.service.executor;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
@@ -10,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
+import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.AssociationQuery;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
@@ -20,21 +22,23 @@ public class JsonService implements Runnable {
     private final String NAME = "name";
 
     private final LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
+    private final Set<EntityInstance> seenFlag;
     private BullhornAPI bhapi;
     private String entity;
     private JsonRow data;
 
     private final static Log log = LogFactory.getLog(JsonService.class);
-    private String id;
 
     public JsonService(String entity,
                        BullhornAPI bullhornApi,
                        JsonRow data,
-                       LoadingCache<AssociationQuery, Optional<Integer>> associationCache) {
+                       LoadingCache<AssociationQuery, Optional<Integer>> associationCache,
+                       Set<EntityInstance> seenFlag) {
         this.bhapi = bullhornApi;
         this.entity = entity;
         this.data = data;
         this.associationCache = associationCache;
+        this.seenFlag = seenFlag;
     }
 
     @Override
@@ -65,7 +69,6 @@ public class JsonService implements Runnable {
             log.info(properEntity);
         }
     }
-
 
     private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {
         if (value != null) {
