@@ -1,8 +1,10 @@
 package com.bullhorn.dataloader.service.executor;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,12 +16,16 @@ import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.google.common.cache.LoadingCache;
 
 public class JsonService implements Runnable {
+    private final String ID = "id";
+    private final String NAME = "name";
+
     private final LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
     private BullhornAPI bhapi;
     private String entity;
     private JsonRow data;
 
-    private final Log log = LogFactory.getLog(JsonService.class);
+    private final static Log log = LogFactory.getLog(JsonService.class);
+    private String id;
 
     public JsonService(String entity,
                        BullhornAPI bullhornApi,
@@ -49,14 +55,23 @@ public class JsonService implements Runnable {
         }
     }
 
-    private void saveToMany(Map<String, Object> toManyProperties) throws ExecutionException {
-        for (String entity : toManyProperties.keySet()) {
-            AssociationQuery associationQuery = new AssociationQuery(entity);
-            Map<String, Object> entityFieldFilters = (Map) toManyProperties.get(entity);
-            for (String key : entityFieldFilters.keySet()) {
-                associationQuery.addCondition(key, entityFieldFilters.get(key).toString());
-            }
-            associationCache.get(associationQuery);
+    private void saveToMany(Map<String, Object> toManyProperties) throws ExecutionException, IOException {
+        for (String toManyKey : toManyProperties.keySet()) {
+            AssociationQuery associationQuery = new AssociationQuery(toManyKey, toManyProperties.get(toManyKey));
+            Map<String, Object> entityFieldFilters = (Map) toManyProperties.get(toManyKey);
+            ifPresentPut(associationQuery::addInt, ID, entityFieldFilters.get(ID));
+            ifPresentPut(associationQuery::addString, NAME, entityFieldFilters.get(NAME));
+            Optional<Integer> result = associationCache.get(associationQuery);
+            log.info(result);
+            Optional<String> properEntity = bhapi.getLabelByName(associationQuery.getEntity());
+            log.info(properEntity);
+        }
+    }
+
+
+    private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {
+        if (value != null) {
+            consumer.accept(fieldName, value.toString());
         }
     }
 

@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.service.api;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
@@ -17,7 +16,6 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -187,62 +185,6 @@ public class BullhornAPI {
         return responseJson;
     }
 
-    public String[] getPostURL(Object obj) throws IOException, IllegalAccessException, NoSuchFieldException {
-        // Get class
-        Class<?> cls = obj.getClass();
-        // Domain object name = entity
-        String entity = cls.getSimpleName();
-        // Get field used for determining if record exists
-        String field = properties.getProperty(WordUtils.uncapitalize(entity + "ExistField"));
-        Field fld = cls.getField(field);
-        // If there's an isID annotation, change the field to "id" (from opportunityID for example)
-//        if (fld.isAnnotationPresent(TranslatedType.class)) {
-//            Annotation annotation = fld.getAnnotation(TranslatedType.class);
-//            TranslatedType tt = (TranslatedType) annotation;
-//            if (tt.isID()) field = "id";
-//        }
-
-        String value = "-1";
-        Object fldObj = fld.get(obj);
-        if (fldObj != null) {
-            value = fldObj.toString();
-        }
-
-        JSONObject qryJSON = doesRecordExist(entity, field, value);
-
-        // Assemble URL
-        String type = "put";
-        String postURL = this.getRestURL() + "entity/" + entity;
-
-        // If it's not an array, check if it's an object
-        JSONArray optJsa = qryJSON.optJSONArray("data");
-        if (optJsa == null) {
-            JSONObject optJso = qryJSON.optJSONObject("data");
-            // If it is an object, use it
-            if (optJso != null) {
-                postURL = postURL + "/" + optJso.getInt("id");
-                type = "post";
-            }
-            // If an array is returned, use the ID of the first record
-        } else {
-            JSONObject optJso = optJsa.optJSONObject(0);
-            if (optJso != null) {
-                postURL = postURL + "/" + optJsa.getJSONObject(0).getInt("id");
-                type = "post";
-            }
-        }
-
-        // Append REST token
-        postURL = postURL + "?BhRestToken=" + this.getBhRestToken();
-
-        // return type and URL
-        String[] retArr = new String[2];
-        retArr[0] = type;
-        retArr[1] = postURL;
-
-        return retArr;
-
-    }
 
     public JSONObject doesRecordExist(String entity, String field, String value) throws IOException {
         String getURL;

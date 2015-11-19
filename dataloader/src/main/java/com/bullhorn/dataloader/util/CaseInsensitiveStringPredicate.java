@@ -24,6 +24,10 @@ public class CaseInsensitiveStringPredicate {
         return equalsIgnoreCase("businessSectors", associationName);
     }
 
+    public static boolean isCustomObject(String associationName) {
+        return associationName.startsWith("customObject");
+    }
+
     public static boolean isToMany(String association) {
         return equalsIgnoreCase("TO_MANY", association);
     }

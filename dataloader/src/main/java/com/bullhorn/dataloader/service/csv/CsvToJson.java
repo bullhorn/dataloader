@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.service.csv;
 
+import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isToMany;
+
 import java.io.IOException;
 import java.util.Iterator;
 
@@ -7,7 +10,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.meta.MetaMap;
-import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.csvreader.CsvReader;
 
 public class CsvToJson implements Iterator, Iterable<JsonRow> {
@@ -32,7 +34,9 @@ public class CsvToJson implements Iterator, Iterable<JsonRow> {
         for (String column : columns) {
             String[] jsonPath = column.split("\\.");
             Object convertType = metaMap.convertFieldValue(column, get(column));
-            if (CaseInsensitiveStringPredicate.isToMany(metaMap.getAssociationTypeByFieldName(jsonPath[0]))) {
+            String associationName = jsonPath[0];
+            if (isToMany(metaMap.getAssociationTypeByFieldName(associationName))
+                    && !isCustomObject(associationName)) {
                 jsonRow.addDeferredAction(jsonPath, convertType);
             } else {
                 jsonRow.addImmediateAction(jsonPath, convertType);
