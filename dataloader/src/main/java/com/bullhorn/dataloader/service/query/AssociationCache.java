@@ -47,6 +47,9 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     @Override
     public Optional<Integer> load(AssociationQuery query) throws IOException {
         JSONObject qryJSON = getCall(query);
+        if (!qryJSON.has("count")) {
+            return Optional.empty();
+        }
         int count = qryJSON.getInt("count");
         JSONArray identifiers = qryJSON.getJSONArray("data");
 
@@ -77,8 +80,6 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
                     + " failed for reason " + ret.getString("errorMessage"));
             return Optional.empty();
         }
-
-
         return Optional.of(1);
     }
 

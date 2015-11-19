@@ -328,6 +328,7 @@ public class BullhornAPI {
     public JSONObject saveNonToMany(Object obj, String postURL, String type) throws IOException {
 
         String jsString = serialize(obj);
+        log.info("Nonassociated entity saving to " + postURL);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
         return jsResp;

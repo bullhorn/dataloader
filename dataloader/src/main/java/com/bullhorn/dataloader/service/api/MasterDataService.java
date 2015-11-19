@@ -112,18 +112,6 @@ public class MasterDataService {
         }
     }
 
-    public void associateCategories(Integer id, String categories, String entity) throws Exception {
-        associate(id, "categories", categories, entity);
-    }
-
-    public void associateSkills(Integer id, String skills, String entity) throws Exception {
-        associate(id, "skills", skills, entity);
-    }
-
-    public void associateBusinessSectors(Integer id, String businessSectors, String entity) throws Exception {
-        associate(id, "businesssectors", businessSectors, entity);
-    }
-
     // Lookup key by value
     private Integer getKeyByValue(Map<Integer, String> map, String value) {
         for (Entry<Integer, String> entry : map.entrySet()) {

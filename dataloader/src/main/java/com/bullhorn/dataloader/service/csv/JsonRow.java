@@ -1,15 +1,19 @@
 package com.bullhorn.dataloader.service.csv;
 
+import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 
 /**
  * JsonRow maps JSON objects to tree structures using nested hash maps. The leaves are the type-casted values and the
  * internal nodes are strings that form the URI to access the values.
- *
+ * <p>
  * The JsonRow knows about immediate and deferred actions. Immediate actions are run before deferred actions. There is
  * no implied ordering in executing the actions.
  */
@@ -46,11 +50,38 @@ public class JsonRow {
     }
 
     private Map<String, Object> getOrCreateMap(Map<String, Object> tmpMap, String path) {
-        if (!tmpMap.containsKey(path)) {
-            tmpMap.put(path, new HashMap<String, Object>());
+        Map<String, Object> map;
+        if (isCustomObject(path)) {
+            map = getCustomObjectMap(tmpMap, path);
+        } else {
+            map = getBoringObjectMap(tmpMap, path);
         }
-        return (Map<String, Object>) tmpMap.get(path);
+        return map;
     }
+
+    private Map<String, Object> getBoringObjectMap(Map<String, Object> tmpMap, String path) {
+        Map<String, Object> map;
+        if (!tmpMap.containsKey(path)) {
+            map = new HashMap<>();
+            tmpMap.put(path, map);
+        } else {
+            map = (Map<String, Object>) tmpMap.get(path);
+        }
+        return map;
+    }
+
+    private Map<String, Object> getCustomObjectMap(Map<String, Object> tmpMap, String path) {
+        Map<String, Object> map;
+        if (tmpMap.containsKey(path)) {
+            List arr = (List) tmpMap.get(path);
+            map = (Map<String, Object>) arr.get(0);
+        } else {
+            map = new HashMap<>();
+            tmpMap.put(path, Lists.newArrayList(map));
+        }
+        return map;
+    }
+
     public Map<String, Object> getImmediateActions() {
         return immediateActions;
     }

@@ -46,8 +46,6 @@ public class JsonService implements Runnable {
         JSONObject response = null;
         try {
             response = bhapi.saveNonToMany(data.getImmediateActions(), postURL, "PUT");
-            // ResponseId is
-            // response.getInt("changedEntityId");
             saveToMany(data.getDeferredActions());
         } catch (Exception e) {
             log.error("Error saving entity", e);
@@ -61,8 +59,8 @@ public class JsonService implements Runnable {
             Map<String, Object> entityFieldFilters = (Map) toManyProperties.get(toManyKey);
             ifPresentPut(associationQuery::addInt, ID, entityFieldFilters.get(ID));
             ifPresentPut(associationQuery::addString, NAME, entityFieldFilters.get(NAME));
-            Optional<Integer> result = associationCache.get(associationQuery);
-            log.info(result);
+            Optional<Integer> associatedId = associationCache.get(associationQuery);
+            log.info(associatedId);
             Optional<String> properEntity = bhapi.getLabelByName(associationQuery.getEntity());
             log.info(properEntity);
         }
