@@ -9,7 +9,6 @@ import java.util.function.BiConsumer;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONObject;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
@@ -43,20 +42,34 @@ public class JsonService implements Runnable {
 
     @Override
     public void run() {
-        // Post to BH
         String entityBase = bhapi.getRestURL() + "entity/" + getEntity();
         String restToken = "?BhRestToken=" + bhapi.getBhRestToken();
-        String postURL = entityBase + restToken;
-        JSONObject response = null;
         try {
-            Optional<Integer> entityId = bhapi.saveNonToMany(data.getImmediateActions(), postURL, "PUT");
-            if (entityId.isPresent()) {
-                saveToMany(entityId.get(), getEntity(), data.getDeferredActions());
-            }
+            Optional<Integer> optionalEntityId = createOrGetEntity();
+            updateEntity(entityBase, restToken, optionalEntityId);
+            saveToMany(optionalEntityId.get(), entity, data.getDeferredActions());
         } catch (Exception e) {
-            log.error("Error saving entity", e);
-            log.error(response);
+            log.error("Error saving entity. ", e);
         }
+    }
+
+    private Optional<Integer> updateEntity(String entityBase, String restToken, Optional<Integer> optionalEntityId) throws Exception {
+        if(optionalEntityId.isPresent()) {
+            String postUrl = entityBase + "/" + optionalEntityId.get() + restToken;
+            return bhapi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
+        } else {
+            log.error("Entity unable to be created: " + data.getImmediateActions());
+            throw new Exception("Error attaining a valid entity id."
+                    + " Most likely a non-existent Id or too-general entityExistField property.");
+        }
+    }
+
+    private Optional<Integer> createOrGetEntity() throws ExecutionException {
+        AssociationQuery associationQuery = new AssociationQuery(getEntity(), data.getImmediateActions());
+        String propertyFileExistField = bhapi.getEntityExistsFieldsProperty(entity);
+        ifPresentPut(associationQuery::addInt, ID, data.getImmediateActions().get(ID));
+        ifPresentPut(associationQuery::addString, propertyFileExistField, data.getImmediateActions().get(propertyFileExistField));
+        return associationCache.get(associationQuery);
     }
 
     private void saveToMany(Integer entityId, String entity, Map<String, Object> toManyProperties) throws ExecutionException, IOException {
@@ -83,8 +96,6 @@ public class JsonService implements Runnable {
             }
         }
         bhapi.associateEntity(parentEntity, associationEntity);
-
-
     }
 
     private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {

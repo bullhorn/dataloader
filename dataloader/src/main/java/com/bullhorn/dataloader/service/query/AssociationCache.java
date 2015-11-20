@@ -80,7 +80,7 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
                     + " failed for reason " + ret.getString("errorMessage"));
             return Optional.empty();
         }
-        return Optional.of(1);
+        return Optional.of(ret.getInt("changedEntityId"));
     }
 
     private JSONObject insert(AssociationQuery associationQuery) throws IOException {
@@ -147,12 +147,23 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     }
 
     private JSONObject getCall(AssociationQuery associationQuery) throws IOException {
+        if(associationQuery.getWhereClause().isEmpty()) {
+            return getEmptyCountResponse();
+        }
+
         String queryURL = bhapi.getRestURL() + "query/"
                 + toLabel(associationQuery.getEntity()) + "?fields=id&where="
                 + associationQuery.getWhereClause()
                 + "&count=2"
                 + restToken();
         return getCall(queryURL);
+    }
+
+    private JSONObject getEmptyCountResponse() {
+        JSONObject response = new JSONObject();
+        response.put("count", 0);
+        response.put("data", new JSONArray());
+        return response;
     }
 
     private JSONObject getCall(String queryURL) throws IOException {
@@ -164,7 +175,7 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     private String toLabel(String entity) {
         Optional<String> label = bhapi.getLabelByName(entity);
         if (!label.isPresent()) {
-            throw new IllegalArgumentException("Entity does not exist" + entity);
+            return entity;
         }
         return label.get();
     }

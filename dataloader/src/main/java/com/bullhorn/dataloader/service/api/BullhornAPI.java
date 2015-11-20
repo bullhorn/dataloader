@@ -30,6 +30,8 @@ import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 public class BullhornAPI {
 
@@ -47,6 +49,7 @@ public class BullhornAPI {
     private String clientSecret;
     private String loginUrl;
     private SimpleDateFormat dateParser;
+    private final Map<String, String> entityExistsFields;
 
     private static Log log = LogFactory.getLog(BullhornAPI.class);
     private MetaMap metaMap;
@@ -61,7 +64,23 @@ public class BullhornAPI {
         this.setClientSecret(properties.getProperty("clientSecret"));
         this.setLoginUrl(properties.getProperty("loginUrl"));
         this.setDateParser(properties.getProperty("dateFormat"));
+        this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
+
         createSession();
+    }
+
+    private Map<String, String> createEntityExistsFields(Properties properties) {
+        Map<String, String> entityExistsFields = Maps.newHashMap();
+        entityExistsFields.put("CandidateExistField", properties.getProperty("candidateExistField"));
+        entityExistsFields.put("ClientContactExistField", properties.getProperty("clientContactExistField"));
+        entityExistsFields.put("ClientCorporationExistField", properties.getProperty("clientCorporationExistField"));
+        entityExistsFields.put("OpportunityExistField", properties.getProperty("opportunityExistField"));
+        entityExistsFields.put("LeadExistField", properties.getProperty("leadExistField"));
+        return entityExistsFields;
+    }
+
+    public String getEntityExistsFieldsProperty(String entity) {
+        return entityExistsFields.get(entity + "ExistField");
     }
 
     public void createSession() {
