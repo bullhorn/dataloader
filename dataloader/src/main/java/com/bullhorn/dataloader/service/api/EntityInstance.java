@@ -4,9 +4,17 @@ public class EntityInstance {
     private final String entityName;
     private final String entityId;
 
-    public EntityInstance(String entityName, String entityId) {
+    public EntityInstance(String entityId, String entityName) {
         this.entityName = entityName;
         this.entityId = entityId;
+    }
+
+    public String getEntityId() {
+        return entityId;
+    }
+
+    public String getEntityName() {
+        return entityName;
     }
 
     @Override

@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -26,6 +28,7 @@ import org.json.JSONObject;
 
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 
 public class BullhornAPI {
@@ -130,6 +133,51 @@ public class BullhornAPI {
         }
     }
 
+    public void dissociateEverything(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
+        String associationUrl = getQueryAssociationUrl(parentEntity, childEntity);
+        String associationIds = Joiner.on(',').join(getIds(associationUrl));
+        EntityInstance toManyAssociations = new EntityInstance(associationIds, childEntity.getEntityName());
+        String toManyUrl = getModificationAssociationUrl(parentEntity, toManyAssociations);
+        DeleteMethod deleteMethod = new DeleteMethod(toManyUrl);
+        this.delete(deleteMethod);
+    }
+
+    private List<String> getIds(String url) throws IOException {
+        GetMethod getMethod = new GetMethod(url);
+        JSONObject response = this.get(getMethod);
+        JSONObject data = response.getJSONObject("data");
+        JSONArray elements = data.getJSONObject(data.keys().next()).getJSONArray("data");
+
+        List<String> identifiers = new ArrayList<>(elements.length());
+        for (int i = 0; i < elements.length(); i++) {
+            identifiers.add(String.valueOf(elements.getJSONObject(i).getInt("id")));
+        }
+        return identifiers;
+    }
+
+    public void associateEntity(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
+        String associationUrl = getModificationAssociationUrl(parentEntity, childEntity);
+        PutMethod putMethod= new PutMethod(associationUrl);
+        this.put(putMethod);
+    }
+
+    private String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
+        return this.getRestURL() + "entity/"
+                + parentEntity.getEntityName() + "/"
+                + parentEntity.getEntityId() + "/"
+                + childEntity.getEntityName() + "/"
+                + childEntity.getEntityId()
+                + "?BhRestToken=" + this.getBhRestToken();
+    }
+
+    private String getQueryAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
+        return this.getRestURL() + "entity/"
+                + parentEntity.getEntityName() + "/"
+                + parentEntity.getEntityId()
+                + "?fields=" + childEntity.getEntityName()
+                + "&BhRestToken=" + this.getBhRestToken();
+    }
+
     public JSONObject get(GetMethod method) throws IOException {
         JSONObject responseJson = call("get", method);
         return responseJson;
@@ -155,6 +203,7 @@ public class BullhornAPI {
         JSONObject responseJson = call("delete", method);
         return responseJson;
     }
+
 
     public JSONObject call(String type, Object meth) throws IOException {
 
@@ -184,7 +233,6 @@ public class BullhornAPI {
 
         return responseJson;
     }
-
 
     public JSONObject doesRecordExist(String entity, String field, String value) throws IOException {
         String getURL;
@@ -325,13 +373,17 @@ public class BullhornAPI {
     }
 
     // Serialize an object and save it
-    public JSONObject saveNonToMany(Object obj, String postURL, String type) throws IOException {
+    public Optional<Integer> saveNonToMany(Object obj, String postURL, String type) throws IOException {
 
         String jsString = serialize(obj);
         log.info("Nonassociated entity saving to " + postURL);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
-        return jsResp;
+        if (jsResp.has("changedEntityId")) {
+            return Optional.of(jsResp.getInt("changedEntityId"));
+        } else {
+            return Optional.empty();
+        }
     }
 
     // Save a stringify'd object

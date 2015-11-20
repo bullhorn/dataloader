@@ -40,7 +40,7 @@ public class Main {
         Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
         LoadingCache<AssociationQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
                 .maximumSize(10000)
-                .build(new AssociationCache(bhapi, seenFlag));
+                .build(new AssociationCache(bhapi));
 
 
         if ("template".equals(args[0])) {

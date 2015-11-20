@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.service.query;
 
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Set;
 
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -14,7 +13,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.google.common.cache.CacheLoader;
 
 /**
@@ -41,11 +39,9 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
 
     private final Log log = LogFactory.getLog(AssociationCache.class);
     private final BullhornAPI bhapi;
-    private final Set<EntityInstance> seenFlag;
 
-    public AssociationCache(BullhornAPI bullhornAPI, Set<EntityInstance> seenFlag) {
+    public AssociationCache(BullhornAPI bullhornAPI) {
         this.bhapi = bullhornAPI;
-        this.seenFlag = seenFlag;
     }
 
     @Override

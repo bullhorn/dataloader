@@ -11,10 +11,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONObject;
 
+import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.AssociationQuery;
-import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.google.common.cache.LoadingCache;
 
 public class JsonService implements Runnable {
@@ -49,25 +49,42 @@ public class JsonService implements Runnable {
         String postURL = entityBase + restToken;
         JSONObject response = null;
         try {
-            response = bhapi.saveNonToMany(data.getImmediateActions(), postURL, "PUT");
-            saveToMany(data.getDeferredActions());
+            Optional<Integer> entityId = bhapi.saveNonToMany(data.getImmediateActions(), postURL, "PUT");
+            if (entityId.isPresent()) {
+                saveToMany(entityId.get(), getEntity(), data.getDeferredActions());
+            }
         } catch (Exception e) {
             log.error("Error saving entity", e);
             log.error(response);
         }
     }
 
-    private void saveToMany(Map<String, Object> toManyProperties) throws ExecutionException, IOException {
+    private void saveToMany(Integer entityId, String entity, Map<String, Object> toManyProperties) throws ExecutionException, IOException {
+        EntityInstance parentEntity = new EntityInstance(String.valueOf(entityId), entity);
+
         for (String toManyKey : toManyProperties.keySet()) {
             AssociationQuery associationQuery = new AssociationQuery(toManyKey, toManyProperties.get(toManyKey));
             Map<String, Object> entityFieldFilters = (Map) toManyProperties.get(toManyKey);
             ifPresentPut(associationQuery::addInt, ID, entityFieldFilters.get(ID));
             ifPresentPut(associationQuery::addString, NAME, entityFieldFilters.get(NAME));
             Optional<Integer> associatedId = associationCache.get(associationQuery);
-            log.info(associatedId);
-            Optional<String> properEntity = bhapi.getLabelByName(associationQuery.getEntity());
-            log.info(properEntity);
+            if (associatedId.isPresent()) {
+                EntityInstance associationEntity = new EntityInstance(String.valueOf(associatedId.get()), associationQuery.getEntity());
+                associate(parentEntity, associationEntity);
+            }
         }
+    }
+
+    private void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
+        synchronized (seenFlag) {
+            if (!seenFlag.contains(parentEntity)) {
+                seenFlag.add(parentEntity);
+                bhapi.dissociateEverything(parentEntity, associationEntity);
+            }
+        }
+        bhapi.associateEntity(parentEntity, associationEntity);
+
+
     }
 
     private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {
