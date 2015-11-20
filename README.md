@@ -21,11 +21,11 @@ A sample configuration is given below.
 ```
 numThreads=20
 dateFormat=MM/dd/yyyy
-candidateExistField=candidateID
-clientContactExistField=clientContactID
-opportunityExistField=opportunityID
-clientCorporationExistField=clientCorporationID
-leadExistField=leadID
+candidateExistField=name
+clientContactExistField=lastName
+opportunityExistField=id
+clientCorporationExistField=name
+leadExistField=phone
 username=
 password=
 authorizeUrl=https://auth9.bullhornstaffing.com/oauth/authorize
