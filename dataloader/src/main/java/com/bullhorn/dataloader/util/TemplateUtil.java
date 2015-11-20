@@ -31,7 +31,7 @@ public class TemplateUtil {
 
         metaMap = bullhornAPI.getMetaDataTypes(entity);
 
-        Field nameToDataTypeMap = MetaMap.class.getDeclaredField("nameToDataType");
+        Field nameToDataTypeMap = MetaMap.class.getDeclaredField("fieldNameToDataType");
         nameToDataTypeMap.setAccessible(true);
         Map<String, String> nameMap = (Map<String, String>) nameToDataTypeMap.get(metaMap);
 
