@@ -12,7 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.csvreader.CsvReader;
 
-public class CsvToJson implements Iterator, Iterable<JsonRow> {
+public class CsvToJson implements Iterator<JsonRow>, Iterable<JsonRow> {
     private final Log log = LogFactory.getLog(CsvToJson.class);
 
     private final MetaMap metaMap;

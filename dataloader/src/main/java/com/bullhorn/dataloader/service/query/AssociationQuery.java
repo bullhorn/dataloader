@@ -25,7 +25,7 @@ public class AssociationQuery {
     private final Object nestedJson;
 
     private Optional<Integer> id = Optional.empty();
-    private String UTF = "UTF-8";
+    private final String UTF = "UTF-8";
 
     public AssociationQuery(String entity, Object nestedJson) {
         this.entity = entity;

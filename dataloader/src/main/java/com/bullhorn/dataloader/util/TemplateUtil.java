@@ -7,7 +7,6 @@ import java.util.Set;
 
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.api.MasterDataService;
 import com.google.common.collect.Sets;
 
 public class TemplateUtil {
@@ -22,11 +21,8 @@ public class TemplateUtil {
         this.bullhornAPI = bullhornAPI;
     }
 
-    public void writeExampleEntityCsv(String entity) throws IOException, NoSuchFieldException, IllegalAccessException {
+    public void writeExampleEntityCsv(String entity) throws IOException {
         String filePath = entity + "Example.csv";
-
-        MasterDataService masterDataService = new MasterDataService();
-        masterDataService.setBhapi(bullhornAPI);
 
         metaMap = bullhornAPI.getMetaDataTypes(entity);
 

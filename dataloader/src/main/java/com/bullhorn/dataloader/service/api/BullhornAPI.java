@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -34,14 +35,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 public class BullhornAPI {
-
-    private final Properties properties;
     private final String AUTH_CODE_ACTION = "Login";
     private final String AUTH_CODE_RESPONSE_TYPE = "code";
     private final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
     private String username;
     private String password;
-    private String BhRestToken;
+    private String bhRestToken;
     private String restURL;
     private String authorizeUrl;
     private String tokenUrl;
@@ -51,11 +50,10 @@ public class BullhornAPI {
     private SimpleDateFormat dateParser;
     private final Map<String, String> entityExistsFields;
 
-    private static Log log = LogFactory.getLog(BullhornAPI.class);
+    private static final Log log = LogFactory.getLog(BullhornAPI.class);
     private MetaMap metaMap;
 
     public BullhornAPI(Properties properties) {
-        this.properties = properties;
         this.setUsername(properties.getProperty("username"));
         this.setPassword(properties.getProperty("password"));
         this.setAuthorizeUrl(properties.getProperty("authorizeUrl"));
@@ -83,7 +81,7 @@ public class BullhornAPI {
         return entityExistsFields.get(entity + "ExistField");
     }
 
-    public void createSession() {
+    private void createSession() {
         try {
             String authCode = getAuthorizationCode();
             String accessToken = getAccessToken(authCode);
@@ -143,8 +141,8 @@ public class BullhornAPI {
             String responseStr = IOUtils.toString(get.getResponseBodyAsStream());
             responseJson = new JSONObject(responseStr);
 
-            // Cache BhRestToken and REST URL
-            this.BhRestToken = responseJson.getString("BhRestToken");
+            // Cache bhRestToken and REST URL
+            this.bhRestToken = responseJson.getString("BhRestToken");
             this.restURL = (String) responseJson.get("restUrl");
 
         } catch (Exception e) {
@@ -198,77 +196,32 @@ public class BullhornAPI {
     }
 
     public JSONObject get(GetMethod method) throws IOException {
-        JSONObject responseJson = call("get", method);
+        JSONObject responseJson = call(method);
         return responseJson;
     }
 
     public JSONObject put(PutMethod method) throws IOException {
-        JSONObject responseJson = call("put", method);
+        JSONObject responseJson = call(method);
         return responseJson;
     }
 
     public JSONObject post(PostMethod method) throws IOException {
-        JSONObject responseJson = call("post", method);
+        JSONObject responseJson = call(method);
         return responseJson;
     }
 
-    public JSONObject delete(String postURL) throws IOException {
-        DeleteMethod method = new DeleteMethod(postURL);
-        JSONObject responseJson = this.delete(method);
+    private JSONObject delete(DeleteMethod method) throws IOException {
+        JSONObject responseJson = call(method);
         return responseJson;
     }
 
-    public JSONObject delete(DeleteMethod method) throws IOException {
-        JSONObject responseJson = call("delete", method);
-        return responseJson;
-    }
-
-
-    public JSONObject call(String type, Object meth) throws IOException {
-
-        JSONObject responseJson = null;
+    private JSONObject call(HttpMethodBase httpMethod) throws IOException {
         HttpClient client = new HttpClient();
-        String responseStr = "";
-
-        if (CaseInsensitiveStringPredicate.isGet(type)) {
-            GetMethod method = (GetMethod) meth;
-            client.executeMethod(method);
-            responseStr = IOUtils.toString(method.getResponseBodyAsStream());
-        } else if (CaseInsensitiveStringPredicate.isPut(type)) {
-            PutMethod method = (PutMethod) meth;
-            client.executeMethod(method);
-            responseStr = IOUtils.toString(method.getResponseBodyAsStream());
-        } else if (CaseInsensitiveStringPredicate.isDelete(type)) {
-            DeleteMethod method = (DeleteMethod) meth;
-            client.executeMethod(method);
-            responseStr = IOUtils.toString(method.getResponseBodyAsStream());
-        } else {
-            PostMethod method = (PostMethod) meth;
-            client.executeMethod(method);
-            responseStr = IOUtils.toString(method.getResponseBodyAsStream());
-        }
-
-        responseJson = new JSONObject(responseStr);
+        client.executeMethod(httpMethod);
+        String responseStr = IOUtils.toString(httpMethod.getResponseBodyAsStream());
+        JSONObject responseJson = new JSONObject(responseStr);
 
         return responseJson;
-    }
-
-    public JSONObject doesRecordExist(String entity, String field, String value) throws IOException {
-        String getURL;
-        if (CaseInsensitiveStringPredicate.isId(field)) {
-            getURL = this.getRestURL() + "entity/" + entity + "/" + value;
-            getURL = getURL + "?fields=*&BhRestToken=" + this.BhRestToken;
-        } else {
-            // Determine if record already exists in BH by using email address
-            String where = field + ":(+" + "\"" + value + "\"" + ")";
-            getURL = this.getRestURL() + "search/" + entity + "?fields=id&query=" + URLEncoder.encode(where, "UTF-8");
-            getURL = getURL + "&count=1&BhRestToken=" + this.BhRestToken;
-        }
-
-        GetMethod queryBH = new GetMethod(getURL);
-        JSONObject qryJSON = this.get(queryBH);
-
-        return qryJSON;
     }
 
     public MetaMap getMetaDataTypes(String entity) throws IOException {
@@ -395,7 +348,7 @@ public class BullhornAPI {
     public Optional<Integer> saveNonToMany(Object obj, String postURL, String type) throws IOException {
 
         String jsString = serialize(obj);
-        log.info("Nonassociated entity saving to " + postURL);
+        log.info("Non-Associated entity saving to " + postURL);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
         if (jsResp.has("changedEntityId")) {
@@ -406,7 +359,7 @@ public class BullhornAPI {
     }
 
     // Save a stringify'd object
-    public JSONObject saveNonToMany(String jsString, String url, String type) throws IOException {
+    private JSONObject saveNonToMany(String jsString, String url, String type) throws IOException {
 
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, "application/json", "UTF-8");
@@ -436,7 +389,7 @@ public class BullhornAPI {
         return username;
     }
 
-    public void setUsername(String username) {
+    private void setUsername(String username) {
         this.username = username;
     }
 
@@ -444,16 +397,16 @@ public class BullhornAPI {
         return password;
     }
 
-    public void setPassword(String password) {
+    private void setPassword(String password) {
         this.password = password;
     }
 
     public String getBhRestToken() {
-        return BhRestToken;
+        return bhRestToken;
     }
 
     public void setBhRestToken(String BhRestToken) {
-        this.BhRestToken = BhRestToken;
+        this.bhRestToken = BhRestToken;
     }
 
     public String getRestURL() {
@@ -468,7 +421,7 @@ public class BullhornAPI {
         return authorizeUrl;
     }
 
-    public void setAuthorizeUrl(String authorizeUrl) {
+    private void setAuthorizeUrl(String authorizeUrl) {
         this.authorizeUrl = authorizeUrl;
     }
 
@@ -476,7 +429,7 @@ public class BullhornAPI {
         return clientId;
     }
 
-    public void setClientId(String clientId) {
+    private void setClientId(String clientId) {
         this.clientId = clientId;
     }
 
@@ -484,7 +437,7 @@ public class BullhornAPI {
         return tokenUrl;
     }
 
-    public void setTokenUrl(String tokenUrl) {
+    private void setTokenUrl(String tokenUrl) {
         this.tokenUrl = tokenUrl;
     }
 
@@ -492,7 +445,7 @@ public class BullhornAPI {
         return clientSecret;
     }
 
-    public void setClientSecret(String clientSecret) {
+    private void setClientSecret(String clientSecret) {
         this.clientSecret = clientSecret;
     }
 
@@ -500,7 +453,7 @@ public class BullhornAPI {
         return loginUrl;
     }
 
-    public void setLoginUrl(String loginUrl) {
+    private void setLoginUrl(String loginUrl) {
         this.loginUrl = loginUrl;
     }
 

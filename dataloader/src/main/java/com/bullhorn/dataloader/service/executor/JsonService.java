@@ -53,10 +53,10 @@ public class JsonService implements Runnable {
         }
     }
 
-    private Optional<Integer> updateEntity(String entityBase, String restToken, Optional<Integer> optionalEntityId) throws Exception {
+    private void updateEntity(String entityBase, String restToken, Optional<Integer> optionalEntityId) throws Exception {
         if(optionalEntityId.isPresent()) {
             String postUrl = entityBase + "/" + optionalEntityId.get() + restToken;
-            return bhapi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
+            bhapi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
         } else {
             log.error("Entity unable to be created: " + data.getImmediateActions());
             throw new Exception("Error attaining a valid entity id."

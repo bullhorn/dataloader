@@ -36,7 +36,7 @@ public class JsonRow {
         addAction(jsonPath, convertedValue, deferredActions);
     }
 
-    void addAction(String[] jsonPath, Object convertedValue, Map<String, Object> toManyProperties) {
+    private void addAction(String[] jsonPath, Object convertedValue, Map<String, Object> toManyProperties) {
         Map<String, Object> nested = getOrCreateNested(toManyProperties, jsonPath);
         nested.put(jsonPath[jsonPath.length - 1], convertedValue);
     }
@@ -73,7 +73,7 @@ public class JsonRow {
     private Map<String, Object> getCustomObjectMap(Map<String, Object> tmpMap, String path) {
         Map<String, Object> map;
         if (tmpMap.containsKey(path)) {
-            List arr = (List) tmpMap.get(path);
+            List<Object> arr = (List) tmpMap.get(path);
             map = (Map<String, Object>) arr.get(0);
         } else {
             map = new HashMap<>();

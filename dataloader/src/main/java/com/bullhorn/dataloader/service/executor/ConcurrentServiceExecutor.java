@@ -30,13 +30,13 @@ public class ConcurrentServiceExecutor {
                                      CsvToJson csvItr,
                                      BullhornAPI bhApi,
                                      ExecutorService executorService,
-                                     LoadingCache<AssociationQuery, Optional<Integer>> assocationCache,
+                                     LoadingCache<AssociationQuery, Optional<Integer>> associationCache,
                                      Set<EntityInstance> seenFlag) {
         this.entityName = entityName;
         this.bhApi = bhApi;
         this.executorService = executorService;
         this.csvItr = csvItr;
-        this.associationCache = assocationCache;
+        this.associationCache = associationCache;
         this.seenFlag = seenFlag;
     }
 

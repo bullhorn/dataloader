@@ -104,7 +104,6 @@ public class MetaMapTest {
     public void testDetermineDataType_fieldNameDoesNotExists_fieldMapLabelDoesExists() {
         //arrange
         String fieldMapLabel = "fieldMapLabel";
-        String dataType = "Integer";
         MetaMap metaMap = new MetaMap(new SimpleDateFormat());
 
         //act

@@ -70,9 +70,9 @@ public class MetaMap {
     /**
      * CSV supports both field name or field map labels
      * @param fieldName
-     * @return dataType
+     * @return
      */
-    protected Optional<String> determineDataType(String fieldName) {
+    Optional<String> determineDataType(String fieldName) {
         Optional<String> dataType = getDataTypeByFieldName(fieldName);
         if (!dataType.isPresent()) {
             dataType = getDataTypeByFieldMapLabel(fieldName);
