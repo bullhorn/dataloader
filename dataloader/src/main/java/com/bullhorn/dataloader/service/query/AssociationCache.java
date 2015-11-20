@@ -13,6 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.CacheLoader;
 
 /**
@@ -80,34 +81,41 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
                     + " failed for reason " + ret.getString("errorMessage"));
             return Optional.empty();
         }
-        return Optional.of(ret.getInt("changedEntityId"));
+        return Optional.of(ret.getInt(StringConsts.CHANGED_ENTITY_ID));
     }
 
     private JSONObject insert(AssociationQuery associationQuery) throws IOException {
         log.info("Inserting association " + associationQuery.toString());
         String putUrl = getEntityUrl(associationQuery);
-        StringRequestEntity requestEntity = new StringRequestEntity(
-                bhapi.serialize(associationQuery.getNestedJson()),
-                "application/json", "UTF-8");
+        PutMethod method = getPutMethod(associationQuery, putUrl);
+        return bhapi.put(method);
+    }
+
+    private PutMethod getPutMethod(AssociationQuery associationQuery, String putUrl) throws IOException {
+        StringRequestEntity requestEntity = getStringRequestEntity(associationQuery);
         PutMethod method = new PutMethod(putUrl);
         method.setRequestEntity(requestEntity);
-        return bhapi.put(method);
+        return method;
+    }
+
+    private StringRequestEntity getStringRequestEntity(AssociationQuery associationQuery) throws IOException {
+        return new StringRequestEntity(
+                    bhapi.serialize(associationQuery.getNestedJson()),
+                    StringConsts.APPLICATION_JSON, StringConsts.UTF);
     }
 
     private JSONObject update(AssociationQuery associationQuery) throws IOException {
         log.info("Updating association " + associationQuery.toString());
         String postUrl = getEntityUrl(associationQuery,
                 associationQuery.getId().get().toString());
-        StringRequestEntity requestEntity = new StringRequestEntity(
-                bhapi.serialize(associationQuery.getNestedJson()),
-                "application/json", "UTF-8");
+        StringRequestEntity requestEntity = getStringRequestEntity(associationQuery);
         PostMethod method = new PostMethod(postUrl);
         method.setRequestEntity(requestEntity);
         return bhapi.post(method);
     }
 
     private String getEntityUrl(AssociationQuery associationQuery) {
-        String url = bhapi.getRestURL() + "entity/"
+        String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
                 + toLabel(associationQuery.getEntity())
                 + "?" + restToken();
         log.info("insert: " + url);
@@ -115,7 +123,7 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     }
 
     private String getEntityUrl(AssociationQuery associationQuery, String identifier) {
-        String url = bhapi.getRestURL() + "entity/"
+        String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
                 + toLabel(associationQuery.getEntity()) + "/"
                 + identifier + "?" + restToken();
         log.info("update: " + url);
@@ -143,7 +151,7 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     }
 
     private String restToken() {
-        return "&BhRestToken=" + bhapi.getBhRestToken();
+        return StringConsts.AND_BH_REST_TOKEN + bhapi.getBhRestToken();
     }
 
     private JSONObject getCall(AssociationQuery associationQuery) throws IOException {

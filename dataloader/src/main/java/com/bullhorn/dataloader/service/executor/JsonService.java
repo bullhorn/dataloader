@@ -14,6 +14,7 @@ import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.AssociationQuery;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
 
 public class JsonService implements Runnable {
@@ -42,8 +43,8 @@ public class JsonService implements Runnable {
 
     @Override
     public void run() {
-        String entityBase = bhapi.getRestURL() + "entity/" + getEntity();
-        String restToken = "?BhRestToken=" + bhapi.getBhRestToken();
+        String entityBase = bhapi.getRestURL() + StringConsts.ENTITY_SLASH + getEntity();
+        String restToken = StringConsts.END_BH_REST_TOKEN + bhapi.getBhRestToken();
         try {
             Optional<Integer> optionalEntityId = createOrGetEntity();
             updateEntity(entityBase, restToken, optionalEntityId);

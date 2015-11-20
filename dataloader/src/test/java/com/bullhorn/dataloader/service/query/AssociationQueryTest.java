@@ -116,6 +116,12 @@ public class AssociationQueryTest {
     @Test
     public void testToString() {
         AssociationQuery associationQuery = new AssociationQuery("ClientCorporation", null) {{ addInt("int", "42"); }};
-        TestCase.assertEquals("AssociationQuery{entity='ClientCorporation', filterFields={int=42}}", associationQuery.toString());
+        TestCase.assertEquals(
+                "AssociationQuery{" +
+                        "entity='ClientCorporation'" +
+                        ", filterFields={int=42}" +
+                        ", nestedJson=null" +
+                        ", id=Optional.empty}",
+                associationQuery.toString());
     }
 }

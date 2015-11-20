@@ -29,6 +29,7 @@ import org.json.JSONObject;
 
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
@@ -131,7 +132,7 @@ public class BullhornAPI {
 
         JSONObject responseJson;
         try {
-            String accessTokenString = URLEncoder.encode(accessToken, "UTF-8");
+            String accessTokenString = URLEncoder.encode(accessToken, StringConsts.UTF);
             String sessionMinutesToLive = "3000";
             String url = loginUrl + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
             GetMethod get = new GetMethod(url);
@@ -142,7 +143,7 @@ public class BullhornAPI {
             responseJson = new JSONObject(responseStr);
 
             // Cache bhRestToken and REST URL
-            this.bhRestToken = responseJson.getString("BhRestToken");
+            this.bhRestToken = responseJson.getString(StringConsts.BH_REST_TOKEN);
             this.restURL = (String) responseJson.get("restUrl");
 
         } catch (Exception e) {
@@ -179,20 +180,20 @@ public class BullhornAPI {
     }
 
     private String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
-        return this.getRestURL() + "entity/"
+        return this.getRestURL() + StringConsts.ENTITY_SLASH
                 + parentEntity.getEntityName() + "/"
                 + parentEntity.getEntityId() + "/"
                 + childEntity.getEntityName() + "/"
                 + childEntity.getEntityId()
-                + "?BhRestToken=" + this.getBhRestToken();
+                + StringConsts.END_BH_REST_TOKEN + this.getBhRestToken();
     }
 
     private String getQueryAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
-        return this.getRestURL() + "entity/"
+        return this.getRestURL() + StringConsts.ENTITY_SLASH
                 + parentEntity.getEntityName() + "/"
                 + parentEntity.getEntityId()
                 + "?fields=" + childEntity.getEntityName()
-                + "&BhRestToken=" + this.getBhRestToken();
+                + StringConsts.AND_BH_REST_TOKEN + this.getBhRestToken();
     }
 
     public JSONObject get(GetMethod method) throws IOException {
@@ -351,8 +352,8 @@ public class BullhornAPI {
         log.info("Non-Associated entity saving to " + postURL);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
-        if (jsResp.has("changedEntityId")) {
-            return Optional.of(jsResp.getInt("changedEntityId"));
+        if (jsResp.has(StringConsts.CHANGED_ENTITY_ID)) {
+            return Optional.of(jsResp.getInt(StringConsts.CHANGED_ENTITY_ID));
         } else {
             return Optional.empty();
         }
@@ -362,7 +363,7 @@ public class BullhornAPI {
     private JSONObject saveNonToMany(String jsString, String url, String type) throws IOException {
 
         // Post to BH
-        StringRequestEntity requestEntity = new StringRequestEntity(jsString, "application/json", "UTF-8");
+        StringRequestEntity requestEntity = new StringRequestEntity(jsString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
         JSONObject jsResp;
         if (CaseInsensitiveStringPredicate.isPut(type)) {
             PutMethod method = new PutMethod(url);

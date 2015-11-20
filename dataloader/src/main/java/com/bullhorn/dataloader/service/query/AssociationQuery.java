@@ -4,13 +4,13 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -25,7 +25,6 @@ public class AssociationQuery {
     private final Object nestedJson;
 
     private Optional<Integer> id = Optional.empty();
-    private final String UTF = "UTF-8";
 
     public AssociationQuery(String entity, Object nestedJson) {
         this.entity = entity;
@@ -37,7 +36,7 @@ public class AssociationQuery {
     }
 
     public void addInt(String key, String value) {
-        if (key.equals("id")) {
+        if ("id".equals(key)) {
             this.id = Optional.of(Integer.parseInt(value));
         }
         filterFields.put(key, value);
@@ -53,7 +52,7 @@ public class AssociationQuery {
                 .map(field -> field + "=" + filterFields.get(field))
                 .collect(Collectors.toList()));
         try {
-            return URLEncoder.encode(Joiner.on(" AND ").join(whereClauses), UTF);
+            return URLEncoder.encode(Joiner.on(" AND ").join(whereClauses), StringConsts.UTF);
         } catch (UnsupportedEncodingException e) {
             log.error(e);
             throw new IllegalArgumentException("Unable to encode where clause", e);
@@ -63,7 +62,7 @@ public class AssociationQuery {
     public String getWhereByIdClause() {
         if (getId().isPresent()) {
             try {
-                return URLEncoder.encode("id=" + getId().get().toString(), UTF);
+                return URLEncoder.encode("id=" + getId().get().toString(), StringConsts.UTF);
             } catch (UnsupportedEncodingException e) {
                 log.error(e);
                 throw new IllegalArgumentException("Unable to encode where clause", e);
@@ -87,14 +86,20 @@ public class AssociationQuery {
 
         AssociationQuery that = (AssociationQuery) o;
 
-        return Objects.equals(getEntity(), that.getEntity())
-                && filterFields.equals(that.filterFields);
+        if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) return false;
+        if (filterFields != null ? !filterFields.equals(that.filterFields) : that.filterFields != null) return false;
+        if (getNestedJson() != null ? !getNestedJson().equals(that.getNestedJson()) : that.getNestedJson() != null)
+            return false;
+        return !(getId() != null ? !getId().equals(that.getId()) : that.getId() != null);
+
     }
 
     @Override
     public int hashCode() {
-        int result = getEntity().hashCode();
-        result = 31 * result + filterFields.hashCode();
+        int result = getEntity() != null ? getEntity().hashCode() : 0;
+        result = 31 * result + (filterFields != null ? filterFields.hashCode() : 0);
+        result = 31 * result + (getNestedJson() != null ? getNestedJson().hashCode() : 0);
+        result = 31 * result + (getId() != null ? getId().hashCode() : 0);
         return result;
     }
 
@@ -103,6 +108,8 @@ public class AssociationQuery {
         return "AssociationQuery{" +
                 "entity='" + entity + '\'' +
                 ", filterFields=" + filterFields +
+                ", nestedJson=" + nestedJson +
+                ", id=" + id +
                 '}';
     }
 }
