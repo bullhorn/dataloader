@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.Optional;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 public class MetaMap {
@@ -17,6 +18,10 @@ public class MetaMap {
 
     public MetaMap(SimpleDateFormat simpleDateFormat) {
         this.simpleDateFormat = simpleDateFormat;
+    }
+
+    public Map<String, String> getFieldNameToDataType() {
+        return ImmutableMap.copyOf(fieldNameToDataType);
     }
 
     public void setRootFieldNameToEntityName(String rootFieldName, String entityName) {

@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.util;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,9 +30,7 @@ public class TemplateUtil {
 
         metaMap = bullhornAPI.getMetaDataTypes(entity);
 
-        Field nameToDataTypeMap = MetaMap.class.getDeclaredField("fieldNameToDataType");
-        nameToDataTypeMap.setAccessible(true);
-        Map<String, String> nameMap = (Map<String, String>) nameToDataTypeMap.get(metaMap);
+        Map<String, String> nameMap = metaMap.getFieldNameToDataType();
 
         Set<String> nameColumns = nameMap.keySet();
         StringBuilder header = new StringBuilder();
