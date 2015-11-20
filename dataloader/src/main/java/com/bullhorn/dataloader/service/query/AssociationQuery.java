@@ -89,7 +89,6 @@ public class AssociationQuery {
 
         return Objects.equals(getEntity(), that.getEntity())
                 && filterFields.equals(that.filterFields);
-
     }
 
     @Override
