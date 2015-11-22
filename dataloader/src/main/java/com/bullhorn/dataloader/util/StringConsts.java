@@ -8,4 +8,5 @@ public class StringConsts {
     public static final String AND_BH_REST_TOKEN = "&BhRestToken=";
     public static final String ENTITY_SLASH =  "entity/";
     public static final String CHANGED_ENTITY_ID = "changedEntityId";
+    public static final String ID = "id";
 }

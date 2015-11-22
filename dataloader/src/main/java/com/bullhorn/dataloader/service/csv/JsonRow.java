@@ -19,13 +19,20 @@ import com.google.common.collect.Maps;
  */
 public class JsonRow {
 
-    private final Map<String, Object> deferredActions;
+    private final Map<String, Object> preprocessingActions;
 
     private final Map<String, Object> immediateActions;
 
+    private final Map<String, Object> deferredActions;
+
     public JsonRow() {
+        this.preprocessingActions = Maps.newHashMap();
         this.immediateActions = Maps.newHashMap();
         this.deferredActions = Maps.newHashMap();
+    }
+
+    public void addPreprocessing(String[] jsonPath, Object convertedValue) {
+        addAction(jsonPath, convertedValue, preprocessingActions);
     }
 
     public void addImmediateAction(String[] jsonPath, Object convertedValue) {
@@ -80,6 +87,10 @@ public class JsonRow {
             tmpMap.put(path, Lists.newArrayList(map));
         }
         return map;
+    }
+
+    public Map<String, Object> getPreprocessingActions() {
+        return preprocessingActions;
     }
 
     public Map<String, Object> getImmediateActions() {

@@ -16,6 +16,10 @@ public class CaseInsensitiveStringPredicate {
         return associationName.startsWith("customObject");
     }
 
+    public static boolean isToOne(String association) {
+        return equalsIgnoreCase("TO_ONE", association);
+    }
+
     public static boolean isToMany(String association) {
         return equalsIgnoreCase("TO_MANY", association);
     }

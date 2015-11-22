@@ -59,6 +59,8 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
             ret = merge(query);
         } else if (count == 1) {
             ret = Optional.of(identifiers.getJSONObject(0).getInt("id"));
+        } else {
+            log.error("Association returned more than 1 result" + query);
         }
         return ret;
     }
