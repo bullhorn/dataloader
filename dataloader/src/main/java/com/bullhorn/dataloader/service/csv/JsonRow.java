@@ -66,7 +66,7 @@ public class JsonRow {
         return map;
     }
 
-    private Map<String, Object> getBoringObjectMap(Map<String, Object> tmpMap, String path) {
+    private static Map<String, Object> getBoringObjectMap(Map<String, Object> tmpMap, String path) {
         Map<String, Object> map;
         if (!tmpMap.containsKey(path)) {
             map = new HashMap<>();
@@ -77,7 +77,7 @@ public class JsonRow {
         return map;
     }
 
-    private Map<String, Object> getCustomObjectMap(Map<String, Object> tmpMap, String path) {
+    private static Map<String, Object> getCustomObjectMap(Map<String, Object> tmpMap, String path) {
         Map<String, Object> map;
         if (tmpMap.containsKey(path)) {
             List<Object> arr = (List) tmpMap.get(path);

@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class FileUtil {
 
-    private InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
+    private static InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
 
         String configurationPath;
         if (null != System.getProperty(StringConsts.CONF_PATH_ARG)) {
@@ -22,9 +22,8 @@ public class FileUtil {
                 configurationPath = "/usr/local/bullhorn/conf/";
             }
         }
-        InputStream inputStream = new FileInputStream(configurationPath + fileName);
 
-        return inputStream;
+        return new FileInputStream(configurationPath + fileName);
     }
 
     public Properties getProps(String fileName) throws IOException {

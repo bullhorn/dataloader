@@ -27,4 +27,7 @@ public class CaseInsensitiveStringPredicate {
     public static boolean isPut(String s) {
         return equalsIgnoreCase("put", s);
     }
+
+    private CaseInsensitiveStringPredicate() {
+    }
 }

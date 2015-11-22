@@ -19,15 +19,13 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 
 public class JsonService implements Runnable {
-    private final String NAME = "name";
-
     private final LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
     private final Set<EntityInstance> seenFlag;
     private BullhornAPI bhapi;
     private String entity;
     private JsonRow data;
 
-    private final static Log log = LogFactory.getLog(JsonService.class);
+    private static final Log log = LogFactory.getLog(JsonService.class);
 
     public JsonService(String entity,
                        BullhornAPI bullhornApi,
@@ -89,7 +87,7 @@ public class JsonService implements Runnable {
 
     private void addSearchFields(AssociationQuery associationQuery, Map<String, Object> actions) {
         ifPresentPut(associationQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
-        ifPresentPut(associationQuery::addString, NAME, actions.get(NAME));
+        ifPresentPut(associationQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
 
         Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entity);
 
@@ -100,7 +98,7 @@ public class JsonService implements Runnable {
         }
     }
 
-    private Map<String, Object> mergeObjects(Map<String, Object> toOneIdentifiers, Map<String, Object> immediateActions) {
+    private static Map<String, Object> mergeObjects(Map<String, Object> toOneIdentifiers, Map<String, Object> immediateActions) {
         immediateActions.putAll(toOneIdentifiers);
         return immediateActions;
     }
@@ -112,7 +110,7 @@ public class JsonService implements Runnable {
             AssociationQuery associationQuery = new AssociationQuery(toManyEntry.getKey(), toManyEntry.getValue());
             Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
             ifPresentPut(associationQuery::addInt, StringConsts.ID, entityFieldFilters.get(StringConsts.ID));
-            ifPresentPut(associationQuery::addString, NAME, entityFieldFilters.get(NAME));
+            ifPresentPut(associationQuery::addString, StringConsts.NAME, entityFieldFilters.get(StringConsts.NAME));
             Optional<Integer> associatedId = associationCache.get(associationQuery);
             if (associatedId.isPresent()) {
                 EntityInstance associationEntity = new EntityInstance(String.valueOf(associatedId.get()), associationQuery.getEntity());

@@ -7,6 +7,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public enum MetaDataType {
+
     STRING("String") {
         @Override
         public Object convertFieldValue(String value, SimpleDateFormat simpleDateFormat) {
@@ -47,10 +48,10 @@ public enum MetaDataType {
         }
     };
 
+    private String name;
     MetaDataType(String name) {
         this.name = name;
     }
-    private String name;
     private static final Log log = LogFactory.getLog(MetaDataType.class);
 
     abstract public Object convertFieldValue(String value, SimpleDateFormat simpleDateFormat);

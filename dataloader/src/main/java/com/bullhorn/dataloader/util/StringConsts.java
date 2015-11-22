@@ -11,4 +11,9 @@ public class StringConsts {
     public static final String ID = "id";
     public static final String EXIST_FIELD = "ExistField";
     public static final String CONF_PATH_ARG = "dataloader.configuration.path";
+    public static final String COUNT = "count";
+    public static final String NAME = "name";
+
+    private StringConsts() {
+    }
 }

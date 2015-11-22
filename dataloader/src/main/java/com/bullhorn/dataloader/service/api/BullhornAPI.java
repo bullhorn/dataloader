@@ -219,7 +219,7 @@ public class BullhornAPI {
         return responseJson;
     }
 
-    private JSONObject call(HttpMethodBase httpMethod) throws IOException {
+    private static JSONObject call(HttpMethodBase httpMethod) throws IOException {
         HttpClient client = new HttpClient();
         client.executeMethod(httpMethod);
         String responseStr = IOUtils.toString(httpMethod.getResponseBodyAsStream());
@@ -289,7 +289,7 @@ public class BullhornAPI {
         }
     }
 
-    private Optional<String> getAssociatedEntity(JSONObject field) {
+    private static Optional<String> getAssociatedEntity(JSONObject field) {
         try {
             return Optional.of(field.getJSONObject("associatedEntity").getString("entity"));
         } catch (JSONException e) {
@@ -298,7 +298,7 @@ public class BullhornAPI {
 
     }
 
-    private String getLabel(JSONObject field) {
+    private static String getLabel(JSONObject field) {
         String label;
         try {
             label = field.getString("label");
@@ -308,7 +308,7 @@ public class BullhornAPI {
         return label;
     }
 
-    private String getDataType(JSONObject field) {
+    private static String getDataType(JSONObject field) {
         String dataType;
         try {
             dataType = field.getString("dataType");
@@ -318,7 +318,7 @@ public class BullhornAPI {
         return dataType;
     }
 
-    private JSONArray getSubField(JSONObject field) {
+    private static JSONArray getSubField(JSONObject field) {
         JSONArray subFields;
         try {
             subFields = field.getJSONArray("fields");

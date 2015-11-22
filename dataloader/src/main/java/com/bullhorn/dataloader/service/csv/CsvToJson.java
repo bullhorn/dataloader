@@ -6,6 +6,7 @@ import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isToOn
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -79,7 +80,7 @@ public class CsvToJson implements Iterator<JsonRow>, Iterable<JsonRow> {
             readLine();
             return currentRow;
         }
-        return null;
+        throw new NoSuchElementException();
     }
 
     @Override
