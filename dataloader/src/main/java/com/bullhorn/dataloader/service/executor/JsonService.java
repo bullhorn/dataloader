@@ -88,10 +88,14 @@ public class JsonService implements Runnable {
     }
 
     private void addSearchFields(AssociationQuery associationQuery, Map<String, Object> actions) {
-        String propertyFileExistField = bhapi.getEntityExistsFieldsProperty(entity);
         ifPresentPut(associationQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
-        ifPresentPut(associationQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
         ifPresentPut(associationQuery::addString, NAME, actions.get(NAME));
+
+        String[] propertyFileExistFields = bhapi.getEntityExistsFieldsProperty(entity).split(",");
+
+        for (String propertyFileExistField : propertyFileExistFields) {
+            ifPresentPut(associationQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+        }
     }
 
     private Map<String, Object> mergeObjects(Map<String, Object> toOneIdentifiers, Map<String, Object> immediateActions) {
