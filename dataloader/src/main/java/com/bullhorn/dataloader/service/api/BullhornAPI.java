@@ -68,13 +68,15 @@ public class BullhornAPI {
         createSession();
     }
 
-    private Map<String, String> createEntityExistsFields(Properties properties) {
+    protected Map<String, String> createEntityExistsFields(Properties properties) {
         Map<String, String> entityExistsFields = Maps.newHashMap();
-        entityExistsFields.put("CandidateExistField", properties.getProperty("candidateExistField"));
-        entityExistsFields.put("ClientContactExistField", properties.getProperty("clientContactExistField"));
-        entityExistsFields.put("ClientCorporationExistField", properties.getProperty("clientCorporationExistField"));
-        entityExistsFields.put("OpportunityExistField", properties.getProperty("opportunityExistField"));
-        entityExistsFields.put("LeadExistField", properties.getProperty("leadExistField"));
+        properties.stringPropertyNames()
+                .stream()
+                .filter(property -> property.endsWith(StringConsts.EXIST_FIELD))
+                .forEach(property -> {
+                    String upperCaseProperty = property.substring(0, 1).toUpperCase() + property.substring(1);
+                    entityExistsFields.put(upperCaseProperty, properties.getProperty(property));
+                });
         return entityExistsFields;
     }
 
@@ -175,7 +177,7 @@ public class BullhornAPI {
 
     public void associateEntity(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
         String associationUrl = getModificationAssociationUrl(parentEntity, childEntity);
-        PutMethod putMethod= new PutMethod(associationUrl);
+        PutMethod putMethod = new PutMethod(associationUrl);
         this.put(putMethod);
     }
 

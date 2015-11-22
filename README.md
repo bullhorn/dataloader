@@ -35,6 +35,16 @@ clientId=
 clientSecret=
 ```
 
+The Entity ExistField properties refer to the fields that will be used when searching for entities. If Dataloader finds
+one result by the search-call then it will not alter that entity. If an ID is specified for that entity and a field
+specified as an ExistField has been altered, then Dataloader will attempt to update the existing entity.
+
+Multiple ExistFields can be specified as comma-separated values. E.g.
+
+```
+clientContactExistField=firstName,lastName
+```
+
 The jar file is executed with
 
 ```java -jar dataloader-importer-{version}.jar <Entity> /path/to/csv```

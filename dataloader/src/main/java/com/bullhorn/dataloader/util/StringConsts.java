@@ -9,4 +9,5 @@ public class StringConsts {
     public static final String ENTITY_SLASH =  "entity/";
     public static final String CHANGED_ENTITY_ID = "changedEntityId";
     public static final String ID = "id";
+    public static final String EXIST_FIELD = "ExistField";
 }
