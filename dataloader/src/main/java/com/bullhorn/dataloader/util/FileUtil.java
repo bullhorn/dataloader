@@ -11,12 +11,18 @@ public class FileUtil {
 
     private InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
 
-        String os = System.getProperty("os.name").toLowerCase();
-        String path = "/usr/local/bullhorn/conf/";
-        if (os.contains("windows")) {
-            path = "C:\\bullhorn\\conf\\";
+        String configurationPath;
+        if (null != System.getProperty(StringConsts.CONF_PATH_ARG)) {
+            configurationPath = System.getProperty(StringConsts.CONF_PATH_ARG);
+        } else {
+            String os = System.getProperty("os.name").toLowerCase();
+            if (os.contains("windows")) {
+                configurationPath = "C:\\bullhorn\\conf\\";
+            } else {
+                configurationPath = "/usr/local/bullhorn/conf/";
+            }
         }
-        InputStream inputStream = new FileInputStream(path + fileName);
+        InputStream inputStream = new FileInputStream(configurationPath + fileName);
 
         return inputStream;
     }
