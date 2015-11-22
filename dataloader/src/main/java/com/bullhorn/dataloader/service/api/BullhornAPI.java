@@ -84,8 +84,8 @@ public class BullhornAPI {
         return entityExistsFields;
     }
 
-    public String getEntityExistsFieldsProperty(String entity) {
-        return entityExistsFields.get(entity + "ExistField");
+    public Optional<String> getEntityExistsFieldsProperty(String entity) {
+        return Optional.ofNullable(entityExistsFields.get(entity + "ExistField"));
     }
 
     private void createSession() {

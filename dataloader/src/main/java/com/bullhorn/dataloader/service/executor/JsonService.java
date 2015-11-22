@@ -60,14 +60,14 @@ public class JsonService implements Runnable {
     private Map<String, Object> upsertPreprocessingActions() throws ExecutionException {
         Map<String, Object> preprocessingActions = data.getPreprocessingActions();
         Map<String, Object> toOneIdentifiers = Maps.newHashMap();
-        for (String entityName : preprocessingActions.keySet()) {
-            AssociationQuery associationQuery = new AssociationQuery(entityName, preprocessingActions.get(entityName));
-            addSearchFields(associationQuery, (Map<String, Object>) data.getPreprocessingActions().get(entityName));
+        for (Map.Entry<String, Object> entityEntry : preprocessingActions.entrySet()) {
+            AssociationQuery associationQuery = new AssociationQuery(entityEntry.getKey(), entityEntry.getValue());
+            addSearchFields(associationQuery, (Map<String, Object>) entityEntry.getValue());
             Optional<Integer> toOneId = associationCache.get(associationQuery);
             if (toOneId.isPresent()) {
                 Map<String, Integer> toOneAssociation = Maps.newHashMap();
                 toOneAssociation.put(StringConsts.ID, toOneId.get());
-                toOneIdentifiers.put(entityName, toOneAssociation);
+                toOneIdentifiers.put(entityEntry.getKey(), toOneAssociation);
             } else {
                 log.error("Failed to upsert to-one association " + associationQuery);
             }
@@ -91,10 +91,12 @@ public class JsonService implements Runnable {
         ifPresentPut(associationQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
         ifPresentPut(associationQuery::addString, NAME, actions.get(NAME));
 
-        String[] propertyFileExistFields = bhapi.getEntityExistsFieldsProperty(entity).split(",");
+        Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entity);
 
-        for (String propertyFileExistField : propertyFileExistFields) {
-            ifPresentPut(associationQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+        if (entityExistsFieldsProperty.isPresent()) {
+            for (String propertyFileExistField : entityExistsFieldsProperty.get().split(",")) {
+                ifPresentPut(associationQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+            }
         }
     }
 
@@ -106,9 +108,9 @@ public class JsonService implements Runnable {
     private void saveToMany(Integer entityId, String entity, Map<String, Object> toManyProperties) throws ExecutionException, IOException {
         EntityInstance parentEntity = new EntityInstance(String.valueOf(entityId), entity);
 
-        for (String toManyKey : toManyProperties.keySet()) {
-            AssociationQuery associationQuery = new AssociationQuery(toManyKey, toManyProperties.get(toManyKey));
-            Map<String, Object> entityFieldFilters = (Map) toManyProperties.get(toManyKey);
+        for (Map.Entry<String, Object> toManyEntry : toManyProperties.entrySet()) {
+            AssociationQuery associationQuery = new AssociationQuery(toManyEntry.getKey(), toManyEntry.getValue());
+            Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
             ifPresentPut(associationQuery::addInt, StringConsts.ID, entityFieldFilters.get(StringConsts.ID));
             ifPresentPut(associationQuery::addString, NAME, entityFieldFilters.get(NAME));
             Optional<Integer> associatedId = associationCache.get(associationQuery);
