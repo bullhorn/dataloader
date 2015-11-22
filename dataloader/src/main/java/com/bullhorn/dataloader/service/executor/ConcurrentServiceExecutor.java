@@ -42,17 +42,13 @@ public class ConcurrentServiceExecutor {
 
     public void runProcess() {
         try {
-            // loop through records
             for(JsonRow row : csvItr) {
                 JsonService service = new JsonService(entityName, bhApi, row, associationCache, seenFlag);
                 service.setEntity(entityName);
                 executorService.execute(service);
             }
-
-            // shut the executor service down
             executorService.shutdown();
         }
-        // if something fails, shutdown
         catch (Exception e) {
             if (executorService != null) {
                 executorService.shutdown();

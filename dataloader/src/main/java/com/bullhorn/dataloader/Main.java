@@ -11,8 +11,8 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
 import com.bullhorn.dataloader.service.query.AssociationCache;
@@ -28,53 +28,52 @@ public class Main {
     private static Log log = LogFactory.getLog(Main.class);
 
     public static void main(String[] args) throws IOException {
-
-        // Entity to be imported and path to the CSV are passed in at runtime
-        FileUtil fileUtil = new FileUtil();
-        Properties properties = fileUtil.getProps("dataloader.properties");
-        // Cache master data - category, skill, business sector, internal users
-
-        // Create API object. Pass this object to each import service via ConcurrentServiceExecutor
-        // BullhornAPI contains REST session and helper methods to communicate with Bullhorn
-        BullhornAPI bhapi = new BullhornAPI(properties);
-        Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
-        LoadingCache<AssociationQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
-                .maximumSize(10000)
-                .build(new AssociationCache(bhapi));
-
+        final BullhornAPI bhapi = getBullhornAPI();
 
         if ("template".equals(args[0])) {
-            TemplateUtil templateUtil = new TemplateUtil(bhapi);
-            try {
-                templateUtil.writeExampleEntityCsv(args[1]);
-            } catch (Exception e) {
-                log.error(e);
-            }
+            createTemplate(args[1], bhapi);
         } else {
-            try {
-                String entity = args[0];
-                String filePath = args[1];
-                Integer numThreads = Integer.valueOf(properties.getProperty("numThreads"));
+            String entity = args[0];
+            String filePath = args[1];
+            loadCsv(entity, filePath, bhapi.getThreadSize(), bhapi);
+        }
+    }
 
-                CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
-                ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+    static BullhornAPI getBullhornAPI() throws IOException {
+        final FileUtil fileUtil = new FileUtil();
+        final Properties properties = fileUtil.getProps("dataloader.properties");
+        return new BullhornAPI(properties);
+    }
 
-                // Import to Bullhorn
-                ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
-                        WordUtils.capitalize(entity),
-                        csvToJson,
-                        bhapi,
-                        executorService,
-                        associationCache,
-                        seenFlag
-                );
+    static void createTemplate(String entity, BullhornAPI bhapi) {
+        TemplateUtil templateUtil = new TemplateUtil(bhapi);
+        try {
+            templateUtil.writeExampleEntityCsv(entity);
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
 
-                // Start import
-                impSvc.runProcess();
+    static void loadCsv(String entity, String filePath, Integer numThreads, BullhornAPI bhapi) {
+        try {
+            final Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
+            final LoadingCache<AssociationQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
+                    .maximumSize(10000)
+                    .build(new AssociationCache(bhapi));
+            final CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
+            final ExecutorService executorService = Executors.newFixedThreadPool(numThreads);
+            final ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
+                    WordUtils.capitalize(entity),
+                    csvToJson,
+                    bhapi,
+                    executorService,
+                    associationCache,
+                    seenFlag
+            );
+            impSvc.runProcess();
 
-            } catch (Exception e) {
-                log.error(e);
-            }
+        } catch (Exception e) {
+            log.error(e);
         }
     }
 }

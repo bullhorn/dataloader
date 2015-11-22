@@ -39,32 +39,36 @@ public class BullhornAPI {
     private final String AUTH_CODE_ACTION = "Login";
     private final String AUTH_CODE_RESPONSE_TYPE = "code";
     private final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
+    private final String authorizeUrl;
+    private final String tokenUrl;
+    private final String clientId;
+    private final String clientSecret;
+    private final String loginUrl;
+    private final Integer threadSize;
+    private final SimpleDateFormat dateParser;
+    private final Map<String, String> entityExistsFields;
     private String bhRestToken;
     private String restURL;
-    private String authorizeUrl;
-    private String tokenUrl;
-    private String clientId;
-    private String clientSecret;
-    private String loginUrl;
-    private SimpleDateFormat dateParser;
-    private final Map<String, String> entityExistsFields;
 
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
     private MetaMap metaMap;
 
     public BullhornAPI(Properties properties) {
-        this.setUsername(properties.getProperty("username"));
-        this.setPassword(properties.getProperty("password"));
-        this.setAuthorizeUrl(properties.getProperty("authorizeUrl"));
-        this.setTokenUrl(properties.getProperty("tokenUrl"));
-        this.setClientId(properties.getProperty("clientId"));
-        this.setClientSecret(properties.getProperty("clientSecret"));
-        this.setLoginUrl(properties.getProperty("loginUrl"));
-        this.setDateParser(properties.getProperty("dateFormat"));
+        this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
+        this.username = properties.getProperty("username");
+        this.password = properties.getProperty("password");
+        this.authorizeUrl = properties.getProperty("authorizeUrl");
+        this.tokenUrl = properties.getProperty("tokenUrl");
+        this.clientId = properties.getProperty("clientId");
+        this.clientSecret = properties.getProperty("clientSecret");
+        this.loginUrl = properties.getProperty("loginUrl");
+        this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
 
+        // TODO: Don't do this in the constructor.
+        // TODO: Maybe we split the session handling into it's own object?
         createSession();
     }
 
@@ -95,19 +99,16 @@ public class BullhornAPI {
     }
 
     private String getAuthorizationCode() throws IOException {
-
-        // Construct authorize URL
-        authorizeUrl = authorizeUrl + "?client_id=" + clientId +
+        String authorizeCodeUrl = authorizeUrl + "?client_id=" + clientId +
                 "&response_type=" + AUTH_CODE_RESPONSE_TYPE +
                 "&action=" + AUTH_CODE_ACTION +
                 "&username=" + username +
                 "&password=" + password;
 
         HttpClient client = new HttpClient();
-        PostMethod method = new PostMethod(authorizeUrl);
+        PostMethod method = new PostMethod(authorizeCodeUrl);
         client.executeMethod(method);
 
-        // Return URL contains access code
         String returnURL = method.getResponseHeader("Location").getValue();
         returnURL = returnURL.substring(returnURL.indexOf("?") + 1);
         Map<String, String> map = Splitter.on("&").trimResults().withKeyValueSeparator('=').split(returnURL);
@@ -388,83 +389,19 @@ public class BullhornAPI {
         return metaMap.getEntityNameByRootFieldName(entity);
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    private void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    private void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getBhRestToken() {
         return bhRestToken;
-    }
-
-    public void setBhRestToken(String BhRestToken) {
-        this.bhRestToken = BhRestToken;
     }
 
     public String getRestURL() {
         return restURL;
     }
 
-    public void setRestURL(String restURL) {
-        this.restURL = restURL;
-    }
-
-    public String getAuthorizeUrl() {
-        return authorizeUrl;
-    }
-
-    private void setAuthorizeUrl(String authorizeUrl) {
-        this.authorizeUrl = authorizeUrl;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    private void setClientId(String clientId) {
-        this.clientId = clientId;
-    }
-
-    public String getTokenUrl() {
-        return tokenUrl;
-    }
-
-    private void setTokenUrl(String tokenUrl) {
-        this.tokenUrl = tokenUrl;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    private void setClientSecret(String clientSecret) {
-        this.clientSecret = clientSecret;
-    }
-
-    public String getLoginUrl() {
-        return loginUrl;
-    }
-
-    private void setLoginUrl(String loginUrl) {
-        this.loginUrl = loginUrl;
-    }
-
-    private void setDateParser(String format) {
-        this.dateParser = new SimpleDateFormat(format);
-    }
-
     private SimpleDateFormat getDateParser() {
         return dateParser;
+    }
+
+    public Integer getThreadSize() {
+        return threadSize;
     }
 }
