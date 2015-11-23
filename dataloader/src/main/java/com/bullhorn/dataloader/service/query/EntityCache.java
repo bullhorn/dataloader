@@ -55,7 +55,7 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
         JSONArray identifiers = qryJSON.getJSONArray(StringConsts.DATA);
 
         Optional<Integer> ret = Optional.empty();
-        if (count == 0) {
+        if (count == 0 | query.getFilterFieldCount() == 0) {
             ret = merge(query);
         } else if (count == 1) {
             ret = Optional.of(identifiers.getJSONObject(0).getInt(StringConsts.ID));

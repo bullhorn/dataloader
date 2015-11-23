@@ -24,6 +24,12 @@ public class EntityQuery {
     private final Map<String, String> filterFields = Maps.newConcurrentMap();
     private final Object nestedJson;
 
+    public Integer getFilterFieldCount() {
+        return filterFieldCount;
+    }
+
+    private Integer filterFieldCount = 0;
+
     private Optional<Integer> id = Optional.empty();
 
     public EntityQuery(String entity, Object nestedJson) {
@@ -36,6 +42,7 @@ public class EntityQuery {
     }
 
     public void addInt(String key, String value) {
+        incrementCount();
         if (StringConsts.ID.equals(key)) {
             this.id = Optional.of(Integer.parseInt(value));
         }
@@ -43,7 +50,12 @@ public class EntityQuery {
     }
 
     public void addString(String key, String value) {
+        incrementCount();
         filterFields.put(key, "'" + value + "'");
+    }
+
+    void incrementCount() {
+        filterFieldCount += 1;
     }
 
     public String getWhereClause() {
