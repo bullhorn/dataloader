@@ -13,6 +13,7 @@ public class StringConsts {
     public static final String CONF_PATH_ARG = "dataloader.configuration.path";
     public static final String COUNT = "count";
     public static final String NAME = "name";
+    public static final String DATA = "data";
 
     private StringConsts() {
     }

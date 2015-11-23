@@ -36,7 +36,7 @@ public class AssociationQuery {
     }
 
     public void addInt(String key, String value) {
-        if ("id".equals(key)) {
+        if (StringConsts.ID.equals(key)) {
             this.id = Optional.of(Integer.parseInt(value));
         }
         filterFields.put(key, value);

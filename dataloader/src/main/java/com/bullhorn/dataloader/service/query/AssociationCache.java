@@ -51,14 +51,14 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
         if (!qryJSON.has(StringConsts.COUNT)) {
             return Optional.empty();
         }
-        int count = qryJSON.getInt("count");
-        JSONArray identifiers = qryJSON.getJSONArray("data");
+        int count = qryJSON.getInt(StringConsts.COUNT);
+        JSONArray identifiers = qryJSON.getJSONArray(StringConsts.DATA);
 
         Optional<Integer> ret = Optional.empty();
         if (count == 0) {
             ret = merge(query);
         } else if (count == 1) {
-            ret = Optional.of(identifiers.getJSONObject(0).getInt("id"));
+            ret = Optional.of(identifiers.getJSONObject(0).getInt(StringConsts.ID));
         } else {
             log.error("Association returned more than 1 result" + query);
         }
@@ -139,7 +139,7 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
 
     private boolean idExistsInRest(AssociationQuery associationQuery) throws IOException {
         JSONObject queryResult = getCallById(associationQuery);
-        int count = queryResult.getInt("count");
+        int count = queryResult.getInt(StringConsts.COUNT);
         return count == 1;
     }
 
@@ -171,8 +171,8 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
 
     private static JSONObject getEmptyCountResponse() {
         JSONObject response = new JSONObject();
-        response.put("count", 0);
-        response.put("data", new JSONArray());
+        response.put(StringConsts.COUNT, 0);
+        response.put(StringConsts.DATA, new JSONArray());
         return response;
     }
 

@@ -166,12 +166,12 @@ public class BullhornAPI {
     private List<String> getIds(String url) throws IOException {
         GetMethod getMethod = new GetMethod(url);
         JSONObject response = this.get(getMethod);
-        JSONObject data = response.getJSONObject("data");
-        JSONArray elements = data.getJSONObject(data.keys().next()).getJSONArray("data");
+        JSONObject data = response.getJSONObject(StringConsts.DATA);
+        JSONArray elements = data.getJSONObject(data.keys().next()).getJSONArray(StringConsts.DATA);
 
         List<String> identifiers = new ArrayList<>(elements.length());
         for (int i = 0; i < elements.length(); i++) {
-            identifiers.add(String.valueOf(elements.getJSONObject(i).getInt("id")));
+            identifiers.add(String.valueOf(elements.getJSONObject(i).getInt(StringConsts.ID)));
         }
         return identifiers;
     }
