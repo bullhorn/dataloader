@@ -1,10 +1,8 @@
 package com.bullhorn.dataloader.service.executor;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
@@ -17,12 +15,10 @@ import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class JsonService implements Runnable {
     private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
-    private final Set<List<EntityInstance>> seenFlag;
     private BullhornAPI bhapi;
     private String entity;
     private JsonRow data;
@@ -32,13 +28,11 @@ public class JsonService implements Runnable {
     public JsonService(String entity,
                        BullhornAPI bullhornApi,
                        JsonRow data,
-                       LoadingCache<EntityQuery, Optional<Integer>> associationCache,
-                       Set<List<EntityInstance>> seenFlag) {
+                       LoadingCache<EntityQuery, Optional<Integer>> associationCache) {
         this.bhapi = bullhornApi;
         this.entity = entity;
         this.data = data;
         this.associationCache = associationCache;
-        this.seenFlag = seenFlag;
     }
 
     @Override
@@ -116,30 +110,7 @@ public class JsonService implements Runnable {
             Optional<Integer> associatedId = associationCache.get(entityQuery);
             if (associatedId.isPresent()) {
                 EntityInstance associationEntity = new EntityInstance(String.valueOf(associatedId.get()), entityQuery.getEntity());
-                associate(parentEntity, associationEntity);
-            }
-        }
-    }
-
-    private void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
-        if (!seenFlag.contains(nestedEntities)) {
-            dissociateEverything(parentEntity, associationEntity);
-        }
-        bhapi.associateEntity(parentEntity, associationEntity);
-    }
-
-    private List<EntityInstance> getEntityInstances(EntityInstance parentEntity, EntityInstance entityInstance) {
-        return Lists.newArrayList(parentEntity, new EntityInstance("", entityInstance.getEntityName()));
-    }
-
-    private void dissociateEverything(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        synchronized (seenFlag) {
-            List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
-            if (!seenFlag.contains(nestedEntities)) {
-                seenFlag.add(nestedEntities);
-                log.debug("Dissociating " + parentEntity + " " + associationEntity);
-                bhapi.dissociateEverything(parentEntity, associationEntity);
+                bhapi.associate(parentEntity, associationEntity);
             }
         }
     }

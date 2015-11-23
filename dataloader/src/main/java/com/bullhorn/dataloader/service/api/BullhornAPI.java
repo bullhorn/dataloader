@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
@@ -33,6 +34,7 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class BullhornAPI {
@@ -50,12 +52,13 @@ public class BullhornAPI {
     private final Integer cacheSize;
     private final SimpleDateFormat dateParser;
     private final Map<String, String> entityExistsFields;
+    private final Set<List<EntityInstance>> seenFlag;
     private String bhRestToken;
     private String restURL;
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
     private MetaMap metaMap;
 
-    public BullhornAPI(Properties properties) {
+    public BullhornAPI(Properties properties, Set<List<EntityInstance>> seenFlag) {
         this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
         this.cacheSize = Integer.valueOf(properties.getProperty("cacheSize"));
         this.username = properties.getProperty("username");
@@ -67,6 +70,7 @@ public class BullhornAPI {
         this.loginUrl = properties.getProperty("loginUrl");
         this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
+        this.seenFlag = seenFlag;
 
         // TODO: Don't do this in the constructor.
         // TODO: Maybe we split the session handling into it's own object?
@@ -155,7 +159,30 @@ public class BullhornAPI {
         }
     }
 
-    public void dissociateEverything(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
+    public void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
+        List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
+        if (!seenFlag.contains(nestedEntities)) {
+            dissociate(parentEntity, associationEntity);
+        }
+        associateEntity(parentEntity, associationEntity);
+    }
+
+    private List<EntityInstance> getEntityInstances(EntityInstance parentEntity, EntityInstance entityInstance) {
+        return Lists.newArrayList(parentEntity, new EntityInstance("", entityInstance.getEntityName()));
+    }
+
+    private void dissociate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
+        synchronized (seenFlag) {
+            List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
+            if (!seenFlag.contains(nestedEntities)) {
+                seenFlag.add(nestedEntities);
+                log.debug("Dissociating " + parentEntity + " " + associationEntity);
+                dissociateEverything(parentEntity, associationEntity);
+            }
+        }
+    }
+
+    public synchronized void dissociateEverything(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
         String associationUrl = getQueryAssociationUrl(parentEntity, childEntity);
         String associationIds = Joiner.on(',').join(getIds(associationUrl));
         EntityInstance toManyAssociations = new EntityInstance(associationIds, childEntity.getEntityName());
@@ -300,6 +327,30 @@ public class BullhornAPI {
 
     }
 
+
+    // Save a stringify'd object
+    private JSONObject saveNonToMany(String jsString, String url, String type) throws IOException {
+
+        // Post to BH
+        StringRequestEntity requestEntity = new StringRequestEntity(jsString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
+        JSONObject jsResp;
+        if (CaseInsensitiveStringPredicate.isPut(type)) {
+            PutMethod method = new PutMethod(url);
+            method.setRequestEntity(requestEntity);
+            jsResp = this.put(method);
+
+        } else {
+            PostMethod method = new PostMethod(url);
+            method.setRequestEntity(requestEntity);
+            jsResp = this.post(method);
+        }
+
+        log.info(jsString);
+        log.info(jsResp);
+
+        return jsResp;
+    }
+
     private static String getLabel(JSONObject field) {
         String label;
         try {
@@ -362,29 +413,6 @@ public class BullhornAPI {
         } else {
             return Optional.empty();
         }
-    }
-
-    // Save a stringify'd object
-    private JSONObject saveNonToMany(String jsString, String url, String type) throws IOException {
-
-        // Post to BH
-        StringRequestEntity requestEntity = new StringRequestEntity(jsString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
-        JSONObject jsResp;
-        if (CaseInsensitiveStringPredicate.isPut(type)) {
-            PutMethod method = new PutMethod(url);
-            method.setRequestEntity(requestEntity);
-            jsResp = this.put(method);
-
-        } else {
-            PostMethod method = new PostMethod(url);
-            method.setRequestEntity(requestEntity);
-            jsResp = this.post(method);
-        }
-
-        log.info(jsString);
-        log.info(jsResp);
-
-        return jsResp;
     }
 
     public Optional<String> getLabelByName(String entity) {

@@ -42,8 +42,9 @@ public class Main {
 
     static BullhornAPI getBullhornAPI() throws IOException {
         final FileUtil fileUtil = new FileUtil();
+        final Set<List<EntityInstance>> seenFlag = Sets.newConcurrentHashSet();
         final Properties properties = fileUtil.getProps("dataloader.properties");
-        return new BullhornAPI(properties);
+        return new BullhornAPI(properties, seenFlag);
     }
 
     static void createTemplate(String entity, BullhornAPI bhapi) {
@@ -56,7 +57,7 @@ public class Main {
     }
 
     static void loadCsv(String entity, String filePath, BullhornAPI bhapi) {
-        final Set<List<EntityInstance>> seenFlag = Sets.newConcurrentHashSet();
+
         final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
                 .maximumSize(bhapi.getCacheSize())
                 .build(new EntityCache(bhapi));
@@ -68,8 +69,7 @@ public class Main {
                     csvToJson,
                     bhapi,
                     executorService,
-                    associationCache,
-                    seenFlag
+                    associationCache
             );
             impSvc.runProcess();
         } catch (IOException e) {

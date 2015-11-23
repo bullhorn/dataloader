@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.when;
 
 import java.util.Properties;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -13,10 +14,12 @@ import org.mockito.internal.util.collections.Sets;
 public class BullhornAPITest {
 
     private Properties properties;
+    private Set seenFlag;
 
     @Before
     public void setUp() throws Exception {
         properties = Mockito.mock(Properties.class);
+        seenFlag = Mockito.mock(Set.class);
     }
 
     @Test
@@ -30,8 +33,9 @@ public class BullhornAPITest {
         when(properties.stringPropertyNames()).thenReturn(Sets.newSet(testExistField));
         when(properties.getProperty(testExistField)).thenReturn(testFilter);
 
+
         //act
-        BullhornAPI bullhornAPI = new BullhornAPI(properties);
+        BullhornAPI bullhornAPI = new BullhornAPI(properties, seenFlag);
 
         //assert
         String testFilterActual = bullhornAPI.getEntityExistsFieldsProperty("Candidate").get();
