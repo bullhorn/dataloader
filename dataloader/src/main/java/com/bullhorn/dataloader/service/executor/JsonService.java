@@ -120,13 +120,17 @@ public class JsonService implements Runnable {
     }
 
     private void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        synchronized (seenFlag) {
-            if (!seenFlag.contains(parentEntity)) {
-                seenFlag.add(parentEntity);
-                bhapi.dissociateEverything(parentEntity, associationEntity);
-            }
+        if (!seenFlag.contains(parentEntity)) {
+            dissociateEverything(parentEntity, associationEntity);
         }
         bhapi.associateEntity(parentEntity, associationEntity);
+    }
+
+    private synchronized void dissociateEverything(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
+        if (!seenFlag.contains(parentEntity)) {
+            seenFlag.add(parentEntity);
+            bhapi.dissociateEverything(parentEntity, associationEntity);
+        }
     }
 
     private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {
