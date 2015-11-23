@@ -17,7 +17,7 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.CacheLoader;
 
 /**
- * AssociationCache handles creating, updating and retrieving IDs for entity queries.
+ * EntityCache handles creating, updating and retrieving IDs for entity queries.
  * It is implemented as a LoadingCache so we can easily swap out expiration or eviction
  * and we won't run into ConcurrentModificationException when this is passed around by
  * the top-level executor service.
@@ -36,17 +36,17 @@ import com.google.common.cache.CacheLoader;
  * <p>
  * </p>
  */
-public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Integer>> {
+public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
 
-    private final Log log = LogFactory.getLog(AssociationCache.class);
+    private final Log log = LogFactory.getLog(EntityCache.class);
     private final BullhornAPI bhapi;
 
-    public AssociationCache(BullhornAPI bullhornAPI) {
+    public EntityCache(BullhornAPI bullhornAPI) {
         this.bhapi = bullhornAPI;
     }
 
     @Override
-    public Optional<Integer> load(AssociationQuery query) throws IOException {
+    public Optional<Integer> load(EntityQuery query) throws IOException {
         JSONObject qryJSON = getCall(query);
         if (!qryJSON.has(StringConsts.COUNT)) {
             return Optional.empty();
@@ -66,87 +66,87 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
     }
 
 
-    private Optional<Integer> merge(AssociationQuery associationQuery) throws IOException {
-        if (idExistsButNotInRest(associationQuery)) {
-            log.error("Association cannot be merged " + associationQuery.toString());
+    private Optional<Integer> merge(EntityQuery entityQuery) throws IOException {
+        if (idExistsButNotInRest(entityQuery)) {
+            log.error("Association cannot be merged " + entityQuery.toString());
             return Optional.empty();
         }
 
         JSONObject ret;
-        if (associationQuery.getId().isPresent()) {
-            ret = update(associationQuery);
+        if (entityQuery.getId().isPresent()) {
+            ret = update(entityQuery);
         } else {
-            ret = insert(associationQuery);
+            ret = insert(entityQuery);
         }
         if (ret.has("errorMessage")) {
-            log.error("Association query " + associationQuery.toString()
+            log.error("Association query " + entityQuery.toString()
                     + " failed for reason " + ret.getString("errorMessage"));
             return Optional.empty();
         }
         return Optional.of(ret.getInt(StringConsts.CHANGED_ENTITY_ID));
     }
 
-    private JSONObject insert(AssociationQuery associationQuery) throws IOException {
-        log.info("Inserting association " + associationQuery.toString());
-        String putUrl = getEntityUrl(associationQuery);
-        PutMethod method = getPutMethod(associationQuery, putUrl);
+    private JSONObject insert(EntityQuery entityQuery) throws IOException {
+        log.info("Inserting association " + entityQuery.toString());
+        String putUrl = getEntityUrl(entityQuery);
+        PutMethod method = getPutMethod(entityQuery, putUrl);
         return bhapi.put(method);
     }
 
-    private PutMethod getPutMethod(AssociationQuery associationQuery, String putUrl) throws IOException {
-        StringRequestEntity requestEntity = getStringRequestEntity(associationQuery);
+    private PutMethod getPutMethod(EntityQuery entityQuery, String putUrl) throws IOException {
+        StringRequestEntity requestEntity = getStringRequestEntity(entityQuery);
         PutMethod method = new PutMethod(putUrl);
         method.setRequestEntity(requestEntity);
         return method;
     }
 
-    private StringRequestEntity getStringRequestEntity(AssociationQuery associationQuery) throws IOException {
+    private StringRequestEntity getStringRequestEntity(EntityQuery entityQuery) throws IOException {
         return new StringRequestEntity(
-                    bhapi.serialize(associationQuery.getNestedJson()),
+                    bhapi.serialize(entityQuery.getNestedJson()),
                     StringConsts.APPLICATION_JSON, StringConsts.UTF);
     }
 
-    private JSONObject update(AssociationQuery associationQuery) throws IOException {
-        log.info("Updating association " + associationQuery.toString());
-        String postUrl = getEntityUrl(associationQuery,
-                associationQuery.getId().get().toString());
-        StringRequestEntity requestEntity = getStringRequestEntity(associationQuery);
+    private JSONObject update(EntityQuery entityQuery) throws IOException {
+        log.info("Updating association " + entityQuery.toString());
+        String postUrl = getEntityUrl(entityQuery,
+                entityQuery.getId().get().toString());
+        StringRequestEntity requestEntity = getStringRequestEntity(entityQuery);
         PostMethod method = new PostMethod(postUrl);
         method.setRequestEntity(requestEntity);
         return bhapi.post(method);
     }
 
-    private String getEntityUrl(AssociationQuery associationQuery) {
+    private String getEntityUrl(EntityQuery entityQuery) {
         String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
-                + toLabel(associationQuery.getEntity())
+                + toLabel(entityQuery.getEntity())
                 + "?" + restToken();
         log.info("insert: " + url);
         return url;
     }
 
-    private String getEntityUrl(AssociationQuery associationQuery, String identifier) {
+    private String getEntityUrl(EntityQuery entityQuery, String identifier) {
         String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
-                + toLabel(associationQuery.getEntity()) + "/"
+                + toLabel(entityQuery.getEntity()) + "/"
                 + identifier + "?" + restToken();
         log.info("update: " + url);
         return url;
     }
 
 
-    private boolean idExistsButNotInRest(AssociationQuery associationQuery) throws IOException {
-        return associationQuery.getId().isPresent() && idExistsInRest(associationQuery);
+    private boolean idExistsButNotInRest(EntityQuery entityQuery) throws IOException {
+        return entityQuery.getId().isPresent() && idExistsInRest(entityQuery);
     }
 
-    private boolean idExistsInRest(AssociationQuery associationQuery) throws IOException {
-        JSONObject queryResult = getCallById(associationQuery);
+    private boolean idExistsInRest(EntityQuery entityQuery) throws IOException {
+        JSONObject queryResult = getCallById(entityQuery);
         int count = queryResult.getInt(StringConsts.COUNT);
         return count == 1;
     }
 
-    private JSONObject getCallById(AssociationQuery associationQuery) throws IOException {
+    private JSONObject getCallById(EntityQuery entityQuery) throws IOException {
         String queryURL = bhapi.getRestURL() + "query/"
-                + toLabel(associationQuery.getEntity()) + "?fields=id&where="
-                + associationQuery.getWhereByIdClause()
+                + toLabel(entityQuery.getEntity()) + "?fields=id&where="
+                + entityQuery.getWhereByIdClause()
                 + "&count=2"
                 + restToken();
         return getCall(queryURL);
@@ -156,14 +156,14 @@ public class AssociationCache extends CacheLoader<AssociationQuery, Optional<Int
         return StringConsts.AND_BH_REST_TOKEN + bhapi.getBhRestToken();
     }
 
-    private JSONObject getCall(AssociationQuery associationQuery) throws IOException {
-        if(associationQuery.getWhereClause().isEmpty()) {
+    private JSONObject getCall(EntityQuery entityQuery) throws IOException {
+        if(entityQuery.getWhereClause().isEmpty()) {
             return getEmptyCountResponse();
         }
 
         String queryURL = bhapi.getRestURL() + "query/"
-                + toLabel(associationQuery.getEntity()) + "?fields=id&where="
-                + associationQuery.getWhereClause()
+                + toLabel(entityQuery.getEntity()) + "?fields=id&where="
+                + entityQuery.getWhereClause()
                 + "&count=2"
                 + restToken();
         return getCall(queryURL);

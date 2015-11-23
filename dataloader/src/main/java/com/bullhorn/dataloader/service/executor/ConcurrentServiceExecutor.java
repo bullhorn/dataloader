@@ -10,7 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.service.csv.JsonRow;
-import com.bullhorn.dataloader.service.query.AssociationQuery;
+import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.google.common.cache.LoadingCache;
 
@@ -21,7 +21,7 @@ public class ConcurrentServiceExecutor {
     private final String entityName;
     private final CsvToJson csvItr;
     private final BullhornAPI bhApi;
-    private final LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
+    private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
 
     private final Log log = LogFactory.getLog(ConcurrentServiceExecutor.class);
     private final Set<EntityInstance> seenFlag;
@@ -30,7 +30,7 @@ public class ConcurrentServiceExecutor {
                                      CsvToJson csvItr,
                                      BullhornAPI bhApi,
                                      ExecutorService executorService,
-                                     LoadingCache<AssociationQuery, Optional<Integer>> associationCache,
+                                     LoadingCache<EntityQuery, Optional<Integer>> associationCache,
                                      Set<EntityInstance> seenFlag) {
         this.entityName = entityName;
         this.bhApi = bhApi;

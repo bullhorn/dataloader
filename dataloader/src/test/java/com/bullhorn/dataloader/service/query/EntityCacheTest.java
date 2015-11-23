@@ -19,9 +19,9 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 
-public class AssociationCacheTest {
+public class EntityCacheTest {
 
-    private LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
+    private LoadingCache<EntityQuery, Optional<Integer>> associationCache;
     private BullhornAPI bhapi;
     private EntityInstance awesomeEntity;
     private final String entity = "awesomeEntity";
@@ -33,7 +33,7 @@ public class AssociationCacheTest {
         awesomeEntity = EntityInstanceTest.getAwesomeEntityInstance();
         this.associationCache = CacheBuilder.newBuilder()
                 .maximumSize(10000)
-                .build(new AssociationCache(bhapi));
+                .build(new EntityCache(bhapi));
         when(bhapi.getRestURL()).thenReturn("http://awesomeurl/");
         when(bhapi.getBhRestToken()).thenReturn("awesomeRestToken");
         when(bhapi.getLabelByName(entity)).thenReturn(Optional.of("awesomeLabel"));
@@ -44,8 +44,8 @@ public class AssociationCacheTest {
 
     @Test
     public void testLoad() throws Exception {
-        AssociationQuery associationQuery = new AssociationQuery("awesomeEntity", awesomeEntity);
-        Optional<Integer> thisIsAwesome = associationCache.get(associationQuery);
+        EntityQuery entityQuery = new EntityQuery("awesomeEntity", awesomeEntity);
+        Optional<Integer> thisIsAwesome = associationCache.get(entityQuery);
         assertEquals(thisIsAwesome.get(), Integer.valueOf(42));
     }
 }

@@ -13,13 +13,13 @@ import org.apache.commons.logging.LogFactory;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.JsonRow;
-import com.bullhorn.dataloader.service.query.AssociationQuery;
+import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 
 public class JsonService implements Runnable {
-    private final LoadingCache<AssociationQuery, Optional<Integer>> associationCache;
+    private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
     private final Set<EntityInstance> seenFlag;
     private BullhornAPI bhapi;
     private String entity;
@@ -30,7 +30,7 @@ public class JsonService implements Runnable {
     public JsonService(String entity,
                        BullhornAPI bullhornApi,
                        JsonRow data,
-                       LoadingCache<AssociationQuery, Optional<Integer>> associationCache,
+                       LoadingCache<EntityQuery, Optional<Integer>> associationCache,
                        Set<EntityInstance> seenFlag) {
         this.bhapi = bullhornApi;
         this.entity = entity;
@@ -59,15 +59,15 @@ public class JsonService implements Runnable {
         Map<String, Object> preprocessingActions = data.getPreprocessingActions();
         Map<String, Object> toOneIdentifiers = Maps.newHashMap();
         for (Map.Entry<String, Object> entityEntry : preprocessingActions.entrySet()) {
-            AssociationQuery associationQuery = new AssociationQuery(entityEntry.getKey(), entityEntry.getValue());
-            addSearchFields(associationQuery, (Map<String, Object>) entityEntry.getValue());
-            Optional<Integer> toOneId = associationCache.get(associationQuery);
+            EntityQuery entityQuery = new EntityQuery(entityEntry.getKey(), entityEntry.getValue());
+            addSearchFields(entityQuery, (Map<String, Object>) entityEntry.getValue());
+            Optional<Integer> toOneId = associationCache.get(entityQuery);
             if (toOneId.isPresent()) {
                 Map<String, Integer> toOneAssociation = Maps.newHashMap();
                 toOneAssociation.put(StringConsts.ID, toOneId.get());
                 toOneIdentifiers.put(entityEntry.getKey(), toOneAssociation);
             } else {
-                log.error("Failed to upsert to-one association " + associationQuery);
+                log.error("Failed to upsert to-one association " + entityQuery);
             }
         }
         return toOneIdentifiers;
@@ -80,20 +80,20 @@ public class JsonService implements Runnable {
 
     private Optional<Integer> createOrGetEntity(Map<String, Object> toOneIdentifiers) throws ExecutionException {
         Object nestJson = mergeObjects(toOneIdentifiers, data.getImmediateActions());
-        AssociationQuery associationQuery = new AssociationQuery(getEntity(), nestJson);
-        addSearchFields(associationQuery, data.getImmediateActions());
-        return associationCache.get(associationQuery);
+        EntityQuery entityQuery = new EntityQuery(getEntity(), nestJson);
+        addSearchFields(entityQuery, data.getImmediateActions());
+        return associationCache.get(entityQuery);
     }
 
-    private void addSearchFields(AssociationQuery associationQuery, Map<String, Object> actions) {
-        ifPresentPut(associationQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
-        ifPresentPut(associationQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
+    private void addSearchFields(EntityQuery entityQuery, Map<String, Object> actions) {
+        ifPresentPut(entityQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
+        ifPresentPut(entityQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
 
         Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entity);
 
         if (entityExistsFieldsProperty.isPresent()) {
             for (String propertyFileExistField : entityExistsFieldsProperty.get().split(",")) {
-                ifPresentPut(associationQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
             }
         }
     }
@@ -107,13 +107,13 @@ public class JsonService implements Runnable {
         EntityInstance parentEntity = new EntityInstance(String.valueOf(entityId), entity);
 
         for (Map.Entry<String, Object> toManyEntry : toManyProperties.entrySet()) {
-            AssociationQuery associationQuery = new AssociationQuery(toManyEntry.getKey(), toManyEntry.getValue());
+            EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
             Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
-            ifPresentPut(associationQuery::addInt, StringConsts.ID, entityFieldFilters.get(StringConsts.ID));
-            ifPresentPut(associationQuery::addString, StringConsts.NAME, entityFieldFilters.get(StringConsts.NAME));
-            Optional<Integer> associatedId = associationCache.get(associationQuery);
+            ifPresentPut(entityQuery::addInt, StringConsts.ID, entityFieldFilters.get(StringConsts.ID));
+            ifPresentPut(entityQuery::addString, StringConsts.NAME, entityFieldFilters.get(StringConsts.NAME));
+            Optional<Integer> associatedId = associationCache.get(entityQuery);
             if (associatedId.isPresent()) {
-                EntityInstance associationEntity = new EntityInstance(String.valueOf(associatedId.get()), associationQuery.getEntity());
+                EntityInstance associationEntity = new EntityInstance(String.valueOf(associatedId.get()), entityQuery.getEntity());
                 associate(parentEntity, associationEntity);
             }
         }

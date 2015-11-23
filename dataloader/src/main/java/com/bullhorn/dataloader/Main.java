@@ -15,8 +15,8 @@ import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
-import com.bullhorn.dataloader.service.query.AssociationCache;
-import com.bullhorn.dataloader.service.query.AssociationQuery;
+import com.bullhorn.dataloader.service.query.EntityCache;
+import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.google.common.cache.CacheBuilder;
@@ -57,9 +57,9 @@ public class Main {
     static void loadCsv(String entity, String filePath, BullhornAPI bhapi) {
         try {
             final Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
-            final LoadingCache<AssociationQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
+            final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
                     .maximumSize(10000)
-                    .build(new AssociationCache(bhapi));
+                    .build(new EntityCache(bhapi));
             final CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
             final ExecutorService executorService = Executors.newFixedThreadPool(bhapi.getThreadSize());
             final ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(

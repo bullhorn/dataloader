@@ -15,9 +15,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class AssociationQuery {
+public class EntityQuery {
 
-    private final Log log = LogFactory.getLog(AssociationQuery.class);
+    private final Log log = LogFactory.getLog(EntityQuery.class);
 
     private final String entity;
 
@@ -26,7 +26,7 @@ public class AssociationQuery {
 
     private Optional<Integer> id = Optional.empty();
 
-    public AssociationQuery(String entity, Object nestedJson) {
+    public EntityQuery(String entity, Object nestedJson) {
         this.entity = entity;
         this.nestedJson = nestedJson;
     }
@@ -82,9 +82,9 @@ public class AssociationQuery {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof AssociationQuery)) return false;
+        if (!(o instanceof EntityQuery)) return false;
 
-        AssociationQuery that = (AssociationQuery) o;
+        EntityQuery that = (EntityQuery) o;
 
         if (getEntity() != null ? !getEntity().equals(that.getEntity()) : that.getEntity() != null) return false;
         if (filterFields != null ? !filterFields.equals(that.filterFields) : that.filterFields != null) return false;
@@ -105,7 +105,7 @@ public class AssociationQuery {
 
     @Override
     public String toString() {
-        return "AssociationQuery{" +
+        return "EntityQuery{" +
                 "entity='" + entity + '\'' +
                 ", filterFields=" + filterFields +
                 ", nestedJson=" + nestedJson +
