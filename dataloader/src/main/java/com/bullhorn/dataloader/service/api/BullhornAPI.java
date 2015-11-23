@@ -47,16 +47,17 @@ public class BullhornAPI {
     private final String clientSecret;
     private final String loginUrl;
     private final Integer threadSize;
+    private final Integer cacheSize;
     private final SimpleDateFormat dateParser;
     private final Map<String, String> entityExistsFields;
     private String bhRestToken;
     private String restURL;
-
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
     private MetaMap metaMap;
 
     public BullhornAPI(Properties properties) {
         this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
+        this.cacheSize = Integer.valueOf(properties.getProperty("cacheSize"));
         this.username = properties.getProperty("username");
         this.password = properties.getProperty("password");
         this.authorizeUrl = properties.getProperty("authorizeUrl");
@@ -403,5 +404,9 @@ public class BullhornAPI {
 
     public Integer getThreadSize() {
         return threadSize;
+    }
+
+    public Integer getCacheSize() {
+        return cacheSize;
     }
 }

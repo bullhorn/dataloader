@@ -55,11 +55,11 @@ public class Main {
     }
 
     static void loadCsv(String entity, String filePath, BullhornAPI bhapi) {
+        final Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
+        final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
+                .maximumSize(bhapi.getCacheSize())
+                .build(new EntityCache(bhapi));
         try {
-            final Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
-            final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
-                    .maximumSize(10000)
-                    .build(new EntityCache(bhapi));
             final CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
             final ExecutorService executorService = Executors.newFixedThreadPool(bhapi.getThreadSize());
             final ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
@@ -71,8 +71,7 @@ public class Main {
                     seenFlag
             );
             impSvc.runProcess();
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.error(e);
         }
     }

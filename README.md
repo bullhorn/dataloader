@@ -23,6 +23,7 @@ A sample configuration is given below.
 
 ```
 numThreads=20
+cacheSize=10000
 dateFormat=MM/dd/yyyy
 candidateExistField=name
 clientContactExistField=lastName
