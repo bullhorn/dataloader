@@ -21,6 +21,14 @@
                 <role>committer</role>
             </roles>
         </developer>
+        <developer>
+            <name>Jocelyn Matsuo</name>
+            <email>jmatsuo@bullhorn.com</email>
+            <timezone>America/St_Louis</timezone>
+            <roles>
+                <role>committer</role>
+            </roles>
+        </developer>
     </developers>
 
     <properties>

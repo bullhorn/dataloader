@@ -1,19 +1,19 @@
 package com.bullhorn.dataloader.service.query;
 
+import com.bullhorn.dataloader.util.StringConsts;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.bullhorn.dataloader.util.StringConsts;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class EntityQuery {
 
@@ -63,9 +63,13 @@ public class EntityQuery {
     }
 
     public String getWhereClause() {
+        return getWhereClause(field -> field + "=" + filterFields.get(field));
+    }
+
+    private String getWhereClause(Function<String, String> equalityMap) {
         List<String> whereClauses = Lists.newArrayList();
         whereClauses.addAll(filterFields.keySet().stream()
-                .map(field -> field + "=" + filterFields.get(field))
+                .map(equalityMap)
                 .collect(Collectors.toList()));
         try {
             return URLEncoder.encode(Joiner.on(" AND ").join(whereClauses), StringConsts.UTF);
@@ -73,6 +77,10 @@ public class EntityQuery {
             log.error(e);
             throw new IllegalArgumentException("Unable to encode where clause", e);
         }
+    }
+
+    public String getSearchClause() {
+        return getWhereClause(field -> field + ":" + "\"" + filterFields.get(field) + "\"");
     }
 
     public String getWhereByIdClause() {

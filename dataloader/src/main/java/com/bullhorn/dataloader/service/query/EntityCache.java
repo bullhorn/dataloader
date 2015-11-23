@@ -1,8 +1,8 @@
 package com.bullhorn.dataloader.service.query;
 
-import java.io.IOException;
-import java.util.Optional;
-
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.google.common.cache.CacheLoader;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -12,9 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.google.common.cache.CacheLoader;
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * EntityCache handles creating, updating and retrieving IDs for entity queries.
@@ -102,8 +101,8 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
 
     private StringRequestEntity getStringRequestEntity(EntityQuery entityQuery) throws IOException {
         return new StringRequestEntity(
-                    bhapi.serialize(entityQuery.getNestedJson()),
-                    StringConsts.APPLICATION_JSON, StringConsts.UTF);
+                bhapi.serialize(entityQuery.getNestedJson()),
+                StringConsts.APPLICATION_JSON, StringConsts.UTF);
     }
 
     private JSONObject update(EntityQuery entityQuery) throws IOException {
@@ -157,16 +156,34 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
     }
 
     private JSONObject getCall(EntityQuery entityQuery) throws IOException {
-        if(entityQuery.getWhereClause().isEmpty()) {
+        if (entityQuery.getWhereClause().isEmpty()) {
             return getEmptyCountResponse();
         }
+        String validationURL;
+        if (entityQuery.getEntity().equals(StringConsts.CANDIDATE)) {
+            validationURL = getSearchURL(entityQuery);
+        } else {
+            validationURL = getQueryURL(entityQuery);
+        }
+        return getCall(validationURL);
 
-        String queryURL = bhapi.getRestURL() + "query/"
+    }
+
+    private String getSearchURL(EntityQuery entityQuery) {
+        return bhapi.getRestURL() + StringConsts.SEARCH
+                + toLabel(entityQuery.getEntity()) + "?fields=id&query="
+                + entityQuery.getSearchClause()
+                + "&count=2"
+                + "&useV2=true"
+                + restToken();
+    }
+
+    private String getQueryURL(EntityQuery entityQuery) {
+        return bhapi.getRestURL() + StringConsts.QUERY
                 + toLabel(entityQuery.getEntity()) + "?fields=id&where="
                 + entityQuery.getWhereClause()
                 + "&count=2"
                 + restToken();
-        return getCall(queryURL);
     }
 
     private static JSONObject getEmptyCountResponse() {
