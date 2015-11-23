@@ -14,6 +14,7 @@ public class StringConsts {
     public static final String COUNT = "count";
     public static final String NAME = "name";
     public static final String DATA = "data";
+    public static final String IS_DELETED = "isDeleted";
 
     private StringConsts() {
     }

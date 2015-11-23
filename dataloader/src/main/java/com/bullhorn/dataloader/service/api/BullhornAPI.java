@@ -179,6 +179,7 @@ public class BullhornAPI {
 
     public void associateEntity(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
         String associationUrl = getModificationAssociationUrl(parentEntity, childEntity);
+        log.debug("Associating " + associationUrl);
         PutMethod putMethod = new PutMethod(associationUrl);
         this.put(putMethod);
     }

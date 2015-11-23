@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -55,7 +56,7 @@ public class Main {
     }
 
     static void loadCsv(String entity, String filePath, BullhornAPI bhapi) {
-        final Set<EntityInstance> seenFlag = Sets.newConcurrentHashSet();
+        final Set<List<EntityInstance>> seenFlag = Sets.newConcurrentHashSet();
         final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
                 .maximumSize(bhapi.getCacheSize())
                 .build(new EntityCache(bhapi));
