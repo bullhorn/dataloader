@@ -122,19 +122,25 @@ public class JsonService implements Runnable {
     }
 
     private void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        List<EntityInstance> nestedEntities = Lists.newArrayList(parentEntity, associationEntity);
+        List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
         if (!seenFlag.contains(nestedEntities)) {
             dissociateEverything(parentEntity, associationEntity);
         }
         bhapi.associateEntity(parentEntity, associationEntity);
     }
 
-    private synchronized void dissociateEverything(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        List<EntityInstance> nestedEntities = Lists.newArrayList(parentEntity, associationEntity);
-        if (!seenFlag.contains(nestedEntities)) {
-            seenFlag.add(nestedEntities);
-            log.debug("Dissociating " + parentEntity + " "+ associationEntity);
-            bhapi.dissociateEverything(parentEntity, associationEntity);
+    private List<EntityInstance> getEntityInstances(EntityInstance parentEntity, EntityInstance entityInstance) {
+        return Lists.newArrayList(parentEntity, new EntityInstance("", entityInstance.getEntityName()));
+    }
+
+    private void dissociateEverything(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
+        synchronized (seenFlag) {
+            List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
+            if (!seenFlag.contains(nestedEntities)) {
+                seenFlag.add(nestedEntities);
+                log.debug("Dissociating " + parentEntity + " " + associationEntity);
+                bhapi.dissociateEverything(parentEntity, associationEntity);
+            }
         }
     }
 
