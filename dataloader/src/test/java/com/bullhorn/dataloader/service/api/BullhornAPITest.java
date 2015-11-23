@@ -25,6 +25,7 @@ public class BullhornAPITest {
         String testExistField = "candidateExistField";
         String testFilter = "testFilter";
         when(properties.getProperty("dateFormat")).thenReturn("MM/dd/yyyy");
+        when(properties.getProperty("cacheSize")).thenReturn("10");
         when(properties.getProperty("numThreads")).thenReturn("15");
         when(properties.stringPropertyNames()).thenReturn(Sets.newSet(testExistField));
         when(properties.getProperty(testExistField)).thenReturn(testFilter);
