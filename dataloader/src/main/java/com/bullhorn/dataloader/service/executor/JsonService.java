@@ -78,7 +78,9 @@ public class JsonService implements Runnable {
         Object nestJson = mergeObjects(toOneIdentifiers, data.getImmediateActions());
         EntityQuery entityQuery = new EntityQuery(getEntity(), nestJson);
         addSearchFields(entityQuery, data.getImmediateActions());
-        entityQuery.addInt(StringConsts.IS_DELETED, "false");
+        if (bhapi.containsFields(StringConsts.IS_DELETED)) {
+            entityQuery.addIsDeleted(StringConsts.IS_DELETED, "false");
+        }
         return associationCache.get(entityQuery);
     }
 

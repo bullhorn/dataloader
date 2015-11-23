@@ -41,6 +41,10 @@ public class EntityQuery {
         return nestedJson;
     }
 
+    public void addIsDeleted(String key, String value) {
+        filterFields.put(key, value);
+    }
+
     public void addInt(String key, String value) {
         incrementCount();
         if (StringConsts.ID.equals(key)) {

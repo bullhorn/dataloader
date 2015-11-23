@@ -160,10 +160,10 @@ public class BullhornAPI {
     }
 
     public void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
-        if (!seenFlag.contains(nestedEntities)) {
-            dissociate(parentEntity, associationEntity);
-        }
+        //List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
+        //if (!seenFlag.contains(nestedEntities)) {
+        //    dissociate(parentEntity, associationEntity);
+        //}
         associateEntity(parentEntity, associationEntity);
     }
 
@@ -413,6 +413,10 @@ public class BullhornAPI {
         } else {
             return Optional.empty();
         }
+    }
+
+    public boolean containsFields(String field) {
+        return metaMap.getDataTypeByFieldName(field).isPresent();
     }
 
     public Optional<String> getLabelByName(String entity) {
