@@ -81,6 +81,9 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
         if (ret.has("errorMessage")) {
             log.error("Association query " + entityQuery.toString()
                     + " failed for reason " + ret.getString("errorMessage"));
+            if (ret.has("errors")) {
+                log.error(" errors: " + ret.getJSONArray("errors"));
+            }
             return Optional.empty();
         }
         return Optional.of(ret.getInt(StringConsts.CHANGED_ENTITY_ID));

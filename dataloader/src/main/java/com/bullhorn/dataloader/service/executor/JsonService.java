@@ -87,10 +87,20 @@ public class JsonService implements Runnable {
     private void addSearchFields(EntityQuery entityQuery, Map<String, Object> actions) {
         ifPresentPut(entityQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
         ifPresentPut(entityQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
-        Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entity);
 
-        if (entityExistsFieldsProperty.isPresent()) {
-            for (String propertyFileExistField : entityExistsFieldsProperty.get().split(",")) {
+        Optional<String> entityLabel = bhapi.getLabelByName(entityQuery.getEntity());
+        if (entityLabel.isPresent()) {
+            Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entityLabel.get());
+            existsFieldSearch(entityQuery, actions, entityExistsFieldsProperty);
+        }
+
+        Optional<String> parentEntityExistsFieldProperty = bhapi.getEntityExistsFieldsProperty(entityQuery.getEntity());
+        existsFieldSearch(entityQuery, actions, parentEntityExistsFieldProperty);
+    }
+
+    private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<String> existsFieldProperty) {
+        if (existsFieldProperty.isPresent()) {
+            for (String propertyFileExistField : existsFieldProperty.get().split(",")) {
                 ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
             }
         }
