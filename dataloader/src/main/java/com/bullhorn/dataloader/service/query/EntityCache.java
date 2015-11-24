@@ -1,8 +1,8 @@
 package com.bullhorn.dataloader.service.query;
 
-import java.io.IOException;
-import java.util.Optional;
-
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.google.common.cache.CacheLoader;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -12,9 +12,8 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.google.common.cache.CacheLoader;
+import java.io.IOException;
+import java.util.Optional;
 
 /**
  * EntityCache handles creating, updating and retrieving IDs for entity queries.
@@ -164,7 +163,7 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
             return getEmptyCountResponse();
         }
         String validationURL;
-        if (StringConsts.CANDIDATE.equals(entityQuery.getEntity())) {
+        if (StringConsts.CANDIDATE.equals(entityQuery.getEntity().toLowerCase())) {
             validationURL = getSearchURL(entityQuery);
         } else {
             validationURL = getQueryURL(entityQuery);
