@@ -1,8 +1,8 @@
 package com.bullhorn.dataloader.service.query;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.google.common.cache.CacheLoader;
+import java.io.IOException;
+import java.util.Optional;
+
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -12,8 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.Optional;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.google.common.cache.CacheLoader;
 
 /**
  * EntityCache handles creating, updating and retrieving IDs for entity queries.
@@ -54,7 +55,7 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
         JSONArray identifiers = qryJSON.getJSONArray(StringConsts.DATA);
 
         Optional<Integer> ret = Optional.empty();
-        if (count == 0 | query.getFilterFieldCount() == 0) {
+        if (count == 0 || query.getFilterFieldCount() == 0) {
             ret = merge(query);
         } else if (count == 1) {
             ret = Optional.of(identifiers.getJSONObject(0).getInt(StringConsts.ID));
@@ -160,13 +161,12 @@ public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
             return getEmptyCountResponse();
         }
         String validationURL;
-        if (entityQuery.getEntity().equals(StringConsts.CANDIDATE)) {
+        if (StringConsts.CANDIDATE.equals(entityQuery.getEntity())) {
             validationURL = getSearchURL(entityQuery);
         } else {
             validationURL = getQueryURL(entityQuery);
         }
         return getCall(validationURL);
-
     }
 
     private String getSearchURL(EntityQuery entityQuery) {
