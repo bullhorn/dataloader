@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
@@ -53,10 +54,12 @@ public class BullhornAPI {
     private final SimpleDateFormat dateParser;
     private final Map<String, String> entityExistsFields;
     private final Set<List<EntityInstance>> seenFlag;
+    private final Optional<String> privateLabel;
     private String bhRestToken;
     private String restURL;
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
-    private MetaMap metaMap;
+    private MetaMap rootMetaMap;
+    private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
 
     public BullhornAPI(Properties properties, Set<List<EntityInstance>> seenFlag) {
         this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
@@ -70,6 +73,7 @@ public class BullhornAPI {
         this.loginUrl = properties.getProperty("loginUrl");
         this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
+        this.privateLabel = Optional.ofNullable(properties.getProperty("privateLabel"));
         this.seenFlag = seenFlag;
 
         // TODO: Don't do this in the constructor.
@@ -258,7 +262,7 @@ public class BullhornAPI {
     }
 
     public MetaMap getMetaDataTypes(String entity) throws IOException {
-        if (null == metaMap) {
+        if (!metaMaps.containsKey(entity)) {
             String url = this.getRestURL() + "meta/" + entity + "?fields=*&BhRestToken=" + this.getBhRestToken();
             GetMethod method = new GetMethod(url);
             JSONObject jsonObject = get(method);
@@ -269,15 +273,16 @@ public class BullhornAPI {
             JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
             deque.add(jsonObjectFields);
 
-            metaMap = new MetaMap(getDateParser());
+            MetaMap metaMap = new MetaMap(getDateParser());
             while (!deque.isEmpty()) {
                 jsonObjectFields = deque.pop();
                 fields = jsonObjectFields.getJsonArray();
-
                 addEachFieldToMetaAndQueueNestedFields(fields, deque, jsonObjectFields, metaMap);
             }
+            metaMaps.put(entity, metaMap);
+            return metaMap;
         }
-        return metaMap;
+        return metaMaps.get(entity);
     }
 
     private void addEachFieldToMetaAndQueueNestedFields(JSONArray fields,
@@ -389,6 +394,11 @@ public class BullhornAPI {
         return subFields;
     }
 
+    public MetaMap getRootMetaDataTypes(String entity) throws IOException {
+        rootMetaMap = getMetaDataTypes(entity);
+        return rootMetaMap;
+    }
+
     // POJO to JSON via Jackson. Don't include null properties during serialization
     public String serialize(Object obj) throws IOException {
 
@@ -415,12 +425,19 @@ public class BullhornAPI {
         }
     }
 
+    public boolean entityContainsFields(String entity, String field) throws IOException {
+        return getMetaDataTypes(entity).hasField(field);
+    }
+
     public boolean containsFields(String field) {
-        return metaMap.getDataTypeByFieldName(field).isPresent();
+        if (rootMetaMap == null) {
+            log.error("Root meta map not initialized");
+        }
+        return rootMetaMap.hasField(field);
     }
 
     public Optional<String> getLabelByName(String entity) {
-        return metaMap.getEntityNameByRootFieldName(entity);
+        return rootMetaMap.getEntityNameByRootFieldName(entity);
     }
 
     public String getBhRestToken() {
@@ -441,5 +458,9 @@ public class BullhornAPI {
 
     public Integer getCacheSize() {
         return cacheSize;
+    }
+
+    public Optional<String> getPrivateLabel() {
+        return privateLabel;
     }
 }

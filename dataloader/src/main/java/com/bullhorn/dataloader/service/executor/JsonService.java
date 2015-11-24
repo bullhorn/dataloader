@@ -79,7 +79,7 @@ public class JsonService implements Runnable {
         EntityQuery entityQuery = new EntityQuery(getEntity(), nestJson);
         addSearchFields(entityQuery, data.getImmediateActions());
         if (bhapi.containsFields(StringConsts.IS_DELETED)) {
-            entityQuery.addIsDeleted(StringConsts.IS_DELETED, "false");
+            entityQuery.addFieldWithoutCount(StringConsts.IS_DELETED, "false");
         }
         return associationCache.get(entityQuery);
     }
@@ -107,6 +107,11 @@ public class JsonService implements Runnable {
         for (Map.Entry<String, Object> toManyEntry : toManyProperties.entrySet()) {
             EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
             Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
+            String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
+            if (bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS)
+                    && bhapi.getPrivateLabel().isPresent()) {
+                entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, bhapi.getPrivateLabel().get());
+            }
             ifPresentPut(entityQuery::addInt, StringConsts.ID, entityFieldFilters.get(StringConsts.ID));
             ifPresentPut(entityQuery::addString, StringConsts.NAME, entityFieldFilters.get(StringConsts.NAME));
             Optional<Integer> associatedId = associationCache.get(entityQuery);

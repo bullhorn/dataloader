@@ -18,6 +18,7 @@ public class StringConsts {
     public static final String SEARCH = "search/";
     public static final String QUERY = "query/";
     public static final String CANDIDATE = "candidate";
+    public static final String PRIVATE_LABELS = "privateLabels";
 
     private StringConsts() {
     }

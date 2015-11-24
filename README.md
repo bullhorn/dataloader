@@ -37,6 +37,7 @@ tokenUrl=https://auth9.bullhornstaffing.com/oauth/token
 loginUrl=https://rest9.bullhornstaffing.com/rest-services/login
 clientId=
 clientSecret=
+privateLabel=
 ```
 
 The Entity ExistField properties refer to the fields that will be used when searching for entities. If Dataloader finds

@@ -48,6 +48,10 @@ public class MetaMap {
         return Optional.ofNullable(fieldNameToDataType.get(fieldName));
     }
 
+    public boolean hasField(String fieldName) {
+        return getDataTypeByFieldName(fieldName).isPresent();
+    }
+
     public Optional<String> getDataTypeByFieldMapLabel(String fieldMapLabel) {
         return Optional.ofNullable(fieldMapLabelToDataType.get(fieldMapLabel));
     }

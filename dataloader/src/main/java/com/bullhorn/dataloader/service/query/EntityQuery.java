@@ -1,12 +1,5 @@
 package com.bullhorn.dataloader.service.query;
 
-import com.bullhorn.dataloader.util.StringConsts;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
@@ -15,6 +8,14 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.bullhorn.dataloader.util.StringConsts;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 public class EntityQuery {
 
     private final Log log = LogFactory.getLog(EntityQuery.class);
@@ -22,6 +23,7 @@ public class EntityQuery {
     private final String entity;
 
     private final Map<String, String> filterFields = Maps.newConcurrentMap();
+    private final Map<String, String> memberOfFields = Maps.newConcurrentMap();
     private final Object nestedJson;
 
     public Integer getFilterFieldCount() {
@@ -41,7 +43,7 @@ public class EntityQuery {
         return nestedJson;
     }
 
-    public void addIsDeleted(String key, String value) {
+    public void addFieldWithoutCount(String key, String value) {
         filterFields.put(key, value);
     }
 
@@ -62,14 +64,21 @@ public class EntityQuery {
         filterFieldCount += 1;
     }
 
-    public String getWhereClause() {
-        return getWhereClause(field -> field + "=" + filterFields.get(field));
+    public void addMemberOfWithoutCount(String key, String value) {
+        memberOfFields.put(key, value);
     }
 
-    private String getWhereClause(Function<String, String> equalityMap) {
+    public String getWhereClause() {
+        return getWhereClause(fieldEntry -> fieldEntry.getKey() + "=" + fieldEntry.getValue());
+    }
+
+    private String getWhereClause(Function<Map.Entry<String, String>, String> equalityMap) {
         List<String> whereClauses = Lists.newArrayList();
-        whereClauses.addAll(filterFields.keySet().stream()
+        whereClauses.addAll(filterFields.entrySet().stream()
                 .map(equalityMap)
+                .collect(Collectors.toList()));
+        whereClauses.addAll(memberOfFields.entrySet().stream()
+                .map(member -> member.getValue() + " member of " + member.getKey())
                 .collect(Collectors.toList()));
         try {
             return URLEncoder.encode(Joiner.on(" AND ").join(whereClauses), StringConsts.UTF);
@@ -80,7 +89,7 @@ public class EntityQuery {
     }
 
     public String getSearchClause() {
-        return getWhereClause(field -> field + ":" + "\"" + filterFields.get(field) + "\"");
+        return getWhereClause(fieldEntry -> fieldEntry.getKey() + ":" + "\"" + fieldEntry.getValue() + "\"");
     }
 
     public String getWhereByIdClause() {

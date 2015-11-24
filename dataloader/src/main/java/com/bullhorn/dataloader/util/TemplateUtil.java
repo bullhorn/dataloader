@@ -24,7 +24,7 @@ public class TemplateUtil {
     public void writeExampleEntityCsv(String entity) throws IOException {
         String filePath = entity + "Example.csv";
 
-        metaMap = bullhornAPI.getMetaDataTypes(entity);
+        metaMap = bullhornAPI.getRootMetaDataTypes(entity);
 
         Map<String, String> nameMap = metaMap.getFieldNameToDataType();
 

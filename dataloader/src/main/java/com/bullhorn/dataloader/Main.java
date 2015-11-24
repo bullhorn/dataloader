@@ -62,7 +62,7 @@ public class Main {
                 .maximumSize(bhapi.getCacheSize())
                 .build(new EntityCache(bhapi));
         try {
-            final CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getMetaDataTypes(entity));
+            final CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getRootMetaDataTypes(entity));
             final ExecutorService executorService = Executors.newFixedThreadPool(bhapi.getThreadSize());
             final ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
                     WordUtils.capitalize(entity),
