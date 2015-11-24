@@ -34,6 +34,7 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class BullhornAPI {
 
@@ -55,6 +56,7 @@ public class BullhornAPI {
     private final Set<List<EntityInstance>> seenFlag;
     private final Optional<String> privateLabel;
     private final String listDelimiter;
+    private final Set<String> frontLoadedEntities;
     private String bhRestToken;
     private String restURL;
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
@@ -75,6 +77,7 @@ public class BullhornAPI {
         this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
         this.privateLabel = Optional.ofNullable(properties.getProperty("privateLabel"));
+        this.frontLoadedEntities = Sets.newHashSet(properties.getProperty("frontLoadedEntities").split(","));
         this.seenFlag = seenFlag;
 
         // TODO: Don't do this in the constructor.

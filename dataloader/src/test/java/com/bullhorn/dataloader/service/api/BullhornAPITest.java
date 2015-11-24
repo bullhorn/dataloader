@@ -18,8 +18,18 @@ public class BullhornAPITest {
 
     @Before
     public void setUp() throws Exception {
-        properties = Mockito.mock(Properties.class);
-        seenFlag = Mockito.mock(Set.class);
+        this.properties = getMockProperties();
+        this.seenFlag = Mockito.mock(Set.class);
+    }
+
+    Properties getMockProperties() {
+        Properties properties = Mockito.mock(Properties.class);
+        when(properties.getProperty("dateFormat")).thenReturn("MM/dd/yyyy");
+        when(properties.getProperty("cacheSize")).thenReturn("10");
+        when(properties.getProperty("numThreads")).thenReturn("15");
+        when(properties.getProperty("frontLoadedEntities")).thenReturn("a,b");
+        when(properties.getProperty("listDelimiter")).thenReturn(";;");
+        return properties;
     }
 
     @Test
@@ -27,9 +37,6 @@ public class BullhornAPITest {
         //arrange
         String testExistField = "candidateExistField";
         String testFilter = "testFilter";
-        when(properties.getProperty("dateFormat")).thenReturn("MM/dd/yyyy");
-        when(properties.getProperty("cacheSize")).thenReturn("10");
-        when(properties.getProperty("numThreads")).thenReturn("15");
         when(properties.stringPropertyNames()).thenReturn(Sets.newSet(testExistField));
         when(properties.getProperty(testExistField)).thenReturn(testFilter);
 
