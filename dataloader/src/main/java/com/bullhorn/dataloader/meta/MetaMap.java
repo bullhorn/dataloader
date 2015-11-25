@@ -1,24 +1,34 @@
 package com.bullhorn.dataloader.meta;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
+import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class MetaMap {
 
+    private final String ESCAPE_DELIMITER_REGEX = "[\\\\\\.\\[\\]\\{\\}\\(\\)\\*\\+\\-\\?\\^\\$\\|]";
     private final SimpleDateFormat simpleDateFormat;
+    private final String listDelimiter;
+    private final String escapedListDelimiter;
 
     private Map<String, String> fieldNameToDataType = Maps.newHashMap();
     private Map<String, String> fieldMapLabelToDataType = Maps.newHashMap();
     private Map<String, String> fieldNameToAssociationType = Maps.newHashMap();
     private Map<String, String> rootFieldNameToEntityName = Maps.newHashMap(); //rootFieldName is the base entity for the "dot" notation (e.g. clientCompany for clientCompany.name)
 
-    public MetaMap(SimpleDateFormat simpleDateFormat) {
+    public MetaMap(SimpleDateFormat simpleDateFormat, String listDelimiter) {
         this.simpleDateFormat = simpleDateFormat;
+        this.listDelimiter = listDelimiter;
+        this.escapedListDelimiter = escapeDelimiter(listDelimiter);
     }
+
 
     public Map<String, String> getFieldNameToDataType() {
         return ImmutableMap.copyOf(fieldNameToDataType);
@@ -65,10 +75,31 @@ public class MetaMap {
         if(dataType.isPresent()) {
             MetaDataType metaDataType = MetaDataType.fromName(dataType.get());
             if(metaDataType != null) {
-                return metaDataType.convertFieldValue(value, simpleDateFormat);
+                if(isDelimitedToManyField(fieldName, value)) {
+                    return getMultiValueResult(value, metaDataType);
+                } else {
+                    return metaDataType.convertFieldValue(value, simpleDateFormat);
+                }
             }
         }
         return value;
+    }
+
+    private boolean isDelimitedToManyField(String fieldName, String value) {
+        String[] fieldNames = fieldName.split("\\.");
+        if(fieldNames.length > 0) {
+            return value.contains(listDelimiter) && CaseInsensitiveStringPredicate.isToMany(getAssociationTypeByFieldName(fieldNames[0]));
+        }
+        return false;
+    }
+
+    private Object getMultiValueResult(String value, MetaDataType metaDataType) {
+        String[] values = value.split(escapedListDelimiter);
+        List<Object> result = Lists.newArrayList();
+        for(String v : values) {
+            result.add(metaDataType.convertFieldValue(v, simpleDateFormat));
+        }
+        return result;
     }
 
     /**
@@ -84,4 +115,12 @@ public class MetaMap {
         return dataType;
     }
 
+    private String escapeDelimiter(String listDelimiter) {
+        String result = listDelimiter;
+        Pattern pattern = Pattern.compile(ESCAPE_DELIMITER_REGEX);
+        if(pattern.matcher(result).matches()) {
+            result = "\\" + result;
+        }
+        return result;
+    }
 }

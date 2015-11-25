@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +31,13 @@ import org.json.JSONObject;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class BullhornAPI {
+
+
     private final String AUTH_CODE_ACTION = "Login";
     private final String AUTH_CODE_RESPONSE_TYPE = "code";
     private final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
@@ -55,6 +54,7 @@ public class BullhornAPI {
     private final Map<String, String> entityExistsFields;
     private final Set<List<EntityInstance>> seenFlag;
     private final Optional<String> privateLabel;
+    private final String listDelimiter;
     private String bhRestToken;
     private String restURL;
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
@@ -71,6 +71,7 @@ public class BullhornAPI {
         this.clientId = properties.getProperty("clientId");
         this.clientSecret = properties.getProperty("clientSecret");
         this.loginUrl = properties.getProperty("loginUrl");
+        this.listDelimiter = properties.getProperty("listDelimiter");
         this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
         this.privateLabel = Optional.ofNullable(properties.getProperty("privateLabel"));
@@ -164,48 +165,7 @@ public class BullhornAPI {
     }
 
     public void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        //List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
-        //if (!seenFlag.contains(nestedEntities)) {
-        //    dissociate(parentEntity, associationEntity);
-        //}
         associateEntity(parentEntity, associationEntity);
-    }
-
-    private List<EntityInstance> getEntityInstances(EntityInstance parentEntity, EntityInstance entityInstance) {
-        return Lists.newArrayList(parentEntity, new EntityInstance("", entityInstance.getEntityName()));
-    }
-
-    private void dissociate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        synchronized (seenFlag) {
-            List<EntityInstance> nestedEntities = getEntityInstances(parentEntity, associationEntity);
-            if (!seenFlag.contains(nestedEntities)) {
-                seenFlag.add(nestedEntities);
-                log.debug("Dissociating " + parentEntity + " " + associationEntity);
-                dissociateEverything(parentEntity, associationEntity);
-            }
-        }
-    }
-
-    public synchronized void dissociateEverything(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
-        String associationUrl = getQueryAssociationUrl(parentEntity, childEntity);
-        String associationIds = Joiner.on(',').join(getIds(associationUrl));
-        EntityInstance toManyAssociations = new EntityInstance(associationIds, childEntity.getEntityName());
-        String toManyUrl = getModificationAssociationUrl(parentEntity, toManyAssociations);
-        DeleteMethod deleteMethod = new DeleteMethod(toManyUrl);
-        this.delete(deleteMethod);
-    }
-
-    private List<String> getIds(String url) throws IOException {
-        GetMethod getMethod = new GetMethod(url);
-        JSONObject response = this.get(getMethod);
-        JSONObject data = response.getJSONObject(StringConsts.DATA);
-        JSONArray elements = data.getJSONObject(data.keys().next()).getJSONArray(StringConsts.DATA);
-
-        List<String> identifiers = new ArrayList<>(elements.length());
-        for (int i = 0; i < elements.length(); i++) {
-            identifiers.add(String.valueOf(elements.getJSONObject(i).getInt(StringConsts.ID)));
-        }
-        return identifiers;
     }
 
     public void associateEntity(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
@@ -222,14 +182,6 @@ public class BullhornAPI {
                 + childEntity.getEntityName() + "/"
                 + childEntity.getEntityId()
                 + StringConsts.END_BH_REST_TOKEN + this.getBhRestToken();
-    }
-
-    private String getQueryAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
-        return this.getRestURL() + StringConsts.ENTITY_SLASH
-                + parentEntity.getEntityName() + "/"
-                + parentEntity.getEntityId()
-                + "?fields=" + childEntity.getEntityName()
-                + StringConsts.AND_BH_REST_TOKEN + this.getBhRestToken();
     }
 
     public JSONObject get(GetMethod method) throws IOException {
@@ -273,7 +225,7 @@ public class BullhornAPI {
             JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
             deque.add(jsonObjectFields);
 
-            MetaMap metaMap = new MetaMap(getDateParser());
+            MetaMap metaMap = new MetaMap(getDateParser(), getListDelimiter());
             while (!deque.isEmpty()) {
                 jsonObjectFields = deque.pop();
                 fields = jsonObjectFields.getJsonArray();
@@ -462,5 +414,9 @@ public class BullhornAPI {
 
     public Optional<String> getPrivateLabel() {
         return privateLabel;
+    }
+
+    public String getListDelimiter() {
+        return listDelimiter;
     }
 }

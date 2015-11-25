@@ -11,11 +11,12 @@ import java.util.Optional;
 import org.junit.Test;
 
 public class MetaMapTest {
+    private final String BAR = "|";
 
     @Test
     public void testRootFieldNameToEntityName() {
         //arrange
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         String rootFieldName = "expectedRootFieldName";
         String entityName = "expectedEntityName";
 
@@ -29,7 +30,7 @@ public class MetaMapTest {
     @Test
     public void testFieldNameToDataType() {
         //arrange
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         String fieldName = "expectedFieldName";
         String dataType = "expectedDataType";
 
@@ -43,7 +44,7 @@ public class MetaMapTest {
     @Test
     public void testFieldMapLabelToDataType() {
         //arrange
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         String fieldMapLabel = "expectedFieldMapLabel";
         String dataType = "expectedDataType";
 
@@ -57,7 +58,7 @@ public class MetaMapTest {
     @Test
     public void testFieldNameToAssociationType() {
         //arrange
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         String fieldName = "expectedFieldName";
         String associationType = "expectedAssociationType";
 
@@ -73,7 +74,7 @@ public class MetaMapTest {
         //arrange
         String fieldName = "fieldName";
         String dataType = "String";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         metaMap.setFieldNameToDataType(fieldName, dataType);
 
         //act
@@ -89,7 +90,7 @@ public class MetaMapTest {
         //arrange
         String fieldMapLabel = "fieldMapLabel";
         String dataType = "Integer";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         metaMap.setFieldMapLabelToDataType(fieldMapLabel, dataType);
 
         //act
@@ -104,7 +105,7 @@ public class MetaMapTest {
     public void testDetermineDataType_fieldNameDoesNotExists_fieldMapLabelDoesExists() {
         //arrange
         String fieldMapLabel = "fieldMapLabel";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
 
         //act
         Optional<String> type = metaMap.determineDataType(fieldMapLabel);
@@ -118,7 +119,7 @@ public class MetaMapTest {
         //arrange
         String fieldName = "fieldName";
         String dataType = "String";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         metaMap.setFieldNameToDataType(fieldName, dataType);
 
         //act
@@ -134,7 +135,7 @@ public class MetaMapTest {
         //arrange
         String fieldName = "fieldName";
         String dataType = "Integer";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         metaMap.setFieldNameToDataType(fieldName, dataType);
 
         //act
@@ -150,7 +151,7 @@ public class MetaMapTest {
         //arrange
         String fieldName = "fieldName";
         String dataType = "Double";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
         metaMap.setFieldNameToDataType(fieldName, dataType);
 
         //act
@@ -167,7 +168,7 @@ public class MetaMapTest {
         String fieldName = "fieldName";
         String dataType = "Timestamp";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-        MetaMap metaMap = new MetaMap(simpleDateFormat);
+        MetaMap metaMap = new MetaMap(simpleDateFormat, BAR);
         metaMap.setFieldNameToDataType(fieldName, dataType);
 
         //act
@@ -184,7 +185,7 @@ public class MetaMapTest {
         String fieldName = "fieldName";
         String dataType = "Timestamp";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        MetaMap metaMap = new MetaMap(simpleDateFormat);
+        MetaMap metaMap = new MetaMap(simpleDateFormat, BAR);
         metaMap.setFieldNameToDataType(fieldName, dataType);
 
         //act
@@ -199,7 +200,7 @@ public class MetaMapTest {
     public void testConvertFieldValue_fieldNotEnteredInMap_returnsString() {
         //arrange
         String fieldName = "fieldName";
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat());
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
 
         //act
         Object value = metaMap.convertFieldValue(fieldName, "testing");

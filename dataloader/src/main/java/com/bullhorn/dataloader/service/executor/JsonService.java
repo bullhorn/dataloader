@@ -1,10 +1,13 @@
 package com.bullhorn.dataloader.service.executor;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,7 +18,9 @@ import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class JsonService implements Runnable {
     private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
@@ -113,23 +118,54 @@ public class JsonService implements Runnable {
 
     private void saveToMany(Integer entityId, String entity, Map<String, Object> toManyProperties) throws ExecutionException, IOException {
         EntityInstance parentEntity = new EntityInstance(String.valueOf(entityId), entity);
-
+        Set<Integer> validIds = Sets.newHashSet();
         for (Map.Entry<String, Object> toManyEntry : toManyProperties.entrySet()) {
+            validIds.addAll(getValidToManyIds(toManyEntry, StringConsts.ID));
+            validIds.addAll(getValidToManyIds(toManyEntry, StringConsts.NAME));
+
+            String entityName = toManyEntry.getKey();
+            String idList = validIds.stream()
+                    .map(it -> it.toString())
+                    .collect(Collectors.joining(","));
+
+            EntityInstance associationEntity = new EntityInstance(idList, entityName);
+            bhapi.associate(parentEntity, associationEntity);
+        }
+    }
+
+    private Set<Integer> getValidToManyIds(Map.Entry<String, Object> toManyEntry,
+                                           String fieldName) throws IOException, ExecutionException {
+        Set<Integer> validIds = Sets.newHashSet();
+        Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
+        List<Object> values = (List<Object>) entityFieldFilters.get(fieldName);
+        if(values == null) {
+            values = Lists.newArrayList();
+        }
+
+        for(Object value : values) {
             EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
-            Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
             String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
-            if (bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS)
-                    && bhapi.getPrivateLabel().isPresent()) {
+
+            if (hasPrivateLabel(entityLabel)) {
                 entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, bhapi.getPrivateLabel().get());
             }
-            ifPresentPut(entityQuery::addInt, StringConsts.ID, entityFieldFilters.get(StringConsts.ID));
-            ifPresentPut(entityQuery::addString, StringConsts.NAME, entityFieldFilters.get(StringConsts.NAME));
+            // should use meta if any more fields are needed
+            if(fieldName.equals(StringConsts.ID)) {
+                ifPresentPut(entityQuery::addInt, fieldName, value);
+            } else {
+                ifPresentPut(entityQuery::addString, fieldName, value);
+            }
+
             Optional<Integer> associatedId = associationCache.get(entityQuery);
-            if (associatedId.isPresent()) {
-                EntityInstance associationEntity = new EntityInstance(String.valueOf(associatedId.get()), entityQuery.getEntity());
-                bhapi.associate(parentEntity, associationEntity);
+            if(associatedId.isPresent()) {
+                validIds.add(associatedId.get());
             }
         }
+        return validIds;
+    }
+
+    private boolean hasPrivateLabel(String entityLabel) throws IOException {
+        return bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS) && bhapi.getPrivateLabel().isPresent();
     }
 
     private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {
