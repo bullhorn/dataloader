@@ -384,6 +384,7 @@ public class BullhornAPI {
     public boolean containsFields(String field) {
         if (rootMetaMap == null) {
             log.error("Root meta map not initialized");
+            return false;
         }
         return rootMetaMap.hasField(field);
     }
