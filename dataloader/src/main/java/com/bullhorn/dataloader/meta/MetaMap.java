@@ -75,7 +75,7 @@ public class MetaMap {
         if(dataType.isPresent()) {
             MetaDataType metaDataType = MetaDataType.fromName(dataType.get());
             if(metaDataType != null) {
-                if(isDelimitedToManyField(fieldName, value)) {
+                if(isToManyField(fieldName)) {
                     return getMultiValueResult(value, metaDataType);
                 } else {
                     return metaDataType.convertFieldValue(value, simpleDateFormat);
@@ -85,10 +85,11 @@ public class MetaMap {
         return value;
     }
 
-    private boolean isDelimitedToManyField(String fieldName, String value) {
+    private boolean isToManyField(String fieldName) {
         String[] fieldNames = fieldName.split("\\.");
         if(fieldNames.length > 0) {
-            return value.contains(listDelimiter) && CaseInsensitiveStringPredicate.isToMany(getAssociationTypeByFieldName(fieldNames[0]));
+            String associationTypeForRootField = getAssociationTypeByFieldName(fieldNames[0]);
+            return CaseInsensitiveStringPredicate.isToMany(associationTypeForRootField);
         }
         return false;
     }
