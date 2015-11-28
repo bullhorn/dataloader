@@ -37,10 +37,10 @@ public class CsvToJson implements Iterator<JsonRow>, Iterable<JsonRow> {
             String[] jsonPath = column.split("\\.");
             Object convertType = metaMap.convertFieldValue(column, get(column));
             String associationName = jsonPath[0];
-            if (isToOne(metaMap.getAssociationTypeByFieldName(associationName))) {
+            String associationType = metaMap.getAssociationTypeByFieldName(associationName);
+            if (isToOne(associationType)) {
                 jsonRow.addPreprocessing(jsonPath, convertType);
-            } else if (isToMany(metaMap.getAssociationTypeByFieldName(associationName))
-                    && !isCustomObject(associationName)) {
+            } else if (isToMany(associationType) && !isCustomObject(associationName)) {
                 jsonRow.addDeferredAction(jsonPath, convertType);
             } else {
                 jsonRow.addImmediateAction(jsonPath, convertType);
