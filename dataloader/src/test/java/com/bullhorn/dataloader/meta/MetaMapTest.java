@@ -5,7 +5,9 @@ import static junit.framework.TestCase.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -207,5 +209,23 @@ public class MetaMapTest {
 
         //assert
         assertEquals("testing", value);
+    }
+
+    @Test
+    public void testConvertFieldValue_isToMany_arrayValues() {
+        //arrange
+        String fieldName = "categories.id";
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat(), BAR);
+        metaMap.setFieldNameToAssociationType("categories", "TO_MANY");
+        metaMap.setFieldNameToDataType("categories.id", "Integer");
+
+        //act
+        Object value = metaMap.convertFieldValue(fieldName, "1|2|3");
+
+        //assert
+        List<Integer> expected = new ArrayList<Integer>() {{
+            add(1); add(2); add(3);
+        }};
+        assertEquals(expected, value);
     }
 }

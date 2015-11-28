@@ -100,4 +100,13 @@ public class JsonRow {
     public Map<String, Object> getDeferredActions() {
         return deferredActions;
     }
+
+    @Override
+    public String toString() {
+        return "JsonRow{" +
+                "preprocessingActions=" + preprocessingActions +
+                ", immediateActions=" + immediateActions +
+                ", deferredActions=" + deferredActions +
+                '}';
+    }
 }
