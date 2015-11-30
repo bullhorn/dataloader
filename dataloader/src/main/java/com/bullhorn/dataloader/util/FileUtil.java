@@ -10,20 +10,22 @@ import java.util.Properties;
 public class FileUtil {
 
     private static InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
+        String propertyFilePath;
 
-        String configurationPath;
-        if (null != System.getProperty(StringConsts.CONF_PATH_ARG)) {
-            configurationPath = System.getProperty(StringConsts.CONF_PATH_ARG);
+        if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
+            propertyFilePath = System.getProperty(StringConsts.PROPERTYFILE_ARG);
         } else {
+            String configurationPath;
             String os = System.getProperty("os.name").toLowerCase();
             if (os.contains("windows")) {
                 configurationPath = "C:\\bullhorn\\conf\\";
             } else {
                 configurationPath = "/usr/local/bullhorn/conf/";
             }
+            propertyFilePath = configurationPath + fileName;
         }
 
-        return new FileInputStream(configurationPath + fileName);
+        return new FileInputStream(propertyFilePath);
     }
 
     public Properties getProps(String fileName) throws IOException {
