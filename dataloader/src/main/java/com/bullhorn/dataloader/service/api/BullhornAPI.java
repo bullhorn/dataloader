@@ -104,7 +104,7 @@ public class BullhornAPI {
             String accessToken = getAccessToken(authCode);
             loginREST(accessToken);
         } catch (Exception e) {
-            log.error(e);
+            log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
         }
     }
 
