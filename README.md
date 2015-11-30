@@ -22,29 +22,32 @@ The folder path can be overridden by passing in an extra argument when running t
 A sample configuration is given below.
 
 ```
-BusinessSectorsExistField=name
-CategoryExistField=occupation
-SkillExistField=name
-authorizeUrl=https://auth9.bullhornstaffing.com/oauth/authorize
-cacheSize=10000
-candidateExistField=name
-clientContactExistField=lastName
-clientCorporationExistField=name
-clientId=
-clientSecret=
-dateFormat=MM/dd/yyyy
-frontLoadedEntities=BusinessSector,Skill,Category
+candidateExistField=id
+clientContactExistField=id
+clientCorporationExistField=id
 jobOrderExistField=title,name
-leadExistField=phone
-listDelimiter=|
-loginUrl=https://rest9.bullhornstaffing.com/rest-services/login
+opportunityExistField=id
+leadExistField=id
+businessSectorExistField=name
+categoryExistField=occupation
+skillExistField=name
+
+frontLoadedEntities=BusinessSector,Skill,Category
 numThreads=20
-opportunityExistField=title
+dateFormat=MM/dd/yyyy
+listDelimiter=|
 pageSize=500
+
+username=
 password=
 privateLabel=
+
+authorizeUrl=https://auth9.bullhornstaffing.com/oauth/authorize
 tokenUrl=https://auth9.bullhornstaffing.com/oauth/token
-username=
+loginUrl=https://rest9.bullhornstaffing.com/rest-services/login
+
+clientId=
+clientSecret=
 ```
 
 The Entity ExistField properties refer to the fields that will be used when searching for entities. If Dataloader finds
