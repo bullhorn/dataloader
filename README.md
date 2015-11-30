@@ -37,6 +37,7 @@ numThreads=20
 dateFormat=MM/dd/yyyy
 listDelimiter=|
 pageSize=500
+cacheSize=10000
 
 username=
 password=
