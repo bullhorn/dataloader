@@ -121,7 +121,7 @@ public class BullhornApiUpdater {
             return getEmptyCountResponse();
         }
         String validationURL;
-        if (StringConsts.CANDIDATE.equals(entityQuery.getEntity().toLowerCase())) {
+        if (StringConsts.CANDIDATE.equalsIgnoreCase(entityQuery.getEntity())) {
             validationURL = getSearchURL(entityQuery);
         } else {
             validationURL = getQueryURL(entityQuery);

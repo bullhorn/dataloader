@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
@@ -32,6 +33,8 @@ import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Splitter;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -57,6 +60,8 @@ public class BullhornAPI {
     private final Optional<String> privateLabel;
     private final String listDelimiter;
     private final Set<String> frontLoadedEntities;
+    private final int pageSize;
+    private final ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues;
     private String bhRestToken;
     private String restURL;
     private static final Log log = LogFactory.getLog(BullhornAPI.class);
@@ -78,11 +83,80 @@ public class BullhornAPI {
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
         this.privateLabel = Optional.ofNullable(properties.getProperty("privateLabel"));
         this.frontLoadedEntities = Sets.newHashSet(properties.getProperty("frontLoadedEntities").split(","));
+        this.pageSize = Integer.parseInt(properties.getProperty("pageSize"));
+        this.frontLoadedValues = Maps.newConcurrentMap();
         this.seenFlag = seenFlag;
 
         // TODO: Don't do this in the constructor.
         // TODO: Maybe we split the session handling into it's own object?
         createSession();
+    }
+
+    public boolean frontLoadedContainsEntity(String entity) {
+        return frontLoadedEntities.contains(entity);
+    }
+
+    public void frontLoad() throws IOException {
+        for (String entity : frontLoadedEntities) {
+            BiMap<String, Integer> frontLoadedCache = frontLoad(entity, getFirstToManyExistField(entity));
+            frontLoadedValues.put(entity, frontLoadedCache);
+        }
+    }
+
+    private BiMap<String, Integer> frontLoad(String entity, String existFieldKey) throws IOException {
+        log.info("Front loading " + entity);
+        int currentIndex = 0;
+        boolean stillGoing = true;
+        BiMap<String, Integer> frontLoadedCache = HashBiMap.create();
+        while (stillGoing) {
+            JSONObject jsonObject = getEntityPage(entity, pageSize, currentIndex);
+            if (!jsonObject.has(StringConsts.DATA)
+                    || jsonObject.getJSONArray(StringConsts.DATA).length() == 0) {
+                stillGoing = false;
+            } else {
+                currentIndex = frontLoad(existFieldKey, currentIndex, frontLoadedCache, jsonObject);
+            }
+        }
+        return frontLoadedCache;
+    }
+
+    private int frontLoad(String existFieldKey, int currentIndex, BiMap<String, Integer> frontLoadedCache, JSONObject dataPage) {
+        JSONArray entityPage = dataPage.getJSONArray(StringConsts.DATA);
+        for (Object jsnObject : entityPage) {
+            JSONObject dataElement = (JSONObject) jsnObject;
+            frontLoadedCache.put(dataElement.getString(existFieldKey), dataElement.getInt("id"));
+        }
+        return currentIndex + pageSize;
+    }
+
+    public String getFirstToManyExistField(String entity) {
+        String existFieldKey = StringConsts.NAME;
+        Optional<String> existFieldProperty = getEntityExistsFieldsProperty(entity);
+        if (existFieldProperty.isPresent()) {
+            existFieldKey = existFieldProperty.get().split(",")[0];
+        }
+        return existFieldKey;
+    }
+
+    private JSONObject getEntityPage(String entity, int pageSize, int currentIndex) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getRestURL());
+        sb.append(StringConsts.QUERY);
+        sb.append(entity);
+        sb.append("?fields=*&where=");
+        if (entity.equals(StringConsts.CATEGORY)) {
+            sb.append(URLEncoder.encode("id > -1 AND " + getPrivateLabel().get() + " member of privateLabels", StringConsts.UTF));
+        } else {
+            sb.append(URLEncoder.encode("id > -1", StringConsts.UTF));
+        }
+        sb.append("&count=");
+        sb.append(pageSize);
+        sb.append("&start=");
+        sb.append(currentIndex);
+        sb.append(StringConsts.AND_BH_REST_TOKEN);
+        sb.append(getBhRestToken());
+        GetMethod getMethod = new GetMethod(sb.toString());
+        return get(getMethod);
     }
 
     protected Map<String, String> createEntityExistsFields(Properties properties) {
@@ -278,6 +352,7 @@ public class BullhornAPI {
         }
     }
 
+
     private static Optional<String> getAssociatedEntity(JSONObject field) {
         try {
             return Optional.of(field.getJSONObject("associatedEntity").getString("entity"));
@@ -286,7 +361,6 @@ public class BullhornAPI {
         }
 
     }
-
 
     // Save a stringify'd object
     private JSONObject saveNonToMany(String jsString, String url, String type) throws IOException {
@@ -422,5 +496,13 @@ public class BullhornAPI {
 
     public String getListDelimiter() {
         return listDelimiter;
+    }
+
+    public Optional<Integer> getFrontLoadedFromKey(String entity, String key) {
+        return Optional.ofNullable(frontLoadedValues.get(entity).get(key));
+    }
+
+    public Optional<Integer> getFrontLoadedIdExists(String entity, String id) {
+        return frontLoadedValues.get(entity).containsValue(Integer.parseInt(id)) ? Optional.of(Integer.parseInt(id)) : Optional.empty();
     }
 }

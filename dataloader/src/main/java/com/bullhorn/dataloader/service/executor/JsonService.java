@@ -138,11 +138,11 @@ public class JsonService implements Runnable {
         Set<Integer> validIds = Sets.newHashSet();
         Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
         List<Object> values = (List<Object>) entityFieldFilters.get(fieldName);
-        if(values == null) {
+        if (values == null) {
             values = Lists.newArrayList();
         }
 
-        for(Object value : values) {
+        for (Object value : values) {
             EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
             String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
 
@@ -150,18 +150,32 @@ public class JsonService implements Runnable {
                 entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, bhapi.getPrivateLabel().get());
             }
             // should use meta if any more fields are needed
-            if(fieldName.equals(StringConsts.ID)) {
+            if (fieldName.equals(StringConsts.ID)) {
                 ifPresentPut(entityQuery::addInt, fieldName, value);
             } else {
                 ifPresentPut(entityQuery::addString, fieldName, value);
             }
 
-            Optional<Integer> associatedId = associationCache.get(entityQuery);
-            if(associatedId.isPresent()) {
+            Optional<Integer> associatedId;
+            if (bhapi.frontLoadedContainsEntity(entityLabel)) {
+                associatedId = queryFrontLoaded(entityLabel, fieldName, value.toString());
+            } else {
+                associatedId = associationCache.get(entityQuery);
+            }
+
+            if (associatedId.isPresent()) {
                 validIds.add(associatedId.get());
             }
         }
         return validIds;
+    }
+
+    private Optional<Integer> queryFrontLoaded(String entity, String fieldName, String value) {
+        if (StringConsts.ID.equals(fieldName)) {
+            return bhapi.getFrontLoadedIdExists(entity, value);
+        } else {
+            return bhapi.getFrontLoadedFromKey(entity, value);
+        }
     }
 
     private boolean hasPrivateLabel(String entityLabel) throws IOException {

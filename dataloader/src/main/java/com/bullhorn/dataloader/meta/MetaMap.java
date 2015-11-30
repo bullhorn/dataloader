@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -72,6 +73,10 @@ public class MetaMap {
 
     public Object convertFieldValue(String fieldName, String value) {
         Optional<String> dataType = determineDataType(fieldName);
+        if (!dataType.isPresent() && isToManyField(fieldName)) {
+            dataType = Optional.of(StringConsts.STRING);
+        }
+
         if(dataType.isPresent()) {
             MetaDataType metaDataType = MetaDataType.fromName(dataType.get());
             if(metaDataType != null) {

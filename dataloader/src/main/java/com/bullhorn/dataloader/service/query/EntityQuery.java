@@ -112,10 +112,6 @@ public class EntityQuery {
         return entity;
     }
 
-    public Map<String, String> getFilterFields() {
-        return filterFields;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

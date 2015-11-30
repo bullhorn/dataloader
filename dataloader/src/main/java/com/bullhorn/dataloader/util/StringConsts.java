@@ -19,6 +19,8 @@ public class StringConsts {
     public static final String QUERY = "query/";
     public static final String CANDIDATE = "candidate";
     public static final String PRIVATE_LABELS = "privateLabels";
+    public static final String CATEGORY = "Category";
+    public static final String STRING = "String";
 
     private StringConsts() {
     }

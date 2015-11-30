@@ -29,6 +29,7 @@ public class BullhornAPITest {
         when(properties.getProperty("numThreads")).thenReturn("15");
         when(properties.getProperty("frontLoadedEntities")).thenReturn("a,b");
         when(properties.getProperty("listDelimiter")).thenReturn(";;");
+        when(properties.getProperty("pageSize")).thenReturn("10");
         return properties;
     }
 
