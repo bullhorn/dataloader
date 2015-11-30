@@ -16,8 +16,8 @@ The configuration for Dataloader must be placed in a file called `dataloader.pro
 The default folder that the file must be placed in is `C:\\bullhorn\\conf\\` for Windows or `/usr/local/bullhorn/conf/`
 for Linux and Mac.
 
-The folder path can be overridden by passing in an extra argument when running the jar.
-`-Ddataloader.configuration.path=C:\\path\\to\\folder\\`. The trailing slash is necessary.
+The property file can be overridden by passing in an extra argument when running the jar.
+`-Dpropertyfile=C:\\path\\to\\file.properties`.
 
 A sample configuration is given below.
 
