@@ -146,9 +146,8 @@ public class JsonService implements Runnable {
             EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
             String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
 
-            if (hasPrivateLabel(entityLabel)) {
-                entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, bhapi.getPrivateLabel().get());
-            }
+            entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
+
             // should use meta if any more fields are needed
             if (fieldName.equals(StringConsts.ID)) {
                 ifPresentPut(entityQuery::addInt, fieldName, value);
@@ -176,10 +175,6 @@ public class JsonService implements Runnable {
         } else {
             return bhapi.getFrontLoadedFromKey(entity, value);
         }
-    }
-
-    private boolean hasPrivateLabel(String entityLabel) throws IOException {
-        return bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS) && bhapi.getPrivateLabel().isPresent();
     }
 
     private static void ifPresentPut(BiConsumer<String, String> consumer, String fieldName, Object value) {

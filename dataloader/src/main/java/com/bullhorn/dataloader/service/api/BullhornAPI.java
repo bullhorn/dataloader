@@ -41,6 +41,7 @@ import com.google.common.collect.Sets;
 
 public class BullhornAPI {
 
+    private static final Log log = LogFactory.getLog(BullhornAPI.class);
 
     private final String AUTH_CODE_ACTION = "Login";
     private final String AUTH_CODE_RESPONSE_TYPE = "code";
@@ -57,14 +58,15 @@ public class BullhornAPI {
     private final SimpleDateFormat dateParser;
     private final Map<String, String> entityExistsFields;
     private final Set<List<EntityInstance>> seenFlag;
-    private final Optional<String> privateLabel;
     private final String listDelimiter;
     private final Set<String> frontLoadedEntities;
     private final int pageSize;
     private final ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues;
+
     private String bhRestToken;
     private String restURL;
-    private static final Log log = LogFactory.getLog(BullhornAPI.class);
+    private int privateLabel;
+
     private MetaMap rootMetaMap;
     private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
 
@@ -81,7 +83,6 @@ public class BullhornAPI {
         this.listDelimiter = properties.getProperty("listDelimiter");
         this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
         this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
-        this.privateLabel = Optional.ofNullable(properties.getProperty("privateLabel"));
         this.frontLoadedEntities = Sets.newHashSet(properties.getProperty("frontLoadedEntities").split(","));
         this.pageSize = Integer.parseInt(properties.getProperty("pageSize"));
         this.frontLoadedValues = Maps.newConcurrentMap();
@@ -145,7 +146,7 @@ public class BullhornAPI {
         sb.append(entity);
         sb.append("?fields=*&where=");
         if (entity.equals(StringConsts.CATEGORY)) {
-            sb.append(URLEncoder.encode("id > -1 AND " + getPrivateLabel().get() + " member of privateLabels", StringConsts.UTF));
+            sb.append(URLEncoder.encode("id > -1 AND " + getPrivateLabel() + " member of privateLabels", StringConsts.UTF));
         } else {
             sb.append(URLEncoder.encode("id > -1", StringConsts.UTF));
         }
@@ -180,6 +181,7 @@ public class BullhornAPI {
             String authCode = getAuthorizationCode();
             String accessToken = getAccessToken(authCode);
             loginREST(accessToken);
+            this.privateLabel = getPrivateLabelFromRest();
         } catch (Exception e) {
             log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
         }
@@ -219,7 +221,6 @@ public class BullhornAPI {
     }
 
     private void loginREST(String accessToken) {
-
         JSONObject responseJson;
         try {
             String accessTokenString = URLEncoder.encode(accessToken, StringConsts.UTF);
@@ -239,6 +240,18 @@ public class BullhornAPI {
         } catch (Exception e) {
             log.error(e);
         }
+    }
+
+    private int getPrivateLabelFromRest() throws IOException {
+        String url = getRestURL() + "settings/privateLabelId?BhRestToken=" + getBhRestToken();
+        GetMethod get = new GetMethod(url);
+        HttpClient client = new HttpClient();
+        client.executeMethod(get);
+        String response = IOUtils.toString(get.getResponseBodyAsStream());
+        JSONObject json = new JSONObject(response);
+
+        int id = json.getJSONObject("privateLabelId").getInt("id");
+        return id;
     }
 
     public void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
@@ -490,7 +503,7 @@ public class BullhornAPI {
         return cacheSize;
     }
 
-    public Optional<String> getPrivateLabel() {
+    public int getPrivateLabel() {
         return privateLabel;
     }
 
