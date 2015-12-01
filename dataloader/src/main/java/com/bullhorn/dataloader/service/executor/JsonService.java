@@ -120,8 +120,7 @@ public class JsonService implements Runnable {
         EntityInstance parentEntity = new EntityInstance(String.valueOf(entityId), entity);
         Set<Integer> validIds = Sets.newHashSet();
         for (Map.Entry<String, Object> toManyEntry : toManyProperties.entrySet()) {
-            validIds.addAll(getValidToManyIds(toManyEntry, StringConsts.ID));
-            validIds.addAll(getValidToManyIds(toManyEntry, StringConsts.NAME));
+            validIds.addAll(getValidToManyIds(toManyEntry));
 
             String entityName = toManyEntry.getKey();
             String idList = validIds.stream()
@@ -133,37 +132,38 @@ public class JsonService implements Runnable {
         }
     }
 
-    private Set<Integer> getValidToManyIds(Map.Entry<String, Object> toManyEntry,
-                                           String fieldName) throws IOException, ExecutionException {
+    private Set<Integer> getValidToManyIds(Map.Entry<String, Object> toManyEntry) throws IOException, ExecutionException {
         Set<Integer> validIds = Sets.newHashSet();
         Map<String, Object> entityFieldFilters = (Map) toManyEntry.getValue();
-        List<Object> values = (List<Object>) entityFieldFilters.get(fieldName);
-        if (values == null) {
-            values = Lists.newArrayList();
-        }
-
-        for (Object value : values) {
-            EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
-            String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
-
-            entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
-
-            // should use meta if any more fields are needed
-            if (fieldName.equals(StringConsts.ID)) {
-                ifPresentPut(entityQuery::addInt, fieldName, value);
-            } else {
-                ifPresentPut(entityQuery::addString, fieldName, value);
+        for (String fieldName : entityFieldFilters.keySet()) {
+            List<Object> values = (List<Object>) entityFieldFilters.get(fieldName);
+            if (values == null) {
+                values = Lists.newArrayList();
             }
 
-            Optional<Integer> associatedId;
-            if (bhapi.frontLoadedContainsEntity(entityLabel)) {
-                associatedId = queryFrontLoaded(entityLabel, fieldName, value.toString());
-            } else {
-                associatedId = associationCache.get(entityQuery);
-            }
+            for (Object value : values) {
+                EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
+                String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
 
-            if (associatedId.isPresent()) {
-                validIds.add(associatedId.get());
+                entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
+
+                // should use meta if any more fields are needed
+                if (fieldName.equals(StringConsts.ID)) {
+                    ifPresentPut(entityQuery::addInt, fieldName, value);
+                } else {
+                    ifPresentPut(entityQuery::addString, fieldName, value);
+                }
+
+                Optional<Integer> associatedId;
+                if (bhapi.frontLoadedContainsEntity(entityLabel)) {
+                    associatedId = queryFrontLoaded(entityLabel, fieldName, value.toString());
+                } else {
+                    associatedId = associationCache.get(entityQuery);
+                }
+
+                if (associatedId.isPresent()) {
+                    validIds.add(associatedId.get());
+                }
             }
         }
         return validIds;
