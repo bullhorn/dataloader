@@ -41,7 +41,6 @@ cacheSize=10000
 
 username=
 password=
-privateLabel=
 
 authorizeUrl=https://auth9.bullhornstaffing.com/oauth/authorize
 tokenUrl=https://auth9.bullhornstaffing.com/oauth/token
