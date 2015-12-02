@@ -504,4 +504,8 @@ public class BullhornAPI {
     public Optional<Integer> getFrontLoadedIdExists(String entity, String id) {
         return frontLoadedValues.get(entity).containsValue(Integer.parseInt(id)) ? Optional.of(Integer.parseInt(id)) : Optional.empty();
     }
+
+    public boolean entityContainsFields(String entity, String field) throws IOException {
+        return getMetaDataTypes(entity).hasField(field);
+    }
 }

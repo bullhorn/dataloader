@@ -149,7 +149,9 @@ public class JsonService implements Runnable {
                 EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
                 String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
 
-                entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
+                if(hasPrivateLabel(entityLabel)) {
+                    entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
+                }
 
                 // should use meta if any more fields are needed
                 if (fieldName.equals(StringConsts.ID)) {
@@ -171,6 +173,10 @@ public class JsonService implements Runnable {
             }
         }
         return validIds;
+    }
+
+    private boolean hasPrivateLabel(String entityLabel) throws IOException {
+        return bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS);
     }
 
     private Optional<Integer> queryFrontLoaded(String entity, String fieldName, String value) {
