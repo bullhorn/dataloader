@@ -56,5 +56,4 @@ public class TemplateUtil {
     private boolean isCompositeType(String datetype) {
         return compositeTypes.contains(datetype);
     }
-
 }

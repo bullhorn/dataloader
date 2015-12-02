@@ -254,18 +254,8 @@ public class BullhornAPI {
         return id;
     }
 
-    public void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
-        associateEntity(parentEntity, associationEntity);
-    }
 
-    public void associateEntity(EntityInstance parentEntity, EntityInstance childEntity) throws IOException {
-        String associationUrl = getModificationAssociationUrl(parentEntity, childEntity);
-        log.debug("Associating " + associationUrl);
-        PutMethod putMethod = new PutMethod(associationUrl);
-        this.put(putMethod);
-    }
-
-    private String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
+    public String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
         return this.getRestURL() + StringConsts.ENTITY_SLASH
                 + parentEntity.getEntityName() + "/"
                 + parentEntity.getEntityId() + "/"
@@ -289,7 +279,7 @@ public class BullhornAPI {
         return responseJson;
     }
 
-    private JSONObject delete(DeleteMethod method) throws IOException {
+    public JSONObject delete(DeleteMethod method) throws IOException {
         JSONObject responseJson = call(method);
         return responseJson;
     }
@@ -465,10 +455,6 @@ public class BullhornAPI {
         } else {
             return Optional.empty();
         }
-    }
-
-    public boolean entityContainsFields(String entity, String field) throws IOException {
-        return getMetaDataTypes(entity).hasField(field);
     }
 
     public boolean containsFields(String field) {

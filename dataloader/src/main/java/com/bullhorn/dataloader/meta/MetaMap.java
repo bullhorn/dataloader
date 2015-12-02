@@ -14,7 +14,7 @@ import com.google.common.collect.Maps;
 
 public class MetaMap {
 
-    private final String ESCAPE_DELIMITER_REGEX = "[\\\\\\.\\[\\]\\{\\}\\(\\)\\*\\+\\-\\?\\^\\$\\|]";
+    private static final String ESCAPE_DELIMITER_REGEX = "[\\\\\\.\\[\\]\\{\\}\\(\\)\\*\\+\\-\\?\\^\\$\\|]";
     private final SimpleDateFormat simpleDateFormat;
     private final String listDelimiter;
     private final String escapedListDelimiter;

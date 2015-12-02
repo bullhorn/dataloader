@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
@@ -30,13 +31,14 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         final BullhornAPI bhapi = getBullhornAPI();
+        final BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhapi);
 
         if ("template".equals(args[0])) {
             createTemplate(args[1], bhapi);
         } else {
             String entity = args[0];
             String filePath = args[1];
-            loadCsv(entity, filePath, bhapi);
+            loadCsv(entity, filePath, bhapi, bullhornApiAssociator);
         }
     }
 
@@ -56,7 +58,7 @@ public class Main {
         }
     }
 
-    static void loadCsv(String entity, String filePath, BullhornAPI bhapi) {
+    static void loadCsv(String entity, String filePath, BullhornAPI bhapi, BullhornApiAssociator bullhornApiAssociator) {
 
         final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
                 .maximumSize(bhapi.getCacheSize())
@@ -69,6 +71,7 @@ public class Main {
                     WordUtils.capitalize(entity),
                     csvToJson,
                     bhapi,
+                    bullhornApiAssociator,
                     executorService,
                     associationCache
             );

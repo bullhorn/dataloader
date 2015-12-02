@@ -9,11 +9,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.EntityQuery;
@@ -27,6 +30,12 @@ public class JsonServiceTest {
         private BullhornAPI bhapi;
         private JsonService jsonService;
 
+        public BullhornApiAssociator getBhapiAssociator() {
+            return bhapiAssociator;
+        }
+
+        private BullhornApiAssociator bhapiAssociator;
+
         public BullhornAPI getBhapi() {
             return bhapi;
         }
@@ -35,7 +44,7 @@ public class JsonServiceTest {
             return jsonService;
         }
 
-        public SetupJsonService invoke() throws ExecutionException {
+        public SetupJsonService invoke() throws ExecutionException, IOException {
             LoadingCache<EntityQuery, Optional<Integer>> loadingCache = Mockito.mock(LoadingCache.class);
             JsonRow jsonRow = new JsonRow();
             jsonRow.addDeferredAction(
@@ -44,6 +53,7 @@ public class JsonServiceTest {
             );
 
             bhapi = Mockito.mock(BullhornAPI.class);
+            bhapiAssociator = Mockito.mock(BullhornApiAssociator.class);
 
             when(bhapi.getLabelByName("Candidate")).thenReturn(Optional.of("Candidate"));
             when(bhapi.getLabelByName("categories")).thenReturn(Optional.of("Category"));
@@ -53,7 +63,7 @@ public class JsonServiceTest {
             );
 
             // when
-            jsonService = new JsonService("Candidate", bhapi, jsonRow, loadingCache);
+            jsonService = new JsonService("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache);
             return this;
         }
     }
@@ -64,7 +74,10 @@ public class JsonServiceTest {
         SetupJsonService setupJsonService = new SetupJsonService().invoke();
 
         JsonService jsonService = setupJsonService.getJsonService();
+        BullhornApiAssociator bhapiAssociator = setupJsonService.getBhapiAssociator();
         BullhornAPI bhapi = setupJsonService.getBhapi();
+
+        when(bhapi.get(any(GetMethod.class))).thenReturn(new JSONObject());
 
         // act
         jsonService.run();
@@ -73,7 +86,7 @@ public class JsonServiceTest {
         ArgumentCaptor<EntityInstance> actualParent = ArgumentCaptor.forClass(EntityInstance.class);
         ArgumentCaptor<EntityInstance> actualAssociation = ArgumentCaptor.forClass(EntityInstance.class);
 
-        verify(bhapi).associate(actualParent.capture(), actualAssociation.capture());
+        verify(bhapiAssociator).associate(actualParent.capture(), actualAssociation.capture());
 
         EntityInstance expectedParent = new EntityInstance("1", "Candidate");
         EntityInstance expectedAssociation = new EntityInstance("2,3", "categories");

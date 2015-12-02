@@ -13,6 +13,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.EntityQuery;
@@ -24,7 +25,8 @@ import com.google.common.collect.Sets;
 
 public class JsonService implements Runnable {
     private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
-    private BullhornAPI bhapi;
+    private final BullhornAPI bhapi;
+    private final BullhornApiAssociator bhapiAssociator;
     private String entity;
     private JsonRow data;
 
@@ -32,9 +34,11 @@ public class JsonService implements Runnable {
 
     public JsonService(String entity,
                        BullhornAPI bullhornApi,
+                       BullhornApiAssociator bhapiAssociator,
                        JsonRow data,
                        LoadingCache<EntityQuery, Optional<Integer>> associationCache) {
         this.bhapi = bullhornApi;
+        this.bhapiAssociator = bhapiAssociator;
         this.entity = entity;
         this.data = data;
         this.associationCache = associationCache;
@@ -118,9 +122,8 @@ public class JsonService implements Runnable {
 
     private void saveToMany(Integer entityId, String entity, Map<String, Object> toManyProperties) throws ExecutionException, IOException {
         EntityInstance parentEntity = new EntityInstance(String.valueOf(entityId), entity);
-        Set<Integer> validIds = Sets.newHashSet();
         for (Map.Entry<String, Object> toManyEntry : toManyProperties.entrySet()) {
-            validIds.addAll(getValidToManyIds(toManyEntry));
+            Set<Integer> validIds = getValidToManyIds(toManyEntry);
 
             String entityName = toManyEntry.getKey();
             String idList = validIds.stream()
@@ -128,7 +131,8 @@ public class JsonService implements Runnable {
                     .collect(Collectors.joining(","));
 
             EntityInstance associationEntity = new EntityInstance(idList, entityName);
-            bhapi.associate(parentEntity, associationEntity);
+            bhapiAssociator.dissociateEverything(parentEntity, associationEntity);
+            bhapiAssociator.associate(parentEntity, associationEntity);
         }
     }
 
