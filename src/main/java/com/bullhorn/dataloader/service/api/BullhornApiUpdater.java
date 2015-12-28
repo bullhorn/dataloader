@@ -91,7 +91,7 @@ public class BullhornApiUpdater {
     }
 
     private boolean idExistsButNotInRest(EntityQuery entityQuery) throws IOException {
-        return entityQuery.getId().isPresent() && idExistsInRest(entityQuery);
+        return entityQuery.getId().isPresent() && !idExistsInRest(entityQuery);
     }
 
     private boolean idExistsInRest(EntityQuery entityQuery) throws IOException {

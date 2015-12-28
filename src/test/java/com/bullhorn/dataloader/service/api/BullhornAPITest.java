@@ -22,7 +22,7 @@ public class BullhornAPITest {
         this.seenFlag = Mockito.mock(Set.class);
     }
 
-    Properties getMockProperties() {
+    static Properties getMockProperties() {
         Properties properties = Mockito.mock(Properties.class);
         when(properties.getProperty("dateFormat")).thenReturn("MM/dd/yyyy");
         when(properties.getProperty("cacheSize")).thenReturn("10");
