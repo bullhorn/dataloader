@@ -13,7 +13,7 @@ public class CaseInsensitiveStringPredicate {
     }
 
     public static boolean isCustomObject(String associationName) {
-        return associationName.startsWith("customObject");
+        return associationName.contains("customObject") || associationName.contains("CustomObject");
     }
 
     public static boolean isToOne(String association) {

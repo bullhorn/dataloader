@@ -48,16 +48,15 @@ public class BullhornApiUpdater {
     }
 
     private JSONObject insert(EntityQuery entityQuery) throws IOException {
-        log.info("Inserting association " + entityQuery.toString());
         String putUrl = getEntityUrl(entityQuery);
+        log.info("Insert Association: " + putUrl + " - " + entityQuery.getNestedJson());
         PutMethod method = getPutMethod(entityQuery, putUrl);
         return bhapi.put(method);
     }
 
     private JSONObject update(EntityQuery entityQuery) throws IOException {
-        log.info("Updating association " + entityQuery.toString());
-        String postUrl = getEntityUrl(entityQuery,
-                entityQuery.getId().get().toString());
+        String postUrl = getEntityUrl(entityQuery, entityQuery.getId().get().toString());
+        log.info("Update Association: " + postUrl + " - " + entityQuery.toString());
         StringRequestEntity requestEntity = getStringRequestEntity(entityQuery);
         PostMethod method = new PostMethod(postUrl);
         method.setRequestEntity(requestEntity);
@@ -81,7 +80,6 @@ public class BullhornApiUpdater {
         String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
                 + toLabel(entityQuery.getEntity())
                 + "?" + restToken();
-        log.info("insert: " + url);
         return url;
     }
 
@@ -89,7 +87,6 @@ public class BullhornApiUpdater {
         String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
                 + toLabel(entityQuery.getEntity()) + "/"
                 + identifier + "?" + restToken();
-        log.info("update: " + url);
         return url;
     }
 

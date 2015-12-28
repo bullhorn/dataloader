@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service.api;
 
+import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -32,9 +34,11 @@ import org.json.JSONObject;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
 import com.bullhorn.dataloader.util.StringConsts;
+import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -293,13 +297,24 @@ public class BullhornAPI {
         return responseJson;
     }
 
+    private static final List<String> CUSTOM_OBJECT_META_FIELDS = ImmutableList.of(
+            "customObject1s",
+            "customObject2s",
+            "customObject3s",
+            "customObject4s",
+            "customObject5s",
+            "customObject6s",
+            "customObject7s",
+            "customObject8s",
+            "customObject9s"
+    );
+
+    private static final String CUSTOM_OBJECT_ADDITIONAL_FIELDS = Joiner.on("(*),").join(CUSTOM_OBJECT_META_FIELDS).concat("(*)");
+
     public MetaMap getMetaDataTypes(String entity) throws IOException {
         if (!metaMaps.containsKey(entity)) {
-            String url = this.getRestURL() + "meta/" + entity + "?fields=*&BhRestToken=" + this.getBhRestToken();
-            GetMethod method = new GetMethod(url);
-            JSONObject jsonObject = get(method);
-
-            JSONArray fields = jsonObject.getJSONArray("fields");
+            JSONArray fields = getFieldsFromMetaResponse(entity, "*");
+            addCustomObjectsFieldsWhenApplicable(entity, fields);
 
             Deque<JsonObjectFields> deque = new ArrayDeque<>();
             JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
@@ -315,6 +330,47 @@ public class BullhornAPI {
             return metaMap;
         }
         return metaMaps.get(entity);
+    }
+
+    /**
+     * CustomObjects are TO_MANY's, but we can and must treat them as if
+     * they were TO_ONE.
+     * Here we inject customObject meta fields into the general meta for the given Entity
+     * as TO_MANY's in a 'fields=*' meta query only returns id.
+     *
+     * @param entity
+     * @param fields
+     * @throws IOException
+     */
+    private void addCustomObjectsFieldsWhenApplicable(String entity, JSONArray fields) throws IOException {
+        if (fieldsContainsCustomObjects(fields)) {
+            JSONArray customObjectFields = getFieldsFromMetaResponse(entity, CUSTOM_OBJECT_ADDITIONAL_FIELDS);
+            for (Object customObjectField : customObjectFields) {
+                fields.put(customObjectField);
+            }
+        }
+    }
+
+    private boolean fieldsContainsCustomObjects(JSONArray fields) {
+        for (int i = 0; i < fields.length(); i++) {
+            JSONObject field = fields.getJSONObject(i);
+            Optional<String> optionalEntity = getAssociatedEntity(field);
+            if (optionalEntity.isPresent() && isCustomObject(optionalEntity.get())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private JSONArray getFieldsFromMetaResponse(String entity, String fields) throws IOException {
+        String url = getMetaUrl(entity, fields);
+        GetMethod method = new GetMethod(url);
+        JSONObject jsonObject = get(method);
+        return jsonObject.getJSONArray("fields");
+    }
+
+    private String getMetaUrl(String entity, String fields) {
+        return this.getRestURL() + "meta/" + entity + "?fields=" + fields + "&BhRestToken=" + this.getBhRestToken();
     }
 
     private void addEachFieldToMetaAndQueueNestedFields(JSONArray fields,
@@ -447,7 +503,7 @@ public class BullhornAPI {
     public Optional<Integer> saveNonToMany(Object obj, String postURL, String type) throws IOException {
 
         String jsString = serialize(obj);
-        log.info("Non-Associated entity saving to " + postURL);
+        log.info("Non-Associated entity saving to " + postURL + " - " + jsString);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
         if (jsResp.has(StringConsts.CHANGED_ENTITY_ID)) {
