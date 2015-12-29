@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -15,6 +16,7 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
@@ -57,7 +59,7 @@ public class JsonServiceTest {
 
             when(bhapi.getLabelByName("Candidate")).thenReturn(Optional.of("Candidate"));
             when(bhapi.getLabelByName("categories")).thenReturn(Optional.of("Category"));
-            when(bhapi.getEntityExistsFieldsProperty("Candidate")).thenReturn(Optional.of(""));
+            when(bhapi.getEntityExistsFieldsProperty("Candidate")).thenReturn(Optional.of("id,name"));
             when(loadingCache.get(any(EntityQuery.class))).thenReturn(
                     Optional.of(1), Optional.of(2), Optional.of(3)
             );
@@ -76,8 +78,11 @@ public class JsonServiceTest {
         JsonService jsonService = setupJsonService.getJsonService();
         BullhornApiAssociator bhapiAssociator = setupJsonService.getBhapiAssociator();
         BullhornAPI bhapi = setupJsonService.getBhapi();
+        MetaMap metaMap = new MetaMap(new SimpleDateFormat("mm/dd/yyyy"), "|");
+        metaMap.setFieldNameToDataType("id", "Integer");
 
         when(bhapi.get(any(GetMethod.class))).thenReturn(new JSONObject());
+        when(bhapi.getMetaDataTypes(any())).thenReturn(metaMap);
 
         // act
         jsonService.run();
