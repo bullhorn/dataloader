@@ -28,6 +28,10 @@ public class CaseInsensitiveStringPredicate {
         return equalsIgnoreCase("put", s);
     }
 
+    public static boolean isInteger(String s) {
+        return equalsIgnoreCase("integer", s);
+    }
+
     private CaseInsensitiveStringPredicate() {
     }
 }
