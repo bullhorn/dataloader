@@ -5,7 +5,7 @@
 
     <artifactId>dataloader-importer</artifactId>
     <groupId>com.bullhorn.dataloader</groupId>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>dataloader</name>
@@ -28,6 +28,14 @@
             <roles>
                 <role>committer</role>
             </roles>
+        </developer>
+        <developer>
+          <name>Nicholas Juszczak</name>
+          <email>njuszczak@bullhorn.com</email>
+          <timezone>America/St_Louis</timezone>
+          <roles>
+            <role>committer</role>
+          </roles>
         </developer>
     </developers>
 
