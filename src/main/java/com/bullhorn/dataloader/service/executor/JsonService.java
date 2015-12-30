@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service.executor;
 
+import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isInteger;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -110,7 +112,22 @@ public class JsonService implements Runnable {
     private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<String> existsFieldProperty) {
         if (existsFieldProperty.isPresent()) {
             for (String propertyFileExistField : existsFieldProperty.get().split(",")) {
-                ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                /**
+                 * Try to use meta to determine how to search on the propertyExistsField.
+                 * If error occurs, default to String
+                 */
+                String entityName = bhapi.getLabelByName(entityQuery.getEntity()).orElse(entityQuery.getEntity());
+                try {
+                    Optional<String> dataType = bhapi.getMetaDataTypes(entityName).getDataTypeByFieldName(propertyFileExistField);
+                    if (dataType.isPresent() && isInteger(dataType.get())) {
+                        ifPresentPut(entityQuery::addInt, propertyFileExistField, actions.get(propertyFileExistField));
+                    } else {
+                        ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                    }
+                } catch(IOException e) {
+                    log.debug("Error retrieving meta information for: " + entityName, e);
+                    ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                }
             }
         }
     }

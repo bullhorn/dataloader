@@ -13,7 +13,7 @@ public class CaseInsensitiveStringPredicate {
     }
 
     public static boolean isCustomObject(String associationName) {
-        return associationName.startsWith("customObject");
+        return associationName.contains("customObject") || associationName.contains("CustomObject");
     }
 
     public static boolean isToOne(String association) {
@@ -26,6 +26,10 @@ public class CaseInsensitiveStringPredicate {
 
     public static boolean isPut(String s) {
         return equalsIgnoreCase("put", s);
+    }
+
+    public static boolean isInteger(String s) {
+        return equalsIgnoreCase("integer", s);
     }
 
     private CaseInsensitiveStringPredicate() {

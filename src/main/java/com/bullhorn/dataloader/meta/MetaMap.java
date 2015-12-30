@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.meta;
 
+import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +82,7 @@ public class MetaMap {
         if(dataType.isPresent()) {
             MetaDataType metaDataType = MetaDataType.fromName(dataType.get());
             if(metaDataType != null) {
-                if(isToManyField(fieldName)) {
+                if(isToManyField(fieldName) && !isCustomObject(fieldName)) {
                     return getMultiValueResult(value, metaDataType);
                 } else {
                     return metaDataType.convertFieldValue(value, simpleDateFormat);
