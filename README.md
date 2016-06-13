@@ -44,7 +44,7 @@ There are many ways to **[contribute](https://github.com/bullhorn/dataloader/blo
   mvn clean package
   ```
 
-This will produce `dataloader-importer-{version}.jar` in `/target`, which includes all required dependencies.
+This will produce `dataloader-{version}.jar` in `/target`, which includes all required dependencies.
 
 ## Configure
 
@@ -53,5 +53,5 @@ Edit the file: `dataloader.properties` to specify the login credentials, data co
 ## Run
 
 ```
-java -Dpropertyfile=dataloader.properties -jar target/dataloader-importer-{version}.jar <EntityName> /path/to/data.csv
+java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar <EntityName> /path/to/data.csv
 ```
