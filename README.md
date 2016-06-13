@@ -1,4 +1,4 @@
-![DataLoader Logo](dataloader.svg)
+![DataLoader Logo](https://raw.githubusercontent.com/bullhorn/dataloader/master/dataloader.svg)
 
 **[Bullhorn DataLoader](http://www.bullhorn.com)** is a tool used to quickly import and/or update Bullhorn CRM data via a CSV file.
 
