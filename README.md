@@ -1,6 +1,6 @@
 ![DataLoader Logo](dataloader.png)
 
-**[Bullhorn DataLoader](http://www.bullhorn.com)** is a downloadable tool used to quickly import and/or update Bullhorn CRM data from a CSV file.
+**[Bullhorn DataLoader](http://www.bullhorn.com)** is a downloadable tool for quickly importing and updating data from a CSV file to Bullhorn.
 
 ## Releases
 
