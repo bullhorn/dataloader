@@ -9,10 +9,10 @@
 
 ## Contribute
 
-There are many ways to **[contribute](https://github.com/bullhorn/dataloader/blob/master/CONTRIBUTING.md)** to Bullhorn Data Loader.
+There are multiple ways to contribute to Bullhorn Data Loader:
 * **[Submit bugs](https://github.com/bullhorn/dataloader/issues)** and help us verify fixes as they are checked in.
 * Review **[source code changes](https://github.com/bullhorn/dataloader/pulls)**.
-* **[Contribute bug fixes](https://github.com/bullhorn/dataloader/blob/master/CONTRIBUTING.md)**.
+* **[Contribute bug fixes](https://github.com/bullhorn/dataloader/issues)**.
 
 ## Documentation
 
