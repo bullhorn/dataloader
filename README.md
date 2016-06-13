@@ -17,7 +17,7 @@ There are multiple ways to contribute to Bullhorn Data Loader:
 ## Documentation
 
 *  **[DataLoader Wiki](https://github.com/bullhorn/dataloader/wiki)**
-*  **[Bullhorn Platform](http://bullhorn.github.io/platform)**
+*  **[Bullhorn Open Source](http://bullhorn.github.io)**
 *  **[Bullhorn Website](http://www.bullhorn.com)**
 
 ## Building
