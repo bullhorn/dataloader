@@ -50,6 +50,14 @@ This will produce `dataloader-{version}.jar` in `/target`, which includes all re
 
 Edit the file: `dataloader.properties` to specify the login credentials, data configuration and more.
 
+## Generate CSV Template *(Optional)*
+
+```
+java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar template <EntityName>
+```
+
+This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc).
+
 ## Run
 
 ```
