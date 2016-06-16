@@ -63,3 +63,7 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 ```
 java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar <EntityName> /path/to/file.csv
 ```
+
+## Examples
+
+Minimal example files for learning purposes for High-Level Entities are provided in the [examples](https://github.com/bullhorn/dataloader/tree/master/examples) folder and are covered in detail on the [Examples Wiki Page](https://github.com/bullhorn/dataloader/wiki/Examples).
