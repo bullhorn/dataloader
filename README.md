@@ -61,5 +61,5 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 ## Run
 
 ```
-java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar <EntityName> /path/to/data.csv
+java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar <EntityName> /path/to/file.csv
 ```
