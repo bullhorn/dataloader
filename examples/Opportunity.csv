@@ -1,0 +1,2 @@
+title,type,clientContact.firstName,clientContact.lastName,description,status,assignedUsers.firstName,assignedUsers.lastName
+Bullhorn Test Opportunity,Contract,Bullhorn,TestClientContact,This is a test Opportunity description.,Active,Jack,White
