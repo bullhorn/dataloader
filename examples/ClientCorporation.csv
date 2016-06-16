@@ -1,2 +1,2 @@
 name,address.address1,address.city,address.state,address.countryName,companyDescription,businessSectorList,status
-Bullhorn Example Company,200 South Hanley,Clayton,Missouri,United States,This is a test company description.,Staffing|Public Relations|Marketing|Consulting,Active
+Bullhorn Example Company,200 South Hanley,Clayton,Missouri,United States,This is a test company description.,Staffing;Public Relations;Marketing;Consulting,Active
