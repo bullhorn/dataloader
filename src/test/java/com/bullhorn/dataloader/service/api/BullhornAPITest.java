@@ -41,7 +41,6 @@ public class BullhornAPITest {
         when(properties.stringPropertyNames()).thenReturn(Sets.newSet(testExistField));
         when(properties.getProperty(testExistField)).thenReturn(testFilter);
 
-
         //act
         BullhornAPI bullhornAPI = new BullhornAPI(properties, seenFlag);
 

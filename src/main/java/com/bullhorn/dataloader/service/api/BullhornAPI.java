@@ -207,7 +207,6 @@ public class BullhornAPI {
         Map<String, String> map = Splitter.on("&").trimResults().withKeyValueSeparator('=').split(returnURL);
 
         return map.get("code");
-
     }
 
     private String getAccessToken(String authCode) throws IOException {
@@ -228,7 +227,7 @@ public class BullhornAPI {
         JSONObject responseJson;
         try {
             String accessTokenString = URLEncoder.encode(accessToken, StringConsts.UTF);
-            String sessionMinutesToLive = "3000";
+            String sessionMinutesToLive = "3000"; // 50hr window
             String url = loginUrl + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
             GetMethod get = new GetMethod(url);
 
