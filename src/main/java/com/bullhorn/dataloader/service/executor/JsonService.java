@@ -11,9 +11,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
@@ -24,6 +21,8 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class JsonService implements Runnable {
     private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
@@ -32,7 +31,7 @@ public class JsonService implements Runnable {
     private String entity;
     private JsonRow data;
 
-    private static final Log log = LogFactory.getLog(JsonService.class);
+    private static final Logger log = LogManager.getLogger(JsonService.class);
 
     public JsonService(String entity,
                        BullhornAPI bullhornApi,

@@ -7,8 +7,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,7 +16,7 @@ import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.StringConsts;
 
 public class BullhornApiUpdater {
-    private final Log log = LogFactory.getLog(BullhornApiUpdater.class);
+    private final Logger log = LogManager.getLogger(BullhornApiUpdater.class);
 
     private final BullhornAPI bhapi;
 

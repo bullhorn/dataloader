@@ -8,14 +8,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.csvreader.CsvReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CsvToJson implements Iterator<JsonRow>, Iterable<JsonRow> {
-    private final Log log = LogFactory.getLog(CsvToJson.class);
+    private final Logger log = LogManager.getLogger(CsvToJson.class);
 
     private final MetaMap metaMap;
     private CsvReader csvReader;

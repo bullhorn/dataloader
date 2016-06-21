@@ -8,17 +8,16 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class EntityQuery {
 
-    private final Log log = LogFactory.getLog(EntityQuery.class);
+    private final Logger log = LogManager.getLogger(EntityQuery.class);
 
     private final String entity;
 

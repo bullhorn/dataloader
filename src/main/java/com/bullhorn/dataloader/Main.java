@@ -9,8 +9,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
@@ -24,10 +22,12 @@ import com.bullhorn.dataloader.util.TemplateUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Sets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class Main {
 
-    private static Log log = LogFactory.getLog(Main.class);
+    private static Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) throws IOException {
         final BullhornAPI bhapi = getBullhornAPI();

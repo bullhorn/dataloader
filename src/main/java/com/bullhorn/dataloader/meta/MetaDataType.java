@@ -3,8 +3,8 @@ package com.bullhorn.dataloader.meta;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public enum MetaDataType {
 
@@ -52,7 +52,7 @@ public enum MetaDataType {
     MetaDataType(String name) {
         this.name = name;
     }
-    private static final Log log = LogFactory.getLog(MetaDataType.class);
+    private static final Logger log = LogManager.getLogger(MetaDataType.class);
 
     abstract public Object convertFieldValue(String value, SimpleDateFormat simpleDateFormat);
 

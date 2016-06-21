@@ -23,8 +23,8 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion;
 import org.json.JSONArray;
@@ -45,7 +45,7 @@ import com.google.common.collect.Sets;
 
 public class BullhornAPI {
 
-    private static final Log log = LogFactory.getLog(BullhornAPI.class);
+    private static final Logger log = LogManager.getLogger(BullhornAPI.class);
 
     private final String AUTH_CODE_ACTION = "Login";
     private final String AUTH_CODE_RESPONSE_TYPE = "code";

@@ -3,8 +3,8 @@ package com.bullhorn.dataloader.service.query;
 import java.io.IOException;
 import java.util.Optional;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -36,7 +36,7 @@ import com.google.common.cache.CacheLoader;
  */
 public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
 
-    private final Log log = LogFactory.getLog(EntityCache.class);
+    private final Logger log = LogManager.getLogger(EntityCache.class);
     private final BullhornApiUpdater bhapiUpdater;
 
     public EntityCache(BullhornAPI bhapi) {

@@ -7,15 +7,16 @@ import java.util.List;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import com.google.common.base.Joiner;
 
 public class BullhornApiAssociator {
-    private static final Log log = LogFactory.getLog(BullhornApiAssociator.class);
+    private static final Logger log = LogManager.getLogger(BullhornApiAssociator.class);
 
     private final  BullhornAPI bhapi;
 
