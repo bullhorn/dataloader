@@ -37,6 +37,10 @@ public class FileUtil {
     }
 
     private void logProperties(String fileName, Properties properties) {
+        if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
+            fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
+        }
+        
         log.info("Using properties file: " + fileName);
 
         log.info("# Section 2");
