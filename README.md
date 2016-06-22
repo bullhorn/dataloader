@@ -78,4 +78,4 @@ java -Dpropertyfile=path/to/my/dataloader.properties -jar target/dataloader-{ver
 
 ## Log File Output
 
-DataLoader logs all operations to file. Logfiles are saved in the folder `log/` inside the current working directory which will be created if it does not exist. The name of the logfile will be `dataloader.log` if this is the first time running DataLoader. Subsequent logfiles will be generated with a timestamp in the name, such as: `dataloader_yyyy-MM-dd_HH:MM.ss.log`.
+DataLoader logs all operations to file. Logfiles are saved in the folder `log/` inside the current working directory. If no `log/` directory exists, one will be created at runtime. The name of the most recently generated logfile will be `dataloader.log`. All historical logfiles will have timestamps appended to the filename, such as: `dataloader_yyyy-MM-dd_HH:MM.ss.log`.
