@@ -8,12 +8,13 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class EntityQuery {
 
@@ -59,7 +60,7 @@ public class EntityQuery {
         filterFields.put(key, "'" + value + "'");
     }
 
-    void incrementCount() {
+    private void incrementCount() {
         filterFieldCount += 1;
     }
 

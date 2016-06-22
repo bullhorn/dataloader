@@ -18,7 +18,6 @@ public class MetaMap {
 
     private static final String ESCAPE_DELIMITER_REGEX = "[\\\\\\.\\[\\]\\{\\}\\(\\)\\*\\+\\-\\?\\^\\$\\|]";
     private final SimpleDateFormat simpleDateFormat;
-    private final String listDelimiter;
     private final String escapedListDelimiter;
 
     private Map<String, String> fieldNameToDataType = Maps.newHashMap();
@@ -28,10 +27,8 @@ public class MetaMap {
 
     public MetaMap(SimpleDateFormat simpleDateFormat, String listDelimiter) {
         this.simpleDateFormat = simpleDateFormat;
-        this.listDelimiter = listDelimiter;
         this.escapedListDelimiter = escapeDelimiter(listDelimiter);
     }
-
 
     public Map<String, String> getFieldNameToDataType() {
         return ImmutableMap.copyOf(fieldNameToDataType);

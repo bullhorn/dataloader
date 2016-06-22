@@ -30,9 +30,6 @@ import com.google.common.cache.CacheLoader;
  * If the associated entity does not exist, then it is inserted and the id for the
  * entity is returned.
  * </p>
- * <p>
- * <p>
- * </p>
  */
 public class EntityCache extends CacheLoader<EntityQuery, Optional<Integer>> {
 

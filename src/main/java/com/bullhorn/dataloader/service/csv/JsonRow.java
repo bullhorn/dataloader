@@ -9,7 +9,6 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-
 /**
  * JsonRow maps JSON objects to tree structures using nested hash maps. The leaves are the type-casted values and the
  * internal nodes are strings that form the URI to access the values.
