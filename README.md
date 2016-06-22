@@ -53,7 +53,7 @@ Edit the file: `dataloader.properties` to specify the login credentials, data co
 ## Generate CSV Template *(Optional)*
 
 ```
-java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar template <EntityName>
+java -jar target/dataloader-{version}.jar template <EntityName>
 ```
 
 This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc).
@@ -61,9 +61,17 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 ## Run
 
 ```
-java -Dpropertyfile=dataloader.properties -jar target/dataloader-{version}.jar <EntityName> /path/to/file.csv
+java -jar target/dataloader-{version}.jar <EntityName> /path/to/file.csv
 ```
 
 ## Examples
 
 Minimal example files for learning purposes for High-Level Entities are provided in the [examples](https://github.com/bullhorn/dataloader/tree/master/examples) folder and are covered in detail on the [Examples Wiki Page](https://github.com/bullhorn/dataloader/wiki/Examples).
+
+## Property File
+
+By default DataLoader will attempt to load the file `dataloader.properties` from the current working directory. To use a different properties file, use the `-Dpropertyfile` argument.
+
+```
+java -Dpropertyfile=path/to/my/dataloader.properties -jar target/dataloader-{version}.jar template <EntityName>
+```
