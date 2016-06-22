@@ -68,10 +68,14 @@ java -jar target/dataloader-{version}.jar <EntityName> /path/to/file.csv
 
 Minimal example files for learning purposes for High-Level Entities are provided in the [examples](https://github.com/bullhorn/dataloader/tree/master/examples) folder and are covered in detail on the [Examples Wiki Page](https://github.com/bullhorn/dataloader/wiki/Examples).
 
-## Property File
+## Property File Input
 
 By default DataLoader will attempt to load the file `dataloader.properties` from the current working directory. To use a different properties file, use the `-Dpropertyfile` argument.
 
 ```
 java -Dpropertyfile=path/to/my/dataloader.properties -jar target/dataloader-{version}.jar template <EntityName>
 ```
+
+## Log File Output
+
+DataLoader logs all operations to file. Logfiles are saved in the folder `log/` inside the current working directory which will be created if it does not exist. The name of the logfile will be `dataloader.log` if this is the first time running DataLoader. Subsequent logfiles will be generated with a timestamp in the name, such as: `dataloader_yyyy-MM-dd_HH:MM.ss.log`.
