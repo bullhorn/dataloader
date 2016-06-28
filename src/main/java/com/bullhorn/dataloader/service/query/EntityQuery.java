@@ -124,7 +124,6 @@ public class EntityQuery {
         if (getNestedJson() != null ? !getNestedJson().equals(that.getNestedJson()) : that.getNestedJson() != null)
             return false;
         return !(getId() != null ? !getId().equals(that.getId()) : that.getId() != null);
-
     }
 
     @Override

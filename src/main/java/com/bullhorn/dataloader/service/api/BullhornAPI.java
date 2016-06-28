@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.service.api;
 
-import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -32,7 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.meta.MetaMap;
-import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
+import com.bullhorn.dataloader.util.AssociationFilter;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -426,7 +426,7 @@ public class BullhornAPI {
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
         JSONObject jsResp;
-        if (CaseInsensitiveStringPredicate.isPut(type)) {
+        if (AssociationFilter.isPut(type)) {
             PutMethod method = new PutMethod(url);
             method.setRequestEntity(requestEntity);
             jsResp = this.put(method);

@@ -6,33 +6,33 @@ import org.junit.Test;
 public class CaseInsensitiveStringPredicateTest {
     @Test
     public void testIsCustomObject() {
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isCustomObject("customObject"));
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isCustomObject("CustomObject"));
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isCustomObject("PersonCustomObject1s"));
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isCustomObject("CustomObject1s"));
+        Assert.assertTrue(AssociationFilter.isCustomObject("customObject"));
+        Assert.assertTrue(AssociationFilter.isCustomObject("CustomObject"));
+        Assert.assertTrue(AssociationFilter.isCustomObject("PersonCustomObject1s"));
+        Assert.assertTrue(AssociationFilter.isCustomObject("CustomObject1s"));
 
-        Assert.assertFalse(CaseInsensitiveStringPredicate.isCustomObject("CustomObjec"));
-        Assert.assertFalse(CaseInsensitiveStringPredicate.isCustomObject("customobject"));
+        Assert.assertFalse(AssociationFilter.isCustomObject("CustomObjec"));
+        Assert.assertFalse(AssociationFilter.isCustomObject("customobject"));
     }
 
     @Test
     public void testIsToMany() {
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isToMany("TO_MANY"));
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isToMany("to_many"));
-        Assert.assertFalse(CaseInsensitiveStringPredicate.isToMany("TO_FEW"));
+        Assert.assertTrue(AssociationFilter.isToMany("TO_MANY"));
+        Assert.assertTrue(AssociationFilter.isToMany("to_many"));
+        Assert.assertFalse(AssociationFilter.isToMany("TO_FEW"));
     }
 
     @Test
     public void testIsToOne() {
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isToOne("TO_ONE"));
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isToOne("to_one"));
-        Assert.assertFalse(CaseInsensitiveStringPredicate.isToOne("TO_FEW"));
+        Assert.assertTrue(AssociationFilter.isToOne("TO_ONE"));
+        Assert.assertTrue(AssociationFilter.isToOne("to_one"));
+        Assert.assertFalse(AssociationFilter.isToOne("TO_FEW"));
     }
 
     @Test
     public void testIsPut() {
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isPut("put"));
-        Assert.assertTrue(CaseInsensitiveStringPredicate.isPut("PuT"));
-        Assert.assertFalse(CaseInsensitiveStringPredicate.isPut("POST"));
+        Assert.assertTrue(AssociationFilter.isPut("put"));
+        Assert.assertTrue(AssociationFilter.isPut("PuT"));
+        Assert.assertFalse(AssociationFilter.isPut("POST"));
     }
 }

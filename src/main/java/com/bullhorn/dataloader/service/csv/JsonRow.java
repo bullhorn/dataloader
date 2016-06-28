@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.service.csv;
 
-import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
 
 import java.util.HashMap;
 import java.util.List;

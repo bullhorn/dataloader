@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.meta;
 
-import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isCustomObject;
+import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate;
+import com.bullhorn.dataloader.util.AssociationFilter;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
@@ -93,7 +93,7 @@ public class MetaMap {
         String[] fieldNames = fieldName.split("\\.");
         if(fieldNames.length > 0) {
             String associationTypeForRootField = getAssociationTypeByFieldName(fieldNames[0]);
-            return CaseInsensitiveStringPredicate.isToMany(associationTypeForRootField);
+            return AssociationFilter.isToMany(associationTypeForRootField);
         }
         return false;
     }

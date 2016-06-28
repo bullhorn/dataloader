@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.service.executor;
 
-import static com.bullhorn.dataloader.util.CaseInsensitiveStringPredicate.isInteger;
+import static com.bullhorn.dataloader.util.AssociationFilter.isInteger;
 
 import java.io.IOException;
 import java.util.List;
@@ -10,6 +10,9 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
@@ -21,8 +24,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class JsonService implements Runnable {
     private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
