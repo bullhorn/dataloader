@@ -91,10 +91,17 @@ public class BullhornAPI {
         this.pageSize = Integer.parseInt(properties.getProperty("pageSize"));
         this.frontLoadedValues = Maps.newConcurrentMap();
         this.seenFlag = seenFlag;
+    }
 
-        // TODO: Don't do this in the constructor.
-        // TODO: Maybe we split the session handling into it's own object?
-        createSession();
+    public void createSession() {
+        try {
+            String authCode = getAuthorizationCode();
+            String accessToken = getAccessToken(authCode);
+            loginREST(accessToken);
+            this.privateLabel = getPrivateLabelFromRest();
+        } catch (Exception e) {
+            log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
+        }
     }
 
     public boolean frontLoadedContainsEntity(String entity) {
@@ -180,17 +187,6 @@ public class BullhornAPI {
         return Optional.ofNullable(entityExistsFields.get(entity + "ExistField"));
     }
 
-    private void createSession() {
-        try {
-            String authCode = getAuthorizationCode();
-            String accessToken = getAccessToken(authCode);
-            loginREST(accessToken);
-            this.privateLabel = getPrivateLabelFromRest();
-        } catch (Exception e) {
-            log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
-        }
-    }
-
     private String getAuthorizationCode() throws IOException {
         String authorizeCodeUrl = authorizeUrl + "?client_id=" + clientId +
                 "&response_type=" + AUTH_CODE_RESPONSE_TYPE +
@@ -209,9 +205,10 @@ public class BullhornAPI {
         return map.get("code");
     }
 
+    /**
+     * Get access token based on auth code returned from getAuthorizationCode()
+     */
     private String getAccessToken(String authCode) throws IOException {
-
-        // Get access token based on auth code returned from getAuthorizationCode()
         String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE +
                 "&code=" + authCode +
                 "&client_id=" + clientId +
@@ -253,10 +250,8 @@ public class BullhornAPI {
         String response = IOUtils.toString(get.getResponseBodyAsStream());
         JSONObject json = new JSONObject(response);
 
-        int id = json.getJSONObject("privateLabelId").getInt("id");
-        return id;
+        return json.getJSONObject("privateLabelId").getInt("id");
     }
-
 
     public String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
         return this.getRestURL() + StringConsts.ENTITY_SLASH
@@ -291,9 +286,7 @@ public class BullhornAPI {
         HttpClient client = new HttpClient();
         client.executeMethod(httpMethod);
         String responseStr = IOUtils.toString(httpMethod.getResponseBodyAsStream());
-        JSONObject responseJson = new JSONObject(responseStr);
-
-        return responseJson;
+        return new JSONObject(responseStr);
     }
 
     private static final List<String> CUSTOM_OBJECT_META_FIELDS = ImmutableList.of(
@@ -410,14 +403,12 @@ public class BullhornAPI {
         }
     }
 
-
     private static Optional<String> getAssociatedEntity(JSONObject field) {
         try {
             return Optional.of(field.getJSONObject("associatedEntity").getString("entity"));
         } catch (JSONException e) {
             return Optional.empty();
         }
-
     }
 
     // Save a stringify'd object
@@ -430,7 +421,6 @@ public class BullhornAPI {
             PutMethod method = new PutMethod(url);
             method.setRequestEntity(requestEntity);
             jsResp = this.put(method);
-
         } else {
             PostMethod method = new PostMethod(url);
             method.setRequestEntity(requestEntity);
@@ -488,19 +478,14 @@ public class BullhornAPI {
 
     // POJO to JSON via Jackson. Don't include null properties during serialization
     public String serialize(Object obj) throws IOException {
-
         ObjectMapper mapper = new ObjectMapper();
         mapper.setSerializationInclusion(Inclusion.NON_NULL);
         mapper.setSerializationInclusion(Inclusion.NON_DEFAULT);
-
-        String jsString = mapper.writeValueAsString(obj);
-
-        return jsString;
+        return mapper.writeValueAsString(obj);
     }
 
     // Serialize an object and save it
     public Optional<Integer> saveNonToMany(Object obj, String postURL, String type) throws IOException {
-
         String jsString = serialize(obj);
         log.info("Non-Associated entity saving to " + postURL + " - " + jsString);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);

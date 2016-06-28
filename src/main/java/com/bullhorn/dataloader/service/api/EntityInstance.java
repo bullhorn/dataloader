@@ -32,9 +32,8 @@ public class EntityInstance {
 
         EntityInstance entityInstance = (EntityInstance) o;
 
-        return entityName.equals(entityInstance.entityName)
-                && entityId.equals(entityInstance.entityId);
-
+        return entityName.equals(entityInstance.entityName) &&
+                entityId.equals(entityInstance.entityId);
     }
 
     @Override
