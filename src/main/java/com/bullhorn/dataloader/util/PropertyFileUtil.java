@@ -12,19 +12,19 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class FileUtil {
+public class PropertyFileUtil {
 
-    private static Logger log = LogManager.getLogger(FileUtil.class);
+    private static Logger log = LogManager.getLogger(PropertyFileUtil.class);
 
-    private static InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
-
-        if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
-            fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
-        }
-
-        return new FileInputStream(fileName);
-    }
-
+    /**
+     * Given the filename of the properties file, this method will load up properties.
+     * It will also attempt to load properties from a DArg if provided.
+     * It will also log the properties that were read in.
+     *
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
     public Properties getProps(String fileName) throws IOException {
         InputStream inputStream = getPropertiesInputStream(fileName);
         Properties properties = new Properties();
@@ -34,6 +34,13 @@ public class FileUtil {
         logProperties(fileName, properties);
 
         return properties;
+    }
+
+    private static InputStream getPropertiesInputStream(String fileName) throws FileNotFoundException {
+        if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
+            fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
+        }
+        return new FileInputStream(fileName);
     }
 
     private void logProperties(String fileName, Properties properties) {

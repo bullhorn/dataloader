@@ -1,10 +1,8 @@
 package com.bullhorn.dataloader;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -14,16 +12,14 @@ import org.apache.logging.log4j.Logger;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
-import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
-import com.bullhorn.dataloader.util.FileUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Sets;
 
 public class Main {
 
@@ -45,10 +41,9 @@ public class Main {
     }
 
     static BullhornAPI getBullhornAPI() throws IOException {
-        final FileUtil fileUtil = new FileUtil();
-        final Set<List<EntityInstance>> seenFlag = Sets.newConcurrentHashSet();
-        final Properties properties = fileUtil.getProps("dataloader.properties");
-        return new BullhornAPI(properties, seenFlag);
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil();
+        final Properties properties = propertyFileUtil.getProps("dataloader.properties");
+        return new BullhornAPI(properties);
     }
 
     static void createTemplate(String entity, BullhornAPI bhapi) {

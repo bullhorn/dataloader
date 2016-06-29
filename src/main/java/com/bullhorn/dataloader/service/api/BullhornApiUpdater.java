@@ -77,17 +77,13 @@ public class BullhornApiUpdater {
     }
 
     private String getEntityUrl(EntityQuery entityQuery) {
-        String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
-                + toLabel(entityQuery.getEntity())
-                + "?" + restToken();
-        return url;
+        return bhapi.getRestURL() + StringConsts.ENTITY_SLASH +
+                toLabel(entityQuery.getEntity()) + "?" + restToken();
     }
 
     private String getEntityUrl(EntityQuery entityQuery, String identifier) {
-        String url = bhapi.getRestURL() + StringConsts.ENTITY_SLASH
-                + toLabel(entityQuery.getEntity()) + "/"
-                + identifier + "?" + restToken();
-        return url;
+        return bhapi.getRestURL() + StringConsts.ENTITY_SLASH +
+                toLabel(entityQuery.getEntity()) + "/" + identifier + "?" + restToken();
     }
 
     private boolean idExistsButNotInRest(EntityQuery entityQuery) throws IOException {

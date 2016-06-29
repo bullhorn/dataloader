@@ -61,7 +61,6 @@ public class BullhornAPI {
     private final Integer cacheSize;
     private final SimpleDateFormat dateParser;
     private final Map<String, String> entityExistsFields;
-    private final Set<List<EntityInstance>> seenFlag;
     private final String listDelimiter;
     private final Set<String> frontLoadedEntities;
     private final int pageSize;
@@ -74,7 +73,7 @@ public class BullhornAPI {
     private MetaMap rootMetaMap;
     private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
 
-    public BullhornAPI(Properties properties, Set<List<EntityInstance>> seenFlag) {
+    public BullhornAPI(Properties properties) {
         this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
         this.cacheSize = Integer.valueOf(properties.getProperty("cacheSize"));
         this.username = properties.getProperty("username");
@@ -90,7 +89,6 @@ public class BullhornAPI {
         this.frontLoadedEntities = Sets.newHashSet(properties.getProperty("frontLoadedEntities").split(","));
         this.pageSize = Integer.parseInt(properties.getProperty("pageSize"));
         this.frontLoadedValues = Maps.newConcurrentMap();
-        this.seenFlag = seenFlag;
     }
 
     public void createSession() {
