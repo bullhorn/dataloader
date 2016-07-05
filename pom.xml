@@ -14,28 +14,36 @@
 
     <developers>
         <developer>
-            <name>Jacob Mick</name>
-            <email>jmick@bullhorn.com</email>
+            <name>Nathan Dickerson</name>
+            <email>ndickerson@bullhorn.com</email>
             <timezone>America/St_Louis</timezone>
             <roles>
                 <role>committer</role>
             </roles>
         </developer>
         <developer>
-            <name>Jocelyn Matsuo</name>
-            <email>jmatsuo@bullhorn.com</email>
+            <name>Jenny Hoac</name>
+            <email>jhoac@bullhorn.com</email>
+            <timezone>America/Boston</timezone>
+            <roles>
+                <role>committer</role>
+            </roles>
+        </developer>
+        <developer>
+            <name>Tim Kennedy</name>
+            <email>t.kennedy@bullhorn.com</email>
             <timezone>America/St_Louis</timezone>
             <roles>
                 <role>committer</role>
             </roles>
         </developer>
         <developer>
-          <name>Nicholas Juszczak</name>
-          <email>njuszczak@bullhorn.com</email>
-          <timezone>America/St_Louis</timezone>
-          <roles>
-            <role>committer</role>
-          </roles>
+            <name>JL Rutledge</name>
+            <email>jlrutledge@bullhorn.com</email>
+            <timezone>America/Boston</timezone>
+            <roles>
+                <role>committer</role>
+            </roles>
         </developer>
     </developers>
 
@@ -53,41 +61,22 @@
         <json.version>20150729</json.version>
         <junit.version>4.12</junit.version>
         <log4j.version>2.6.1</log4j.version>
-        <maven.source.version>2.4</maven.source.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.compiler.version>3.3</maven.compiler.version>
         <maven.javadoc.version>2.10.3</maven.javadoc.version>
         <maven.shade.version>2.4.1</maven.shade.version>
+        <maven.source.version>2.4</maven.source.version>
         <mockito.version>1.10.19</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-
     <dependencies>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-jaxrs</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
@@ -108,6 +97,7 @@
             <version>${commons-discovery.version}</version>
         </dependency>
 
+        <!--TODO: Replace with HttpComponents - http://hc.apache.org/httpclient-3.x/-->
         <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
@@ -121,16 +111,34 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>${json-path.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>${json.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-jaxrs</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -141,9 +149,9 @@
         </dependency>
 
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>${json-path.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -209,8 +217,7 @@
                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced.xml
                             </dependencyReducedPomLocation>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>com.bullhorn.dataloader.Main</Main-Class>
                                         <Build-Number>${project.version}</Build-Number>
