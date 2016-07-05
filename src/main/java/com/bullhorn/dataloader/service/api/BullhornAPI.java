@@ -108,12 +108,12 @@ public class BullhornAPI {
 
     public void frontLoad() throws IOException {
         for (String entity : frontLoadedEntities) {
-            BiMap<String, Integer> frontLoadedCache = frontLoad(entity, getFirstToManyExistField(entity));
+            BiMap<String, Integer> frontLoadedCache = frontLoadEntity(entity, getFirstToManyExistField(entity));
             frontLoadedValues.put(entity, frontLoadedCache);
         }
     }
 
-    private BiMap<String, Integer> frontLoad(String entity, String existFieldKey) throws IOException {
+    private BiMap<String, Integer> frontLoadEntity(String entity, String existFieldKey) throws IOException {
         log.info("Front loading " + entity);
         int currentIndex = 0;
         boolean stillGoing = true;
@@ -124,13 +124,13 @@ public class BullhornAPI {
                     || jsonObject.getJSONArray(StringConsts.DATA).length() == 0) {
                 stillGoing = false;
             } else {
-                currentIndex = frontLoad(existFieldKey, currentIndex, frontLoadedCache, jsonObject);
+                currentIndex = frontLoadRecord(existFieldKey, currentIndex, frontLoadedCache, jsonObject);
             }
         }
         return frontLoadedCache;
     }
 
-    private int frontLoad(String existFieldKey, int currentIndex, BiMap<String, Integer> frontLoadedCache, JSONObject dataPage) {
+    private int frontLoadRecord(String existFieldKey, int currentIndex, BiMap<String, Integer> frontLoadedCache, JSONObject dataPage) {
         JSONArray entityPage = dataPage.getJSONArray(StringConsts.DATA);
         for (Object jsnObject : entityPage) {
             JSONObject dataElement = (JSONObject) jsnObject;
@@ -327,10 +327,6 @@ public class BullhornAPI {
      * they were TO_ONE.
      * Here we inject customObject meta fields into the general meta for the given Entity
      * as TO_MANY's in a 'fields=*' meta query only returns id.
-     *
-     * @param entity
-     * @param fields
-     * @throws IOException
      */
     private void addCustomObjectsFieldsWhenApplicable(String entity, JSONArray fields) throws IOException {
         if (fieldsContainsCustomObjects(fields)) {
