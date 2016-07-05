@@ -21,6 +21,11 @@ public class StringConsts {
     public static final String PRIVATE_LABELS = "privateLabels";
     public static final String CATEGORY = "Category";
     public static final String STRING = "String";
+    public static final String DATA_DIR = "data/";
+    public static final String RESULTS_DIR = "results/";
+    public static final String LOG_DIR = "log/";
+    public static final String BULLHORN_ID_COLUMN = "id";
+    public static final String REASON_COLUMN = "reason";
 
     private StringConsts() {
     }

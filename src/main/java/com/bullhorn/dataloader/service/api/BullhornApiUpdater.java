@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.StringConsts;
 
@@ -24,10 +25,18 @@ public class BullhornApiUpdater {
         this.bhapi = bhapi;
     }
 
-    public Optional<Integer> merge(EntityQuery entityQuery) throws IOException {
+    /**
+     * Performs an update if the entity record exists, or an insert if it does not.
+     *
+     * @param entityQuery The query to determine if the entity exists.
+     * @return The results from REST
+     * @throws IOException
+     */
+    public Result merge(EntityQuery entityQuery) throws IOException {
         if (idExistsButNotInRest(entityQuery)) {
-            log.error("Association cannot be merged " + entityQuery.toString());
-            return Optional.empty();
+            String failureText = "Association cannot be merged " + entityQuery.toString();
+            log.error(failureText);
+            return Result.Failure(failureText);
         }
 
         JSONObject ret;
@@ -38,15 +47,15 @@ public class BullhornApiUpdater {
         }
 
         if (ret.has("errorMessage")) {
-            log.error("Association query " + entityQuery.toString()
-                    + " failed for reason " + ret.getString("errorMessage"));
+            String failureText = "Association query " + entityQuery.toString() + " failed for reason " + ret.getString("errorMessage");
             if (ret.has("errors")) {
-                log.error(" errors: " + ret.getJSONArray("errors"));
+                failureText += "\nerrors: " + ret.getJSONArray("errors");
             }
-            return Optional.empty();
+            log.error(failureText);
+            return Result.Failure(failureText);
         }
 
-        return Optional.of(ret.getInt(StringConsts.CHANGED_ENTITY_ID));
+        return Result.Success(ret.getInt(StringConsts.CHANGED_ENTITY_ID));
     }
 
     private JSONObject insert(EntityQuery entityQuery) throws IOException {

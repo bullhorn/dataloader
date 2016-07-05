@@ -17,7 +17,9 @@ import org.apache.logging.log4j.Logger;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
@@ -26,11 +28,12 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 public class JsonService implements Runnable {
-    private final LoadingCache<EntityQuery, Optional<Integer>> associationCache;
+    private final LoadingCache<EntityQuery, Result> associationCache;
     private final BullhornAPI bhapi;
     private final BullhornApiAssociator bhapiAssociator;
     private String entity;
     private JsonRow data;
+    private CsvFileWriter csvFileWriter;
 
     private static final Logger log = LogManager.getLogger(JsonService.class);
 
@@ -38,25 +41,37 @@ public class JsonService implements Runnable {
                        BullhornAPI bullhornApi,
                        BullhornApiAssociator bhapiAssociator,
                        JsonRow data,
-                       LoadingCache<EntityQuery, Optional<Integer>> associationCache) {
+                       LoadingCache<EntityQuery, Result> associationCache,
+                       CsvFileWriter csvFileWriter) {
         this.bhapi = bullhornApi;
         this.bhapiAssociator = bhapiAssociator;
         this.entity = entity;
         this.data = data;
         this.associationCache = associationCache;
+        this.csvFileWriter = csvFileWriter;
     }
 
+    /**
+     * Run method on this runnable object called by the thread manager.
+     * <p>
+     * The createOrGetEntity method performs the update/insert in REST.
+     * The results of this are passed to the csvFileWriter
+     */
     @Override
     public void run() {
         String entityBase = bhapi.getRestURL() + StringConsts.ENTITY_SLASH + getEntity();
         String restToken = StringConsts.END_BH_REST_TOKEN + bhapi.getBhRestToken();
         try {
             Map<String, Object> toOneIdentifiers = upsertPreprocessingActions();
-            Optional<Integer> optionalEntityId = createOrGetEntity(toOneIdentifiers);
-            if (optionalEntityId.isPresent()) {
-                updateEntity(entityBase, restToken, optionalEntityId.get());
-                saveToMany(optionalEntityId.get(), entity, data.getDeferredActions());
+            Result result = createOrGetEntity(toOneIdentifiers);
+
+            if (result.isSuccess()) {
+                updateEntity(entityBase, restToken, result.getBullhornId());
+                saveToMany(result.getBullhornId(), entity, data.getDeferredActions());
             }
+
+            csvFileWriter.writeRow(data, result);
+
         } catch (IOException | ExecutionException e) {
             log.error(e);
         }
@@ -68,10 +83,10 @@ public class JsonService implements Runnable {
         for (Map.Entry<String, Object> entityEntry : preprocessingActions.entrySet()) {
             EntityQuery entityQuery = new EntityQuery(entityEntry.getKey(), entityEntry.getValue());
             addSearchFields(entityQuery, (Map<String, Object>) entityEntry.getValue());
-            Optional<Integer> toOneId = associationCache.get(entityQuery);
-            if (toOneId.isPresent()) {
+            Result toOneResult = associationCache.get(entityQuery);
+            if (toOneResult.isSuccess()) {
                 Map<String, Integer> toOneAssociation = Maps.newHashMap();
-                toOneAssociation.put(StringConsts.ID, toOneId.get());
+                toOneAssociation.put(StringConsts.ID, toOneResult.getBullhornId());
                 toOneIdentifiers.put(entityEntry.getKey(), toOneAssociation);
             } else {
                 log.error("Failed to upsert to-one association " + entityQuery);
@@ -85,13 +100,15 @@ public class JsonService implements Runnable {
         bhapi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
     }
 
-    private Optional<Integer> createOrGetEntity(Map<String, Object> toOneIdentifiers) throws ExecutionException {
+    private Result createOrGetEntity(Map<String, Object> toOneIdentifiers) throws ExecutionException {
         Object nestJson = mergeObjects(toOneIdentifiers, data.getImmediateActions());
         EntityQuery entityQuery = new EntityQuery(getEntity(), nestJson);
         addSearchFields(entityQuery, data.getImmediateActions());
         if (bhapi.containsFields(StringConsts.IS_DELETED)) {
             entityQuery.addFieldWithoutCount(StringConsts.IS_DELETED, "false");
         }
+
+        // Query the EntityCache for the current entity. It will handle uploading the data inside the load method.
         return associationCache.get(entityQuery);
     }
 
@@ -177,15 +194,15 @@ public class JsonService implements Runnable {
                     ifPresentPut(entityQuery::addString, fieldName, value);
                 }
 
-                Optional<Integer> associatedId;
+                Result association;
                 if (bhapi.frontLoadedContainsEntity(entityLabel)) {
-                    associatedId = queryFrontLoaded(entityLabel, fieldName, value.toString());
+                    association = queryFrontLoaded(entityLabel, fieldName, value.toString());
                 } else {
-                    associatedId = associationCache.get(entityQuery);
+                    association = associationCache.get(entityQuery);
                 }
 
-                if (associatedId.isPresent()) {
-                    validIds.add(associatedId.get());
+                if (association.isSuccess()) {
+                    validIds.add(association.getBullhornId());
                 }
             }
         }
@@ -196,7 +213,7 @@ public class JsonService implements Runnable {
         return bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS);
     }
 
-    private Optional<Integer> queryFrontLoaded(String entity, String fieldName, String value) {
+    private Result queryFrontLoaded(String entity, String fieldName, String value) {
         if (StringConsts.ID.equals(fieldName)) {
             return bhapi.getFrontLoadedIdExists(entity, value);
         } else {

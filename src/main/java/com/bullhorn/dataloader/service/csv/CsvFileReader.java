@@ -14,31 +14,34 @@ import org.apache.logging.log4j.Logger;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.csvreader.CsvReader;
 
-public class CsvToJson implements Iterator<JsonRow>, Iterable<JsonRow> {
-    private final Logger log = LogManager.getLogger(CsvToJson.class);
+public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
+    private final Logger log = LogManager.getLogger(CsvFileReader.class);
 
     private final MetaMap metaMap;
     private CsvReader csvReader;
     private JsonRow nextRow;
     private boolean hasNextLine = true;
-    private String[] columns;
+    private String[] headers;
 
-    public CsvToJson(String filePath, MetaMap metaMap) throws IOException {
+    public CsvFileReader(String filePath, MetaMap metaMap) throws IOException {
         this.csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
-        columns = csvReader.getHeaders();
+        headers = csvReader.getHeaders();
         this.metaMap = metaMap;
         readLine();
     }
 
+    public String[] getHeaders() {
+        return headers;
+    }
+
     private JsonRow mapRow() throws IOException {
         JsonRow jsonRow = new JsonRow();
-        for (String column : columns) {
+        for (String column : headers) {
             String[] jsonPath = column.split("\\.");
             Object convertType = metaMap.convertFieldValue(column, get(column));
             String associationName = jsonPath[0];
             String associationType = metaMap.getAssociationTypeByFieldName(associationName);
-
             if (isToOne(associationType)) {
                 jsonRow.addPreprocessing(jsonPath, convertType);
             } else if (isToMany(associationType) && !isCustomObject(associationName)) {
@@ -46,6 +49,8 @@ public class CsvToJson implements Iterator<JsonRow>, Iterable<JsonRow> {
             } else {
                 jsonRow.addImmediateAction(jsonPath, convertType);
             }
+
+            jsonRow.setValues(csvReader.getValues());
         }
         return jsonRow;
     }

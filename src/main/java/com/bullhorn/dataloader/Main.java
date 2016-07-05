@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,7 +11,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
-import com.bullhorn.dataloader.service.csv.CsvToJson;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
@@ -26,17 +27,17 @@ public class Main {
     private static Logger log = LogManager.getLogger(Main.class);
 
     public static void main(String[] args) throws IOException {
-        final BullhornAPI bhapi = getBullhornAPI();
-        final BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhapi);
+        final BullhornAPI bhApi = getBullhornAPI();
+        final BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhApi);
 
-        bhapi.createSession();
+        bhApi.createSession();
 
         if ("template".equals(args[0])) {
-            createTemplate(args[1], bhapi);
+            createTemplate(args[1], bhApi);
         } else {
             String entity = args[0];
             String filePath = args[1];
-            loadCsv(entity, filePath, bhapi, bullhornApiAssociator);
+            loadCsv(entity, filePath, bhApi, bullhornApiAssociator);
         }
     }
 
@@ -55,24 +56,27 @@ public class Main {
         }
     }
 
-    static void loadCsv(String entity, String filePath, BullhornAPI bhapi, BullhornApiAssociator bullhornApiAssociator) {
+    static void loadCsv(String entity, String filePath, BullhornAPI bhApi, BullhornApiAssociator bullhornApiAssociator) {
 
-        final LoadingCache<EntityQuery, Optional<Integer>> associationCache = CacheBuilder.newBuilder()
-                .maximumSize(bhapi.getCacheSize())
-                .build(new EntityCache(bhapi));
+        final LoadingCache<EntityQuery, Result> associationCache = CacheBuilder.newBuilder()
+                .maximumSize(bhApi.getCacheSize())
+                .build(new EntityCache(bhApi));
         try {
-            bhapi.frontLoad();
-            final CsvToJson csvToJson = new CsvToJson(filePath, bhapi.getRootMetaDataTypes(entity));
-            final ExecutorService executorService = Executors.newFixedThreadPool(bhapi.getThreadSize());
-            final ConcurrentServiceExecutor impSvc = new ConcurrentServiceExecutor(
+            bhApi.frontLoad();
+            final CsvFileReader csvFileReader = new CsvFileReader(filePath, bhApi.getRootMetaDataTypes(entity));
+            final CsvFileWriter csvFileWriter = new CsvFileWriter(filePath, csvFileReader.getHeaders());
+
+            final ExecutorService executorService = Executors.newFixedThreadPool(bhApi.getThreadSize());
+            final ConcurrentServiceExecutor executor = new ConcurrentServiceExecutor(
                     WordUtils.capitalize(entity),
-                    csvToJson,
-                    bhapi,
+                    csvFileReader,
+                    csvFileWriter,
+                    bhApi,
                     bullhornApiAssociator,
                     executorService,
                     associationCache
             );
-            impSvc.runProcess();
+            executor.runProcess();
         } catch (IOException e) {
             log.error(e);
         }

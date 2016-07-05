@@ -32,6 +32,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.meta.MetaMap;
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.AssociationFilter;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
@@ -479,15 +480,15 @@ public class BullhornAPI {
     }
 
     // Serialize an object and save it
-    public Optional<Integer> saveNonToMany(Object obj, String postURL, String type) throws IOException {
+    public Result saveNonToMany(Object obj, String postURL, String type) throws IOException {
         String jsString = serialize(obj);
         log.info("Non-Associated entity saving to " + postURL + " - " + jsString);
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
         if (jsResp.has(StringConsts.CHANGED_ENTITY_ID)) {
-            return Optional.of(jsResp.getInt(StringConsts.CHANGED_ENTITY_ID));
+            return Result.Success(jsResp.getInt(StringConsts.CHANGED_ENTITY_ID));
         } else {
-            return Optional.empty();
+            return Result.Failure("Error saving Non-To-Many Field: " + jsResp.toString());
         }
     }
 
@@ -531,12 +532,21 @@ public class BullhornAPI {
         return listDelimiter;
     }
 
-    public Optional<Integer> getFrontLoadedFromKey(String entity, String key) {
-        return Optional.ofNullable(frontLoadedValues.get(entity).get(key));
+    public Result getFrontLoadedFromKey(String entity, String key) {
+        Optional<Integer> bullhornId = Optional.ofNullable(frontLoadedValues.get(entity).get(key));
+        if (bullhornId.isPresent()) {
+            return Result.Success(bullhornId.get());
+        } else {
+            return Result.Failure("");
+        }
     }
 
-    public Optional<Integer> getFrontLoadedIdExists(String entity, String id) {
-        return frontLoadedValues.get(entity).containsValue(Integer.parseInt(id)) ? Optional.of(Integer.parseInt(id)) : Optional.empty();
+    public Result getFrontLoadedIdExists(String entity, String id) {
+        if (frontLoadedValues.get(entity).containsValue(Integer.parseInt(id))) {
+            return Result.Success(Integer.parseInt(id));
+        } else {
+            return Result.Failure("");
+        }
     }
 
     public boolean entityContainsFields(String entity, String field) throws IOException {
