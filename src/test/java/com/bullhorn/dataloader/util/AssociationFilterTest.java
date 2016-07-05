@@ -3,7 +3,7 @@ package com.bullhorn.dataloader.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CaseInsensitiveStringPredicateTest {
+public class AssociationFilterTest {
     @Test
     public void testIsCustomObject() {
         Assert.assertTrue(AssociationFilter.isCustomObject("customObject"));
