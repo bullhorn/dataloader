@@ -34,7 +34,7 @@ public class CsvToJsonTest {
 
         // act
         int count = 0;
-        for(JsonRow jsonRow : csvToJson) {
+        for (JsonRow jsonRow : csvToJson) {
             count++;
             TestCase.assertEquals(onlyRow, jsonRow.getImmediateActions());
         }

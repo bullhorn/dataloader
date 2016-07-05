@@ -36,6 +36,7 @@ public class BullhornApiUpdater {
         } else {
             ret = insert(entityQuery);
         }
+
         if (ret.has("errorMessage")) {
             log.error("Association query " + entityQuery.toString()
                     + " failed for reason " + ret.getString("errorMessage"));
@@ -44,6 +45,7 @@ public class BullhornApiUpdater {
             }
             return Optional.empty();
         }
+
         return Optional.of(ret.getInt(StringConsts.CHANGED_ENTITY_ID));
     }
 

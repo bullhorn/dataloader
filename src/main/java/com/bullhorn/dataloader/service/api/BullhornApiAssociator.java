@@ -18,7 +18,7 @@ import com.google.common.base.Joiner;
 public class BullhornApiAssociator {
     private static final Logger log = LogManager.getLogger(BullhornApiAssociator.class);
 
-    private final  BullhornAPI bhapi;
+    private final BullhornAPI bhapi;
 
     public BullhornApiAssociator(BullhornAPI bhapi) {
         this.bhapi = bhapi;

@@ -124,7 +124,7 @@ public class JsonService implements Runnable {
                     } else {
                         ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
                     }
-                } catch(IOException e) {
+                } catch (IOException e) {
                     log.debug("Error retrieving meta information for: " + entityName, e);
                     ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
                 }
@@ -166,7 +166,7 @@ public class JsonService implements Runnable {
                 EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
                 String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
 
-                if(hasPrivateLabel(entityLabel)) {
+                if (hasPrivateLabel(entityLabel)) {
                     entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
                 }
 

@@ -3,14 +3,15 @@ package com.bullhorn.dataloader.service.executor;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.csv.CsvToJson;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.google.common.cache.LoadingCache;
-import org.apache.logging.log4j.LogManager;
- import org.apache.logging.log4j.Logger;
 
 public class ConcurrentServiceExecutor {
 
@@ -39,14 +40,13 @@ public class ConcurrentServiceExecutor {
 
     public void runProcess() {
         try {
-            for(JsonRow row : csvItr) {
+            for (JsonRow row : csvItr) {
                 JsonService service = new JsonService(entityName, bhApi, bullhornApiAssociator, row, associationCache);
                 service.setEntity(entityName);
                 executorService.execute(service);
             }
             executorService.shutdown();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             if (executorService != null) {
                 executorService.shutdown();
             }
