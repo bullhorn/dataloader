@@ -7,6 +7,7 @@ import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
 
+import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
 
@@ -53,8 +54,8 @@ public class CsvFileWriter {
         failureCsv = new CsvWriter(failureFile, ',');
 
         // Write headers to the files, adding our own custom first column
-        successCsv.writeRecord(prepend(StringConsts.BULLHORN_ID_COLUMN, headers));
-        failureCsv.writeRecord(prepend(StringConsts.REASON_COLUMN, headers));
+        successCsv.writeRecord(ArrayUtil.prepend(StringConsts.BULLHORN_ID_COLUMN, headers));
+        failureCsv.writeRecord(ArrayUtil.prepend(StringConsts.REASON_COLUMN, headers));
 
         successCsv.flush();
         failureCsv.flush();
@@ -70,25 +71,11 @@ public class CsvFileWriter {
      */
     public synchronized void writeRow(JsonRow jsonRow, Result result) throws IOException {
         if (result.isSuccess()) {
-            successCsv.writeRecord(prepend(result.getBullhornId().toString(), jsonRow.getValues()));
+            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(), jsonRow.getValues()));
             successCsv.flush();
         } else {
-            failureCsv.writeRecord(prepend(result.getFailureText(), jsonRow.getValues()));
+            failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), jsonRow.getValues()));
             failureCsv.flush();
         }
-    }
-
-    /**
-     * Prepends an element to a String array
-     *
-     * @param firstElement The first element to add to the new array
-     * @param originalArray The original array
-     * @return A copy of the original array with a preceeding first element
-     */
-    private String[] prepend(String firstElement, String[] originalArray) {
-        String[] newArray = new String[originalArray.length + 1];
-        newArray[0] = firstElement;
-        System.arraycopy(originalArray, 0, newArray, 1, originalArray.length);
-        return newArray;
     }
 }
