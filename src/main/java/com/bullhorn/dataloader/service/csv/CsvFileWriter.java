@@ -35,7 +35,6 @@ public class CsvFileWriter {
      *
      * @param filePath The full path to the Entity file to read in
      * @param headers The headers read in from the input CSV file
-     * @throws IOException
      */
     public CsvFileWriter(String filePath, String[] headers) throws IOException {
         this.headers = headers;

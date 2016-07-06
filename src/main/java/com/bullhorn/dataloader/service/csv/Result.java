@@ -8,8 +8,6 @@ public class Result {
     /**
      * Success convenience constructor
      *
-     * Usage: Result.Success(<id>)
-     *
      * @param bullhornId The bullhorn internal ID of the record
      */
     public static Result Success(Integer bullhornId) {
@@ -18,8 +16,6 @@ public class Result {
 
     /**
      * Failure convenience constructor
-     *
-     * Usage: Result.Failure(<failureText>)
      *
      * @param failureText The error text for this failure result
      */
