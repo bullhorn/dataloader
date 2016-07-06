@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class StringConsts {
     public static final String UTF = "UTF-8";
     public static final String APPLICATION_JSON = "application/json";
@@ -25,7 +28,27 @@ public class StringConsts {
     public static final String RESULTS_DIR = "results/";
     public static final String LOG_DIR = "log/";
     public static final String BULLHORN_ID_COLUMN = "id";
+    public static final String ACTION_COLUMN = "action";
     public static final String REASON_COLUMN = "reason";
+    public static final String SUCCESS_CSV = "_success.csv";
+    public static final String FAILURE_CSV = "_failure.csv";
+
+    private static String timestamp = null;
+
+    /**
+     * Returns a timestamp that is set to the time when DataLoader was started. This allows for the same
+     * timestamp to be used throughout the same session.
+     *
+     * @return The timestamp string
+     */
+    public static String getTimestamp() {
+        if (timestamp == null) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
+            timestamp = dateFormat.format(new Date());
+        }
+
+        return timestamp;
+    }
 
     private StringConsts() {
     }

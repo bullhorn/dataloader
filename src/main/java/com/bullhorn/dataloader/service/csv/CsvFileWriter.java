@@ -2,8 +2,6 @@ package com.bullhorn.dataloader.service.csv;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -39,14 +37,10 @@ public class CsvFileWriter {
     public CsvFileWriter(String filePath, String[] headers) throws IOException {
         this.headers = headers;
 
-        // TODO: Move to common location for use by log file as well
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
-        String timestamp = dateFormat.format(new Date());
-
         // Create files
         String baseName = FilenameUtils.getBaseName(filePath);
-        successFile = new FileWriter(StringConsts.RESULTS_DIR + baseName + "_" + timestamp + "_success.csv");
-        failureFile = new FileWriter(StringConsts.RESULTS_DIR + baseName + "_" + timestamp + "_failure.csv");
+        successFile = new FileWriter(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.SUCCESS_CSV);
+        failureFile = new FileWriter(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.FAILURE_CSV);
 
         // Configure writers
         successCsv = new CsvWriter(successFile, ',');
