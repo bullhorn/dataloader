@@ -486,7 +486,7 @@ public class BullhornAPI {
         JSONObject jsResp = saveNonToMany(jsString, postURL, type);
 
         if (jsResp.has(StringConsts.CHANGED_ENTITY_ID)) {
-            return Result.Success(jsResp.getInt(StringConsts.CHANGED_ENTITY_ID));
+            return Result.Update(jsResp.getInt(StringConsts.CHANGED_ENTITY_ID));
         } else {
             return Result.Failure("Error saving Non-To-Many Field: " + jsResp.toString());
         }
@@ -535,7 +535,7 @@ public class BullhornAPI {
     public Result getFrontLoadedFromKey(String entity, String key) {
         Optional<Integer> bullhornId = Optional.ofNullable(frontLoadedValues.get(entity).get(key));
         if (bullhornId.isPresent()) {
-            return Result.Success(bullhornId.get());
+            return Result.Update(bullhornId.get());
         } else {
             return Result.Failure("");
         }
@@ -543,7 +543,7 @@ public class BullhornAPI {
 
     public Result getFrontLoadedIdExists(String entity, String id) {
         if (frontLoadedValues.get(entity).containsValue(Integer.parseInt(id))) {
-            return Result.Success(Integer.parseInt(id));
+            return Result.Update(Integer.parseInt(id));
         } else {
             return Result.Failure("");
         }

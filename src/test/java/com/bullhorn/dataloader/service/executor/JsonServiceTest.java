@@ -64,7 +64,7 @@ public class JsonServiceTest {
             when(bhapi.getLabelByName("categories")).thenReturn(Optional.of("Category"));
             when(bhapi.getEntityExistsFieldsProperty("Candidate")).thenReturn(Optional.of("id,name"));
             when(loadingCache.get(any(EntityQuery.class))).thenReturn(
-                    Result.Success(1), Result.Success(2), Result.Success(3)
+                    Result.Insert(1), Result.Update(2), Result.Insert(3)
             );
 
             // when

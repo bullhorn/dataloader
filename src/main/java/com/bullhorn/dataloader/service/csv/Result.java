@@ -5,40 +5,87 @@ package com.bullhorn.dataloader.service.csv;
  */
 public class Result {
 
+    public enum Status {
+        NOT_SET,
+        SUCCESS,
+        FAILURE
+    }
+
+    public enum Action {
+        NOT_SET,
+        INSERT,
+        UPDATE
+    }
+
     /**
-     * Success convenience constructor
+     * Insert convenience constructor
      *
      * @param bullhornId The bullhorn internal ID of the record
+     * @return The new Result object
      */
-    public static Result Success(Integer bullhornId) {
-        return new Result(true, bullhornId, "");
+    public static Result Insert(Integer bullhornId) {
+        return new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+    }
+
+    /**
+     * Update convenience constructor
+     *
+     * @param bullhornId The bullhorn internal ID of the record
+     * @return The new Result object
+     */
+    public static Result Update(Integer bullhornId) {
+        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
     }
 
     /**
      * Failure convenience constructor
      *
      * @param failureText The error text for this failure result
+     * @return The new Result object
      */
     public static Result Failure(String failureText) {
-        return new Result(false, -1, failureText);
+        return new Result(Status.FAILURE, Action.NOT_SET, -1, failureText);
     }
 
-    private Boolean isSuccess = false;
+    private Status status = Status.NOT_SET;
+    private Action action = Action.NOT_SET;
     private Integer bullhornId = -1;
     private String failureText = "";
 
-    public Result (Boolean isSuccess, Integer bullhornId, String failureText) {
-        this.isSuccess = isSuccess;
+    public Result (Status status, Action action, Integer bullhornId, String failureText) {
+        this.status = status;
+        this.action = action;
         this.bullhornId = bullhornId;
         this.failureText = failureText;
     }
 
-    public Boolean isSuccess() {
-        return isSuccess;
+    /**
+     * Will be set to uninitialized if not set.
+     */
+    public Status getStatus() {
+        return status;
     }
 
-    public void setSuccess(Boolean success) {
-        isSuccess = success;
+    public void setStatus(Status success) {
+        status = success;
+    }
+
+    /**
+     * Convenience method for determining if the result was successful.
+     */
+    public Boolean isSuccess() {
+        return status == Status.SUCCESS;
+    }
+
+    /**
+     * Will be set to uninitialized if not set to either INSERT or UPDATE.
+     */
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action success) {
+        action = success;
     }
 
     /**

@@ -33,29 +33,37 @@ public class BullhornApiUpdater {
      * @throws IOException
      */
     public Result merge(EntityQuery entityQuery) throws IOException {
+        Result result = Result.Failure("");
+
         if (idExistsButNotInRest(entityQuery)) {
             String failureText = "Association cannot be merged " + entityQuery.toString();
+            result.setFailureText(failureText);
             log.error(failureText);
-            return Result.Failure(failureText);
-        }
-
-        JSONObject ret;
-        if (entityQuery.getId().isPresent()) {
-            ret = update(entityQuery);
         } else {
-            ret = insert(entityQuery);
-        }
-
-        if (ret.has("errorMessage")) {
-            String failureText = "Association query " + entityQuery.toString() + " failed for reason " + ret.getString("errorMessage");
-            if (ret.has("errors")) {
-                failureText += "\nerrors: " + ret.getJSONArray("errors");
+            JSONObject jsonObject;
+            if (entityQuery.getId().isPresent()) {
+                jsonObject = update(entityQuery);
+                result.setAction(Result.Action.UPDATE);
+            } else {
+                jsonObject = insert(entityQuery);
+                result.setAction(Result.Action.INSERT);
             }
-            log.error(failureText);
-            return Result.Failure(failureText);
+
+            if (jsonObject.has("errorMessage")) {
+                String failureText = "Association query " + entityQuery.toString() + " failed for reason " +
+                        jsonObject.getString("errorMessage");
+                if (jsonObject.has("errors")) {
+                    failureText += "\nerrors: " + jsonObject.getJSONArray("errors");
+                }
+                result.setFailureText(failureText);
+                log.error(failureText);
+            } else {
+                result.setStatus(Result.Status.SUCCESS);
+                result.setBullhornId(jsonObject.getInt(StringConsts.CHANGED_ENTITY_ID));
+            }
         }
 
-        return Result.Success(ret.getInt(StringConsts.CHANGED_ENTITY_ID));
+        return result;
     }
 
     private JSONObject insert(EntityQuery entityQuery) throws IOException {

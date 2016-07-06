@@ -54,7 +54,7 @@ public class EntityCache extends CacheLoader<EntityQuery, Result> {
         if (count == 0 || query.getFilterFieldCount() == 0) {
             return bhapiUpdater.merge(query);
         } else if (count == 1) {
-            return Result.Success(identifiers.getJSONObject(0).getInt(StringConsts.ID));
+            return Result.Update(identifiers.getJSONObject(0).getInt(StringConsts.ID));
         } else {
             return Result.Failure("Association returned more than 1 result" + query);
         }

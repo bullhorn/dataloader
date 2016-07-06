@@ -46,8 +46,9 @@ public class CsvFileWriter {
         successCsv = new CsvWriter(successFile, ',');
         failureCsv = new CsvWriter(failureFile, ',');
 
-        // Write headers to the files, adding our own custom first column
-        successCsv.writeRecord(ArrayUtil.prepend(StringConsts.BULLHORN_ID_COLUMN, headers));
+        // Write headers to the files, adding our own custom columns, if they do not already exist.
+        successCsv.writeRecord(ArrayUtil.prepend(StringConsts.BULLHORN_ID_COLUMN,
+                ArrayUtil.prepend(StringConsts.ACTION_COLUMN, headers)));
         failureCsv.writeRecord(ArrayUtil.prepend(StringConsts.REASON_COLUMN, headers));
 
         successCsv.flush();
@@ -64,7 +65,8 @@ public class CsvFileWriter {
      */
     public synchronized void writeRow(JsonRow jsonRow, Result result) throws IOException {
         if (result.isSuccess()) {
-            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(), jsonRow.getValues()));
+            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
+                    ArrayUtil.prepend(result.getAction().toString(), jsonRow.getValues())));
             successCsv.flush();
         } else {
             failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), jsonRow.getValues()));
