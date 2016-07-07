@@ -12,12 +12,7 @@ import com.bullhorn.dataloader.meta.MetaMap;
 
 import junit.framework.TestCase;
 
-public class CsvToJsonTest {
-
-    private String getFilePath(String filename) {
-        ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
-    }
+public class CsvFileReaderTest {
 
     @Test
     public void testImmediateActions() throws IOException {
@@ -25,7 +20,7 @@ public class CsvToJsonTest {
         MetaMap metaMap = new MetaMap(new SimpleDateFormat("MM/dd/yyyy"), "|");
         String path = getFilePath("CsvToJsonTest_base.csv");
 
-        CsvToJson csvToJson = new CsvToJson(path, metaMap);
+        CsvFileReader csvFileReader = new CsvFileReader(path, metaMap);
         Map<String, Object> onlyRow = new HashMap<String, Object>() {{
             put("a", "1");
             put("b", "2");
@@ -34,10 +29,15 @@ public class CsvToJsonTest {
 
         // act
         int count = 0;
-        for(JsonRow jsonRow : csvToJson) {
+        for (JsonRow jsonRow : csvFileReader) {
             count++;
             TestCase.assertEquals(onlyRow, jsonRow.getImmediateActions());
         }
         TestCase.assertEquals(1, count);
+    }
+
+    private String getFilePath(String filename) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

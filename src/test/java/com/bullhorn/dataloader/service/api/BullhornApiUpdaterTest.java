@@ -10,6 +10,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 
 import junit.framework.TestCase;
@@ -26,10 +27,10 @@ public class BullhornApiUpdaterTest {
 
         // act
         BullhornApiUpdater bullhornApiUpdater = new BullhornApiUpdater(bhapi);
-        Optional<Integer> optional = bullhornApiUpdater.merge(entityQuery);
+        Result result = bullhornApiUpdater.merge(entityQuery);
 
         // assert
-        TestCase.assertFalse(optional.isPresent());
+        TestCase.assertFalse(result.isSuccess());
     }
 
     private BullhornAPI getBullhornAPI() throws IOException {

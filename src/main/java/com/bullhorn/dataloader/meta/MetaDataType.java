@@ -49,9 +49,11 @@ public enum MetaDataType {
     };
 
     private String name;
+
     MetaDataType(String name) {
         this.name = name;
     }
+
     private static final Logger log = LogManager.getLogger(MetaDataType.class);
 
     abstract public Object convertFieldValue(String value, SimpleDateFormat simpleDateFormat);

@@ -24,6 +24,8 @@ public class JsonRow {
 
     private final Map<String, Object> deferredActions;
 
+    private String[] values;
+
     public JsonRow() {
         this.preprocessingActions = Maps.newHashMap();
         this.immediateActions = Maps.newHashMap();
@@ -53,6 +55,18 @@ public class JsonRow {
             tmpMap = getOrCreateMap(tmpMap, jsonPath[i]);
         }
         return tmpMap;
+    }
+
+    public void setValues(String[] values) {
+        this.values = values;
+    }
+
+    /**
+     * Values contains the actual CSV string values parsed from the csvReader.  It will
+     * @return
+     */
+    public String[] getValues() {
+        return values;
     }
 
     private Map<String, Object> getOrCreateMap(Map<String, Object> tmpMap, String path) {

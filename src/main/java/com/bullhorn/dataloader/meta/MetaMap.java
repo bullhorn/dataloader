@@ -76,10 +76,10 @@ public class MetaMap {
             dataType = Optional.of(StringConsts.STRING);
         }
 
-        if(dataType.isPresent()) {
+        if (dataType.isPresent()) {
             MetaDataType metaDataType = MetaDataType.fromName(dataType.get());
-            if(metaDataType != null) {
-                if(isToManyField(fieldName) && !isCustomObject(fieldName)) {
+            if (metaDataType != null) {
+                if (isToManyField(fieldName) && !isCustomObject(fieldName)) {
                     return getMultiValueResult(value, metaDataType);
                 } else {
                     return metaDataType.convertFieldValue(value, simpleDateFormat);
@@ -91,7 +91,7 @@ public class MetaMap {
 
     private boolean isToManyField(String fieldName) {
         String[] fieldNames = fieldName.split("\\.");
-        if(fieldNames.length > 0) {
+        if (fieldNames.length > 0) {
             String associationTypeForRootField = getAssociationTypeByFieldName(fieldNames[0]);
             return AssociationFilter.isToMany(associationTypeForRootField);
         }
@@ -101,7 +101,7 @@ public class MetaMap {
     private Object getMultiValueResult(String value, MetaDataType metaDataType) {
         String[] values = value.split(escapedListDelimiter);
         List<Object> result = Lists.newArrayList();
-        for(String v : values) {
+        for (String v : values) {
             result.add(metaDataType.convertFieldValue(v, simpleDateFormat));
         }
         return result;
@@ -109,8 +109,6 @@ public class MetaMap {
 
     /**
      * CSV supports both field name or field map labels
-     * @param fieldName
-     * @return
      */
     Optional<String> determineDataType(String fieldName) {
         Optional<String> dataType = getDataTypeByFieldName(fieldName);
@@ -123,7 +121,7 @@ public class MetaMap {
     private String escapeDelimiter(String listDelimiter) {
         String result = listDelimiter;
         Pattern pattern = Pattern.compile(ESCAPE_DELIMITER_REGEX);
-        if(pattern.matcher(result).matches()) {
+        if (pattern.matcher(result).matches()) {
             result = "\\" + result;
         }
         return result;

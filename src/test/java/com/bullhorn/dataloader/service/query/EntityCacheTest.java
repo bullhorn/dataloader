@@ -15,13 +15,14 @@ import org.mockito.Mockito;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.bullhorn.dataloader.service.api.EntityInstanceTest;
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 
 public class EntityCacheTest {
 
-    private LoadingCache<EntityQuery, Optional<Integer>> associationCache;
+    private LoadingCache<EntityQuery, Result> associationCache;
     private BullhornAPI bhapi;
     private EntityInstance awesomeEntity;
     private final String entity = "awesomeEntity";
@@ -45,7 +46,8 @@ public class EntityCacheTest {
     @Test
     public void testLoad() throws Exception {
         EntityQuery entityQuery = new EntityQuery("awesomeEntity", awesomeEntity);
-        Optional<Integer> thisIsAwesome = associationCache.get(entityQuery);
-        assertEquals(thisIsAwesome.get(), Integer.valueOf(42));
+        Result result = associationCache.get(entityQuery);
+        assertEquals(result.isSuccess(), true);
+        assertEquals(result.getBullhornId(), Integer.valueOf(42));
     }
 }

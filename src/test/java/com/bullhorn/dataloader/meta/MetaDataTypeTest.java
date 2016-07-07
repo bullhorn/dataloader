@@ -75,7 +75,7 @@ public class MetaDataTypeTest {
 
     @Test
     public void testFromName() {
-        for(MetaDataType metaDataType : MetaDataType.values()) {
+        for (MetaDataType metaDataType : MetaDataType.values()) {
             String type = metaDataType.name();
             MetaDataType myMetaDataType = MetaDataType.fromName(type);
             TestCase.assertEquals(metaDataType, myMetaDataType);
@@ -90,7 +90,7 @@ public class MetaDataTypeTest {
 
     @Test
     public void testConvertFromValue() {
-        for(TestOption testOption : TEST_OPTIONS) {
+        for (TestOption testOption : TEST_OPTIONS) {
             MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
             Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
             TestCase.assertEquals(testOption.getExpectedResult(), o);
@@ -99,7 +99,7 @@ public class MetaDataTypeTest {
 
     @Test
     public void testConvertFromValue_defaults() {
-        for(TestOption testOption : TEST_OPTIONS_EMPTY) {
+        for (TestOption testOption : TEST_OPTIONS_EMPTY) {
             MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
             Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
             TestCase.assertEquals(testOption.getExpectedResult(), o);

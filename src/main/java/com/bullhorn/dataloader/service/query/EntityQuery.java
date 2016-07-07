@@ -47,6 +47,9 @@ public class EntityQuery {
         filterFields.put(key, value);
     }
 
+    /**
+     * The 'id' field is treated as a special field that is saved outside of the JSON object
+     */
     public void addInt(String key, String value) {
         incrementCount();
         if (StringConsts.ID.equals(key)) {

@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service.csv;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,5 +67,19 @@ public class JsonRowTest {
             }});
         }};
         TestCase.assertEquals(expected, actualPreprocessingActions);
+    }
+
+    @Test
+    public void testValues() {
+        //arrange
+        JsonRow jsonRow = new JsonRow();
+
+        //act
+        String[] values = new String[] {"column_1", "column_2", "column_3"};
+        jsonRow.setValues(values);
+
+        //assert
+        String[] expected = new String[] {"column_1", "column_2", "column_3"};
+        TestCase.assertTrue(Arrays.equals(expected, jsonRow.getValues()));
     }
 }

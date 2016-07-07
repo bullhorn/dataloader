@@ -20,7 +20,9 @@ import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.google.common.cache.LoadingCache;
 
@@ -31,12 +33,12 @@ public class JsonServiceTest {
     private class SetupJsonService {
         private BullhornAPI bhapi;
         private JsonService jsonService;
+        private CsvFileWriter fileWriter;
+        private BullhornApiAssociator bhapiAssociator;
 
         public BullhornApiAssociator getBhapiAssociator() {
             return bhapiAssociator;
         }
-
-        private BullhornApiAssociator bhapiAssociator;
 
         public BullhornAPI getBhapi() {
             return bhapi;
@@ -47,7 +49,7 @@ public class JsonServiceTest {
         }
 
         public SetupJsonService invoke() throws ExecutionException, IOException {
-            LoadingCache<EntityQuery, Optional<Integer>> loadingCache = Mockito.mock(LoadingCache.class);
+            LoadingCache<EntityQuery, Result> loadingCache = Mockito.mock(LoadingCache.class);
             JsonRow jsonRow = new JsonRow();
             jsonRow.addDeferredAction(
                     new String[] {"categories", "id"},
@@ -56,16 +58,17 @@ public class JsonServiceTest {
 
             bhapi = Mockito.mock(BullhornAPI.class);
             bhapiAssociator = Mockito.mock(BullhornApiAssociator.class);
+            fileWriter = Mockito.mock(CsvFileWriter.class);
 
             when(bhapi.getLabelByName("Candidate")).thenReturn(Optional.of("Candidate"));
             when(bhapi.getLabelByName("categories")).thenReturn(Optional.of("Category"));
             when(bhapi.getEntityExistsFieldsProperty("Candidate")).thenReturn(Optional.of("id,name"));
             when(loadingCache.get(any(EntityQuery.class))).thenReturn(
-                    Optional.of(1), Optional.of(2), Optional.of(3)
+                    Result.Insert(1), Result.Update(2), Result.Insert(3)
             );
 
             // when
-            jsonService = new JsonService("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache);
+            jsonService = new JsonService("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache, fileWriter);
             return this;
         }
     }

@@ -47,7 +47,7 @@ public class PropertyFileUtil {
         if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
             fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
         }
-        
+
         log.info("Using properties file: " + fileName);
 
         log.info("# Section 2");
