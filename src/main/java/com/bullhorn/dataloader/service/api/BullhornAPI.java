@@ -4,14 +4,11 @@ import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,38 +30,22 @@ import org.json.JSONObject;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.AssociationFilter;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 public class BullhornAPI {
 
     private static final Logger log = LogManager.getLogger(BullhornAPI.class);
 
-    private final String AUTH_CODE_ACTION = "Login";
-    private final String AUTH_CODE_RESPONSE_TYPE = "code";
-    private final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
-    private final String username;
-    private final String password;
-    private final String authorizeUrl;
-    private final String tokenUrl;
-    private final String clientId;
-    private final String clientSecret;
-    private final String loginUrl;
-    private final Integer threadSize;
-    private final Integer cacheSize;
-    private final SimpleDateFormat dateParser;
-    private final Map<String, String> entityExistsFields;
-    private final String listDelimiter;
-    private final Set<String> frontLoadedEntities;
-    private final int pageSize;
-    private final ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues;
+    private static final String AUTH_CODE_ACTION = "Login";
+    private static final String AUTH_CODE_RESPONSE_TYPE = "code";
+    private static final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
 
     private String bhRestToken;
     private String restURL;
@@ -72,23 +53,12 @@ public class BullhornAPI {
 
     private MetaMap rootMetaMap;
     private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues = Maps.newConcurrentMap();
 
-    public BullhornAPI(Properties properties) {
-        this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
-        this.cacheSize = Integer.valueOf(properties.getProperty("cacheSize"));
-        this.username = properties.getProperty("username");
-        this.password = properties.getProperty("password");
-        this.authorizeUrl = properties.getProperty("authorizeUrl");
-        this.tokenUrl = properties.getProperty("tokenUrl");
-        this.clientId = properties.getProperty("clientId");
-        this.clientSecret = properties.getProperty("clientSecret");
-        this.loginUrl = properties.getProperty("loginUrl");
-        this.listDelimiter = properties.getProperty("listDelimiter");
-        this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
-        this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
-        this.frontLoadedEntities = Sets.newHashSet(properties.getProperty("frontLoadedEntities").split(","));
-        this.pageSize = Integer.parseInt(properties.getProperty("pageSize"));
-        this.frontLoadedValues = Maps.newConcurrentMap();
+    private PropertyFileUtil propertyFileUtil;
+
+    public BullhornAPI(PropertyFileUtil propertyFileUtil) {
+        this.propertyFileUtil = propertyFileUtil;
     }
 
     public void createSession() {
@@ -96,18 +66,14 @@ public class BullhornAPI {
             String authCode = getAuthorizationCode();
             String accessToken = getAccessToken(authCode);
             loginREST(accessToken);
-            this.privateLabel = getPrivateLabelFromRest();
+            privateLabel = getPrivateLabelFromRest();
         } catch (Exception e) {
             log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
         }
     }
 
-    public boolean frontLoadedContainsEntity(String entity) {
-        return frontLoadedEntities.contains(entity);
-    }
-
     public void frontLoad() throws IOException {
-        for (String entity : frontLoadedEntities) {
+        for (String entity : propertyFileUtil.getFrontLoadedEntities()) {
             BiMap<String, Integer> frontLoadedCache = frontLoadEntity(entity, getFirstToManyExistField(entity));
             frontLoadedValues.put(entity, frontLoadedCache);
         }
@@ -119,7 +85,7 @@ public class BullhornAPI {
         boolean stillGoing = true;
         BiMap<String, Integer> frontLoadedCache = HashBiMap.create();
         while (stillGoing) {
-            JSONObject jsonObject = getEntityPage(entity, pageSize, currentIndex);
+            JSONObject jsonObject = getEntityPage(entity, propertyFileUtil.getPageSize(), currentIndex);
             if (!jsonObject.has(StringConsts.DATA)
                     || jsonObject.getJSONArray(StringConsts.DATA).length() == 0) {
                 stillGoing = false;
@@ -136,15 +102,17 @@ public class BullhornAPI {
             JSONObject dataElement = (JSONObject) jsnObject;
             frontLoadedCache.put(dataElement.getString(existFieldKey), dataElement.getInt("id"));
         }
-        return currentIndex + pageSize;
+        return currentIndex + propertyFileUtil.getPageSize();
     }
 
     public String getFirstToManyExistField(String entity) {
         String existFieldKey = StringConsts.NAME;
-        Optional<String> existFieldProperty = getEntityExistsFieldsProperty(entity);
-        if (existFieldProperty.isPresent()) {
-            existFieldKey = existFieldProperty.get().split(",")[0];
+
+        Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entity);
+        if (existFields.isPresent()) {
+            existFieldKey = existFields.get().get(0);
         }
+
         return existFieldKey;
     }
 
@@ -169,28 +137,12 @@ public class BullhornAPI {
         return call(getMethod);
     }
 
-    protected Map<String, String> createEntityExistsFields(Properties properties) {
-        Map<String, String> entityExistsFields = Maps.newHashMap();
-        properties.stringPropertyNames()
-                .stream()
-                .filter(property -> property.endsWith(StringConsts.EXIST_FIELD))
-                .forEach(property -> {
-                    String upperCaseProperty = property.substring(0, 1).toUpperCase() + property.substring(1);
-                    entityExistsFields.put(upperCaseProperty, properties.getProperty(property));
-                });
-        return entityExistsFields;
-    }
-
-    public Optional<String> getEntityExistsFieldsProperty(String entity) {
-        return Optional.ofNullable(entityExistsFields.get(entity + "ExistField"));
-    }
-
     private String getAuthorizationCode() throws IOException {
-        String authorizeCodeUrl = authorizeUrl + "?client_id=" + clientId +
+        String authorizeCodeUrl = propertyFileUtil.getAuthorizeUrl() + "?client_id=" + propertyFileUtil.getClientId() +
                 "&response_type=" + AUTH_CODE_RESPONSE_TYPE +
                 "&action=" + AUTH_CODE_ACTION +
-                "&username=" + username +
-                "&password=" + password;
+                "&username=" + propertyFileUtil.getUsername() +
+                "&password=" + propertyFileUtil.getPassword();
 
         HttpClient client = new HttpClient();
         PostMethod method = new PostMethod(authorizeCodeUrl);
@@ -207,10 +159,10 @@ public class BullhornAPI {
      * Get access token based on auth code returned from getAuthorizationCode()
      */
     private String getAccessToken(String authCode) throws IOException {
-        String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE +
+        String url = propertyFileUtil.getTokenUrl() + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE +
                 "&code=" + authCode +
-                "&client_id=" + clientId +
-                "&client_secret=" + clientSecret;
+                "&client_id=" + propertyFileUtil.getClientId() +
+                "&client_secret=" + propertyFileUtil.getClientSecret();
 
         PostMethod postMethod = new PostMethod(url);
         JSONObject jsonResponse = call(postMethod);
@@ -223,7 +175,7 @@ public class BullhornAPI {
         try {
             String accessTokenString = URLEncoder.encode(accessToken, StringConsts.UTF);
             String sessionMinutesToLive = "3000"; // 50hr window
-            String url = loginUrl + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
+            String url = propertyFileUtil.getLoginUrl() + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
             GetMethod get = new GetMethod(url);
 
             HttpClient client = new HttpClient();
@@ -232,8 +184,8 @@ public class BullhornAPI {
             responseJson = new JSONObject(responseStr);
 
             // Cache bhRestToken and REST URL
-            this.bhRestToken = responseJson.getString(StringConsts.BH_REST_TOKEN);
-            this.restURL = (String) responseJson.get("restUrl");
+            bhRestToken = responseJson.getString(StringConsts.BH_REST_TOKEN);
+            restURL = (String) responseJson.get("restUrl");
 
         } catch (Exception e) {
             log.error(e);
@@ -290,7 +242,7 @@ public class BullhornAPI {
             JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
             deque.add(jsonObjectFields);
 
-            MetaMap metaMap = new MetaMap(getDateParser(), getListDelimiter());
+            MetaMap metaMap = new MetaMap(propertyFileUtil.getDateParser(), propertyFileUtil.getListDelimiter());
             while (!deque.isEmpty()) {
                 jsonObjectFields = deque.pop();
                 fields = jsonObjectFields.getJsonArray();
@@ -491,24 +443,8 @@ public class BullhornAPI {
         return restURL;
     }
 
-    private SimpleDateFormat getDateParser() {
-        return dateParser;
-    }
-
-    public Integer getThreadSize() {
-        return threadSize;
-    }
-
-    public Integer getCacheSize() {
-        return cacheSize;
-    }
-
     public int getPrivateLabel() {
         return privateLabel;
-    }
-
-    public String getListDelimiter() {
-        return listDelimiter;
     }
 
     public Result getFrontLoadedFromKey(String entity, String key) {

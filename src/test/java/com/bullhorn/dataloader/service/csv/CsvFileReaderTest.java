@@ -20,6 +20,7 @@ public class CsvFileReaderTest {
         MetaMap metaMap = new MetaMap(new SimpleDateFormat("MM/dd/yyyy"), "|");
         String path = getFilePath("CsvToJsonTest_base.csv");
 
+        // act
         CsvFileReader csvFileReader = new CsvFileReader(path, metaMap);
         Map<String, Object> onlyRow = new HashMap<String, Object>() {{
             put("a", "1");
@@ -27,7 +28,7 @@ public class CsvFileReaderTest {
             put("c", "3");
         }};
 
-        // act
+        // assert
         int count = 0;
         for (JsonRow jsonRow : csvFileReader) {
             count++;

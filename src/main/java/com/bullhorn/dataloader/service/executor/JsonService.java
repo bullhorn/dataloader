@@ -21,6 +21,7 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
@@ -34,6 +35,7 @@ public class JsonService implements Runnable {
     private String entity;
     private JsonRow data;
     private CsvFileWriter csvFileWriter;
+    private PropertyFileUtil propertyFileUtil;
 
     private static final Logger log = LogManager.getLogger(JsonService.class);
 
@@ -42,13 +44,15 @@ public class JsonService implements Runnable {
                        BullhornApiAssociator bhapiAssociator,
                        JsonRow data,
                        LoadingCache<EntityQuery, Result> associationCache,
-                       CsvFileWriter csvFileWriter) {
+                       CsvFileWriter csvFileWriter,
+                       PropertyFileUtil propertyFileUtil) {
         this.bhapi = bullhornApi;
         this.bhapiAssociator = bhapiAssociator;
         this.entity = entity;
         this.data = data;
         this.associationCache = associationCache;
         this.csvFileWriter = csvFileWriter;
+        this.propertyFileUtil = propertyFileUtil;
     }
 
     /**
@@ -112,38 +116,40 @@ public class JsonService implements Runnable {
         return associationCache.get(entityQuery);
     }
 
+    /**
+     * Search for the entity using the ID and Name field if they exist, and then add the entityExist property.
+     */
     private void addSearchFields(EntityQuery entityQuery, Map<String, Object> actions) {
         ifPresentPut(entityQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
         ifPresentPut(entityQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
 
         Optional<String> entityLabel = bhapi.getLabelByName(entityQuery.getEntity());
         if (entityLabel.isPresent()) {
-            Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entityLabel.get());
-            existsFieldSearch(entityQuery, actions, entityExistsFieldsProperty);
+            Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityLabel.get());
+            existsFieldSearch(entityQuery, actions, entityExistFields);
         }
 
-        Optional<String> parentEntityExistsFieldProperty = bhapi.getEntityExistsFieldsProperty(entityQuery.getEntity());
-        existsFieldSearch(entityQuery, actions, parentEntityExistsFieldProperty);
+        Optional<List<String>> parentEntityExistFields = propertyFileUtil.getEntityExistFields(entityQuery.getEntity());
+        existsFieldSearch(entityQuery, actions, parentEntityExistFields);
     }
 
-    private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<String> existsFieldProperty) {
-        if (existsFieldProperty.isPresent()) {
-            for (String propertyFileExistField : existsFieldProperty.get().split(",")) {
-                /**
-                 * Try to use meta to determine how to search on the propertyExistsField.
-                 * If error occurs, default to String
-                 */
+    /**
+     * Tries to use meta to determine how to search on the propertyExistsField. Default to String if error occurs.
+     */
+    private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<List<String>> entityExistFields) {
+        if (entityExistFields.isPresent()) {
+            for (String entityExistField : entityExistFields.get()) {
                 String entityName = bhapi.getLabelByName(entityQuery.getEntity()).orElse(entityQuery.getEntity());
                 try {
-                    Optional<String> dataType = bhapi.getMetaDataTypes(entityName).getDataTypeByFieldName(propertyFileExistField);
+                    Optional<String> dataType = bhapi.getMetaDataTypes(entityName).getDataTypeByFieldName(entityExistField);
                     if (dataType.isPresent() && isInteger(dataType.get())) {
-                        ifPresentPut(entityQuery::addInt, propertyFileExistField, actions.get(propertyFileExistField));
+                        ifPresentPut(entityQuery::addInt, entityExistField, actions.get(entityExistField));
                     } else {
-                        ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                        ifPresentPut(entityQuery::addString, entityExistField, actions.get(entityExistField));
                     }
                 } catch (IOException e) {
                     log.debug("Error retrieving meta information for: " + entityName, e);
-                    ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                    ifPresentPut(entityQuery::addString, entityExistField, actions.get(entityExistField));
                 }
             }
         }
@@ -195,7 +201,7 @@ public class JsonService implements Runnable {
                 }
 
                 Result association;
-                if (bhapi.frontLoadedContainsEntity(entityLabel)) {
+                if (propertyFileUtil.shouldFrontLoadEntity(entityLabel)) {
                     association = queryFrontLoaded(entityLabel, fieldName, value.toString());
                 } else {
                     association = associationCache.get(entityQuery);

@@ -12,6 +12,7 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
 
 public class ConcurrentServiceExecutor {
@@ -23,6 +24,7 @@ public class ConcurrentServiceExecutor {
     private final BullhornAPI bhApi;
     private final BullhornApiAssociator bullhornApiAssociator;
     private final LoadingCache<EntityQuery, Result> associationCache;
+    private final PropertyFileUtil propertyFileUtil;
 
     private final Logger log = LogManager.getLogger(ConcurrentServiceExecutor.class);
 
@@ -32,7 +34,8 @@ public class ConcurrentServiceExecutor {
                                      BullhornAPI bhApi,
                                      BullhornApiAssociator bullhornApiAssociator,
                                      ExecutorService executorService,
-                                     LoadingCache<EntityQuery, Result> associationCache) {
+                                     LoadingCache<EntityQuery, Result> associationCache,
+                                     PropertyFileUtil propertyFileUtil) {
         this.entityName = entityName;
         this.csvReader = csvReader;
         this.csvWriter = csvWriter;
@@ -40,12 +43,13 @@ public class ConcurrentServiceExecutor {
         this.bullhornApiAssociator = bullhornApiAssociator;
         this.executorService = executorService;
         this.associationCache = associationCache;
+        this.propertyFileUtil = propertyFileUtil;
     }
 
     public void runProcess() {
         try {
             for (JsonRow row : csvReader) {
-                JsonService service = new JsonService(entityName, bhApi, bullhornApiAssociator, row, associationCache, csvWriter);
+                JsonService service = new JsonService(entityName, bhApi, bullhornApiAssociator, row, associationCache, csvWriter, propertyFileUtil);
                 service.setEntity(entityName);
                 executorService.execute(service);
             }
