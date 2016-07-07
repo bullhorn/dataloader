@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -167,7 +166,7 @@ public class BullhornAPI {
         sb.append(StringConsts.AND_BH_REST_TOKEN);
         sb.append(getBhRestToken());
         GetMethod getMethod = new GetMethod(sb.toString());
-        return get(getMethod);
+        return call(getMethod);
     }
 
     protected Map<String, String> createEntityExistsFields(Properties properties) {
@@ -213,10 +212,10 @@ public class BullhornAPI {
                 "&client_id=" + clientId +
                 "&client_secret=" + clientSecret;
 
-        PostMethod pst = new PostMethod(url);
-        JSONObject jsObj = this.post(pst);
+        PostMethod postMethod = new PostMethod(url);
+        JSONObject jsonResponse = call(postMethod);
 
-        return jsObj.getString("access_token");
+        return jsonResponse.getString("access_token");
     }
 
     private void loginREST(String accessToken) {
@@ -261,27 +260,7 @@ public class BullhornAPI {
                 + StringConsts.END_BH_REST_TOKEN + this.getBhRestToken();
     }
 
-    public JSONObject get(GetMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    public JSONObject put(PutMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    public JSONObject post(PostMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    public JSONObject delete(DeleteMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    private static JSONObject call(HttpMethodBase httpMethod) throws IOException {
+    public JSONObject call(HttpMethodBase httpMethod) throws IOException {
         HttpClient client = new HttpClient();
         client.executeMethod(httpMethod);
         String responseStr = IOUtils.toString(httpMethod.getResponseBodyAsStream());
@@ -351,8 +330,8 @@ public class BullhornAPI {
 
     private JSONArray getFieldsFromMetaResponse(String entity, String fields) throws IOException {
         String url = getMetaUrl(entity, fields);
-        GetMethod method = new GetMethod(url);
-        JSONObject jsonObject = get(method);
+        GetMethod getMethod = new GetMethod(url);
+        JSONObject jsonObject = call(getMethod);
         return jsonObject.getJSONArray("fields");
     }
 
@@ -411,21 +390,21 @@ public class BullhornAPI {
 
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
-        JSONObject jsResp;
+        JSONObject jsonResponse;
         if (AssociationFilter.isPut(type)) {
-            PutMethod method = new PutMethod(url);
-            method.setRequestEntity(requestEntity);
-            jsResp = this.put(method);
+            PutMethod putMethod = new PutMethod(url);
+            putMethod.setRequestEntity(requestEntity);
+            jsonResponse = call(putMethod);
         } else {
-            PostMethod method = new PostMethod(url);
-            method.setRequestEntity(requestEntity);
-            jsResp = this.post(method);
+            PostMethod postMethod = new PostMethod(url);
+            postMethod.setRequestEntity(requestEntity);
+            jsonResponse = call(postMethod);
         }
 
         log.info(jsString);
-        log.info(jsResp);
+        log.info(jsonResponse);
 
-        return jsResp;
+        return jsonResponse;
     }
 
     private static String getLabel(JSONObject field) {

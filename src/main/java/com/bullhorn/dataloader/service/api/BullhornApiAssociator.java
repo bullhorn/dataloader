@@ -31,7 +31,7 @@ public class BullhornApiAssociator {
         String toManyUrl = bhapi.getModificationAssociationUrl(parentEntity, toManyAssociations);
         DeleteMethod deleteMethod = new DeleteMethod(toManyUrl);
         log.debug("Dissociating: " + toManyUrl);
-        bhapi.delete(deleteMethod);
+        bhapi.call(deleteMethod);
     }
 
     public void associate(EntityInstance parentEntity, EntityInstance associationEntity) throws IOException {
@@ -42,7 +42,7 @@ public class BullhornApiAssociator {
         String associationUrl = bhapi.getModificationAssociationUrl(parentEntity, childEntity);
         log.debug("Associating " + associationUrl);
         PutMethod putMethod = new PutMethod(associationUrl);
-        bhapi.put(putMethod);
+        bhapi.call(putMethod);
     }
 
     private String getQueryAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
@@ -55,8 +55,8 @@ public class BullhornApiAssociator {
 
     private List<String> getIds(String url) throws IOException {
         GetMethod getMethod = new GetMethod(url);
-        JSONObject response = bhapi.get(getMethod);
-        JSONObject data = response.getJSONObject("data");
+        JSONObject jsonResponse = bhapi.call(getMethod);
+        JSONObject data = jsonResponse.getJSONObject("data");
         JSONArray elements = data.getJSONObject(data.keys().next()).getJSONArray("data");
 
         List<String> identifiers = new ArrayList<>(elements.length());

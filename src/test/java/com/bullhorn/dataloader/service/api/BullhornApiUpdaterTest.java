@@ -35,7 +35,7 @@ public class BullhornApiUpdaterTest {
 
     private BullhornAPI getBullhornAPI() throws IOException {
         BullhornAPI bhapi = Mockito.mock(BullhornAPI.class);
-        when(bhapi.get(any())).thenReturn(new JSONObject("{\"count\":0}"));
+        when(bhapi.call(any())).thenReturn(new JSONObject("{\"count\":0}"));
         when(bhapi.getLabelByName(any())).thenReturn(Optional.of("CliCon"));
         when(bhapi.serialize(any())).thenReturn("");
         return bhapi;

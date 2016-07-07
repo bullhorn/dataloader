@@ -84,7 +84,7 @@ public class JsonServiceTest {
         MetaMap metaMap = new MetaMap(new SimpleDateFormat("mm/dd/yyyy"), "|");
         metaMap.setFieldNameToDataType("id", "Integer");
 
-        when(bhapi.get(any(GetMethod.class))).thenReturn(new JSONObject());
+        when(bhapi.call(any(GetMethod.class))).thenReturn(new JSONObject());
         when(bhapi.getMetaDataTypes(any())).thenReturn(metaMap);
 
         // act
