@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service.csv;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -19,8 +20,8 @@ public class CsvFileWriter {
     private CsvWriter successCsv;
     private CsvWriter failureCsv;
 
-    private FileWriter successFile;
-    private FileWriter failureFile;
+    private FileWriter successFileWriter;
+    private FileWriter failureFileWriter;
 
     /**
      * Error/Success CSV files are placed in a results folder in the current working directory. They are named
@@ -37,20 +38,24 @@ public class CsvFileWriter {
     public CsvFileWriter(String filePath, String[] headers) throws IOException {
         this.headers = headers;
 
-        // Create files
         String baseName = FilenameUtils.getBaseName(filePath);
-        successFile = new FileWriter(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.SUCCESS_CSV);
-        failureFile = new FileWriter(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.FAILURE_CSV);
+
+        // Create files, and create directory if it does not exist
+        File successFile = new File(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.SUCCESS_CSV);
+        File failureFile = new File(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.FAILURE_CSV);
+        successFile.getParentFile().mkdirs();
+        failureFile.getParentFile().mkdirs();
 
         // Configure writers
-        successCsv = new CsvWriter(successFile, ',');
-        failureCsv = new CsvWriter(failureFile, ',');
+        successFileWriter = new FileWriter(successFile);
+        failureFileWriter = new FileWriter(failureFile);
+        successCsv = new CsvWriter(successFileWriter, ',');
+        failureCsv = new CsvWriter(failureFileWriter, ',');
 
         // Write headers to the files, adding our own custom columns, if they do not already exist.
         successCsv.writeRecord(ArrayUtil.prepend(StringConsts.BULLHORN_ID_COLUMN,
                 ArrayUtil.prepend(StringConsts.ACTION_COLUMN, headers)));
         failureCsv.writeRecord(ArrayUtil.prepend(StringConsts.REASON_COLUMN, headers));
-
         successCsv.flush();
         failureCsv.flush();
     }
