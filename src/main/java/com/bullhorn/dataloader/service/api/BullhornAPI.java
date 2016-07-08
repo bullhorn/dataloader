@@ -39,18 +39,36 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 
+/**
+ * Handles logging in to REST and making calls to rest to perform the data loading.
+ */
 public class BullhornAPI {
 
     private static final Logger log = LogManager.getLogger(BullhornAPI.class);
 
+    // String constants
     private static final String AUTH_CODE_ACTION = "Login";
     private static final String AUTH_CODE_RESPONSE_TYPE = "code";
     private static final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
+    private static final List<String> CUSTOM_OBJECT_META_FIELDS = ImmutableList.of(
+            "customObject1s",
+            "customObject2s",
+            "customObject3s",
+            "customObject4s",
+            "customObject5s",
+            "customObject6s",
+            "customObject7s",
+            "customObject8s",
+            "customObject9s"
+    );
+    private static final String CUSTOM_OBJECT_ADDITIONAL_FIELDS = Joiner.on("(*),").join(CUSTOM_OBJECT_META_FIELDS).concat("(*)");
 
+    // REST session variables
     private String bhRestToken;
     private String restURL;
     private int privateLabel;
 
+    // Front loaded entity variables
     private MetaMap rootMetaMap;
     private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
     private ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues = Maps.newConcurrentMap();
@@ -218,20 +236,6 @@ public class BullhornAPI {
         String responseStr = IOUtils.toString(httpMethod.getResponseBodyAsStream());
         return new JSONObject(responseStr);
     }
-
-    private static final List<String> CUSTOM_OBJECT_META_FIELDS = ImmutableList.of(
-            "customObject1s",
-            "customObject2s",
-            "customObject3s",
-            "customObject4s",
-            "customObject5s",
-            "customObject6s",
-            "customObject7s",
-            "customObject8s",
-            "customObject9s"
-    );
-
-    private static final String CUSTOM_OBJECT_ADDITIONAL_FIELDS = Joiner.on("(*),").join(CUSTOM_OBJECT_META_FIELDS).concat("(*)");
 
     public MetaMap getMetaDataTypes(String entity) throws IOException {
         if (!metaMaps.containsKey(entity)) {
