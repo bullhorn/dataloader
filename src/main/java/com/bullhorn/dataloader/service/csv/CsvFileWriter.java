@@ -15,6 +15,13 @@ import com.csvreader.CsvWriter;
  */
 public class CsvFileWriter {
 
+    public static final String RESULTS_DIR = "results/";
+    public static final String BULLHORN_ID_COLUMN = "id";
+    public static final String ACTION_COLUMN = "action";
+    public static final String REASON_COLUMN = "reason";
+    public static final String SUCCESS_CSV = "_success.csv";
+    public static final String FAILURE_CSV = "_failure.csv";
+
     private String[] headers;
 
     private CsvWriter successCsv;
@@ -41,8 +48,8 @@ public class CsvFileWriter {
         String baseName = FilenameUtils.getBaseName(filePath);
 
         // Create files, and create directory if it does not exist
-        File successFile = new File(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.SUCCESS_CSV);
-        File failureFile = new File(StringConsts.RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + StringConsts.FAILURE_CSV);
+        File successFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + SUCCESS_CSV);
+        File failureFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + FAILURE_CSV);
         successFile.getParentFile().mkdirs();
         failureFile.getParentFile().mkdirs();
 
@@ -53,9 +60,9 @@ public class CsvFileWriter {
         failureCsv = new CsvWriter(failureFileWriter, ',');
 
         // Write headers to the files, adding our own custom columns, if they do not already exist.
-        successCsv.writeRecord(ArrayUtil.prepend(StringConsts.BULLHORN_ID_COLUMN,
-                ArrayUtil.prepend(StringConsts.ACTION_COLUMN, headers)));
-        failureCsv.writeRecord(ArrayUtil.prepend(StringConsts.REASON_COLUMN, headers));
+        successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
+                ArrayUtil.prepend(ACTION_COLUMN, headers)));
+        failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
         successCsv.flush();
         failureCsv.flush();
     }

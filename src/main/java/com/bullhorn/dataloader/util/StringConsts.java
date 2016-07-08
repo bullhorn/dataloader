@@ -3,6 +3,12 @@ package com.bullhorn.dataloader.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Global String Constants
+ *
+ * Only strings that are used in more than one class should go here. If a string constant is only used internal to a
+ * class, that class should contain the string constant.
+ */
 public class StringConsts {
     public static final String UTF = "UTF-8";
     public static final String APPLICATION_JSON = "application/json";
@@ -23,14 +29,6 @@ public class StringConsts {
     public static final String PRIVATE_LABELS = "privateLabels";
     public static final String CATEGORY = "Category";
     public static final String STRING = "String";
-    public static final String DATA_DIR = "data/";
-    public static final String RESULTS_DIR = "results/";
-    public static final String LOG_DIR = "log/";
-    public static final String BULLHORN_ID_COLUMN = "id";
-    public static final String ACTION_COLUMN = "action";
-    public static final String REASON_COLUMN = "reason";
-    public static final String SUCCESS_CSV = "_success.csv";
-    public static final String FAILURE_CSV = "_failure.csv";
 
     private static String timestamp = null;
 
