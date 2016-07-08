@@ -29,9 +29,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * Responsible for processing a single row out of a CSV input file.
+ * Responsible for loading a single row from a CSV input file.
  */
-public class RowWorker implements Runnable {
+public class LoadTask implements Runnable {
     private final LoadingCache<EntityQuery, Result> associationCache;
     private final BullhornAPI bhapi;
     private final BullhornApiAssociator bhapiAssociator;
@@ -40,15 +40,15 @@ public class RowWorker implements Runnable {
     private CsvFileWriter csvFileWriter;
     private PropertyFileUtil propertyFileUtil;
 
-    private static final Logger log = LogManager.getLogger(RowWorker.class);
+    private static final Logger log = LogManager.getLogger(LoadTask.class);
 
-    public RowWorker(String entity,
-                     BullhornAPI bullhornApi,
-                     BullhornApiAssociator bhapiAssociator,
-                     JsonRow data,
-                     LoadingCache<EntityQuery, Result> associationCache,
-                     CsvFileWriter csvFileWriter,
-                     PropertyFileUtil propertyFileUtil) {
+    public LoadTask(String entity,
+                    BullhornAPI bullhornApi,
+                    BullhornApiAssociator bhapiAssociator,
+                    JsonRow data,
+                    LoadingCache<EntityQuery, Result> associationCache,
+                    CsvFileWriter csvFileWriter,
+                    PropertyFileUtil propertyFileUtil) {
         this.bhapi = bullhornApi;
         this.bhapiAssociator = bhapiAssociator;
         this.entity = entity;

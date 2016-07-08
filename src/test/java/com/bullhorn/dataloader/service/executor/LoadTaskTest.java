@@ -30,11 +30,11 @@ import com.google.common.cache.LoadingCache;
 
 import junit.framework.TestCase;
 
-public class RowWorkerTest {
+public class LoadTaskTest {
 
-    private class SetupRowWorker {
+    private class SetupLoadTask {
         private BullhornAPI bhapi;
-        private RowWorker rowWorker;
+        private LoadTask loadTask;
         private CsvFileWriter fileWriter;
         private BullhornApiAssociator bhapiAssociator;
         private PropertyFileUtil propertyFileUtil;
@@ -47,11 +47,11 @@ public class RowWorkerTest {
             return bhapi;
         }
 
-        public RowWorker getRowWorker() {
-            return rowWorker;
+        public LoadTask getLoadTask() {
+            return loadTask;
         }
 
-        public SetupRowWorker invoke() throws ExecutionException, IOException {
+        public SetupLoadTask invoke() throws ExecutionException, IOException {
             LoadingCache<EntityQuery, Result> loadingCache = Mockito.mock(LoadingCache.class);
             JsonRow jsonRow = new JsonRow();
             jsonRow.addDeferredAction(
@@ -72,7 +72,7 @@ public class RowWorkerTest {
             );
 
             // when
-            rowWorker = new RowWorker("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache, fileWriter, propertyFileUtil);
+            loadTask = new LoadTask("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache, fileWriter, propertyFileUtil);
             return this;
         }
     }
@@ -80,11 +80,11 @@ public class RowWorkerTest {
     @Test
     public void testToManyAssociations_multipleValues() throws ExecutionException, IOException {
         // setup
-        SetupRowWorker setupRowWorker = new SetupRowWorker().invoke();
+        SetupLoadTask setupLoadTask = new SetupLoadTask().invoke();
 
-        RowWorker rowWorker = setupRowWorker.getRowWorker();
-        BullhornApiAssociator bhapiAssociator = setupRowWorker.getBhapiAssociator();
-        BullhornAPI bhapi = setupRowWorker.getBhapi();
+        LoadTask loadTask = setupLoadTask.getLoadTask();
+        BullhornApiAssociator bhapiAssociator = setupLoadTask.getBhapiAssociator();
+        BullhornAPI bhapi = setupLoadTask.getBhapi();
         MetaMap metaMap = new MetaMap(new SimpleDateFormat("mm/dd/yyyy"), "|");
         metaMap.setFieldNameToDataType("id", "Integer");
 
@@ -92,7 +92,7 @@ public class RowWorkerTest {
         when(bhapi.getMetaDataTypes(any())).thenReturn(metaMap);
 
         // act
-        rowWorker.run();
+        loadTask.run();
 
         // assert
         ArgumentCaptor<EntityInstance> actualParent = ArgumentCaptor.forClass(EntityInstance.class);

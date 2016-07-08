@@ -16,9 +16,9 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
 
 /**
- * Responsible for executing row workers to process rows in a CSV input file.
+ * Responsible for executing tasks to process rows in a CSV input file.
  */
-public class RowWorkerExecutor {
+public class ConcurrencyService {
 
     private final ExecutorService executorService;
     private final String entityName;
@@ -29,16 +29,16 @@ public class RowWorkerExecutor {
     private final LoadingCache<EntityQuery, Result> associationCache;
     private final PropertyFileUtil propertyFileUtil;
 
-    private final Logger log = LogManager.getLogger(RowWorkerExecutor.class);
+    private final Logger log = LogManager.getLogger(ConcurrencyService.class);
 
-    public RowWorkerExecutor(String entityName,
-                             CsvFileReader csvReader,
-                             CsvFileWriter csvWriter,
-                             BullhornAPI bhApi,
-                             BullhornApiAssociator bullhornApiAssociator,
-                             ExecutorService executorService,
-                             LoadingCache<EntityQuery, Result> associationCache,
-                             PropertyFileUtil propertyFileUtil) {
+    public ConcurrencyService(String entityName,
+                              CsvFileReader csvReader,
+                              CsvFileWriter csvWriter,
+                              BullhornAPI bhApi,
+                              BullhornApiAssociator bullhornApiAssociator,
+                              ExecutorService executorService,
+                              LoadingCache<EntityQuery, Result> associationCache,
+                              PropertyFileUtil propertyFileUtil) {
         this.entityName = entityName;
         this.csvReader = csvReader;
         this.csvWriter = csvWriter;
@@ -52,9 +52,9 @@ public class RowWorkerExecutor {
     public void runProcess() {
         try {
             for (JsonRow jsonRow : csvReader) {
-                RowWorker rowWorker = new RowWorker(entityName, bhApi, bullhornApiAssociator, jsonRow, associationCache, csvWriter, propertyFileUtil);
-                rowWorker.setEntity(entityName);
-                executorService.execute(rowWorker);
+                LoadTask loadTask = new LoadTask(entityName, bhApi, bullhornApiAssociator, jsonRow, associationCache, csvWriter, propertyFileUtil);
+                loadTask.setEntity(entityName);
+                executorService.execute(loadTask);
             }
             executorService.shutdown();
         } catch (Exception e) {

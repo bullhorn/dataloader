@@ -14,7 +14,7 @@ import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.RowWorkerExecutor;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -62,6 +62,7 @@ public class Main {
                     delete(args[1], args[2]);
                 } else {
                     System.out.println("ERROR: Expected the 'delete' keyword, but was provided: " + args[0]);
+                    printUsage();
                 }
             } else {
                 System.out.println("ERROR: Too many arguments provided.");
@@ -138,7 +139,7 @@ public class Main {
         final CsvFileWriter csvFileWriter = new CsvFileWriter(filePath, csvFileReader.getHeaders());
 
         final ExecutorService executorService = Executors.newFixedThreadPool(bhApi.getPropertyFileUtil().getNumThreads());
-        final RowWorkerExecutor executor = new RowWorkerExecutor(
+        final ConcurrencyService executor = new ConcurrencyService(
                 WordUtils.capitalize(entity),
                 csvFileReader,
                 csvFileWriter,
