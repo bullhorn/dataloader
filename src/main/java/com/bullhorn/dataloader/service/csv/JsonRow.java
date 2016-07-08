@@ -62,8 +62,7 @@ public class JsonRow {
     }
 
     /**
-     * Values contains the actual CSV string values parsed from the csvReader.  It will
-     * @return
+     * Values contains the actual CSV string values parsed from the csvReader.
      */
     public String[] getValues() {
         return values;
