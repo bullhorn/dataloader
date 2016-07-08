@@ -13,7 +13,7 @@ import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.ConcurrentServiceExecutor;
+import com.bullhorn.dataloader.service.executor.RowWorkerExecutor;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -61,7 +61,7 @@ public class Main {
             final CsvFileWriter csvFileWriter = new CsvFileWriter(filePath, csvFileReader.getHeaders());
 
             final ExecutorService executorService = Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
-            final ConcurrentServiceExecutor executor = new ConcurrentServiceExecutor(
+            final RowWorkerExecutor executor = new RowWorkerExecutor(
                     WordUtils.capitalize(entity),
                     csvFileReader,
                     csvFileWriter,

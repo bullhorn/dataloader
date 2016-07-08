@@ -28,7 +28,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class JsonService implements Runnable {
+/**
+ * Responsible for processing a single row out of a CSV input file.
+ */
+public class RowWorker implements Runnable {
     private final LoadingCache<EntityQuery, Result> associationCache;
     private final BullhornAPI bhapi;
     private final BullhornApiAssociator bhapiAssociator;
@@ -37,15 +40,15 @@ public class JsonService implements Runnable {
     private CsvFileWriter csvFileWriter;
     private PropertyFileUtil propertyFileUtil;
 
-    private static final Logger log = LogManager.getLogger(JsonService.class);
+    private static final Logger log = LogManager.getLogger(RowWorker.class);
 
-    public JsonService(String entity,
-                       BullhornAPI bullhornApi,
-                       BullhornApiAssociator bhapiAssociator,
-                       JsonRow data,
-                       LoadingCache<EntityQuery, Result> associationCache,
-                       CsvFileWriter csvFileWriter,
-                       PropertyFileUtil propertyFileUtil) {
+    public RowWorker(String entity,
+                     BullhornAPI bullhornApi,
+                     BullhornApiAssociator bhapiAssociator,
+                     JsonRow data,
+                     LoadingCache<EntityQuery, Result> associationCache,
+                     CsvFileWriter csvFileWriter,
+                     PropertyFileUtil propertyFileUtil) {
         this.bhapi = bullhornApi;
         this.bhapiAssociator = bhapiAssociator;
         this.entity = entity;
