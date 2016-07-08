@@ -4,6 +4,7 @@ import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -87,16 +88,20 @@ public class BullhornAPI {
 
     //region REST Session Creation
     /**
-     * Creates the REST session, and handles validation of errors in the process.
+     * Logs in and creates the REST session. Handles reporting out errors during the connection process.
      */
-    public void createSession() {
+    public void createSession() throws Exception {
         try {
             String authCode = getAuthorizationCode();
             String accessToken = getAccessToken(authCode);
             loginREST(accessToken);
             privateLabel = getPrivateLabelFromRest();
+        } catch (UnknownHostException e) {
+            throw new Exception("ERROR: Cannot create session. Could not connect to: " + e.getMessage() +
+                    ".  Please check your Internet/VPN and URLs specified in dataloader.properties.");
         } catch (Exception e) {
-            log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
+            throw new Exception("ERROR: Cannot create session: " +
+                    e.getMessage());
         }
     }
 

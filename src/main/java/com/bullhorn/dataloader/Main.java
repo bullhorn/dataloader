@@ -25,19 +25,29 @@ public class Main {
 
     private static Logger log = LogManager.getLogger(Main.class);
 
-    public static void main(String[] args) throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties");
-        BullhornAPI bhApi = new BullhornAPI(propertyFileUtil);
-        BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhApi);
+    /**
+     * Entry point for the application.
+     *
+     * @param args The user's command line parameters
+     */
+    public static void main(String[] args) {
+        try {
+            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties");
+            BullhornAPI bhApi = new BullhornAPI(propertyFileUtil);
+            BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhApi);
 
-        bhApi.createSession();
+            bhApi.createSession();
 
-        if ("template".equals(args[0])) {
-            createTemplate(args[1], bhApi);
-        } else {
-            String entity = args[0];
-            String filePath = args[1];
-            loadCsv(entity, filePath, bhApi, bullhornApiAssociator, propertyFileUtil);
+            if ("template".equals(args[0])) {
+                createTemplate(args[1], bhApi);
+            } else {
+                String entity = args[0];
+                String filePath = args[1];
+                loadCsv(entity, filePath, bhApi, bullhornApiAssociator, propertyFileUtil);
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            log.error(e);
         }
     }
 
