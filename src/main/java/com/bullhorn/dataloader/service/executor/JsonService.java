@@ -221,7 +221,7 @@ public class JsonService implements Runnable {
 
     private Result queryFrontLoaded(String entity, String fieldName, String value) {
         if (StringConsts.ID.equals(fieldName)) {
-            return bhapi.getFrontLoadedIdExists(entity, value);
+            return bhapi.hasFrontLoadedEntity(entity, value);
         } else {
             return bhapi.getFrontLoadedFromKey(entity, value);
         }
