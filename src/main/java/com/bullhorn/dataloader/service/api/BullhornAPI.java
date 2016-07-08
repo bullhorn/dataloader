@@ -374,6 +374,10 @@ public class BullhornAPI {
     public int getPrivateLabel() {
         return privateLabel;
     }
+
+    public PropertyFileUtil getPropertyFileUtil() {
+        return propertyFileUtil;
+    }
     //endregion
 
     /**
