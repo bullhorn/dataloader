@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+#-----------------------------------------------------------------------------------------------------------------------
+# DataLoader alias script for running on the command line by simply using: $> dataloader <args>
+#-----------------------------------------------------------------------------------------------------------------------
+#
+# Will use a file like dataloader-<version>.java in the current directory if it exists, otherwise it will attempt
+# to use the same file out of the target directory.  We need to match the ending digit in the target folder to avoid
+# picking up the dataloader-<version>-javadoc.jar
+#
+# Pass all command line arguments through to the application ("$@")
+#
+[ -f dataloader-*.jar ] && java -jar dataloader-*.jar "$@" || java -jar target/dataloader-*[0-9].jar "$@"
