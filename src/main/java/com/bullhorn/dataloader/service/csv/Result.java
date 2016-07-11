@@ -14,7 +14,8 @@ public class Result {
     public enum Action {
         NOT_SET,
         INSERT,
-        UPDATE
+        UPDATE,
+        DELETE
     }
 
     /**
@@ -35,6 +36,16 @@ public class Result {
      */
     public static Result Update(Integer bullhornId) {
         return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+    }
+
+    /**
+     * Delete convenience constructor
+     *
+     * @param bullhornId The bullhorn internal ID of the record
+     * @return The new Result object
+     */
+    public static Result Delete(Integer bullhornId) {
+        return new Result(Status.SUCCESS, Action.DELETE, bullhornId, "");
     }
 
     /**

@@ -18,6 +18,7 @@ import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
@@ -98,8 +99,29 @@ public class Main {
         return true;
     }
 
+    /**
+     * Validates the operation, ensuring that the user is informed of whether or not an entity can be deleted
+     * (soft or hard) before the operation begins.
+     */
+    static private boolean isMutableEntity(String entityName) {
+        if (StringConsts.isHardDeletable(entityName) || StringConsts.isSoftDeletable(entityName)) {
+            return true;
+        } else if (StringConsts.isImmutable(entityName)) {
+            System.out.println("ERROR: entity: " + entityName + " is immutable in REST and cannot be changed by DataLoader.");
+            System.out.println("       Please see the full list of DataLoader supported entities at:");
+            System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+            return false;
+        }
+
+        System.out.println("ERROR: Unknown entity: \"" + entityName + "\"");
+        System.out.println("       This entity is not known to DataLoader and cannot be used.");
+        System.out.println("       Please check your spelling and see the full list of DataLoader supported entities at:");
+        System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        return false;
+    }
+
     static private void load(String entityName, String filePath) throws Exception {
-        if (isValidCsvFile(filePath)) {
+        if (isMutableEntity(entityName) && isValidCsvFile(filePath)) {
             final BullhornAPI bhApi = createSession();
             System.out.println("Loading " + entityName + " records from: " + filePath);
             loadCsv(entityName, filePath, bhApi);
@@ -107,10 +129,10 @@ public class Main {
     }
 
     static private void delete(String entityName, String filePath) throws Exception {
-        if (isValidCsvFile(filePath)) {
+        if (isMutableEntity(entityName) && isValidCsvFile(filePath)) {
             final BullhornAPI bhApi = createSession();
             System.out.println("Deleting " + entityName + " records from: " + filePath);
-            //TODO: loadCsv(entityName, filePath, bhApi);
+            deleteCsv(entityName, filePath, bhApi);
         }
     }
 
@@ -149,6 +171,29 @@ public class Main {
                 associationCache,
                 bhApi.getPropertyFileUtil()
         );
-        executor.runProcess();
+        executor.runLoadProcess();
+    }
+
+    static private void deleteCsv(String entity, String filePath, BullhornAPI bhApi) throws Exception {
+        final BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhApi);
+        final LoadingCache<EntityQuery, Result> associationCache = CacheBuilder.newBuilder()
+                .maximumSize(bhApi.getPropertyFileUtil().getCacheSize())
+                .build(new EntityCache(bhApi));
+
+        final CsvFileReader csvFileReader = new CsvFileReader(filePath, bhApi.getRootMetaDataTypes(entity));
+        final CsvFileWriter csvFileWriter = new CsvFileWriter(filePath, csvFileReader.getHeaders());
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(bhApi.getPropertyFileUtil().getNumThreads());
+        final ConcurrencyService executor = new ConcurrencyService(
+                WordUtils.capitalize(entity),
+                csvFileReader,
+                csvFileWriter,
+                bhApi,
+                bullhornApiAssociator,
+                executorService,
+                associationCache,
+                bhApi.getPropertyFileUtil()
+        );
+        executor.runDeleteProcess();
     }
 }

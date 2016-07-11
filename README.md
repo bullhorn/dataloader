@@ -18,7 +18,7 @@ Bullhorn DataLoader is a downloadable tool for quickly importing and updating da
 
  6. Open a command prompt in the `dataloader` folder.
 
- 7. Run DataLoader on the command line, for example: `> dataloader data/Candidate.csv`
+ 7. Run DataLoader on the command line, for example: `> dataloader Candidate data/Candidate.csv`
  
  8. Check for status on the command line, check for error records in the file: `dataloader/results/<EntityName>_<Timestamp>_failure.csv`, check for successful records in the file: `dataloader/results/<EntityName>_<Timestamp>_success.csv`, and check for full output in the `dataloader/log` directory.
  
@@ -78,10 +78,16 @@ dataloader template <EntityName>
 
 This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc).
 
-## Run
+## Insert/Update
 
 ```
 dataloader <EntityName> /path/to/file.csv
+```
+
+## Delete
+
+```
+dataloader delete <EntityName> /path/to/file.csv
 ```
 
 ## Results Files

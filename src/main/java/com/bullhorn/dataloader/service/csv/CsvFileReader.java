@@ -22,6 +22,7 @@ public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
     private JsonRow nextRow;
     private boolean hasNextLine = true;
     private String[] headers;
+    private Integer rowCount = 0;
 
     public CsvFileReader(String filePath, MetaMap metaMap) throws IOException {
         this.csvReader = new CsvReader(filePath);
@@ -51,6 +52,7 @@ public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
             }
 
             jsonRow.setValues(csvReader.getValues());
+            jsonRow.setRowNumber(++rowCount);
         }
         return jsonRow;
     }

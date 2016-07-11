@@ -49,19 +49,19 @@ public class ConcurrencyService {
         this.propertyFileUtil = propertyFileUtil;
     }
 
-    public void runProcess() {
-        try {
-            for (JsonRow jsonRow : csvReader) {
-                LoadTask loadTask = new LoadTask(entityName, bhApi, bullhornApiAssociator, jsonRow, associationCache, csvWriter, propertyFileUtil);
-                loadTask.setEntity(entityName);
-                executorService.execute(loadTask);
-            }
-            executorService.shutdown();
-        } catch (Exception e) {
-            if (executorService != null) {
-                executorService.shutdown();
-            }
-            log.error(e);
+    public void runLoadProcess() {
+        for (JsonRow jsonRow : csvReader) {
+            LoadTask loadTask = new LoadTask(entityName, bhApi, bullhornApiAssociator, jsonRow, associationCache, csvWriter, propertyFileUtil);
+            executorService.execute(loadTask);
         }
+        executorService.shutdown();
+    }
+
+    public void runDeleteProcess() {
+        for (JsonRow jsonRow : csvReader) {
+            DeleteTask deleteTask = new DeleteTask(entityName, bhApi, jsonRow, csvWriter, propertyFileUtil);
+            executorService.execute(deleteTask);
+        }
+        executorService.shutdown();
     }
 }

@@ -82,4 +82,17 @@ public class JsonRowTest {
         String[] expected = new String[] {"column_1", "column_2", "column_3"};
         TestCase.assertTrue(Arrays.equals(expected, jsonRow.getValues()));
     }
+
+    @Test
+    public void testRowNumber() {
+        //arrange
+        JsonRow jsonRow = new JsonRow();
+        TestCase.assertEquals(jsonRow.getRowNumber().intValue(), 0);
+
+        //act
+        jsonRow.setRowNumber(99);
+
+        //assert
+        TestCase.assertEquals(jsonRow.getRowNumber().intValue(), 99);
+    }
 }

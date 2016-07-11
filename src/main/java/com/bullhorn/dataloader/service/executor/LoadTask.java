@@ -32,26 +32,26 @@ import com.google.common.collect.Sets;
  * Responsible for loading a single row from a CSV input file.
  */
 public class LoadTask implements Runnable {
-    private final LoadingCache<EntityQuery, Result> associationCache;
-    private final BullhornAPI bhapi;
-    private final BullhornApiAssociator bhapiAssociator;
-    private String entity;
+    private static final Logger log = LogManager.getLogger(LoadTask.class);
+
+    private String entityName;
+    private final BullhornAPI bhApi;
+    private final BullhornApiAssociator bhApiAssociator;
     private JsonRow data;
+    private final LoadingCache<EntityQuery, Result> associationCache;
     private CsvFileWriter csvFileWriter;
     private PropertyFileUtil propertyFileUtil;
 
-    private static final Logger log = LogManager.getLogger(LoadTask.class);
-
-    public LoadTask(String entity,
-                    BullhornAPI bullhornApi,
-                    BullhornApiAssociator bhapiAssociator,
+    public LoadTask(String entityName,
+                    BullhornAPI bhApi,
+                    BullhornApiAssociator bhApiAssociator,
                     JsonRow data,
                     LoadingCache<EntityQuery, Result> associationCache,
                     CsvFileWriter csvFileWriter,
                     PropertyFileUtil propertyFileUtil) {
-        this.bhapi = bullhornApi;
-        this.bhapiAssociator = bhapiAssociator;
-        this.entity = entity;
+        this.entityName = entityName;
+        this.bhApi = bhApi;
+        this.bhApiAssociator = bhApiAssociator;
         this.data = data;
         this.associationCache = associationCache;
         this.csvFileWriter = csvFileWriter;
@@ -66,15 +66,15 @@ public class LoadTask implements Runnable {
      */
     @Override
     public void run() {
-        String entityBase = bhapi.getRestURL() + StringConsts.ENTITY_SLASH + getEntity();
-        String restToken = StringConsts.END_BH_REST_TOKEN + bhapi.getBhRestToken();
+        String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
+        String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
         try {
             Map<String, Object> toOneIdentifiers = upsertPreprocessingActions();
             Result result = createOrGetEntity(toOneIdentifiers);
 
             if (result.isSuccess()) {
                 updateEntity(entityBase, restToken, result.getBullhornId());
-                saveToMany(result.getBullhornId(), entity, data.getDeferredActions());
+                saveToMany(result.getBullhornId(), entityName, data.getDeferredActions());
             }
 
             csvFileWriter.writeRow(data, result);
@@ -104,14 +104,14 @@ public class LoadTask implements Runnable {
 
     private void updateEntity(String entityBase, String restToken, Integer optionalEntityId) throws IOException {
         String postUrl = entityBase + "/" + optionalEntityId + restToken;
-        bhapi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
+        bhApi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
     }
 
     private Result createOrGetEntity(Map<String, Object> toOneIdentifiers) throws ExecutionException {
         Object nestJson = mergeObjects(toOneIdentifiers, data.getImmediateActions());
-        EntityQuery entityQuery = new EntityQuery(getEntity(), nestJson);
+        EntityQuery entityQuery = new EntityQuery(entityName, nestJson);
         addSearchFields(entityQuery, data.getImmediateActions());
-        if (bhapi.containsFields(StringConsts.IS_DELETED)) {
+        if (bhApi.containsFields(StringConsts.IS_DELETED)) {
             entityQuery.addFieldWithoutCount(StringConsts.IS_DELETED, "false");
         }
 
@@ -126,7 +126,7 @@ public class LoadTask implements Runnable {
         ifPresentPut(entityQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
         ifPresentPut(entityQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
 
-        Optional<String> entityLabel = bhapi.getLabelByName(entityQuery.getEntity());
+        Optional<String> entityLabel = bhApi.getLabelByName(entityQuery.getEntity());
         if (entityLabel.isPresent()) {
             Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityLabel.get());
             existsFieldSearch(entityQuery, actions, entityExistFields);
@@ -142,9 +142,9 @@ public class LoadTask implements Runnable {
     private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<List<String>> entityExistFields) {
         if (entityExistFields.isPresent()) {
             for (String entityExistField : entityExistFields.get()) {
-                String entityName = bhapi.getLabelByName(entityQuery.getEntity()).orElse(entityQuery.getEntity());
+                String entityName = bhApi.getLabelByName(entityQuery.getEntity()).orElse(entityQuery.getEntity());
                 try {
-                    Optional<String> dataType = bhapi.getMetaDataTypes(entityName).getDataTypeByFieldName(entityExistField);
+                    Optional<String> dataType = bhApi.getMetaDataTypes(entityName).getDataTypeByFieldName(entityExistField);
                     if (dataType.isPresent() && isInteger(dataType.get())) {
                         ifPresentPut(entityQuery::addInt, entityExistField, actions.get(entityExistField));
                     } else {
@@ -174,8 +174,8 @@ public class LoadTask implements Runnable {
                     .collect(Collectors.joining(","));
 
             EntityInstance associationEntity = new EntityInstance(idList, entityName);
-            bhapiAssociator.dissociateEverything(parentEntity, associationEntity);
-            bhapiAssociator.associate(parentEntity, associationEntity);
+            bhApiAssociator.dissociateEverything(parentEntity, associationEntity);
+            bhApiAssociator.associate(parentEntity, associationEntity);
         }
     }
 
@@ -190,10 +190,10 @@ public class LoadTask implements Runnable {
 
             for (Object value : values) {
                 EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
-                String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
+                String entityLabel = bhApi.getLabelByName(toManyEntry.getKey()).get();
 
                 if (hasPrivateLabel(entityLabel)) {
-                    entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
+                    entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhApi.getPrivateLabel()));
                 }
 
                 // should use meta if any more fields are needed
@@ -219,14 +219,14 @@ public class LoadTask implements Runnable {
     }
 
     private boolean hasPrivateLabel(String entityLabel) throws IOException {
-        return bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS);
+        return bhApi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS);
     }
 
     private Result queryFrontLoaded(String entity, String fieldName, String value) {
         if (StringConsts.ID.equals(fieldName)) {
-            return bhapi.hasFrontLoadedEntity(entity, value);
+            return bhApi.hasFrontLoadedEntity(entity, value);
         } else {
-            return bhapi.getFrontLoadedFromKey(entity, value);
+            return bhApi.getFrontLoadedFromKey(entity, value);
         }
     }
 
@@ -234,13 +234,5 @@ public class LoadTask implements Runnable {
         if (value != null) {
             consumer.accept(fieldName, value.toString());
         }
-    }
-
-    public String getEntity() {
-        return entity;
-    }
-
-    public void setEntity(String entity) {
-        this.entity = entity;
     }
 }

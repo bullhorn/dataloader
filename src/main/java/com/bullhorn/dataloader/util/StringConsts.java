@@ -1,11 +1,12 @@
 package com.bullhorn.dataloader.util;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
  * Global String Constants
- *
+ * <p>
  * Only strings that are used in more than one class should go here. If a string constant is only used internal to a
  * class, that class should contain the string constant.
  */
@@ -32,6 +33,54 @@ public class StringConsts {
 
     private static String timestamp = null;
 
+    public static final String[] HARD_DELETABLE_ENTITIES = {
+            "AppointmentAttendee",
+            "CandidateSource",
+            "NoteEntity",
+            "Placement",
+            "PlacementCommission",
+            "Sendout",
+            "TearsheetRecipient"
+    };
+
+    public static final String[] SOFT_DELETABLE_ENTITIES = {
+            "Appointment",
+            "Candidate",
+            "CandidateCertification",
+            "CandidateEducation",
+            "CandidateReference",
+            "CandidateWorkHistory",
+            "Certification",
+            "ClientContact",
+            "ClientCorporation",
+            "HousingComplex",
+            "JobOrder",
+            "JobSubmission",
+            "Lead",
+            "Note",
+            "Opportunity",
+            "Task",
+            "Tearsheet"
+    };
+
+    public static final String[] IMMUTABLE_ENTITIES = {
+            "BusinessSector",
+            "Category",
+            "CorporationDepartment",
+            "CorporateUser",
+            "Country",
+            "CustomAction",
+            "JobBoardPost",
+            "JobSubmissionHistory",
+            "LeadHistory",
+            "OpportunityHistory",
+            "PlacementChangeRequest",
+            "Skill",
+            "Specialty",
+            "State",
+            "TimeUnit"
+    };
+
     /**
      * Returns a timestamp that is set to the time when DataLoader was started. This allows for the same
      * timestamp to be used throughout the same session.
@@ -45,6 +94,33 @@ public class StringConsts {
         }
 
         return timestamp;
+    }
+
+    /**
+     * Convenience method which returns true if an entity is part of the set of hard deletable entities in REST.
+     *
+     * @return True if can be hard deleted
+     */
+    public static boolean isHardDeletable(String entityName) {
+        return Arrays.asList(HARD_DELETABLE_ENTITIES).contains(entityName);
+    }
+
+    /**
+     * Convenience method which returns true if an entity is part of the set of soft deletable entities in REST.
+     *
+     * @return True if must be soft deleted
+     */
+    public static boolean isSoftDeletable(String entityName) {
+        return Arrays.asList(SOFT_DELETABLE_ENTITIES).contains(entityName);
+    }
+
+    /**
+     * Convenience method which returns true if an entity is part of the set of immutable entities in REST.
+     *
+     * @return True if immutable
+     */
+    public static boolean isImmutable(String entityName) {
+        return Arrays.asList(IMMUTABLE_ENTITIES).contains(entityName);
     }
 
     private StringConsts() {

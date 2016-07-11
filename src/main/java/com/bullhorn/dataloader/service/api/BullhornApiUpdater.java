@@ -40,26 +40,26 @@ public class BullhornApiUpdater {
             result.setFailureText(failureText);
             log.error(failureText);
         } else {
-            JSONObject jsonObject;
+            JSONObject jsonResponse;
             if (entityQuery.getId().isPresent()) {
-                jsonObject = update(entityQuery);
+                jsonResponse = update(entityQuery);
                 result.setAction(Result.Action.UPDATE);
             } else {
-                jsonObject = insert(entityQuery);
+                jsonResponse = insert(entityQuery);
                 result.setAction(Result.Action.INSERT);
             }
 
-            if (jsonObject.has("errorMessage")) {
+            if (jsonResponse.has("errorMessage")) {
                 String failureText = "Association query " + entityQuery.toString() + " failed for reason " +
-                        jsonObject.getString("errorMessage");
-                if (jsonObject.has("errors")) {
-                    failureText += "\nerrors: " + jsonObject.getJSONArray("errors");
+                        jsonResponse.getString("errorMessage");
+                if (jsonResponse.has("errors")) {
+                    failureText += "\nerrors: " + jsonResponse.getJSONArray("errors");
                 }
                 result.setFailureText(failureText);
                 log.error(failureText);
             } else {
                 result.setStatus(Result.Status.SUCCESS);
-                result.setBullhornId(jsonObject.getInt(StringConsts.CHANGED_ENTITY_ID));
+                result.setBullhornId(jsonResponse.getInt(StringConsts.CHANGED_ENTITY_ID));
             }
         }
 
