@@ -43,7 +43,7 @@ public class Main {
         System.out.println("");
         System.out.println("ERROR: " + warningText + " entity: \"" + entityName + "\"");
         System.out.println("       The entity is " + warningText + " in REST and cannot be changed by DataLoader.\"");
-        System.out.println("       Please see the full list of DataLoader supported entities at:");
+        System.out.println("       See the full list of DataLoader supported entities at:");
         System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
         System.out.println("");
     }
@@ -52,7 +52,7 @@ public class Main {
         System.out.println("");
         System.out.println("ERROR: Unknown entity: \"" + entityName + "\"");
         System.out.println("       This entity is not known to DataLoader and cannot be used.");
-        System.out.println("       Please check your spelling and see the full list of DataLoader supported entities at:");
+        System.out.println("       Check your spelling and see the full list of DataLoader supported entities at:");
         System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
         System.out.println("");
     }
@@ -100,7 +100,7 @@ public class Main {
         File file = new File(filePath);
         if (!file.exists()) {
             System.out.println("ERROR: Cannot access: " + filePath);
-            System.out.println("       Please ensure path is correct.");
+            System.out.println("       Ensure path is correct.");
             printUsage();
             return false;
         } else if (file.isDirectory()) {
@@ -109,7 +109,7 @@ public class Main {
             return false;
         } else if (!FilenameUtils.getExtension(filePath).equalsIgnoreCase("csv")) {
             System.out.println("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
-            System.out.println("       Please provide a csv file to load/update");
+            System.out.println("       Provide a csv file to load/update");
             printUsage();
             return false;
         }

@@ -98,7 +98,7 @@ public class BullhornAPI {
             privateLabel = getPrivateLabelFromRest();
         } catch (UnknownHostException e) {
             throw new Exception("ERROR: Cannot create session. Could not connect to: " + e.getMessage() +
-                    ".  Please check your Internet/VPN and URLs specified in dataloader.properties.");
+                    ".  Check your Internet/VPN and URLs specified in dataloader.properties.");
         } catch (Exception e) {
             throw new Exception("ERROR: Cannot create session: " +
                     e.getMessage());
