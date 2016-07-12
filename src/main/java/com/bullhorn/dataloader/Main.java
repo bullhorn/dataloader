@@ -39,6 +39,24 @@ public class Main {
         System.out.println("");
     }
 
+    private static void printEntityError(String entityName, String warningText) {
+        System.out.println("");
+        System.out.println("ERROR: " + warningText + " entity: \"" + entityName + "\"");
+        System.out.println("       The entity is " + warningText + " in REST and cannot be changed by DataLoader.\"");
+        System.out.println("       Please see the full list of DataLoader supported entities at:");
+        System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        System.out.println("");
+    }
+
+    private static void printUnknownEntityError(String entityName) {
+        System.out.println("");
+        System.out.println("ERROR: Unknown entity: \"" + entityName + "\"");
+        System.out.println("       This entity is not known to DataLoader and cannot be used.");
+        System.out.println("       Please check your spelling and see the full list of DataLoader supported entities at:");
+        System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        System.out.println("");
+    }
+
     /**
      * Main Entry Point
      * <p>
@@ -91,7 +109,7 @@ public class Main {
             return false;
         } else if (!FilenameUtils.getExtension(filePath).equalsIgnoreCase("csv")) {
             System.out.println("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
-            System.out.println("       Please provide a csv file to load/update.");
+            System.out.println("       Please provide a csv file to load/update");
             printUsage();
             return false;
         }
@@ -100,28 +118,37 @@ public class Main {
     }
 
     /**
-     * Validates the operation, ensuring that the user is informed of whether or not an entity can be deleted
-     * (soft or hard) before the operation begins.
+     * Validates that an entity can be loaded, based on the name.
      */
-    static private boolean isMutableEntity(String entityName) {
-        if (StringConsts.isHardDeletable(entityName) || StringConsts.isSoftDeletable(entityName)) {
+    static private boolean isLoadableEntity(String entityName) {
+        if (StringConsts.isLoadable(entityName)) {
             return true;
-        } else if (StringConsts.isImmutable(entityName)) {
-            System.out.println("ERROR: entity: " + entityName + " is immutable in REST and cannot be changed by DataLoader.");
-            System.out.println("       Please see the full list of DataLoader supported entities at:");
-            System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        } else if (StringConsts.isReadOnly(entityName)) {
+            printEntityError(entityName, "read only");
             return false;
         }
 
-        System.out.println("ERROR: Unknown entity: \"" + entityName + "\"");
-        System.out.println("       This entity is not known to DataLoader and cannot be used.");
-        System.out.println("       Please check your spelling and see the full list of DataLoader supported entities at:");
-        System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        printUnknownEntityError(entityName);
+        return false;
+    }
+
+    /**
+     * Validates that an entity can be deleted, based on the name.
+     */
+    static private boolean isDeletableEntity(String entityName) {
+        if (StringConsts.isDeletable(entityName)) {
+            return true;
+        } else if (StringConsts.isNotDeletable(entityName) || StringConsts.isReadOnly(entityName)) {
+            printEntityError(entityName, "not deletable");
+            return false;
+        }
+
+        printUnknownEntityError(entityName);
         return false;
     }
 
     static private void load(String entityName, String filePath) throws Exception {
-        if (isMutableEntity(entityName) && isValidCsvFile(filePath)) {
+        if (isLoadableEntity(entityName) && isValidCsvFile(filePath)) {
             final BullhornAPI bhApi = createSession();
             System.out.println("Loading " + entityName + " records from: " + filePath);
             loadCsv(entityName, filePath, bhApi);
@@ -129,7 +156,7 @@ public class Main {
     }
 
     static private void delete(String entityName, String filePath) throws Exception {
-        if (isMutableEntity(entityName) && isValidCsvFile(filePath)) {
+        if (isDeletableEntity(entityName) && isValidCsvFile(filePath)) {
             final BullhornAPI bhApi = createSession();
             System.out.println("Deleting " + entityName + " records from: " + filePath);
             deleteCsv(entityName, filePath, bhApi);

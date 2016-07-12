@@ -50,28 +50,28 @@ public class DeleteTask implements Runnable {
     @Override
     public void run() {
         try {
-            Result result = Result.Failure("Internal Error: Row: " + data.getRowNumber() + ". This should never happen.");
+            Result result = Result.Failure("Internal Error: row: " + data.getRowNumber() + ". This should never happen.");
             String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
             String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
-            log.info("Deleting Row: " + data.getRowNumber());
+            log.info("Deleting row: " + data.getRowNumber());
 
-            if (StringConsts.isImmutable(entityName)) {
-                String failureText = "ERROR: Cannot Delete " + entityName + " because it is Immutable in REST.";
+            if (!StringConsts.isDeletable(entityName)) {
+                String failureText = "ERROR: Cannot delete " + entityName + " because it is not deletable in REST.";
                 result = Result.Failure(failureText);
                 System.out.println(failureText);
                 log.error(failureText);
             } else if (!data.getImmediateActions().containsKey(StringConsts.ID)) {
-                String failureText = "Error: Cannot Delete Row: " + data.getRowNumber() + ". " +
-                        " CSV Row is missing the \"" + StringConsts.ID + "\" column.";
+                String failureText = "Error: Cannot delete row: " + data.getRowNumber() + ". " +
+                        " CSV row is missing the \"" + StringConsts.ID + "\" column.";
                 result = Result.Failure(failureText);
                 System.out.println(failureText);
                 log.error(failureText);
             } else {
-                Integer entityId = (Integer) data.getImmediateActions().get(StringConsts.ID);
+                Integer entityId = new Integer(data.getImmediateActions().get(StringConsts.ID).toString());
                 String url = entityBase + "/" + entityId + restToken;
 
                 if (StringConsts.isHardDeletable(entityName)) {
-                    log.info("Calling Hard Delete: " + url);
+                    log.info("Calling hard delete: " + url);
                     DeleteMethod deleteMethod = new DeleteMethod(url);
                     JSONObject jsonResponse = bhApi.call(deleteMethod);
                     result = parseJsonResponse(jsonResponse, entityId);
@@ -85,7 +85,7 @@ public class DeleteTask implements Runnable {
                     StringRequestEntity stringRequestEntity = new StringRequestEntity(jsonString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
                     postMethod.setRequestEntity(stringRequestEntity);
 
-                    log.info("Calling Soft Delete: " + url + " with request body: " + jsonString);
+                    log.info("Calling soft delete: " + url + " with request body: " + jsonString);
                     JSONObject jsonResponse = bhApi.call(postMethod);
                     result = parseJsonResponse(jsonResponse, entityId);
                 }
@@ -113,7 +113,7 @@ public class DeleteTask implements Runnable {
                 restFailureMessage += ". REST Errors: " + jsonResponse.getJSONArray("errors");
             }
 
-            System.out.println("ERROR: Row " + data.getRowNumber() + " - Cannot Delete " + entityName + " with ID: " + entityId);
+            System.out.println("ERROR: Row " + data.getRowNumber() + " - Cannot delete " + entityName + " with ID: " + entityId);
             System.out.println("       Failure Message From Rest: " + restFailureMessage);
             log.error(restFailureMessage);
             return Result.Failure(restFailureMessage);

@@ -16,6 +16,22 @@ public class StringConstsTest {
     }
 
     @Test
+    public void isLoadableEntityTest() throws IOException {
+        Assert.assertTrue(StringConsts.isLoadable("Placement"));
+        Assert.assertTrue(StringConsts.isLoadable("ClientCorporation"));
+        Assert.assertFalse(StringConsts.isLoadable("Skill"));
+        Assert.assertFalse(StringConsts.isLoadable("BusinessSector"));
+    }
+
+    @Test
+    public void isDeletableEntityTest() throws IOException {
+        Assert.assertTrue(StringConsts.isDeletable("Placement"));
+        Assert.assertTrue(StringConsts.isDeletable("Candidate"));
+        Assert.assertFalse(StringConsts.isDeletable("ClientCorporation"));
+        Assert.assertFalse(StringConsts.isDeletable("BusinessSector"));
+    }
+
+    @Test
     public void isHardDeletableEntityTest() throws IOException {
         Assert.assertTrue(StringConsts.isHardDeletable("Placement"));
         Assert.assertTrue(StringConsts.isHardDeletable("Sendout"));
@@ -32,10 +48,17 @@ public class StringConstsTest {
     }
 
     @Test
-    public void isImmutableEntityTest() throws IOException {
-        Assert.assertTrue(StringConsts.isImmutable("Skill"));
-        Assert.assertTrue(StringConsts.isImmutable("BusinessSector"));
-        Assert.assertFalse(StringConsts.isImmutable("Candidate"));
-        Assert.assertFalse(StringConsts.isImmutable("BOGUS"));
+    public void isNotDeletableEntityTest() throws IOException {
+        Assert.assertTrue(StringConsts.isNotDeletable("ClientCorporation"));
+        Assert.assertFalse(StringConsts.isNotDeletable("Candidate"));
+        Assert.assertFalse(StringConsts.isNotDeletable("Sendout"));
+    }
+
+    @Test
+    public void isReadOnlyEntityTest() throws IOException {
+        Assert.assertTrue(StringConsts.isReadOnly("Skill"));
+        Assert.assertTrue(StringConsts.isReadOnly("BusinessSector"));
+        Assert.assertFalse(StringConsts.isReadOnly("Candidate"));
+        Assert.assertFalse(StringConsts.isReadOnly("BOGUS"));
     }
 }

@@ -35,6 +35,7 @@ public class StringConsts {
 
     public static final String[] HARD_DELETABLE_ENTITIES = {
             "AppointmentAttendee",
+            "CandidateCertification",
             "CandidateSource",
             "NoteEntity",
             "Placement",
@@ -46,13 +47,10 @@ public class StringConsts {
     public static final String[] SOFT_DELETABLE_ENTITIES = {
             "Appointment",
             "Candidate",
-            "CandidateCertification",
             "CandidateEducation",
             "CandidateReference",
             "CandidateWorkHistory",
-            "Certification",
             "ClientContact",
-            "ClientCorporation",
             "HousingComplex",
             "JobOrder",
             "JobSubmission",
@@ -63,9 +61,14 @@ public class StringConsts {
             "Tearsheet"
     };
 
-    public static final String[] IMMUTABLE_ENTITIES = {
+    public static final String[] NOT_DELETABLE_ENTITIES = {
+            "ClientCorporation"
+    };
+
+    public static final String[] READ_ONLY_ENTITIES = {
             "BusinessSector",
             "Category",
+            "Certification",
             "CorporationDepartment",
             "CorporateUser",
             "Country",
@@ -97,6 +100,24 @@ public class StringConsts {
     }
 
     /**
+     * Convenience method which returns true if the entity can be loaded using REST.
+     *
+     * @return True if can be loaded by DataLoader
+     */
+    public static boolean isLoadable(String entityName) {
+        return (isHardDeletable(entityName) || isSoftDeletable(entityName) || isNotDeletable(entityName));
+    }
+
+    /**
+     * Convenience method which returns true if the entity can be deleted using REST.
+     *
+     * @return True if can be deleted by DataLoader
+     */
+    public static boolean isDeletable(String entityName) {
+        return (isHardDeletable(entityName) || isSoftDeletable(entityName));
+    }
+
+    /**
      * Convenience method which returns true if an entity is part of the set of hard deletable entities in REST.
      *
      * @return True if can be hard deleted
@@ -115,12 +136,22 @@ public class StringConsts {
     }
 
     /**
-     * Convenience method which returns true if an entity is part of the set of immutable entities in REST.
+     * Convenience method which returns true if an entity is part of the set of mutable but not deletable entities
+     * in REST.
      *
-     * @return True if immutable
+     * @return True if can be inserted and updated but not deleted
      */
-    public static boolean isImmutable(String entityName) {
-        return Arrays.asList(IMMUTABLE_ENTITIES).contains(entityName);
+    public static boolean isNotDeletable(String entityName) {
+        return Arrays.asList(NOT_DELETABLE_ENTITIES).contains(entityName);
+    }
+
+    /**
+     * Convenience method which returns true if an entity is part of the set of read only entities in REST.
+     *
+     * @return True if read only
+     */
+    public static boolean isReadOnly(String entityName) {
+        return Arrays.asList(READ_ONLY_ENTITIES).contains(entityName);
     }
 
     private StringConsts() {

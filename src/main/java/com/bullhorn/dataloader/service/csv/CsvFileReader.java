@@ -50,10 +50,10 @@ public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
             } else {
                 jsonRow.addImmediateAction(jsonPath, convertType);
             }
-
-            jsonRow.setValues(csvReader.getValues());
-            jsonRow.setRowNumber(++rowCount);
         }
+
+        jsonRow.setValues(csvReader.getValues());
+        jsonRow.setRowNumber(++rowCount);
         return jsonRow;
     }
 
