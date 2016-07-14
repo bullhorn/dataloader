@@ -78,8 +78,8 @@ public class LoadTask implements Runnable {
             }
 
             csvFileWriter.writeRow(data, result);
-
         } catch (IOException | ExecutionException e) {
+            System.out.println(e);
             log.error(e);
         }
     }

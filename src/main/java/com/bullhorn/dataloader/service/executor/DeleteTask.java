@@ -93,7 +93,7 @@ public class DeleteTask implements Runnable {
 
             csvFileWriter.writeRow(data, result);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            System.out.println(e);
             log.error(e);
         }
     }

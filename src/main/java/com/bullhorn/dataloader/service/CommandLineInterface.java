@@ -58,7 +58,7 @@ public class CommandLineInterface {
                 }
             }
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.out.println(e);
             log.error(e);
         }
     }
