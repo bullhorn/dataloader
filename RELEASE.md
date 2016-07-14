@@ -8,11 +8,19 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
   
     1. Change the pom.xml `<version>x.y.z</version>` tag as part of your pull request
  
- 1. Create Release Package
+ 1. Create Release Package (after pull request is merged to master)
+
+    1. Start with a clean checkout of the master branch
+  
+        1. Remove any local uncommitted changes to files
+     
+        1. Remove any local changes to the dataloader.properties file
+     
+        1. Remove all local files from the log and data folders
  
-    1. Remember to first remove any local changes to the dataloader.properties file or uncommitted code changes
- 
-    1. Assembly command: `mvn assembly:single`
+    1. Run package command: `mvn package`
+
+    1. Run assembly command: `mvn assembly:single`
 
  1. Create release in GitHub
 
