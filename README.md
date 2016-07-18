@@ -4,7 +4,7 @@ Bullhorn DataLoader is a downloadable tool for quickly importing and updating da
 
 ## Quick Start Guide
 
- 1. Install Java if you don't have it already (you won't need the development kit) - [Windows](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210182) | [Mac](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=207766)
+ 1. Install Java if you don't have it already (you won't need the development kit for Windows) - [Windows](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210182) | [Mac](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
  
     1. Verify that you have the latest version of java on the command line by typing: `java -version`, which should show: `java version "1.8"`
 
