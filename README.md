@@ -16,11 +16,11 @@ Bullhorn DataLoader is a downloadable tool for quickly importing and updating da
  
  5. Place your source CSV files in the `dataloader/data` folder. Rename them to be the name of the entity being loaded, for example: `Candidate.csv`, `Placement.csv`, etc.
 
- 6. Generate a template for the entity you wish to load, which will contain all valid column names using the `template` keyword, for example: `> dataloader template Candidate`
+ 6. Open a command prompt in the `dataloader` folder
 
- 7. Ensure that the column names in your source CSV exist in the template CSV
+ 7. Generate a template for the entity you wish to load, which will contain all valid column names using the `template` keyword, for example: `> dataloader template Candidate`
 
- 8. Open a command prompt in the `dataloader` folder
+ 8. Ensure that the column names in your source CSV exist in the template CSV
 
  9. Run dataloader on the command line, for example: `> dataloader Candidate data/Candidate.csv`
  
