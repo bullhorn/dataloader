@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
@@ -24,17 +25,19 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
 
 import junit.framework.TestCase;
 
-public class JsonServiceTest {
+public class LoadTaskTest {
 
-    private class SetupJsonService {
+    private class SetupLoadTask {
         private BullhornAPI bhapi;
-        private JsonService jsonService;
+        private LoadTask loadTask;
         private CsvFileWriter fileWriter;
         private BullhornApiAssociator bhapiAssociator;
+        private PropertyFileUtil propertyFileUtil;
 
         public BullhornApiAssociator getBhapiAssociator() {
             return bhapiAssociator;
@@ -44,11 +47,11 @@ public class JsonServiceTest {
             return bhapi;
         }
 
-        public JsonService getJsonService() {
-            return jsonService;
+        public LoadTask getLoadTask() {
+            return loadTask;
         }
 
-        public SetupJsonService invoke() throws ExecutionException, IOException {
+        public SetupLoadTask invoke() throws ExecutionException, IOException {
             LoadingCache<EntityQuery, Result> loadingCache = Mockito.mock(LoadingCache.class);
             JsonRow jsonRow = new JsonRow();
             jsonRow.addDeferredAction(
@@ -58,17 +61,18 @@ public class JsonServiceTest {
 
             bhapi = Mockito.mock(BullhornAPI.class);
             bhapiAssociator = Mockito.mock(BullhornApiAssociator.class);
+            propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
             fileWriter = Mockito.mock(CsvFileWriter.class);
 
             when(bhapi.getLabelByName("Candidate")).thenReturn(Optional.of("Candidate"));
             when(bhapi.getLabelByName("categories")).thenReturn(Optional.of("Category"));
-            when(bhapi.getEntityExistsFieldsProperty("Candidate")).thenReturn(Optional.of("id,name"));
+            when(propertyFileUtil.getEntityExistFields("Candidate")).thenReturn(Optional.ofNullable(Arrays.asList(new String[] {"id", "name"})));
             when(loadingCache.get(any(EntityQuery.class))).thenReturn(
                     Result.Insert(1), Result.Update(2), Result.Insert(3)
             );
 
             // when
-            jsonService = new JsonService("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache, fileWriter);
+            loadTask = new LoadTask("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache, fileWriter, propertyFileUtil);
             return this;
         }
     }
@@ -76,19 +80,19 @@ public class JsonServiceTest {
     @Test
     public void testToManyAssociations_multipleValues() throws ExecutionException, IOException {
         // setup
-        SetupJsonService setupJsonService = new SetupJsonService().invoke();
+        SetupLoadTask setupLoadTask = new SetupLoadTask().invoke();
 
-        JsonService jsonService = setupJsonService.getJsonService();
-        BullhornApiAssociator bhapiAssociator = setupJsonService.getBhapiAssociator();
-        BullhornAPI bhapi = setupJsonService.getBhapi();
+        LoadTask loadTask = setupLoadTask.getLoadTask();
+        BullhornApiAssociator bhapiAssociator = setupLoadTask.getBhapiAssociator();
+        BullhornAPI bhapi = setupLoadTask.getBhapi();
         MetaMap metaMap = new MetaMap(new SimpleDateFormat("mm/dd/yyyy"), "|");
         metaMap.setFieldNameToDataType("id", "Integer");
 
-        when(bhapi.get(any(GetMethod.class))).thenReturn(new JSONObject());
+        when(bhapi.call(any(GetMethod.class))).thenReturn(new JSONObject());
         when(bhapi.getMetaDataTypes(any())).thenReturn(metaMap);
 
         // act
-        jsonService.run();
+        loadTask.run();
 
         // assert
         ArgumentCaptor<EntityInstance> actualParent = ArgumentCaptor.forClass(EntityInstance.class);

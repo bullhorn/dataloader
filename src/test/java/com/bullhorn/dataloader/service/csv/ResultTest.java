@@ -53,6 +53,21 @@ public class ResultTest {
     }
 
     @Test
+    public void testDelete() {
+        //arrange
+
+        //act
+        Result result = Result.Delete(99);
+
+        //assert
+        Assert.assertEquals(result.isSuccess(), true);
+        Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
+        Assert.assertEquals(result.getAction(), Result.Action.DELETE);
+        Assert.assertEquals(result.getBullhornId().intValue(), 99);
+        Assert.assertEquals(result.getFailureText(), "");
+    }
+
+    @Test
     public void testFailure() {
         //arrange
 

@@ -40,7 +40,7 @@ public class EntityCacheTest {
         when(bhapi.getLabelByName(entity)).thenReturn(Optional.of("awesomeLabel"));
         when(bhapi.serialize(awesomeEntity)).thenReturn("awesomeSerialized");
         when(mockSon.getInt(StringConsts.CHANGED_ENTITY_ID)).thenReturn(42);
-        when(bhapi.put(any(PutMethod.class))).thenReturn(mockSon);
+        when(bhapi.call(any(PutMethod.class))).thenReturn(mockSon);
     }
 
     @Test

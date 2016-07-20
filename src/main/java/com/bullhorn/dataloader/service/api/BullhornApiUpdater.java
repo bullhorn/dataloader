@@ -40,26 +40,26 @@ public class BullhornApiUpdater {
             result.setFailureText(failureText);
             log.error(failureText);
         } else {
-            JSONObject jsonObject;
+            JSONObject jsonResponse;
             if (entityQuery.getId().isPresent()) {
-                jsonObject = update(entityQuery);
+                jsonResponse = update(entityQuery);
                 result.setAction(Result.Action.UPDATE);
             } else {
-                jsonObject = insert(entityQuery);
+                jsonResponse = insert(entityQuery);
                 result.setAction(Result.Action.INSERT);
             }
 
-            if (jsonObject.has("errorMessage")) {
+            if (jsonResponse.has("errorMessage")) {
                 String failureText = "Association query " + entityQuery.toString() + " failed for reason " +
-                        jsonObject.getString("errorMessage");
-                if (jsonObject.has("errors")) {
-                    failureText += "\nerrors: " + jsonObject.getJSONArray("errors");
+                        jsonResponse.getString("errorMessage");
+                if (jsonResponse.has("errors")) {
+                    failureText += "\nerrors: " + jsonResponse.getJSONArray("errors");
                 }
                 result.setFailureText(failureText);
                 log.error(failureText);
             } else {
                 result.setStatus(Result.Status.SUCCESS);
-                result.setBullhornId(jsonObject.getInt(StringConsts.CHANGED_ENTITY_ID));
+                result.setBullhornId(jsonResponse.getInt(StringConsts.CHANGED_ENTITY_ID));
             }
         }
 
@@ -69,24 +69,17 @@ public class BullhornApiUpdater {
     private JSONObject insert(EntityQuery entityQuery) throws IOException {
         String putUrl = getEntityUrl(entityQuery);
         log.info("Insert Association: " + putUrl + " - " + entityQuery.getNestedJson());
-        PutMethod method = getPutMethod(entityQuery, putUrl);
-        return bhapi.put(method);
+        PutMethod putMethod = new PutMethod(putUrl);
+        putMethod.setRequestEntity(getStringRequestEntity(entityQuery));
+        return bhapi.call(putMethod);
     }
 
     private JSONObject update(EntityQuery entityQuery) throws IOException {
         String postUrl = getEntityUrl(entityQuery, entityQuery.getId().get().toString());
         log.info("Update Association: " + postUrl + " - " + entityQuery.toString());
-        StringRequestEntity requestEntity = getStringRequestEntity(entityQuery);
-        PostMethod method = new PostMethod(postUrl);
-        method.setRequestEntity(requestEntity);
-        return bhapi.post(method);
-    }
-
-    private PutMethod getPutMethod(EntityQuery entityQuery, String putUrl) throws IOException {
-        StringRequestEntity requestEntity = getStringRequestEntity(entityQuery);
-        PutMethod method = new PutMethod(putUrl);
-        method.setRequestEntity(requestEntity);
-        return method;
+        PostMethod postMethod = new PostMethod(postUrl);
+        postMethod.setRequestEntity(getStringRequestEntity(entityQuery));
+        return bhapi.call(postMethod);
     }
 
     private StringRequestEntity getStringRequestEntity(EntityQuery entityQuery) throws IOException {
@@ -167,8 +160,8 @@ public class BullhornApiUpdater {
 
     private JSONObject getCall(String queryURL) throws IOException {
         log.info("Querying for " + queryURL);
-        GetMethod queryBH = new GetMethod(queryURL);
-        return bhapi.get(queryBH);
+        GetMethod getMethod = new GetMethod(queryURL);
+        return bhapi.call(getMethod);
     }
 
     private String toLabel(String entity) {

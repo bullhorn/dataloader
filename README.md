@@ -2,6 +2,30 @@
 
 Bullhorn DataLoader is a downloadable tool for quickly importing and updating data from a CSV file to Bullhorn.
 
+## Quick Start Guide
+
+ 1. Install Java if you don't have it already (you won't need the development kit for Windows) - [Windows](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210182) | [Mac](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+ 
+    1. Verify that you have the latest version of java on the command line by typing: `java -version`, which should show: `java version "1.8"`
+
+ 2. Download the dataloader.zip file from the downloads section of the [Latest Release](https://github.com/bullhorn/dataloader/releases/latest)
+ 
+ 3. Extract contents of dataloader.zip file (will extract into a `dataloader` folder)
+ 
+ 4. Edit the file `dataloader/dataloader.properties` to enter your account information
+ 
+ 5. Place your source CSV files in the `dataloader/data` folder. Rename them to be the name of the entity being loaded, for example: `Candidate.csv`, `Placement.csv`, etc.
+
+ 6. Open a command prompt in the `dataloader` folder
+
+ 7. Generate a template for the entity you wish to load, which will contain all valid column names using the `template` keyword, for example: `> dataloader template Candidate`
+
+ 8. Ensure that the column names in your source CSV exist in the template CSV
+
+ 9. Run dataloader on the command line, for example: `> dataloader Candidate data/Candidate.csv`
+ 
+ 10. Check for status on the command line, check for error records in the file: `dataloader/results/<EntityName>_<Timestamp>_failure.csv`, check for successful records in the file: `dataloader/results/<EntityName>_<Timestamp>_success.csv`, and check for full output in the `dataloader/log` directory
+ 
 ## Releases
 
 * **[Latest Release](https://github.com/bullhorn/dataloader/releases/latest)**
@@ -53,15 +77,21 @@ Edit the file: `dataloader.properties` to specify the login credentials, data co
 ## Generate CSV Template *(Optional)*
 
 ```
-java -jar target/dataloader-{version}.jar template <EntityName>
+dataloader template <EntityName>
 ```
 
 This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc).
 
-## Run
+## Insert/Update
 
 ```
-java -jar target/dataloader-{version}.jar <EntityName> /path/to/file.csv
+dataloader <EntityName> /path/to/file.csv
+```
+
+## Delete
+
+```
+dataloader delete <EntityName> /path/to/file.csv
 ```
 
 ## Results Files

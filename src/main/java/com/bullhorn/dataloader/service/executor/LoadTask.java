@@ -21,34 +21,41 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-public class JsonService implements Runnable {
-    private final LoadingCache<EntityQuery, Result> associationCache;
-    private final BullhornAPI bhapi;
-    private final BullhornApiAssociator bhapiAssociator;
-    private String entity;
+/**
+ * Responsible for loading a single row from a CSV input file.
+ */
+public class LoadTask implements Runnable {
+    private static final Logger log = LogManager.getLogger(LoadTask.class);
+
+    private String entityName;
+    private final BullhornAPI bhApi;
+    private final BullhornApiAssociator bhApiAssociator;
     private JsonRow data;
+    private final LoadingCache<EntityQuery, Result> associationCache;
     private CsvFileWriter csvFileWriter;
+    private PropertyFileUtil propertyFileUtil;
 
-    private static final Logger log = LogManager.getLogger(JsonService.class);
-
-    public JsonService(String entity,
-                       BullhornAPI bullhornApi,
-                       BullhornApiAssociator bhapiAssociator,
-                       JsonRow data,
-                       LoadingCache<EntityQuery, Result> associationCache,
-                       CsvFileWriter csvFileWriter) {
-        this.bhapi = bullhornApi;
-        this.bhapiAssociator = bhapiAssociator;
-        this.entity = entity;
+    public LoadTask(String entityName,
+                    BullhornAPI bhApi,
+                    BullhornApiAssociator bhApiAssociator,
+                    JsonRow data,
+                    LoadingCache<EntityQuery, Result> associationCache,
+                    CsvFileWriter csvFileWriter,
+                    PropertyFileUtil propertyFileUtil) {
+        this.entityName = entityName;
+        this.bhApi = bhApi;
+        this.bhApiAssociator = bhApiAssociator;
         this.data = data;
         this.associationCache = associationCache;
         this.csvFileWriter = csvFileWriter;
+        this.propertyFileUtil = propertyFileUtil;
     }
 
     /**
@@ -59,20 +66,20 @@ public class JsonService implements Runnable {
      */
     @Override
     public void run() {
-        String entityBase = bhapi.getRestURL() + StringConsts.ENTITY_SLASH + getEntity();
-        String restToken = StringConsts.END_BH_REST_TOKEN + bhapi.getBhRestToken();
+        String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
+        String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
         try {
             Map<String, Object> toOneIdentifiers = upsertPreprocessingActions();
             Result result = createOrGetEntity(toOneIdentifiers);
 
             if (result.isSuccess()) {
                 updateEntity(entityBase, restToken, result.getBullhornId());
-                saveToMany(result.getBullhornId(), entity, data.getDeferredActions());
+                saveToMany(result.getBullhornId(), entityName, data.getDeferredActions());
             }
 
             csvFileWriter.writeRow(data, result);
-
         } catch (IOException | ExecutionException e) {
+            System.out.println(e);
             log.error(e);
         }
     }
@@ -97,14 +104,14 @@ public class JsonService implements Runnable {
 
     private void updateEntity(String entityBase, String restToken, Integer optionalEntityId) throws IOException {
         String postUrl = entityBase + "/" + optionalEntityId + restToken;
-        bhapi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
+        bhApi.saveNonToMany(data.getImmediateActions(), postUrl, "POST");
     }
 
     private Result createOrGetEntity(Map<String, Object> toOneIdentifiers) throws ExecutionException {
         Object nestJson = mergeObjects(toOneIdentifiers, data.getImmediateActions());
-        EntityQuery entityQuery = new EntityQuery(getEntity(), nestJson);
+        EntityQuery entityQuery = new EntityQuery(entityName, nestJson);
         addSearchFields(entityQuery, data.getImmediateActions());
-        if (bhapi.containsFields(StringConsts.IS_DELETED)) {
+        if (bhApi.containsFields(StringConsts.IS_DELETED)) {
             entityQuery.addFieldWithoutCount(StringConsts.IS_DELETED, "false");
         }
 
@@ -112,38 +119,40 @@ public class JsonService implements Runnable {
         return associationCache.get(entityQuery);
     }
 
+    /**
+     * Search for the entity using the ID and Name field if they exist, and then add the entityExist property.
+     */
     private void addSearchFields(EntityQuery entityQuery, Map<String, Object> actions) {
         ifPresentPut(entityQuery::addInt, StringConsts.ID, actions.get(StringConsts.ID));
         ifPresentPut(entityQuery::addString, StringConsts.NAME, actions.get(StringConsts.NAME));
 
-        Optional<String> entityLabel = bhapi.getLabelByName(entityQuery.getEntity());
+        Optional<String> entityLabel = bhApi.getLabelByName(entityQuery.getEntity());
         if (entityLabel.isPresent()) {
-            Optional<String> entityExistsFieldsProperty = bhapi.getEntityExistsFieldsProperty(entityLabel.get());
-            existsFieldSearch(entityQuery, actions, entityExistsFieldsProperty);
+            Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityLabel.get());
+            existsFieldSearch(entityQuery, actions, entityExistFields);
         }
 
-        Optional<String> parentEntityExistsFieldProperty = bhapi.getEntityExistsFieldsProperty(entityQuery.getEntity());
-        existsFieldSearch(entityQuery, actions, parentEntityExistsFieldProperty);
+        Optional<List<String>> parentEntityExistFields = propertyFileUtil.getEntityExistFields(entityQuery.getEntity());
+        existsFieldSearch(entityQuery, actions, parentEntityExistFields);
     }
 
-    private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<String> existsFieldProperty) {
-        if (existsFieldProperty.isPresent()) {
-            for (String propertyFileExistField : existsFieldProperty.get().split(",")) {
-                /**
-                 * Try to use meta to determine how to search on the propertyExistsField.
-                 * If error occurs, default to String
-                 */
-                String entityName = bhapi.getLabelByName(entityQuery.getEntity()).orElse(entityQuery.getEntity());
+    /**
+     * Tries to use meta to determine how to search on the propertyExistsField. Default to String if error occurs.
+     */
+    private void existsFieldSearch(EntityQuery entityQuery, Map<String, Object> actions, Optional<List<String>> entityExistFields) {
+        if (entityExistFields.isPresent()) {
+            for (String entityExistField : entityExistFields.get()) {
+                String entityName = bhApi.getLabelByName(entityQuery.getEntity()).orElse(entityQuery.getEntity());
                 try {
-                    Optional<String> dataType = bhapi.getMetaDataTypes(entityName).getDataTypeByFieldName(propertyFileExistField);
+                    Optional<String> dataType = bhApi.getMetaDataTypes(entityName).getDataTypeByFieldName(entityExistField);
                     if (dataType.isPresent() && isInteger(dataType.get())) {
-                        ifPresentPut(entityQuery::addInt, propertyFileExistField, actions.get(propertyFileExistField));
+                        ifPresentPut(entityQuery::addInt, entityExistField, actions.get(entityExistField));
                     } else {
-                        ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                        ifPresentPut(entityQuery::addString, entityExistField, actions.get(entityExistField));
                     }
                 } catch (IOException e) {
                     log.debug("Error retrieving meta information for: " + entityName, e);
-                    ifPresentPut(entityQuery::addString, propertyFileExistField, actions.get(propertyFileExistField));
+                    ifPresentPut(entityQuery::addString, entityExistField, actions.get(entityExistField));
                 }
             }
         }
@@ -165,8 +174,8 @@ public class JsonService implements Runnable {
                     .collect(Collectors.joining(","));
 
             EntityInstance associationEntity = new EntityInstance(idList, entityName);
-            bhapiAssociator.dissociateEverything(parentEntity, associationEntity);
-            bhapiAssociator.associate(parentEntity, associationEntity);
+            bhApiAssociator.dissociateEverything(parentEntity, associationEntity);
+            bhApiAssociator.associate(parentEntity, associationEntity);
         }
     }
 
@@ -181,10 +190,10 @@ public class JsonService implements Runnable {
 
             for (Object value : values) {
                 EntityQuery entityQuery = new EntityQuery(toManyEntry.getKey(), toManyEntry.getValue());
-                String entityLabel = bhapi.getLabelByName(toManyEntry.getKey()).get();
+                String entityLabel = bhApi.getLabelByName(toManyEntry.getKey()).get();
 
                 if (hasPrivateLabel(entityLabel)) {
-                    entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhapi.getPrivateLabel()));
+                    entityQuery.addMemberOfWithoutCount(StringConsts.PRIVATE_LABELS, String.valueOf(bhApi.getPrivateLabel()));
                 }
 
                 // should use meta if any more fields are needed
@@ -195,7 +204,7 @@ public class JsonService implements Runnable {
                 }
 
                 Result association;
-                if (bhapi.frontLoadedContainsEntity(entityLabel)) {
+                if (propertyFileUtil.shouldFrontLoadEntity(entityLabel)) {
                     association = queryFrontLoaded(entityLabel, fieldName, value.toString());
                 } else {
                     association = associationCache.get(entityQuery);
@@ -210,14 +219,14 @@ public class JsonService implements Runnable {
     }
 
     private boolean hasPrivateLabel(String entityLabel) throws IOException {
-        return bhapi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS);
+        return bhApi.entityContainsFields(entityLabel, StringConsts.PRIVATE_LABELS);
     }
 
     private Result queryFrontLoaded(String entity, String fieldName, String value) {
         if (StringConsts.ID.equals(fieldName)) {
-            return bhapi.getFrontLoadedIdExists(entity, value);
+            return bhApi.hasFrontLoadedEntity(entity, value);
         } else {
-            return bhapi.getFrontLoadedFromKey(entity, value);
+            return bhApi.getFrontLoadedFromKey(entity, value);
         }
     }
 
@@ -225,13 +234,5 @@ public class JsonService implements Runnable {
         if (value != null) {
             consumer.accept(fieldName, value.toString());
         }
-    }
-
-    public String getEntity() {
-        return entity;
-    }
-
-    public void setEntity(String entity) {
-        this.entity = entity;
     }
 }

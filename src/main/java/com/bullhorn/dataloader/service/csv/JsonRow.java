@@ -26,6 +26,8 @@ public class JsonRow {
 
     private String[] values;
 
+    private Integer rowNumber = 0;
+
     public JsonRow() {
         this.preprocessingActions = Maps.newHashMap();
         this.immediateActions = Maps.newHashMap();
@@ -62,8 +64,7 @@ public class JsonRow {
     }
 
     /**
-     * Values contains the actual CSV string values parsed from the csvReader.  It will
-     * @return
+     * Values contains the actual CSV string values parsed from the csvReader.
      */
     public String[] getValues() {
         return values;
@@ -121,5 +122,13 @@ public class JsonRow {
                 ", immediateActions=" + immediateActions +
                 ", deferredActions=" + deferredActions +
                 '}';
+    }
+
+    public Integer getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(Integer rowNumber) {
+        this.rowNumber = rowNumber;
     }
 }

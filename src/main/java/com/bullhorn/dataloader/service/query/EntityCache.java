@@ -42,14 +42,14 @@ public class EntityCache extends CacheLoader<EntityQuery, Result> {
     @Override
     public Result load(EntityQuery query) throws IOException {
         // Make get call to determine if entity already exists
-        JSONObject qryJSON = bhapiUpdater.getCall(query);
-        if (!qryJSON.has(StringConsts.COUNT)) {
+        JSONObject jsonResponse = bhapiUpdater.getCall(query);
+        if (!jsonResponse.has(StringConsts.COUNT)) {
             return Result.Failure("Internal Error: JSON Query is Missing " + StringConsts.COUNT + " field.  JSON Query Received: " +
-                    qryJSON.toString());
+                    jsonResponse.toString());
         }
 
-        int count = qryJSON.getInt(StringConsts.COUNT);
-        JSONArray identifiers = qryJSON.getJSONArray(StringConsts.DATA);
+        int count = jsonResponse.getInt(StringConsts.COUNT);
+        JSONArray identifiers = jsonResponse.getJSONArray(StringConsts.DATA);
 
         if (count == 0 || query.getFilterFieldCount() == 0) {
             return bhapiUpdater.merge(query);

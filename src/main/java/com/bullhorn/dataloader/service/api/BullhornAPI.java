@@ -4,20 +4,17 @@ import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
+import java.net.UnknownHostException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -34,260 +31,27 @@ import org.json.JSONObject;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.AssociationFilter;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
+/**
+ * Handles logging in to REST and making calls to rest to perform the data loading.
+ * Use createSession() to start a REST session and call() to make REST calls.
+ */
 public class BullhornAPI {
 
     private static final Logger log = LogManager.getLogger(BullhornAPI.class);
 
-    private final String AUTH_CODE_ACTION = "Login";
-    private final String AUTH_CODE_RESPONSE_TYPE = "code";
-    private final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
-    private final String username;
-    private final String password;
-    private final String authorizeUrl;
-    private final String tokenUrl;
-    private final String clientId;
-    private final String clientSecret;
-    private final String loginUrl;
-    private final Integer threadSize;
-    private final Integer cacheSize;
-    private final SimpleDateFormat dateParser;
-    private final Map<String, String> entityExistsFields;
-    private final String listDelimiter;
-    private final Set<String> frontLoadedEntities;
-    private final int pageSize;
-    private final ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues;
-
-    private String bhRestToken;
-    private String restURL;
-    private int privateLabel;
-
-    private MetaMap rootMetaMap;
-    private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
-
-    public BullhornAPI(Properties properties) {
-        this.threadSize = Integer.valueOf(properties.getProperty("numThreads"));
-        this.cacheSize = Integer.valueOf(properties.getProperty("cacheSize"));
-        this.username = properties.getProperty("username");
-        this.password = properties.getProperty("password");
-        this.authorizeUrl = properties.getProperty("authorizeUrl");
-        this.tokenUrl = properties.getProperty("tokenUrl");
-        this.clientId = properties.getProperty("clientId");
-        this.clientSecret = properties.getProperty("clientSecret");
-        this.loginUrl = properties.getProperty("loginUrl");
-        this.listDelimiter = properties.getProperty("listDelimiter");
-        this.dateParser = new SimpleDateFormat(properties.getProperty("dateFormat"));
-        this.entityExistsFields = ImmutableMap.copyOf(createEntityExistsFields(properties));
-        this.frontLoadedEntities = Sets.newHashSet(properties.getProperty("frontLoadedEntities").split(","));
-        this.pageSize = Integer.parseInt(properties.getProperty("pageSize"));
-        this.frontLoadedValues = Maps.newConcurrentMap();
-    }
-
-    public void createSession() {
-        try {
-            String authCode = getAuthorizationCode();
-            String accessToken = getAccessToken(authCode);
-            loginREST(accessToken);
-            this.privateLabel = getPrivateLabelFromRest();
-        } catch (Exception e) {
-            log.error("Failed to create session. Please check your clientId and clientSecret properties.", e);
-        }
-    }
-
-    public boolean frontLoadedContainsEntity(String entity) {
-        return frontLoadedEntities.contains(entity);
-    }
-
-    public void frontLoad() throws IOException {
-        for (String entity : frontLoadedEntities) {
-            BiMap<String, Integer> frontLoadedCache = frontLoadEntity(entity, getFirstToManyExistField(entity));
-            frontLoadedValues.put(entity, frontLoadedCache);
-        }
-    }
-
-    private BiMap<String, Integer> frontLoadEntity(String entity, String existFieldKey) throws IOException {
-        log.info("Front loading " + entity);
-        int currentIndex = 0;
-        boolean stillGoing = true;
-        BiMap<String, Integer> frontLoadedCache = HashBiMap.create();
-        while (stillGoing) {
-            JSONObject jsonObject = getEntityPage(entity, pageSize, currentIndex);
-            if (!jsonObject.has(StringConsts.DATA)
-                    || jsonObject.getJSONArray(StringConsts.DATA).length() == 0) {
-                stillGoing = false;
-            } else {
-                currentIndex = frontLoadRecord(existFieldKey, currentIndex, frontLoadedCache, jsonObject);
-            }
-        }
-        return frontLoadedCache;
-    }
-
-    private int frontLoadRecord(String existFieldKey, int currentIndex, BiMap<String, Integer> frontLoadedCache, JSONObject dataPage) {
-        JSONArray entityPage = dataPage.getJSONArray(StringConsts.DATA);
-        for (Object jsnObject : entityPage) {
-            JSONObject dataElement = (JSONObject) jsnObject;
-            frontLoadedCache.put(dataElement.getString(existFieldKey), dataElement.getInt("id"));
-        }
-        return currentIndex + pageSize;
-    }
-
-    public String getFirstToManyExistField(String entity) {
-        String existFieldKey = StringConsts.NAME;
-        Optional<String> existFieldProperty = getEntityExistsFieldsProperty(entity);
-        if (existFieldProperty.isPresent()) {
-            existFieldKey = existFieldProperty.get().split(",")[0];
-        }
-        return existFieldKey;
-    }
-
-    private JSONObject getEntityPage(String entity, int pageSize, int currentIndex) throws IOException {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getRestURL());
-        sb.append(StringConsts.QUERY);
-        sb.append(entity);
-        sb.append("?fields=*&where=");
-        if (entity.equals(StringConsts.CATEGORY)) {
-            sb.append(URLEncoder.encode("id > -1 AND " + getPrivateLabel() + " member of privateLabels", StringConsts.UTF));
-        } else {
-            sb.append(URLEncoder.encode("id > -1", StringConsts.UTF));
-        }
-        sb.append("&count=");
-        sb.append(pageSize);
-        sb.append("&start=");
-        sb.append(currentIndex);
-        sb.append(StringConsts.AND_BH_REST_TOKEN);
-        sb.append(getBhRestToken());
-        GetMethod getMethod = new GetMethod(sb.toString());
-        return get(getMethod);
-    }
-
-    protected Map<String, String> createEntityExistsFields(Properties properties) {
-        Map<String, String> entityExistsFields = Maps.newHashMap();
-        properties.stringPropertyNames()
-                .stream()
-                .filter(property -> property.endsWith(StringConsts.EXIST_FIELD))
-                .forEach(property -> {
-                    String upperCaseProperty = property.substring(0, 1).toUpperCase() + property.substring(1);
-                    entityExistsFields.put(upperCaseProperty, properties.getProperty(property));
-                });
-        return entityExistsFields;
-    }
-
-    public Optional<String> getEntityExistsFieldsProperty(String entity) {
-        return Optional.ofNullable(entityExistsFields.get(entity + "ExistField"));
-    }
-
-    private String getAuthorizationCode() throws IOException {
-        String authorizeCodeUrl = authorizeUrl + "?client_id=" + clientId +
-                "&response_type=" + AUTH_CODE_RESPONSE_TYPE +
-                "&action=" + AUTH_CODE_ACTION +
-                "&username=" + username +
-                "&password=" + password;
-
-        HttpClient client = new HttpClient();
-        PostMethod method = new PostMethod(authorizeCodeUrl);
-        client.executeMethod(method);
-
-        String returnURL = method.getResponseHeader("Location").getValue();
-        returnURL = returnURL.substring(returnURL.indexOf("?") + 1);
-        Map<String, String> map = Splitter.on("&").trimResults().withKeyValueSeparator('=').split(returnURL);
-
-        return map.get("code");
-    }
-
-    /**
-     * Get access token based on auth code returned from getAuthorizationCode()
-     */
-    private String getAccessToken(String authCode) throws IOException {
-        String url = tokenUrl + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE +
-                "&code=" + authCode +
-                "&client_id=" + clientId +
-                "&client_secret=" + clientSecret;
-
-        PostMethod pst = new PostMethod(url);
-        JSONObject jsObj = this.post(pst);
-
-        return jsObj.getString("access_token");
-    }
-
-    private void loginREST(String accessToken) {
-        JSONObject responseJson;
-        try {
-            String accessTokenString = URLEncoder.encode(accessToken, StringConsts.UTF);
-            String sessionMinutesToLive = "3000"; // 50hr window
-            String url = loginUrl + "?version=" + "*" + "&access_token=" + accessTokenString + "&ttl=" + sessionMinutesToLive;
-            GetMethod get = new GetMethod(url);
-
-            HttpClient client = new HttpClient();
-            client.executeMethod(get);
-            String responseStr = IOUtils.toString(get.getResponseBodyAsStream());
-            responseJson = new JSONObject(responseStr);
-
-            // Cache bhRestToken and REST URL
-            this.bhRestToken = responseJson.getString(StringConsts.BH_REST_TOKEN);
-            this.restURL = (String) responseJson.get("restUrl");
-
-        } catch (Exception e) {
-            log.error(e);
-        }
-    }
-
-    private int getPrivateLabelFromRest() throws IOException {
-        String url = getRestURL() + "settings/privateLabelId?BhRestToken=" + getBhRestToken();
-        GetMethod get = new GetMethod(url);
-        HttpClient client = new HttpClient();
-        client.executeMethod(get);
-        String response = IOUtils.toString(get.getResponseBodyAsStream());
-        JSONObject json = new JSONObject(response);
-
-        return json.getJSONObject("privateLabelId").getInt("id");
-    }
-
-    public String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
-        return this.getRestURL() + StringConsts.ENTITY_SLASH
-                + parentEntity.getEntityName() + "/"
-                + parentEntity.getEntityId() + "/"
-                + childEntity.getEntityName() + "/"
-                + childEntity.getEntityId()
-                + StringConsts.END_BH_REST_TOKEN + this.getBhRestToken();
-    }
-
-    public JSONObject get(GetMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    public JSONObject put(PutMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    public JSONObject post(PostMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    public JSONObject delete(DeleteMethod method) throws IOException {
-        JSONObject responseJson = call(method);
-        return responseJson;
-    }
-
-    private static JSONObject call(HttpMethodBase httpMethod) throws IOException {
-        HttpClient client = new HttpClient();
-        client.executeMethod(httpMethod);
-        String responseStr = IOUtils.toString(httpMethod.getResponseBodyAsStream());
-        return new JSONObject(responseStr);
-    }
-
+    // String constants
+    private static final String AUTH_CODE_ACTION = "Login";
+    private static final String AUTH_CODE_RESPONSE_TYPE = "code";
+    private static final String ACCESS_TOKEN_GRANT_TYPE = "authorization_code";
     private static final List<String> CUSTOM_OBJECT_META_FIELDS = ImmutableList.of(
             "customObject1s",
             "customObject2s",
@@ -299,8 +63,139 @@ public class BullhornAPI {
             "customObject8s",
             "customObject9s"
     );
-
     private static final String CUSTOM_OBJECT_ADDITIONAL_FIELDS = Joiner.on("(*),").join(CUSTOM_OBJECT_META_FIELDS).concat("(*)");
+
+    private PropertyFileUtil propertyFileUtil;
+
+    // REST session variables
+    private String bhRestToken;
+    private String restURL;
+    private int privateLabel;
+
+    // Front loaded entity variables
+    private MetaMap rootMetaMap;
+    private Map<String, MetaMap> metaMaps = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, BiMap<String, Integer>> frontLoadedValues = Maps.newConcurrentMap();
+
+    /**
+     * Constructor that takes all dependencies this class needs
+     *
+     * @param propertyFileUtil The contents of the dataloader.properties file
+     */
+    public BullhornAPI(PropertyFileUtil propertyFileUtil) {
+        this.propertyFileUtil = propertyFileUtil;
+    }
+
+    //region REST Session Creation
+    /**
+     * Logs in and creates the REST session. Handles reporting out errors during the connection process.
+     */
+    public void createSession() throws Exception {
+        try {
+            String authCode = getAuthorizationCode();
+            String accessToken = getAccessToken(authCode);
+            loginREST(accessToken);
+            privateLabel = getPrivateLabelFromRest();
+        } catch (UnknownHostException e) {
+            throw new Exception("ERROR: Cannot create session. Could not connect to: " + e.getMessage() +
+                    ".  Check your Internet/VPN and URLs specified in dataloader.properties.");
+        } catch (Exception e) {
+            throw new Exception("ERROR: Cannot create session: " +
+                    e.getMessage());
+        }
+    }
+
+    /**
+     * Uses the username/password to grab an authorization code.
+     */
+    private String getAuthorizationCode() throws IOException {
+        String authorizeCodeUrl = propertyFileUtil.getAuthorizeUrl() + "?client_id=" + propertyFileUtil.getClientId() +
+                "&response_type=" + AUTH_CODE_RESPONSE_TYPE +
+                "&action=" + AUTH_CODE_ACTION +
+                "&username=" + propertyFileUtil.getUsername() +
+                "&password=" + propertyFileUtil.getPassword();
+
+        HttpClient httpClient = new HttpClient();
+        PostMethod postMethod = new PostMethod(authorizeCodeUrl);
+        httpClient.executeMethod(postMethod);
+
+        String returnURL = postMethod.getResponseHeader("Location").getValue();
+        returnURL = returnURL.substring(returnURL.indexOf("?") + 1);
+        Map<String, String> keyValueMap = Splitter.on("&").trimResults().withKeyValueSeparator('=').split(returnURL);
+
+        return keyValueMap.get("code");
+    }
+
+    /**
+     * Get access token based on auth code returned from getAuthorizationCode()
+     */
+    private String getAccessToken(String authCode) throws IOException {
+        String tokenUrl = propertyFileUtil.getTokenUrl() + "?grant_type=" + ACCESS_TOKEN_GRANT_TYPE +
+                "&code=" + authCode +
+                "&client_id=" + propertyFileUtil.getClientId() +
+                "&client_secret=" + propertyFileUtil.getClientSecret();
+
+        PostMethod postMethod = new PostMethod(tokenUrl);
+        JSONObject jsonResponse = call(postMethod);
+
+        return jsonResponse.getString("access_token");
+    }
+
+    /**
+     * Login to REST using the accessToken from getAccessToken() and cache the bhRestToken.
+     */
+    private void loginREST(String accessToken) {
+        try {
+            JSONObject jsonResponse;
+            String accessTokenString = URLEncoder.encode(accessToken, StringConsts.UTF);
+            String sessionMinutesToLive = "3000"; // 50hr window
+
+            String loginUrl = propertyFileUtil.getLoginUrl() + "?version=" + "*" +
+                    "&access_token=" + accessTokenString +
+                    "&ttl=" + sessionMinutesToLive;
+            GetMethod getMethod = new GetMethod(loginUrl);
+
+            HttpClient httpClient = new HttpClient();
+            httpClient.executeMethod(getMethod);
+            String response = IOUtils.toString(getMethod.getResponseBodyAsStream());
+            jsonResponse = new JSONObject(response);
+
+            // Cache bhRestToken and REST URL
+            bhRestToken = jsonResponse.getString(StringConsts.BH_REST_TOKEN);
+            restURL = (String) jsonResponse.get("restUrl");
+
+        } catch (Exception e) {
+            log.error(e);
+        }
+    }
+
+    /**
+     * After logging into REST, make a settings call to get the user's private label
+     */
+    private int getPrivateLabelFromRest() throws IOException {
+        String settingsUrl = getRestURL() + "settings/privateLabelId?BhRestToken=" + getBhRestToken();
+        GetMethod getMethod = new GetMethod(settingsUrl);
+        HttpClient httpClient = new HttpClient();
+        httpClient.executeMethod(getMethod);
+        String response = IOUtils.toString(getMethod.getResponseBodyAsStream());
+        JSONObject jsonResponse = new JSONObject(response);
+
+        return jsonResponse.getJSONObject("privateLabelId").getInt("id");
+    }
+    //endregion
+
+    //region Meta
+    public boolean containsFields(String field) {
+        if (rootMetaMap == null) {
+            log.error("Root meta map not initialized");
+            return false;
+        }
+        return rootMetaMap.hasField(field);
+    }
+
+    public Optional<String> getLabelByName(String entity) {
+        return rootMetaMap.getEntityNameByRootFieldName(entity);
+    }
 
     public MetaMap getMetaDataTypes(String entity) throws IOException {
         if (!metaMaps.containsKey(entity)) {
@@ -311,7 +206,7 @@ public class BullhornAPI {
             JsonObjectFields jsonObjectFields = new JsonObjectFields("", fields);
             deque.add(jsonObjectFields);
 
-            MetaMap metaMap = new MetaMap(getDateParser(), getListDelimiter());
+            MetaMap metaMap = new MetaMap(propertyFileUtil.getDateParser(), propertyFileUtil.getListDelimiter());
             while (!deque.isEmpty()) {
                 jsonObjectFields = deque.pop();
                 fields = jsonObjectFields.getJsonArray();
@@ -323,37 +218,21 @@ public class BullhornAPI {
         return metaMaps.get(entity);
     }
 
-    /**
-     * CustomObjects are TO_MANY's, but we can and must treat them as if
-     * they were TO_ONE.
-     * Here we inject customObject meta fields into the general meta for the given Entity
-     * as TO_MANY's in a 'fields=*' meta query only returns id.
-     */
-    private void addCustomObjectsFieldsWhenApplicable(String entity, JSONArray fields) throws IOException {
-        if (fieldsContainsCustomObjects(fields)) {
-            JSONArray customObjectFields = getFieldsFromMetaResponse(entity, CUSTOM_OBJECT_ADDITIONAL_FIELDS);
-            for (Object customObjectField : customObjectFields) {
-                fields.put(customObjectField);
-            }
-        }
+    // TODO: Change this into a set and a get, but not both
+    public MetaMap getRootMetaDataTypes(String entity) throws IOException {
+        rootMetaMap = getMetaDataTypes(entity);
+        return rootMetaMap;
     }
 
-    private boolean fieldsContainsCustomObjects(JSONArray fields) {
-        for (int i = 0; i < fields.length(); i++) {
-            JSONObject field = fields.getJSONObject(i);
-            Optional<String> optionalEntity = getAssociatedEntity(field);
-            if (optionalEntity.isPresent() && isCustomObject(optionalEntity.get())) {
-                return true;
-            }
-        }
-        return false;
+    public boolean entityContainsFields(String entity, String field) throws IOException {
+        return getMetaDataTypes(entity).hasField(field);
     }
 
     private JSONArray getFieldsFromMetaResponse(String entity, String fields) throws IOException {
-        String url = getMetaUrl(entity, fields);
-        GetMethod method = new GetMethod(url);
-        JSONObject jsonObject = get(method);
-        return jsonObject.getJSONArray("fields");
+        String metaUrl = getMetaUrl(entity, fields);
+        GetMethod getMethod = new GetMethod(metaUrl);
+        JSONObject jsonResponse = call(getMethod);
+        return jsonResponse.getJSONArray("fields");
     }
 
     private String getMetaUrl(String entity, String fields) {
@@ -397,6 +276,153 @@ public class BullhornAPI {
             }
         }
     }
+    //endregion
+
+    //region Front Loaded Entities
+    /**
+     * Returns the Bullhorn ID for a front loaded entity instance if it exists in the front loaded cache.
+     *
+     * @param entity EntityName (UpperCamelCase)
+     * @param id The string identifier used (can be one of the ids specified as an ExistField in the property file)
+     * @return Successful result if found, with the bullhorn id, Failure result otherwise.
+     */
+    public Result hasFrontLoadedEntity(String entity, String id) {
+        if (frontLoadedValues.get(entity).containsValue(Integer.parseInt(id))) {
+            return Result.Update(Integer.parseInt(id));
+        } else {
+            return Result.Failure("");
+        }
+    }
+
+    public Result getFrontLoadedFromKey(String entity, String key) {
+        Optional<Integer> bullhornId = Optional.ofNullable(frontLoadedValues.get(entity).get(key));
+        if (bullhornId.isPresent()) {
+            return Result.Update(bullhornId.get());
+        } else {
+            return Result.Failure("");
+        }
+    }
+
+    /**
+     * Performs the front loading of entities, looping through all entities marked for front loading and saving them
+     * in the frontLoadedValues map.
+     */
+    public void frontLoad() throws IOException {
+        for (String entity : propertyFileUtil.getFrontLoadedEntities()) {
+            BiMap<String, Integer> frontLoadedCache = frontLoadEntity(entity, getFirstToManyExistField(entity));
+            frontLoadedValues.put(entity, frontLoadedCache);
+        }
+    }
+
+    private BiMap<String, Integer> frontLoadEntity(String entity, String existFieldKey) throws IOException {
+        log.info("Front loading " + entity);
+        int currentIndex = 0;
+        boolean stillGoing = true;
+        BiMap<String, Integer> frontLoadedCache = HashBiMap.create();
+        while (stillGoing) {
+            JSONObject jsonObject = getEntityPage(entity, propertyFileUtil.getPageSize(), currentIndex);
+            if (!jsonObject.has(StringConsts.DATA)
+                    || jsonObject.getJSONArray(StringConsts.DATA).length() == 0) {
+                stillGoing = false;
+            } else {
+                currentIndex = frontLoadRecord(existFieldKey, currentIndex, frontLoadedCache, jsonObject);
+            }
+        }
+        return frontLoadedCache;
+    }
+
+    private int frontLoadRecord(String existFieldKey, int currentIndex, BiMap<String, Integer> frontLoadedCache, JSONObject dataPage) {
+        JSONArray entityPage = dataPage.getJSONArray(StringConsts.DATA);
+        for (Object jsnObject : entityPage) {
+            JSONObject dataElement = (JSONObject) jsnObject;
+            frontLoadedCache.put(dataElement.getString(existFieldKey), dataElement.getInt("id"));
+        }
+        return currentIndex + propertyFileUtil.getPageSize();
+    }
+
+    private JSONObject getEntityPage(String entity, int pageSize, int currentIndex) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getRestURL());
+        sb.append(StringConsts.QUERY);
+        sb.append(entity);
+        sb.append("?fields=*&where=");
+        if (entity.equals(StringConsts.CATEGORY)) {
+            sb.append(URLEncoder.encode("id > -1 AND " + getPrivateLabel() + " member of privateLabels", StringConsts.UTF));
+        } else {
+            sb.append(URLEncoder.encode("id > -1", StringConsts.UTF));
+        }
+        sb.append("&count=");
+        sb.append(pageSize);
+        sb.append("&start=");
+        sb.append(currentIndex);
+        sb.append(StringConsts.AND_BH_REST_TOKEN);
+        sb.append(getBhRestToken());
+        GetMethod getMethod = new GetMethod(sb.toString());
+        return call(getMethod);
+    }
+    //endregion
+
+    //region Get Accessors
+    public String getBhRestToken() {
+        return bhRestToken;
+    }
+
+    public String getRestURL() {
+        return restURL;
+    }
+
+    public int getPrivateLabel() {
+        return privateLabel;
+    }
+
+    public PropertyFileUtil getPropertyFileUtil() {
+        return propertyFileUtil;
+    }
+    //endregion
+
+    /**
+     * Given an HTTP method (Get, Post, Put, or Delete) this method will make the call and return the JSON response.
+     */
+    public JSONObject call(HttpMethodBase httpMethod) throws IOException {
+        HttpClient httpClient = new HttpClient();
+        httpClient.executeMethod(httpMethod);
+        String response = IOUtils.toString(httpMethod.getResponseBodyAsStream());
+        return new JSONObject(response);
+    }
+
+    public String getModificationAssociationUrl(EntityInstance parentEntity, EntityInstance childEntity) {
+        return this.getRestURL() + StringConsts.ENTITY_SLASH
+                + parentEntity.getEntityName() + "/"
+                + parentEntity.getEntityId() + "/"
+                + childEntity.getEntityName() + "/"
+                + childEntity.getEntityId()
+                + StringConsts.END_BH_REST_TOKEN + this.getBhRestToken();
+    }
+
+    /**
+     * CustomObjects are TO_MANY's, but we can and must treat them as if they were TO_ONE.
+     * Here we inject customObject meta fields into the general meta for the given Entity
+     * as TO_MANY's in a 'fields=*' meta query only returns id.
+     */
+    private void addCustomObjectsFieldsWhenApplicable(String entity, JSONArray fields) throws IOException {
+        if (fieldsContainsCustomObjects(fields)) {
+            JSONArray customObjectFields = getFieldsFromMetaResponse(entity, CUSTOM_OBJECT_ADDITIONAL_FIELDS);
+            for (Object customObjectField : customObjectFields) {
+                fields.put(customObjectField);
+            }
+        }
+    }
+
+    private boolean fieldsContainsCustomObjects(JSONArray fields) {
+        for (int i = 0; i < fields.length(); i++) {
+            JSONObject field = fields.getJSONObject(i);
+            Optional<String> optionalEntity = getAssociatedEntity(field);
+            if (optionalEntity.isPresent() && isCustomObject(optionalEntity.get())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static Optional<String> getAssociatedEntity(JSONObject field) {
         try {
@@ -411,23 +437,24 @@ public class BullhornAPI {
 
         // Post to BH
         StringRequestEntity requestEntity = new StringRequestEntity(jsString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
-        JSONObject jsResp;
+        JSONObject jsonResponse;
         if (AssociationFilter.isPut(type)) {
-            PutMethod method = new PutMethod(url);
-            method.setRequestEntity(requestEntity);
-            jsResp = this.put(method);
+            PutMethod putMethod = new PutMethod(url);
+            putMethod.setRequestEntity(requestEntity);
+            jsonResponse = call(putMethod);
         } else {
-            PostMethod method = new PostMethod(url);
-            method.setRequestEntity(requestEntity);
-            jsResp = this.post(method);
+            PostMethod postMethod = new PostMethod(url);
+            postMethod.setRequestEntity(requestEntity);
+            jsonResponse = call(postMethod);
         }
 
         log.info(jsString);
-        log.info(jsResp);
+        log.info(jsonResponse);
 
-        return jsResp;
+        return jsonResponse;
     }
 
+    // TODO: Move to MetaUtil
     private static String getLabel(JSONObject field) {
         String label;
         try {
@@ -438,6 +465,7 @@ public class BullhornAPI {
         return label;
     }
 
+    // TODO: Move to MetaUtil
     private static String getDataType(JSONObject field) {
         String dataType;
         try {
@@ -448,6 +476,7 @@ public class BullhornAPI {
         return dataType;
     }
 
+    // TODO: Move to MetaUtil
     private static JSONArray getSubField(JSONObject field) {
         JSONArray subFields;
         try {
@@ -466,11 +495,7 @@ public class BullhornAPI {
         return subFields;
     }
 
-    public MetaMap getRootMetaDataTypes(String entity) throws IOException {
-        rootMetaMap = getMetaDataTypes(entity);
-        return rootMetaMap;
-    }
-
+    // TODO: Move to JsonUtil
     // POJO to JSON via Jackson. Don't include null properties during serialization
     public String serialize(Object obj) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -481,9 +506,9 @@ public class BullhornAPI {
 
     // Serialize an object and save it
     public Result saveNonToMany(Object obj, String postURL, String type) throws IOException {
-        String jsString = serialize(obj);
-        log.info("Non-Associated entity saving to " + postURL + " - " + jsString);
-        JSONObject jsResp = saveNonToMany(jsString, postURL, type);
+        String jsonString = serialize(obj);
+        log.info("Non-Associated entity saving to " + postURL + " - " + jsonString);
+        JSONObject jsResp = saveNonToMany(jsonString, postURL, type);
 
         if (jsResp.has(StringConsts.CHANGED_ENTITY_ID)) {
             return Result.Update(jsResp.getInt(StringConsts.CHANGED_ENTITY_ID));
@@ -492,64 +517,22 @@ public class BullhornAPI {
         }
     }
 
-    public boolean containsFields(String field) {
-        if (rootMetaMap == null) {
-            log.error("Root meta map not initialized");
-            return false;
+    /**
+     * Returns the field to use in the where clause when determining if the entity already exists in Bullhorn.
+     *
+     * Defaults to 'name' if not otherwise specified in the property file.
+     *
+     * @param entity The Canonical EntityName (Always use UpperCamelCase)
+     * @return The field to use in the Get where clause
+     */
+    public String getFirstToManyExistField(String entity) {
+        String existFieldKey = StringConsts.NAME;
+
+        Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entity);
+        if (existFields.isPresent()) {
+            existFieldKey = existFields.get().get(0);
         }
-        return rootMetaMap.hasField(field);
-    }
 
-    public Optional<String> getLabelByName(String entity) {
-        return rootMetaMap.getEntityNameByRootFieldName(entity);
-    }
-
-    public String getBhRestToken() {
-        return bhRestToken;
-    }
-
-    public String getRestURL() {
-        return restURL;
-    }
-
-    private SimpleDateFormat getDateParser() {
-        return dateParser;
-    }
-
-    public Integer getThreadSize() {
-        return threadSize;
-    }
-
-    public Integer getCacheSize() {
-        return cacheSize;
-    }
-
-    public int getPrivateLabel() {
-        return privateLabel;
-    }
-
-    public String getListDelimiter() {
-        return listDelimiter;
-    }
-
-    public Result getFrontLoadedFromKey(String entity, String key) {
-        Optional<Integer> bullhornId = Optional.ofNullable(frontLoadedValues.get(entity).get(key));
-        if (bullhornId.isPresent()) {
-            return Result.Update(bullhornId.get());
-        } else {
-            return Result.Failure("");
-        }
-    }
-
-    public Result getFrontLoadedIdExists(String entity, String id) {
-        if (frontLoadedValues.get(entity).containsValue(Integer.parseInt(id))) {
-            return Result.Update(Integer.parseInt(id));
-        } else {
-            return Result.Failure("");
-        }
-    }
-
-    public boolean entityContainsFields(String entity, String field) throws IOException {
-        return getMetaDataTypes(entity).hasField(field);
+        return existFieldKey;
     }
 }
