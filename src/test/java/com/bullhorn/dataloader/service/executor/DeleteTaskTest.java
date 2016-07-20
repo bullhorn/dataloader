@@ -117,4 +117,19 @@ public class DeleteTaskTest {
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
+
+    @Test
+    public void missingIdFailureTest() throws ExecutionException, IOException {
+        JsonRow jsonRow = new JsonRow();
+        jsonRow.setRowNumber(1);
+        jsonRow.addImmediateAction(new String[] {"name"}, "John Smith");
+        Result expectedResult = Result.Failure("ERROR: Cannot delete row: 1.  CSV row is missing the \"id\" column.");
+
+        DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
+        deleteTask.run();
+
+        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertEquals(expectedResult, actualResult);
+    }
 }

@@ -61,7 +61,7 @@ public class DeleteTask implements Runnable {
                 System.out.println(failureText);
                 log.error(failureText);
             } else if (!data.getImmediateActions().containsKey(StringConsts.ID)) {
-                String failureText = "Error: Cannot delete row: " + data.getRowNumber() + ". " +
+                String failureText = "ERROR: Cannot delete row: " + data.getRowNumber() + ". " +
                         " CSV row is missing the \"" + StringConsts.ID + "\" column.";
                 result = Result.Failure(failureText);
                 System.out.println(failureText);
