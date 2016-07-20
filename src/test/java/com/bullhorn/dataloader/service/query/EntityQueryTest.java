@@ -3,12 +3,11 @@ package com.bullhorn.dataloader.service.query;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
-import junit.framework.TestCase;
 
 public class EntityQueryTest {
 
@@ -19,7 +18,7 @@ public class EntityQueryTest {
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", nestedJson);
         entityQuery.addInt("id", "42");
 
-        TestCase.assertEquals("id%3D42", entityQuery.getWhereClause());
+        Assert.assertEquals("id%3D42", entityQuery.getWhereClause());
     }
 
     @Test
@@ -29,7 +28,7 @@ public class EntityQueryTest {
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", nestedJson);
         entityQuery.addInt("int1", "42");
 
-        TestCase.assertEquals("int1%3D42", entityQuery.getWhereClause());
+        Assert.assertEquals("int1%3D42", entityQuery.getWhereClause());
     }
 
     @Test
@@ -40,7 +39,7 @@ public class EntityQueryTest {
         entityQuery.addInt("int1", "42");
         entityQuery.addString("string", "42");
 
-        TestCase.assertEquals("string%3D%2742%27+AND+int1%3D42", entityQuery.getWhereClause());
+        Assert.assertEquals("string%3D%2742%27+AND+int1%3D42", entityQuery.getWhereClause());
     }
 
     @Test
@@ -50,7 +49,7 @@ public class EntityQueryTest {
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", nestedJson);
         entityQuery.addInt("id", "42");
 
-        TestCase.assertEquals("id%3D42", entityQuery.getWhereClause());
+        Assert.assertEquals("id%3D42", entityQuery.getWhereClause());
     }
 
     @Test
@@ -59,7 +58,7 @@ public class EntityQueryTest {
 
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", nestedJson);
 
-        TestCase.assertEquals("", entityQuery.getWhereClause());
+        Assert.assertEquals("", entityQuery.getWhereClause());
     }
 
     @Test
@@ -69,7 +68,7 @@ public class EntityQueryTest {
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", nestedJson);
         entityQuery.addInt("id", "42");
 
-        TestCase.assertEquals("id%3D42", entityQuery.getWhereByIdClause());
+        Assert.assertEquals("id%3D42", entityQuery.getWhereByIdClause());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -78,7 +77,7 @@ public class EntityQueryTest {
 
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", nestedJson);
 
-        TestCase.assertEquals("", entityQuery.getWhereByIdClause());
+        Assert.assertEquals("", entityQuery.getWhereByIdClause());
     }
 
     @Test
@@ -89,7 +88,7 @@ public class EntityQueryTest {
         associationQueries.add(new EntityQuery("Candidate", null));
         associationQueries.add(new EntityQuery("Candidate", null));
 
-        TestCase.assertEquals(3, associationQueries.size());
+        Assert.assertEquals(3, associationQueries.size());
     }
 
     @Test
@@ -100,7 +99,7 @@ public class EntityQueryTest {
             addInt("int", "42");
         }});
 
-        TestCase.assertEquals(2, associationQueries.size());
+        Assert.assertEquals(2, associationQueries.size());
     }
 
     @Test
@@ -109,14 +108,14 @@ public class EntityQueryTest {
         EntityQuery entityQuery2 = new EntityQuery("ClientCorporation", null) {{ addInt("int", "42"); }};
         EntityQuery different = new EntityQuery("ClientCorporation", null) {{ addInt("int", "43"); }};
 
-        TestCase.assertEquals(entityQuery1, entityQuery2);
-        TestCase.assertNotSame(entityQuery1, different);
+        Assert.assertEquals(entityQuery1, entityQuery2);
+        Assert.assertNotSame(entityQuery1, different);
     }
 
     @Test
     public void testToString() {
         EntityQuery entityQuery = new EntityQuery("ClientCorporation", null) {{ addInt("int", "42"); }};
-        TestCase.assertEquals(
+        Assert.assertEquals(
                 "EntityQuery{" +
                         "entity='ClientCorporation'" +
                         ", filterFields={int=42}" +

@@ -4,95 +4,75 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
-import junit.framework.TestCase;
-
 public class JsonRowTest {
+
     @Test
     public void testImmediateAction() {
-        //arrange
         JsonRow jsonRow = new JsonRow();
-
-        //act
         jsonRow.addImmediateAction(new String[] {"field1", "field2"}, 1);
         jsonRow.addImmediateAction(new String[] {"field1", "field3"}, 2);
         Map<String, Object> actualImmediateAction = jsonRow.getImmediateActions();
 
-        //assert
         Map<String, Object> expected = new HashMap<String, Object>() {{
             put("field1", new HashMap<String, Object>() {{
                 put("field2", 1);
                 put("field3", 2);
             }});
         }};
-        TestCase.assertEquals(expected, actualImmediateAction);
+        Assert.assertEquals(expected, actualImmediateAction);
     }
 
     @Test
     public void testDeferredActions() {
-        //arrange
         JsonRow jsonRow = new JsonRow();
-
-        //act
         jsonRow.addDeferredAction(new String[] {"field1", "field2"}, 1);
         jsonRow.addDeferredAction(new String[] {"field1", "field3"}, 2);
         Map<String, Object> actualDeferredActions = jsonRow.getDeferredActions();
 
-        //assert
         Map<String, Object> expected = new HashMap<String, Object>() {{
             put("field1", new HashMap<String, Object>() {{
                 put("field2", 1);
                 put("field3", 2);
             }});
         }};
-        TestCase.assertEquals(expected, actualDeferredActions);
+        Assert.assertEquals(expected, actualDeferredActions);
     }
 
     @Test
     public void testPreprocessingActions() {
-        //arrange
         JsonRow jsonRow = new JsonRow();
-
-        //act
         jsonRow.addPreprocessing(new String[] {"field1", "field2"}, 1);
         jsonRow.addPreprocessing(new String[] {"field1", "field3"}, 2);
         Map<String, Object> actualPreprocessingActions = jsonRow.getPreprocessingActions();
 
-        //assert
         Map<String, Object> expected = new HashMap<String, Object>() {{
             put("field1", new HashMap<String, Object>() {{
                 put("field2", 1);
                 put("field3", 2);
             }});
         }};
-        TestCase.assertEquals(expected, actualPreprocessingActions);
+        Assert.assertEquals(expected, actualPreprocessingActions);
     }
 
     @Test
     public void testValues() {
-        //arrange
         JsonRow jsonRow = new JsonRow();
-
-        //act
         String[] values = new String[] {"column_1", "column_2", "column_3"};
         jsonRow.setValues(values);
 
-        //assert
         String[] expected = new String[] {"column_1", "column_2", "column_3"};
-        TestCase.assertTrue(Arrays.equals(expected, jsonRow.getValues()));
+        Assert.assertTrue(Arrays.equals(expected, jsonRow.getValues()));
     }
 
     @Test
     public void testRowNumber() {
-        //arrange
         JsonRow jsonRow = new JsonRow();
-        TestCase.assertEquals(jsonRow.getRowNumber().intValue(), 0);
+        Assert.assertEquals(jsonRow.getRowNumber().intValue(), 0);
 
-        //act
         jsonRow.setRowNumber(99);
-
-        //assert
-        TestCase.assertEquals(jsonRow.getRowNumber().intValue(), 99);
+        Assert.assertEquals(jsonRow.getRowNumber().intValue(), 99);
     }
 }

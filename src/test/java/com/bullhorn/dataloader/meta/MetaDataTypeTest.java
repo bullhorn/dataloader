@@ -3,10 +3,8 @@ package com.bullhorn.dataloader.meta;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import junit.framework.TestCase;
-
 
 public class MetaDataTypeTest {
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/mm/yy");
@@ -18,8 +16,8 @@ public class MetaDataTypeTest {
         private SimpleDateFormat simpleDateFormat = MetaDataTypeTest.simpleDateFormat;
 
         public TestOption(String type, String testValue, Object expectedResult) {
-            TestCase.assertNotNull(type);
-            TestCase.assertNotNull(testValue);
+            Assert.assertNotNull(type);
+            Assert.assertNotNull(testValue);
             this.type = type;
             this.testValue = testValue;
             this.expectedResult = expectedResult;
@@ -69,8 +67,8 @@ public class MetaDataTypeTest {
 
     @Test
     public void testSize() {
-        TestCase.assertEquals(TEST_OPTIONS.length, MetaDataType.values().length);
-        TestCase.assertEquals(TEST_OPTIONS_EMPTY.length, MetaDataType.values().length);
+        Assert.assertEquals(TEST_OPTIONS.length, MetaDataType.values().length);
+        Assert.assertEquals(TEST_OPTIONS_EMPTY.length, MetaDataType.values().length);
     }
 
     @Test
@@ -78,14 +76,14 @@ public class MetaDataTypeTest {
         for (MetaDataType metaDataType : MetaDataType.values()) {
             String type = metaDataType.name();
             MetaDataType myMetaDataType = MetaDataType.fromName(type);
-            TestCase.assertEquals(metaDataType, myMetaDataType);
+            Assert.assertEquals(metaDataType, myMetaDataType);
         }
     }
 
     @Test
     public void testFromName_null() {
         MetaDataType metaDataType = MetaDataType.fromName(null);
-        TestCase.assertEquals(null, metaDataType);
+        Assert.assertEquals(null, metaDataType);
     }
 
     @Test
@@ -93,7 +91,7 @@ public class MetaDataTypeTest {
         for (TestOption testOption : TEST_OPTIONS) {
             MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
             Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
-            TestCase.assertEquals(testOption.getExpectedResult(), o);
+            Assert.assertEquals(testOption.getExpectedResult(), o);
         }
     }
 
@@ -102,7 +100,7 @@ public class MetaDataTypeTest {
         for (TestOption testOption : TEST_OPTIONS_EMPTY) {
             MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
             Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
-            TestCase.assertEquals(testOption.getExpectedResult(), o);
+            Assert.assertEquals(testOption.getExpectedResult(), o);
         }
     }
 }

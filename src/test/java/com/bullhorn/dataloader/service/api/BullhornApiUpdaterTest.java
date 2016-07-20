@@ -7,30 +7,25 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 
-import junit.framework.TestCase;
-
 public class BullhornApiUpdaterTest {
     @Test
     public void testMerge_NoIdReturnedFromRest_IdWasInCsv() throws IOException {
-        // arrange
         BullhornAPI bhapi = getBullhornAPI();
-
         JSONObject jsonObject = new JSONObject();
         EntityQuery entityQuery = new EntityQuery("ClientContact", jsonObject);
         entityQuery.addInt("id", "123");
 
-        // act
         BullhornApiUpdater bullhornApiUpdater = new BullhornApiUpdater(bhapi);
         Result result = bullhornApiUpdater.merge(entityQuery);
 
-        // assert
-        TestCase.assertFalse(result.isSuccess());
+        Assert.assertFalse(result.isSuccess());
     }
 
     private BullhornAPI getBullhornAPI() throws IOException {

@@ -11,10 +11,5 @@ public class BullhornAPITest {
 
     @Test
     public void testExistsFields() throws Exception {
-        // arrange
-
-        // act
-
-        // assert
     }
 }

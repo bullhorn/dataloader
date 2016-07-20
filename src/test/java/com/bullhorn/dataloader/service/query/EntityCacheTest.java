@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.service.query;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +7,7 @@ import java.util.Optional;
 
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -46,7 +46,7 @@ public class EntityCacheTest {
     public void testLoad() throws Exception {
         EntityQuery entityQuery = new EntityQuery("awesomeEntity", awesomeEntity);
         Result result = associationCache.get(entityQuery);
-        assertEquals(result.isSuccess(), true);
-        assertEquals(result.getBullhornId(), Integer.valueOf(42));
+        Assert.assertEquals(result.isSuccess(), true);
+        Assert.assertEquals(result.getBullhornId(), Integer.valueOf(42));
     }
 }

@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -27,8 +28,6 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
-
-import junit.framework.TestCase;
 
 public class LoadTaskTest {
 
@@ -71,7 +70,6 @@ public class LoadTaskTest {
                     Result.Insert(1), Result.Update(2), Result.Insert(3)
             );
 
-            // when
             loadTask = new LoadTask("Candidate", bhapi, bhapiAssociator, jsonRow, loadingCache, fileWriter, propertyFileUtil);
             return this;
         }
@@ -79,7 +77,6 @@ public class LoadTaskTest {
 
     @Test
     public void testToManyAssociations_multipleValues() throws ExecutionException, IOException {
-        // setup
         SetupLoadTask setupLoadTask = new SetupLoadTask().invoke();
 
         LoadTask loadTask = setupLoadTask.getLoadTask();
@@ -91,10 +88,8 @@ public class LoadTaskTest {
         when(bhapi.call(any(GetMethod.class))).thenReturn(new JSONObject());
         when(bhapi.getMetaDataTypes(any())).thenReturn(metaMap);
 
-        // act
         loadTask.run();
 
-        // assert
         ArgumentCaptor<EntityInstance> actualParent = ArgumentCaptor.forClass(EntityInstance.class);
         ArgumentCaptor<EntityInstance> actualAssociation = ArgumentCaptor.forClass(EntityInstance.class);
 
@@ -103,7 +98,7 @@ public class LoadTaskTest {
         EntityInstance expectedParent = new EntityInstance("1", "Candidate");
         EntityInstance expectedAssociation = new EntityInstance("2,3", "categories");
 
-        TestCase.assertEquals(expectedParent, actualParent.getValue());
-        TestCase.assertEquals(expectedAssociation, actualAssociation.getValue());
+        Assert.assertEquals(expectedParent, actualParent.getValue());
+        Assert.assertEquals(expectedAssociation, actualAssociation.getValue());
     }
 }
