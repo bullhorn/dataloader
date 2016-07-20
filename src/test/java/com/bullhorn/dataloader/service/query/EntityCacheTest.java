@@ -14,7 +14,6 @@ import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.EntityInstance;
-import com.bullhorn.dataloader.service.api.EntityInstanceTest;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.google.common.cache.CacheBuilder;
@@ -31,7 +30,7 @@ public class EntityCacheTest {
     public void setUp() throws Exception {
         bhapi = Mockito.mock(BullhornAPI.class);
         JSONObject mockSon = Mockito.mock(JSONObject.class);
-        awesomeEntity = EntityInstanceTest.getAwesomeEntityInstance();
+        awesomeEntity = new EntityInstance("awesomeID", "awesomeEntityName");
         this.associationCache = CacheBuilder.newBuilder()
                 .maximumSize(10000)
                 .build(new EntityCache(bhapi));
