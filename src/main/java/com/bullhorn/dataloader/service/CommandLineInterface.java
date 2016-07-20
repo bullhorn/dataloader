@@ -7,8 +7,10 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
+import com.bullhorn.dataloader.service.api.BullhornApiUpdater;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -96,13 +98,16 @@ public class CommandLineInterface {
     }
 
     private ConcurrencyService createConcurrencyService(String entity, String filePath, BullhornAPI bhApi) throws Exception {
-        final BullhornApiAssociator bullhornApiAssociator = new BullhornApiAssociator(bhApi);
+        final BullhornApiUpdater bhApiUpdater = new BullhornApiUpdater(bhApi);
+        final BullhornApiAssociator bhApiAssociator = new BullhornApiAssociator(bhApi);
+
         final LoadingCache<EntityQuery, Result> associationCache = CacheBuilder.newBuilder()
                 .maximumSize(bhApi.getPropertyFileUtil().getCacheSize())
-                .build(new EntityCache(bhApi));
+                .build(new EntityCache(bhApiUpdater));
 
         bhApi.frontLoad();
-        final CsvFileReader csvFileReader = new CsvFileReader(filePath, bhApi.getRootMetaDataTypes(entity));
+        MetaMap metaMap = bhApi.getRootMetaDataTypes(entity);
+        final CsvFileReader csvFileReader = new CsvFileReader(filePath, metaMap);
         final CsvFileWriter csvFileWriter = new CsvFileWriter(filePath, csvFileReader.getHeaders());
 
         final ExecutorService executorService = Executors.newFixedThreadPool(bhApi.getPropertyFileUtil().getNumThreads());
@@ -111,7 +116,7 @@ public class CommandLineInterface {
                 csvFileReader,
                 csvFileWriter,
                 bhApi,
-                bullhornApiAssociator,
+                bhApiAssociator,
                 executorService,
                 associationCache,
                 bhApi.getPropertyFileUtil()
