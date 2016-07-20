@@ -28,7 +28,7 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
 
     1. From the [Releases Page](https://github.com/bullhorn/dataloader/releases) click [Draft a New Release](https://github.com/bullhorn/dataloader/releases/new).
     
-    1. Set the name of the release to the version number prepended with a `v`, like: `v1.2.3`.
+    1. Set the Tag Version and Release Title to the version number prepended with a `v`, like: `v1.2.3`.
     
     1. In the Attach Binaries section of the release page, attach the release package file: `target/dataloader.zip`
  
