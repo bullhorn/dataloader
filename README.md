@@ -1,6 +1,8 @@
 ![DataLoader Logo](dataloader.png)
 
-Bullhorn DataLoader is a downloadable tool for quickly importing and updating data from a CSV file to Bullhorn.
+A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
+
+[![Build Status](https://api.travis-ci.org/bullhorn/dataloader.svg?branch=master)](https://travis-ci.org/bullhorn/dataloader)
 
 ## Quick Start Guide
 
