@@ -20,7 +20,7 @@ import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
-import com.bullhorn.dataloader.util.ValidationUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 

@@ -1,7 +1,8 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.util.validation;
 
 import java.io.File;
 
+import com.bullhorn.dataloader.util.PrintUtil;
 import org.apache.commons.io.FilenameUtils;
 
 /**
@@ -55,7 +56,6 @@ public class ValidationUtil {
             printUtil.printUsage();
             return false;
         }
-
         return true;
     }
 
@@ -63,13 +63,12 @@ public class ValidationUtil {
      * Validates that an entity can be loaded, based on the entityName.
      */
     public boolean isLoadableEntity(String entityName) {
-        if (StringConsts.isLoadable(entityName)) {
+        if (EntityValidation.isLoadable(entityName)) {
             return true;
-        } else if (StringConsts.isReadOnly(entityName)) {
+        } else if (EntityValidation.isReadOnly(entityName)) {
             printUtil.printEntityError(entityName, "read only");
             return false;
         }
-
         printUtil.printUnknownEntityError(entityName);
         return false;
     }
@@ -78,13 +77,12 @@ public class ValidationUtil {
      * Validates that an entity can be deleted, based on the entityName.
      */
     public boolean isDeletableEntity(String entityName) {
-        if (StringConsts.isDeletable(entityName)) {
+        if (EntityValidation.isDeletable(entityName)) {
             return true;
-        } else if (StringConsts.isNotDeletable(entityName) || StringConsts.isReadOnly(entityName)) {
+        } else if (EntityValidation.isNotDeletable(entityName) || EntityValidation.isReadOnly(entityName)) {
             printUtil.printEntityError(entityName, "not deletable");
             return false;
         }
-
         printUtil.printUnknownEntityError(entityName);
         return false;
     }

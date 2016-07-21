@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.bullhorn.dataloader.util.validation.EntityValidation;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -55,7 +56,7 @@ public class DeleteTask implements Runnable {
             String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
             log.info("Deleting row: " + data.getRowNumber());
 
-            if (!StringConsts.isDeletable(entityName)) {
+            if (!EntityValidation.isDeletable(entityName)) {
                 String failureText = "ERROR: Cannot delete " + entityName + " because it is not deletable in REST.";
                 result = Result.Failure(failureText);
                 System.out.println(failureText);
@@ -70,12 +71,12 @@ public class DeleteTask implements Runnable {
                 Integer entityId = new Integer(data.getImmediateActions().get(StringConsts.ID).toString());
                 String url = entityBase + "/" + entityId + restToken;
 
-                if (StringConsts.isHardDeletable(entityName)) {
+                if (EntityValidation.isHardDeletable(entityName)) {
                     log.info("Calling hard delete: " + url);
                     DeleteMethod deleteMethod = new DeleteMethod(url);
                     JSONObject jsonResponse = bhApi.call(deleteMethod);
                     result = parseJsonResponse(jsonResponse, entityId);
-                } else if (StringConsts.isSoftDeletable(entityName)) {
+                } else if (EntityValidation.isSoftDeletable(entityName)) {
                     PostMethod postMethod = new PostMethod(url);
 
                     // Send a body of: {"isDeleted" : true}

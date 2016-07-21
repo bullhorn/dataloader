@@ -48,8 +48,8 @@ public class CsvFileWriter {
         String baseName = FilenameUtils.getBaseName(filePath);
 
         // Create files, and create directory if it does not exist
-        File successFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + SUCCESS_CSV);
-        File failureFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + FAILURE_CSV);
+        File successFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.TIMESTAMP + SUCCESS_CSV);
+        File failureFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.TIMESTAMP + FAILURE_CSV);
         successFile.getParentFile().mkdirs();
         failureFile.getParentFile().mkdirs();
 

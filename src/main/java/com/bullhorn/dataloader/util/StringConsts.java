@@ -1,9 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-
 /**
  * Global String Constants
  * <p>
@@ -30,8 +26,7 @@ public class StringConsts {
     public static final String PRIVATE_LABELS = "privateLabels";
     public static final String CATEGORY = "Category";
     public static final String STRING = "String";
-
-    private static String timestamp = null;
+    public static final String TIMESTAMP = DateUtil.getTimestamp();
 
     public static final String[] HARD_DELETABLE_ENTITIES = {
             "AppointmentAttendee",
@@ -84,76 +79,5 @@ public class StringConsts {
             "TimeUnit"
     };
 
-    /**
-     * Returns a timestamp that is set to the time when DataLoader was started. This allows for the same
-     * timestamp to be used throughout the same session.
-     *
-     * @return The timestamp string
-     */
-    public static String getTimestamp() {
-        if (timestamp == null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
-            timestamp = dateFormat.format(new Date());
-        }
-
-        return timestamp;
-    }
-
-    /**
-     * Convenience method which returns true if the entity can be loaded using REST.
-     *
-     * @return True if can be loaded by DataLoader
-     */
-    public static boolean isLoadable(String entityName) {
-        return (isHardDeletable(entityName) || isSoftDeletable(entityName) || isNotDeletable(entityName));
-    }
-
-    /**
-     * Convenience method which returns true if the entity can be deleted using REST.
-     *
-     * @return True if can be deleted by DataLoader
-     */
-    public static boolean isDeletable(String entityName) {
-        return (isHardDeletable(entityName) || isSoftDeletable(entityName));
-    }
-
-    /**
-     * Convenience method which returns true if an entity is part of the set of hard deletable entities in REST.
-     *
-     * @return True if can be hard deleted
-     */
-    public static boolean isHardDeletable(String entityName) {
-        return Arrays.asList(HARD_DELETABLE_ENTITIES).contains(entityName);
-    }
-
-    /**
-     * Convenience method which returns true if an entity is part of the set of soft deletable entities in REST.
-     *
-     * @return True if must be soft deleted
-     */
-    public static boolean isSoftDeletable(String entityName) {
-        return Arrays.asList(SOFT_DELETABLE_ENTITIES).contains(entityName);
-    }
-
-    /**
-     * Convenience method which returns true if an entity is part of the set of mutable but not deletable entities
-     * in REST.
-     *
-     * @return True if can be inserted and updated but not deleted
-     */
-    public static boolean isNotDeletable(String entityName) {
-        return Arrays.asList(NOT_DELETABLE_ENTITIES).contains(entityName);
-    }
-
-    /**
-     * Convenience method which returns true if an entity is part of the set of read only entities in REST.
-     *
-     * @return True if read only
-     */
-    public static boolean isReadOnly(String entityName) {
-        return Arrays.asList(READ_ONLY_ENTITIES).contains(entityName);
-    }
-
-    private StringConsts() {
-    }
+    private StringConsts() {}
 }
