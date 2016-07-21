@@ -76,7 +76,7 @@ This will produce `dataloader-{version}.jar` in `/target`, which includes all re
 
 Edit the file: `dataloader.properties` to specify the login credentials, data configuration and more.
 
-## Generate CSV Template *(Optional)*
+## Generate CSV Template
 
 ```
 dataloader template <EntityName>
@@ -84,17 +84,21 @@ dataloader template <EntityName>
 
 This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc).
 
-## Insert/Update
+## Load
 
 ```
 dataloader <EntityName> /path/to/file.csv
 ```
+
+Update if record is present, Insert otherwise. The provided CSV file requires a column for each data field to load. These column names must match the names in entity template.
 
 ## Delete
 
 ```
 dataloader delete <EntityName> /path/to/file.csv
 ```
+
+The provided CSV file only requires an `id` column. This column will contain the Bullhorn internal IDs of the records to delete.
 
 ## Results Files
 
