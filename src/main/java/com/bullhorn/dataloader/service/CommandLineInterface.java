@@ -20,6 +20,7 @@ import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
@@ -30,10 +31,12 @@ public class CommandLineInterface {
 
     final private PrintUtil printUtil;
     final private ValidationUtil validationUtil;
+    final private Timer timer;
 
     public CommandLineInterface() {
         printUtil = new PrintUtil();
         validationUtil = new ValidationUtil(printUtil);
+        timer = new Timer();
     }
 
     /**
@@ -56,40 +59,42 @@ public class CommandLineInterface {
                     if (args[0].equalsIgnoreCase("delete")) {
                         delete(args[1], args[2]);
                     } else {
-                        System.out.println("ERROR: Expected the 'delete' keyword, but was provided: " + args[0]);
+                        printAndLog("ERROR: Expected the 'delete' keyword, but was provided: " + args[0]);
                         printUtil.printUsage();
                     }
                 }
             }
         } catch (Exception e) {
-            System.out.println(e);
-            log.error(e);
+            printAndLog(e.toString());
         }
     }
 
     private void load(String entityName, String filePath) throws Exception {
         if (validationUtil.isLoadableEntity(entityName) && validationUtil.isValidCsvFile(filePath)) {
+            printAndLog("Loading " + entityName + " records from: " + filePath + "...");
             final BullhornAPI bhApi = createSession();
-            System.out.println("Loading " + entityName + " records from: " + filePath);
             ConcurrencyService concurrencyService = createConcurrencyService(entityName, filePath, bhApi);
             concurrencyService.runLoadProcess();
+            printAndLog("Completed setup (establishing connection, retrieving meta, front loading) in " + timer.getDurationStringSec());
         }
     }
 
     private void delete(String entityName, String filePath) throws Exception {
         if (validationUtil.isDeletableEntity(entityName) && validationUtil.isValidCsvFile(filePath)) {
+            printAndLog("Deleting " + entityName + " records from: " + filePath + "...");
             final BullhornAPI bhApi = createSession();
-            System.out.println("Deleting " + entityName + " records from: " + filePath);
             ConcurrencyService concurrencyService = createConcurrencyService(entityName, filePath, bhApi);
             concurrencyService.runDeleteProcess();
+            printAndLog("Completed setup (establishing connection, retrieving meta) in " + timer.getDurationStringSec());
         }
     }
 
     private void template(String entityName) throws Exception {
+        printAndLog("Creating Template for " + entityName + "...");
         final BullhornAPI bhApi = createSession();
         TemplateUtil templateUtil = new TemplateUtil(bhApi);
-        System.out.println("Creating Template for " + entityName);
         templateUtil.writeExampleEntityCsv(entityName);
+        printAndLog("Generated template in " + timer.getDurationStringSec());
     }
 
     private BullhornAPI createSession() throws Exception {
@@ -125,5 +130,10 @@ public class CommandLineInterface {
         );
 
         return concurrencyService;
+    }
+
+    private void printAndLog(String line) {
+        System.out.println(line);
+        log.info(line);
     }
 }
