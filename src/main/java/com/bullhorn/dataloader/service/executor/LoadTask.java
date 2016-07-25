@@ -23,6 +23,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhorn.dataloader.util.Timer;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -66,6 +67,8 @@ public class LoadTask implements Runnable {
      */
     @Override
     public void run() {
+        Timer timer = new Timer();
+
         String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
         String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
         try {
@@ -82,6 +85,8 @@ public class LoadTask implements Runnable {
             System.out.println(e);
             log.error(e);
         }
+
+        log.debug("Loaded row " + data.getRowNumber() + " in " + timer.getDurationStringSec());
     }
 
     private Map<String, Object> upsertPreprocessingActions() throws ExecutionException {
