@@ -42,6 +42,8 @@ public class CommandLineInterface {
      * @param args The user's command line parameters
      */
     public void start(String[] args) {
+        log.info("Args: " + String.join(" ", args));
+
         try {
             if (validationUtil.isValidParameters(args)) {
                 if (args.length == 2) {
