@@ -1,9 +1,14 @@
 package com.bullhorn.dataloader.service.executor;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -28,6 +33,9 @@ public class DeleteTask implements Runnable {
     private JsonRow data;
     private CsvFileWriter csvFileWriter;
     private PropertyFileUtil propertyFileUtil;
+    private final ActionTotals actionTotals = new ActionTotals();
+    private final PrintUtil printUtil = new PrintUtil();
+    private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     private static final Logger log = LogManager.getLogger(DeleteTask.class);
 
@@ -93,6 +101,18 @@ public class DeleteTask implements Runnable {
             }
 
             csvFileWriter.writeRow(data, result);
+
+            if(result.getAction().equals(Result.Action.DELETE)) {
+                actionTotals.incrementTotalDelete();
+            } else {
+                actionTotals.incrementTotalError();
+            }
+
+            rowProcessedCount.incrementAndGet();
+            if(rowProcessedCount.intValue() % 111 == 0) {
+                printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
+            }
+
         } catch (IOException e) {
             System.out.println(e);
             log.error(e);

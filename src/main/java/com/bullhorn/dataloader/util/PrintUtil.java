@@ -40,10 +40,21 @@ public class PrintUtil {
         printAndLog("");
     }
 
+    public void printActionTotals(ActionTotals result) {
+        final Integer totalRecords = result.getTotalError() + result.getTotalInsert() + result.getTotalUpdate() + result.getTotalDelete();
+
+        printAndLog("Results of DataLoader run");
+        printAndLog("Total records processed: " + totalRecords);
+        printAndLog("Total records inserted: " + result.getTotalInsert());
+        printAndLog("Total records updated: " + result.getTotalUpdate());
+        printAndLog("Total records deleted: " + result.getTotalDelete());
+        printAndLog("Total records failed: " + result.getTotalError());
+    }
+
     /**
-     * Prints to the console and logs to the logfile - only used internally
+     * Prints to the console and logs to the logfile
      */
-    private void printAndLog(String line) {
+    public void printAndLog(String line) {
         System.out.println(line);
         log.info(line);
     }
