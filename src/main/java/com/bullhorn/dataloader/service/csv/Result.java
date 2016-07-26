@@ -70,6 +70,12 @@ public class Result {
         this.failureText = failureText;
     }
 
+    public Result (Status status, Integer bullhornId, String failureText) {
+        this.status = status;
+        this.bullhornId = bullhornId;
+        this.failureText = failureText;
+    }
+
     /**
      * Will be set to uninitialized if not set.
      */

@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import com.bullhorn.dataloader.task.DeleteTask;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.json.JSONObject;
 import org.junit.Assert;

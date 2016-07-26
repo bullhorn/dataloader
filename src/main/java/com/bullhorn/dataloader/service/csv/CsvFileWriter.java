@@ -42,14 +42,14 @@ public class CsvFileWriter {
      * @param filePath The full path to the Entity file to read in
      * @param headers The headers read in from the input CSV file
      */
-    public CsvFileWriter(String filePath, String[] headers) throws IOException {
+    public CsvFileWriter(String method, String filePath, String[] headers) throws IOException {
         this.headers = headers;
 
         String baseName = FilenameUtils.getBaseName(filePath);
 
         // Create files, and create directory if it does not exist
-        File successFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + SUCCESS_CSV);
-        File failureFile = new File(RESULTS_DIR + baseName + "_" + StringConsts.getTimestamp() + FAILURE_CSV);
+        File successFile = new File(RESULTS_DIR + baseName + "_" + method + "_" + StringConsts.getTimestamp() + SUCCESS_CSV);
+        File failureFile = new File(RESULTS_DIR + baseName + "_" + method + "_" + StringConsts.getTimestamp() + FAILURE_CSV);
         successFile.getParentFile().mkdirs();
         failureFile.getParentFile().mkdirs();
 
@@ -82,6 +82,16 @@ public class CsvFileWriter {
             successCsv.flush();
         } else {
             failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), jsonRow.getValues()));
+            failureCsv.flush();
+        }
+    }
+
+    public synchronized void writeAttachmentRow(String[] data, Result result) throws IOException {
+        if (result.isSuccess()) {
+            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(), data));
+            successCsv.flush();
+        } else {
+            failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), data));
             failureCsv.flush();
         }
     }

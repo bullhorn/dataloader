@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Logger;
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.csvreader.CsvReader;
 
-public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
-    private final Logger log = LogManager.getLogger(CsvFileReader.class);
+public class EntityCsvReader implements Iterator<JsonRow>, Iterable<JsonRow> {
+    private final Logger log = LogManager.getLogger(EntityCsvReader.class);
 
     private final MetaMap metaMap;
     private CsvReader csvReader;
@@ -24,7 +24,7 @@ public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
     private String[] headers;
     private Integer rowCount = 0;
 
-    public CsvFileReader(String filePath, MetaMap metaMap) throws IOException {
+    public EntityCsvReader(String filePath, MetaMap metaMap) throws IOException {
         this.csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
         headers = csvReader.getHeaders();

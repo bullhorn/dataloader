@@ -2,12 +2,14 @@ package com.bullhorn.dataloader.service.executor;
 
 import java.util.concurrent.ExecutorService;
 
+import com.bullhorn.dataloader.task.DeleteTask;
+import com.bullhorn.dataloader.task.LoadTask;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
-import com.bullhorn.dataloader.service.csv.CsvFileReader;
+import com.bullhorn.dataloader.service.csv.EntityCsvReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -18,27 +20,27 @@ import com.google.common.cache.LoadingCache;
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
  */
-public class ConcurrencyService {
+public class EntityConcurrencyService {
 
     private final ExecutorService executorService;
     private final String entityName;
-    private final CsvFileReader csvReader;
+    private final EntityCsvReader csvReader;
     private final CsvFileWriter csvWriter;
     private final BullhornAPI bhApi;
     private final BullhornApiAssociator bullhornApiAssociator;
     private final LoadingCache<EntityQuery, Result> associationCache;
     private final PropertyFileUtil propertyFileUtil;
 
-    private final Logger log = LogManager.getLogger(ConcurrencyService.class);
+    private final Logger log = LogManager.getLogger(EntityConcurrencyService.class);
 
-    public ConcurrencyService(String entityName,
-                              CsvFileReader csvReader,
-                              CsvFileWriter csvWriter,
-                              BullhornAPI bhApi,
-                              BullhornApiAssociator bullhornApiAssociator,
-                              ExecutorService executorService,
-                              LoadingCache<EntityQuery, Result> associationCache,
-                              PropertyFileUtil propertyFileUtil) {
+    public EntityConcurrencyService(String entityName,
+                                    EntityCsvReader csvReader,
+                                    CsvFileWriter csvWriter,
+                                    BullhornAPI bhApi,
+                                    BullhornApiAssociator bullhornApiAssociator,
+                                    ExecutorService executorService,
+                                    LoadingCache<EntityQuery, Result> associationCache,
+                                    PropertyFileUtil propertyFileUtil) {
         this.entityName = entityName;
         this.csvReader = csvReader;
         this.csvWriter = csvWriter;

@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import com.bullhorn.dataloader.task.LoadTask;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.json.JSONObject;
 import org.junit.Test;
