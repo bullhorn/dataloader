@@ -1,14 +1,14 @@
 package com.bullhorn.dataloader.service.csv;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.apache.commons.io.FilenameUtils;
-
+import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -39,17 +39,18 @@ public class CsvFileWriter {
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_failure.csv
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_success.csv
      *
+     * @param method
      * @param filePath The full path to the Entity file to read in
      * @param headers The headers read in from the input CSV file
      */
-    public CsvFileWriter(String method, String filePath, String[] headers) throws IOException {
+    public CsvFileWriter(Method method, String filePath, String[] headers) throws IOException {
         this.headers = headers;
 
         String baseName = FilenameUtils.getBaseName(filePath);
 
         // Create files, and create directory if it does not exist
-        File successFile = new File(RESULTS_DIR + baseName + "_" + method + "_" + StringConsts.getTimestamp() + SUCCESS_CSV);
-        File failureFile = new File(RESULTS_DIR + baseName + "_" + method + "_" + StringConsts.getTimestamp() + FAILURE_CSV);
+        File successFile = new File(RESULTS_DIR + baseName + "_" + method.getMethodName() + "_" + StringConsts.getTimestamp() + SUCCESS_CSV);
+        File failureFile = new File(RESULTS_DIR + baseName + "_" + method.getMethodName() + "_" + StringConsts.getTimestamp() + FAILURE_CSV);
         successFile.getParentFile().mkdirs();
         failureFile.getParentFile().mkdirs();
 
@@ -60,11 +61,22 @@ public class CsvFileWriter {
         failureCsv = new CsvWriter(failureFileWriter, ',');
 
         // Write headers to the files, adding our own custom columns, if they do not already exist.
-        successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
-                ArrayUtil.prepend(ACTION_COLUMN, headers)));
-        failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+        createCSVHeaders(method, headers);
+
         successCsv.flush();
         failureCsv.flush();
+    }
+
+    private void createCSVHeaders(Method method, String[] headers) throws IOException {
+        if (Method.LOAD.equals(method)) {
+            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
+                    ArrayUtil.prepend(ACTION_COLUMN, headers)));
+            failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+        }
+        else if (Method.LOADATTACHMENTS.equals(method)){
+            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, headers));
+            failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+        }
     }
 
     /**

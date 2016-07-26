@@ -6,48 +6,29 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
-import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
-import com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
-public class LoadAttachmentTask <B extends BullhornEntity> implements Runnable {
+public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadAttachmentTask.class);
 
-    private String entityName;
-    private Integer bullhornParentId;
-    private String externalId;
-    private String attachmentFilePath;
-    private String[] data;
-    private CsvFileWriter csvWriter;
-    private PropertyFileUtil propertyFileUtil;
-    private BullhornData bullhornData;
-    private Class<B> entity;
+    private static final String relativeFilePath = "relativeFilePath";
 
     public LoadAttachmentTask(String entityName,
-                              String[] data,
-                              String externalId,
-                              String attachmentFilePath,
+                              LinkedHashMap<String, String> dataMap,
                               CsvFileWriter csvWriter,
                               PropertyFileUtil propertyFileUtil,
                               BullhornData bullhornData) {
-        this.entityName = entityName;
-        this.data = data;
-        this.externalId = externalId;
-        this.attachmentFilePath = attachmentFilePath;
-        this.csvWriter = csvWriter;
-        this.propertyFileUtil = propertyFileUtil;
-        this.bullhornData = bullhornData;
+        super(entityName, dataMap, csvWriter, propertyFileUtil, bullhornData);
     }
 
     /**
@@ -67,7 +48,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> implements Runnable {
         writeToAttachmentResultCSV(result);
     }
 
-    private Result handleAttachment() {
+    private Result handleAttachment() throws Exception {
         getAndSetBullhornEntityInfo();
         getAndSetBullhornID();
         FileWrapper fileWrapper = attachFile();
@@ -82,39 +63,15 @@ public class LoadAttachmentTask <B extends BullhornEntity> implements Runnable {
 
     private void writeToAttachmentResultCSV(Result result) {
         try {
-            csvWriter.writeAttachmentRow(data, result);
+            csvWriter.writeAttachmentRow(dataMap.values().toArray(new String[0]), result);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private Result getFailureResult(Exception e) {
-        Result result = new Result(Result.Status.FAILURE, null, e.getMessage());
-        return result;
-    }
-
-    private Result getSuccessResult(FileWrapper fileWrapper) {
-        Result result = new Result(Result.Status.SUCCESS, fileWrapper.getId(), "");
-        return result;
-    }
-
-
     private <F extends FileEntity> FileWrapper attachFile() {
-        File attachementFile = new File(attachmentFilePath);
-        return bullhornData.addFile((Class<F>) entity, bullhornParentId, attachementFile, externalId, ParamFactory.fileParams());
+        File attachementFile = new File(dataMap.get(relativeFilePath));
+        return bullhornData.addFile((Class<F>) entity, bullhornParentId, attachementFile, dataMap.get(externalID), ParamFactory.fileParams(), false);
     }
-
-    private void getAndSetBullhornEntityInfo() {
-        entity = BullhornEntityInfo.getTypeFromName(entityName).getType();
-    }
-
-    private <S extends SearchEntity> void getAndSetBullhornID() {
-        String query = "externalId:" + externalId;
-        List<S> searchList = bullhornData.search((Class<S>) entity, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
-        if (!searchList.isEmpty()){
-            bullhornParentId = searchList.get(0).getId();
-        }
-    }
-
 
 }

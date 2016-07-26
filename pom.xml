@@ -48,7 +48,7 @@
     </developers>
 
     <properties>
-        <sdk-rest-version>1.1.11</sdk-rest-version>
+        <sdk-rest-version>1.1.12-SNAPSHOT</sdk-rest-version>
         <commons-codec.version>1.1.1</commons-codec.version>
         <commons-discovery.version>0.5</commons-discovery.version>
         <commons-httpclient.version>3.1</commons-httpclient.version>

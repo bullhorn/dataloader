@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -22,11 +23,6 @@ public class EntityAttachmentConcurrencyService {
     private final CsvFileWriter csvWriter;
     private final PropertyFileUtil propertyFileUtil;
     private final BullhornData bullhornData;
-    private int externalIdHeaderIndex;
-    private int attachmentFilePathHeaderIndex;
-
-    private final static String externalID = "externalID";
-    private final static String relativeFilePath = "relativeFilePath";
 
     private final Logger log = LogManager.getLogger(EntityAttachmentConcurrencyService.class);
 
@@ -45,34 +41,20 @@ public class EntityAttachmentConcurrencyService {
     }
 
     public void runLoadAttchmentProcess() throws IOException {
-        init();
         while (csvReader.readRecord()) {
-            String[] data = csvReader.getValues();
-            String externalID = data[externalIdHeaderIndex];
-            String attachmentFilePath = data[attachmentFilePathHeaderIndex];
-            LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(entityName, data, externalID, attachmentFilePath, csvWriter, propertyFileUtil, bullhornData);
+            LinkedHashMap<String, String> dataMap = getDataMap();
+            LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(entityName, dataMap, csvWriter, propertyFileUtil, bullhornData);
             executorService.execute(loadAttachmentTask );
         }
         executorService.shutdown();
     }
 
-    private void init() throws IOException {
-        findAndSetHeaderIndex(externalID);
-        findAndSetHeaderIndex(relativeFilePath);
-    }
-
-    //TODO:: MAKE NOT UGLY
-    private void findAndSetHeaderIndex(String header) throws IOException {
-        for (int i = 0; i > csvReader.getHeaderCount(); i++) {
-            if (header.equalsIgnoreCase(csvReader.getHeader(i))) {
-                if (externalID.equalsIgnoreCase(header)) {
-                    this.externalIdHeaderIndex = i;
-                }
-                else if (relativeFilePath.equalsIgnoreCase(header)) {
-                    this.attachmentFilePathHeaderIndex = i;
-                }
-            }
+    private LinkedHashMap<String, String> getDataMap() throws IOException {
+        LinkedHashMap<String, String> dataMap = new LinkedHashMap<>();
+        for (int i = 0; i < csvReader.getHeaderCount(); i++){
+            dataMap.put(csvReader.getHeader(i), csvReader.getValues()[i]);
         }
+        return dataMap;
     }
 
 }
