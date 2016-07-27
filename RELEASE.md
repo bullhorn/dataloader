@@ -8,30 +8,30 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
   
     1. Remove the `-SNAPSHOT` from the pom.xml `<version>x.y.z-SNAPSHOT</version>` tag
     
- 1. Create release package
+ 2. Create release package
 
     1. Start with a clean checkout of the release branch
   
         1. Remove any local uncommitted changes to files
      
-        1. Remove any local changes to the dataloader.properties file
+        2. Remove any local changes to the dataloader.properties file
      
-        1. Remove all local files from the log and data folders
+        3. Remove all local files from the log and data folders
  
-    1. Run package command: `mvn clean package`
+    2. Run package command: `mvn clean package`
 
-    1. Run assembly command: `mvn assembly:single` to generate the release zip file: `target/dataloader.zip`
+    3. Run assembly command: `mvn assembly:single` to generate the release zip file: `target/dataloader.zip`
 
- 1. Test the new release package by stepping through the Quick Start Guide on both Windows and Mac/Linux
+ 3. Test the new release package by stepping through the Quick Start Guide on both Windows and Mac/Linux
 
- 1. Merge the release branch
+ 4. Merge the release branch
 
- 1. Create release in GitHub
+ 5. Create release in GitHub
 
     1. From the [Releases Page](https://github.com/bullhorn/dataloader/releases) click [Draft a New Release](https://github.com/bullhorn/dataloader/releases/new).
     
-    1. Set the Tag Version and Release Title to the version number prepended with a `v`, like: `v1.2.3`.
+    2. Set the Tag Version and Release Title to the version number prepended with a `v`, like: `v1.2.3`.
     
-    1. In the Attach Binaries section of the release page, attach the release package file: `target/dataloader.zip`
+    3. In the Attach Binaries section of the release page, attach the release package file: `target/dataloader.zip`
  
- 1. Make a new commit to master to bump the version and add `-SNAPSHOT` to the pom.xml version
+ 6. Make a new commit to master to bump the version and add `-SNAPSHOT` to the pom.xml version
