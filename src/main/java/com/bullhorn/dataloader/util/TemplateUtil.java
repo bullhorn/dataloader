@@ -1,20 +1,19 @@
 package com.bullhorn.dataloader.util;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.csvreader.CsvWriter;
 import com.google.common.collect.Sets;
 
 public class TemplateUtil {
 
     private final BullhornAPI bullhornAPI;
-
     private final Set<String> compositeTypes = Sets.newHashSet("Address");
-
     private MetaMap metaMap;
 
     public TemplateUtil(BullhornAPI bullhornAPI) {
@@ -22,31 +21,25 @@ public class TemplateUtil {
     }
 
     public void writeExampleEntityCsv(String entity) throws IOException {
-        String filePath = entity + "Example.csv";
-
         metaMap = bullhornAPI.getRootMetaDataTypes(entity);
+        Map<String, String> fieldNameToDataType = metaMap.getFieldNameToDataType();
+        Set<String> fieldNames = fieldNameToDataType.keySet();
 
-        Map<String, String> nameMap = metaMap.getFieldNameToDataType();
-
-        Set<String> nameColumns = nameMap.keySet();
-        StringBuilder header = new StringBuilder();
-        StringBuilder exampleRow = new StringBuilder();
-        for (String column : nameColumns) {
-            String datatype = metaMap.getDataTypeByFieldName(column).get();
-            if (!isCompositeType(datatype)
-                    && !hasId(column)) {
-                header.append(column).append(",");
-                exampleRow.append(datatype).append(",");
+        ArrayList<String> headers = new ArrayList<>();
+        ArrayList<String> dataTypes = new ArrayList<>();
+        for (String fieldName : fieldNames) {
+            String dataType = fieldNameToDataType.get(fieldName);
+            if (!isCompositeType(dataType) && !hasId(fieldName)) {
+                headers.add(fieldName);
+                dataTypes.add(dataType);
             }
         }
-        String csvStr = header.toString();
-        csvStr = csvStr.substring(0, csvStr.length() - 1);
-        csvStr += "\n" + exampleRow.toString();
-        csvStr = csvStr.substring(0, csvStr.length() - 1);
 
-        FileOutputStream fileOutputStream = new FileOutputStream(filePath);
-        fileOutputStream.write(csvStr.getBytes());
-        fileOutputStream.close();
+        CsvWriter csvWriter = new CsvWriter(entity + "Example.csv");
+        csvWriter.writeRecord(headers.toArray(new String[0]));
+        csvWriter.writeRecord(dataTypes.toArray(new String[0]));
+        csvWriter.flush();
+        csvWriter.close();
     }
 
     private boolean hasId(String column) {
