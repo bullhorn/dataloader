@@ -4,13 +4,13 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class AssociationFilterTest {
+
     @Test
     public void testIsCustomObject() {
         Assert.assertTrue(AssociationFilter.isCustomObject("customObject"));
         Assert.assertTrue(AssociationFilter.isCustomObject("CustomObject"));
         Assert.assertTrue(AssociationFilter.isCustomObject("PersonCustomObject1s"));
         Assert.assertTrue(AssociationFilter.isCustomObject("CustomObject1s"));
-
         Assert.assertFalse(AssociationFilter.isCustomObject("CustomObjec"));
         Assert.assertFalse(AssociationFilter.isCustomObject("customobject"));
     }

@@ -15,21 +15,22 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 
 public class BullhornApiUpdaterTest {
+
     @Test
     public void testMerge_NoIdReturnedFromRest_IdWasInCsv() throws IOException {
-        BullhornAPI bhapi = getBullhornAPI();
-        JSONObject jsonObject = new JSONObject();
-        EntityQuery entityQuery = new EntityQuery("ClientContact", jsonObject);
+        final BullhornAPI bhapi = getBullhornAPI();
+        final JSONObject jsonObject = new JSONObject();
+        final EntityQuery entityQuery = new EntityQuery("ClientContact", jsonObject);
         entityQuery.addInt("id", "123");
 
-        BullhornApiUpdater bullhornApiUpdater = new BullhornApiUpdater(bhapi);
-        Result result = bullhornApiUpdater.merge(entityQuery);
+        final BullhornApiUpdater bullhornApiUpdater = new BullhornApiUpdater(bhapi);
+        final Result result = bullhornApiUpdater.merge(entityQuery);
 
         Assert.assertFalse(result.isSuccess());
     }
 
     private BullhornAPI getBullhornAPI() throws IOException {
-        BullhornAPI bhapi = Mockito.mock(BullhornAPI.class);
+        final BullhornAPI bhapi = Mockito.mock(BullhornAPI.class);
         when(bhapi.call(any())).thenReturn(new JSONObject("{\"count\":0}"));
         when(bhapi.getLabelByName(any())).thenReturn(Optional.of("CliCon"));
         when(bhapi.serialize(any())).thenReturn("");

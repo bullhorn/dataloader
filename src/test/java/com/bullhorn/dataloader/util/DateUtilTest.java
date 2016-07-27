@@ -9,8 +9,8 @@ public class DateUtilTest {
 
 	@Test
 	public void testGetTimestamp() throws IOException {
-		String originalTimestamp = DateUtil.getTimestamp();
-		String newTimestamp = DateUtil.getTimestamp();
+		final String originalTimestamp = DateUtil.getTimestamp();
+		final String newTimestamp = DateUtil.getTimestamp();
 
 		Assert.assertEquals(originalTimestamp, newTimestamp);
 	}

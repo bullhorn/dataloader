@@ -44,15 +44,12 @@ public class EntityAttachmentConcurrencyServiceTest {
         actionTotals = Mockito.mock(ActionTotals.class);
         csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
         csvReader.readHeaders();
-
         taskCaptor  = ArgumentCaptor.forClass(LoadAttachmentTask.class);
-
     }
 
     @Test
     public void EntityAttachmentConcurrencyServiceTest() throws IOException, InterruptedException {
-        //arrange
-        EntityAttachmentConcurrencyService service = new EntityAttachmentConcurrencyService(
+        final EntityAttachmentConcurrencyService service = new EntityAttachmentConcurrencyService(
                 Method.LOADATTACHMENTS,
                 "Candidate",
                 csvReader,
@@ -62,20 +59,20 @@ public class EntityAttachmentConcurrencyServiceTest {
                 bullhornData,
                 printUtil,
                 actionTotals);
-        LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+
+        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
-        LoadAttachmentTask expectedTask = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+
+        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
-        //act
         service.runLoadAttachmentProcess();
-
-        //assert
         verify(executorService).execute(taskCaptor.capture());
-        LoadAttachmentTask actualTask = taskCaptor.getValue();
+
+        final LoadAttachmentTask actualTask = taskCaptor.getValue();
+
         Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
     }
-
 }
