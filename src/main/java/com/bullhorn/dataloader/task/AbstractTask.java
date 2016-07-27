@@ -42,12 +42,12 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected Result getFailureResult(Exception e) {
-        Result result = new Result(Result.Status.FAILURE, null, e.getMessage());
+        Result result = new Result(Result.Status.FAILURE, null, null, e.getMessage());
         return result;
     }
 
     protected Result getSuccessResult(FileWrapper fileWrapper) {
-        Result result = new Result(Result.Status.SUCCESS, fileWrapper.getId(), "");
+        Result result = new Result(Result.Status.SUCCESS, null, fileWrapper.getId(), "");
         return result;
     }
 
