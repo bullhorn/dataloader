@@ -1,4 +1,62 @@
 ######################
+# DataLoader Specific
+######################
+results/
+/*.csv
+
+######################
+# Maven
+######################
+/log/**
+/target/**
+target
+
+######################
+# Package Files
+######################
+*.jar
+*.war
+*.ear
+*.db
+
+######################
+# Logs
+######################
+*.log
+
+######################
+# OSX
+######################
+*.DS_Store
+
+######################
+# Windows
+######################
+# Windows image file caches
+Thumbs.db
+
+# Folder config file
+Desktop.ini
+
+######################
+# Others
+######################
+*.class
+*.*~
+*~
+.merge_file*
+
+######################
+# Intellij
+######################
+.idea/
+*.iml
+*.iws
+*.ipr
+*.ids
+*.orig
+
+######################
 # Eclipse
 ######################
 *.pydevproject
@@ -28,52 +86,3 @@ local.properties
 
 # PDT-specific
 .buildpath
-
-######################
-# Intellij
-######################
-*/.idea/**
-.idea/**
-*.iml
-*.iws
-*.ipr
-*.ids
-*.orig
-
-######################
-# Maven
-######################
-/log/**
-/target/**
-target
-
-######################
-# Package Files
-######################
-*.jar
-*.war
-*.ear
-*.db
-
-######################
-# Windows
-######################
-# Windows image file caches
-Thumbs.db
-
-# Folder config file
-Desktop.ini
-
-######################
-# Logs
-######################
-*.log
-
-######################
-# Others
-######################
-*.class
-*.*~
-*~
-.merge_file*
-**.csv
