@@ -100,6 +100,19 @@ dataloader delete <EntityName> /path/to/file.csv
 
 The provided CSV file only requires an `id` column. This column will contain the Bullhorn internal IDs of the records to delete.
 
+## Console Output
+
+DataLoader provides run process status for the console. Every 111 records, there will be an output of `Processed: # records.` 
+When the run is complete, total status of all actions will display. Such as:
+```
+Results of DataLoader run
+Total records processed: #
+Total records inserted: #
+Total records updated: #
+Total records deleted: #
+Total records failed: #
+```
+
 ## Results Files
 
 DataLoader divides all processed rows from the given CSV file into two output files, one for sucessfully uploaded rows and one for failures. Results files are saved in the folder `results/` inside the current working directory. If no `results/` directory exists, one will be created at runtime. The success file will be named: `results/<EntityName>_<Timestamp>_success.csv` and each row will be a copy of the original row prepended with two extra columns: an `id` column with the bullhorn ID of the record and an `action` column that will be either `INSERT` or `UPDATE`. The failure file will be named: `results/<EntityName>_<Timestamp>_failure.csv` and each row will be a copy of the original row prepended with a `reason` column containing the error text.
