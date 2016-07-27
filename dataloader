@@ -9,4 +9,4 @@
 #
 # Pass all command line arguments through to the application ("$@")
 #
-[ -f dataloader-*.jar ] && java -jar dataloader-*.jar "$@" || java -jar target/dataloader-*[0-9].jar "$@"
+[ -f dataloader-*.jar ] && java -jar dataloader-*.jar "$@" || java -jar target/dataloader-*[0-9T].jar "$@"
