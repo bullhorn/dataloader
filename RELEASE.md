@@ -18,7 +18,7 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
      
         1. Remove all local files from the log and data folders
  
-    1. Run package command: `mvn package`
+    1. Run package command: `mvn clean package`
 
     1. Run assembly command: `mvn assembly:single` to generate the release zip file: `target/dataloader.zip`
 
