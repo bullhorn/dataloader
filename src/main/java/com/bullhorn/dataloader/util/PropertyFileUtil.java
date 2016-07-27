@@ -51,7 +51,7 @@ public class PropertyFileUtil {
     private String tokenUrl;
     private String loginUrl;
     private Map<String, List<String>> entityExistFieldsMap = Maps.newHashMap();
-    private Set<String> frontLoadedEntities;
+    private Set<String> frontLoadedEntities = Sets.newHashSet();
     private String listDelimiter;
     private SimpleDateFormat dateParser;
     private Integer numThreads;
@@ -96,8 +96,12 @@ public class PropertyFileUtil {
         this.listDelimiter = properties.getProperty(LIST_DELIMITER);
         this.dateParser = new SimpleDateFormat(properties.getProperty(DATE_FORMAT));
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
-        this.frontLoadedEntities = Sets.newHashSet(properties.getProperty(FRONT_LOADED_ENTITIES).split(","));
         this.pageSize = Integer.parseInt(properties.getProperty(PAGE_SIZE));
+
+        String frontLoadedEntitiesProperty = properties.getProperty(FRONT_LOADED_ENTITIES);
+        if (!frontLoadedEntitiesProperty.isEmpty()) {
+            this.frontLoadedEntities.addAll(Arrays.asList(frontLoadedEntitiesProperty.split(",")));
+        }
     }
 
     /**

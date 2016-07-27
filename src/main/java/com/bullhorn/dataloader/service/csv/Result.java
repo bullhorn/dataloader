@@ -2,6 +2,9 @@ package com.bullhorn.dataloader.service.csv;
 
 /**
  * Represents the result of processing a record using the REST API.
+ * <p>
+ * This class is a data type, not an instance type. Two different results can be considered identical if they
+ * contain the same data values. They have no identity in and of themselves.
  */
 public class Result {
 
@@ -63,7 +66,7 @@ public class Result {
     private Integer bullhornId = -1;
     private String failureText = "";
 
-    public Result (Status status, Action action, Integer bullhornId, String failureText) {
+    public Result(Status status, Action action, Integer bullhornId, String failureText) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
@@ -119,5 +122,37 @@ public class Result {
 
     public void setFailureText(String failureText) {
         this.failureText = failureText;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Result)) return false;
+
+        Result that = (Result) o;
+
+        return (getStatus().equals(that.getStatus()) &&
+                getAction().equals(that.getAction()) &&
+                getBullhornId().equals(that.getBullhornId()) &&
+                getFailureText().equals(that.getFailureText()));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getStatus().hashCode();
+        result = 31 * result + getAction().hashCode();
+        result = 31 * result + getBullhornId().hashCode();
+        result = 31 * result + getFailureText().hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "status=" + getStatus() +
+                ", action=" + getAction() +
+                ", bullhornId=" + getBullhornId() +
+                ", failureText='" + getFailureText() + "'" +
+                '}';
     }
 }

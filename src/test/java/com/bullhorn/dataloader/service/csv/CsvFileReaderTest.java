@@ -6,21 +6,18 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.bullhorn.dataloader.meta.MetaMap;
-
-import junit.framework.TestCase;
 
 public class CsvFileReaderTest {
 
     @Test
     public void testImmediateActions() throws IOException {
-        // arrange
         MetaMap metaMap = new MetaMap(new SimpleDateFormat("MM/dd/yyyy"), "|");
         String path = getFilePath("CsvToJsonTest_base.csv");
 
-        // act
         CsvFileReader csvFileReader = new CsvFileReader(path, metaMap);
         Map<String, Object> onlyRow = new HashMap<String, Object>() {{
             put("a", "1");
@@ -28,13 +25,12 @@ public class CsvFileReaderTest {
             put("c", "3");
         }};
 
-        // assert
         int count = 0;
         for (JsonRow jsonRow : csvFileReader) {
             count++;
-            TestCase.assertEquals(onlyRow, jsonRow.getImmediateActions());
+            Assert.assertEquals(onlyRow, jsonRow.getImmediateActions());
         }
-        TestCase.assertEquals(1, count);
+        Assert.assertEquals(1, count);
     }
 
     private String getFilePath(String filename) {

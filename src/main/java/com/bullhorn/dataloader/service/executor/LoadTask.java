@@ -3,14 +3,19 @@ package com.bullhorn.dataloader.service.executor;
 import static com.bullhorn.dataloader.util.AssociationFilter.isInteger;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ActionTotals;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,6 +28,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhorn.dataloader.util.Timer;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -41,6 +47,9 @@ public class LoadTask implements Runnable {
     private final LoadingCache<EntityQuery, Result> associationCache;
     private CsvFileWriter csvFileWriter;
     private PropertyFileUtil propertyFileUtil;
+    private final PrintUtil printUtil = new PrintUtil();
+    private final ActionTotals actionTotals = new ActionTotals();
+    private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     public LoadTask(String entityName,
                     BullhornAPI bhApi,
@@ -66,6 +75,8 @@ public class LoadTask implements Runnable {
      */
     @Override
     public void run() {
+        Timer timer = new Timer();
+
         String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
         String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
         try {
@@ -78,10 +89,26 @@ public class LoadTask implements Runnable {
             }
 
             csvFileWriter.writeRow(data, result);
+
+            if(result.getAction().equals(Result.Action.INSERT)) {
+                actionTotals.incrementTotalInsert();
+            } else if(result.getAction().equals(Result.Action.UPDATE)){
+                actionTotals.incrementTotalUpdate();
+            } else {
+                actionTotals.incrementTotalError();
+            }
+
+            rowProcessedCount.incrementAndGet();
+            if(rowProcessedCount.intValue() % 111 == 0) {
+                printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
+            }
+
         } catch (IOException | ExecutionException e) {
             System.out.println(e);
             log.error(e);
         }
+
+        log.debug("Loaded row " + data.getRowNumber() + " in " + timer.getDurationStringSec());
     }
 
     private Map<String, Object> upsertPreprocessingActions() throws ExecutionException {

@@ -1,9 +1,15 @@
 package com.bullhorn.dataloader.service.executor;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.validation.EntityValidation;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -27,6 +33,9 @@ public class DeleteTask implements Runnable {
     private JsonRow data;
     private CsvFileWriter csvFileWriter;
     private PropertyFileUtil propertyFileUtil;
+    private final ActionTotals actionTotals = new ActionTotals();
+    private final PrintUtil printUtil = new PrintUtil();
+    private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     private static final Logger log = LogManager.getLogger(DeleteTask.class);
 
@@ -55,13 +64,13 @@ public class DeleteTask implements Runnable {
             String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
             log.info("Deleting row: " + data.getRowNumber());
 
-            if (!StringConsts.isDeletable(entityName)) {
+            if (!EntityValidation.isDeletable(entityName)) {
                 String failureText = "ERROR: Cannot delete " + entityName + " because it is not deletable in REST.";
                 result = Result.Failure(failureText);
                 System.out.println(failureText);
                 log.error(failureText);
             } else if (!data.getImmediateActions().containsKey(StringConsts.ID)) {
-                String failureText = "Error: Cannot delete row: " + data.getRowNumber() + ". " +
+                String failureText = "ERROR: Cannot delete row: " + data.getRowNumber() + ". " +
                         " CSV row is missing the \"" + StringConsts.ID + "\" column.";
                 result = Result.Failure(failureText);
                 System.out.println(failureText);
@@ -70,12 +79,12 @@ public class DeleteTask implements Runnable {
                 Integer entityId = new Integer(data.getImmediateActions().get(StringConsts.ID).toString());
                 String url = entityBase + "/" + entityId + restToken;
 
-                if (StringConsts.isHardDeletable(entityName)) {
+                if (EntityValidation.isHardDeletable(entityName)) {
                     log.info("Calling hard delete: " + url);
                     DeleteMethod deleteMethod = new DeleteMethod(url);
                     JSONObject jsonResponse = bhApi.call(deleteMethod);
                     result = parseJsonResponse(jsonResponse, entityId);
-                } else if (StringConsts.isSoftDeletable(entityName)) {
+                } else if (EntityValidation.isSoftDeletable(entityName)) {
                     PostMethod postMethod = new PostMethod(url);
 
                     // Send a body of: {"isDeleted" : true}
@@ -92,6 +101,18 @@ public class DeleteTask implements Runnable {
             }
 
             csvFileWriter.writeRow(data, result);
+
+            if(result.getAction().equals(Result.Action.DELETE)) {
+                actionTotals.incrementTotalDelete();
+            } else {
+                actionTotals.incrementTotalError();
+            }
+
+            rowProcessedCount.incrementAndGet();
+            if(rowProcessedCount.intValue() % 111 == 0) {
+                printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
+            }
+
         } catch (IOException e) {
             System.out.println(e);
             log.error(e);

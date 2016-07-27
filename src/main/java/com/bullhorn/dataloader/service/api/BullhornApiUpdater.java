@@ -19,10 +19,10 @@ import com.bullhorn.dataloader.util.StringConsts;
 public class BullhornApiUpdater {
     private final Logger log = LogManager.getLogger(BullhornApiUpdater.class);
 
-    private final BullhornAPI bhapi;
+    private final BullhornAPI bhApi;
 
-    public BullhornApiUpdater(BullhornAPI bhapi) {
-        this.bhapi = bhapi;
+    public BullhornApiUpdater(BullhornAPI bhApi) {
+        this.bhApi = bhApi;
     }
 
     /**
@@ -71,7 +71,7 @@ public class BullhornApiUpdater {
         log.info("Insert Association: " + putUrl + " - " + entityQuery.getNestedJson());
         PutMethod putMethod = new PutMethod(putUrl);
         putMethod.setRequestEntity(getStringRequestEntity(entityQuery));
-        return bhapi.call(putMethod);
+        return bhApi.call(putMethod);
     }
 
     private JSONObject update(EntityQuery entityQuery) throws IOException {
@@ -79,22 +79,22 @@ public class BullhornApiUpdater {
         log.info("Update Association: " + postUrl + " - " + entityQuery.toString());
         PostMethod postMethod = new PostMethod(postUrl);
         postMethod.setRequestEntity(getStringRequestEntity(entityQuery));
-        return bhapi.call(postMethod);
+        return bhApi.call(postMethod);
     }
 
     private StringRequestEntity getStringRequestEntity(EntityQuery entityQuery) throws IOException {
         return new StringRequestEntity(
-                bhapi.serialize(entityQuery.getNestedJson()),
+                bhApi.serialize(entityQuery.getNestedJson()),
                 StringConsts.APPLICATION_JSON, StringConsts.UTF);
     }
 
     private String getEntityUrl(EntityQuery entityQuery) {
-        return bhapi.getRestURL() + StringConsts.ENTITY_SLASH +
+        return bhApi.getRestURL() + StringConsts.ENTITY_SLASH +
                 toLabel(entityQuery.getEntity()) + "?" + restToken();
     }
 
     private String getEntityUrl(EntityQuery entityQuery, String identifier) {
-        return bhapi.getRestURL() + StringConsts.ENTITY_SLASH +
+        return bhApi.getRestURL() + StringConsts.ENTITY_SLASH +
                 toLabel(entityQuery.getEntity()) + "/" + identifier + "?" + restToken();
     }
 
@@ -108,8 +108,9 @@ public class BullhornApiUpdater {
         return count == 1;
     }
 
+    // TODO: "query/" is being hardcoded, which fails for Candidate/Note
     private JSONObject getCallById(EntityQuery entityQuery) throws IOException {
-        String queryURL = bhapi.getRestURL() + "query/"
+        String queryURL = bhApi.getRestURL() + "query/"
                 + toLabel(entityQuery.getEntity()) + "?fields=id&where="
                 + entityQuery.getWhereByIdClause()
                 + "&count=2"
@@ -118,7 +119,7 @@ public class BullhornApiUpdater {
     }
 
     private String restToken() {
-        return StringConsts.AND_BH_REST_TOKEN + bhapi.getBhRestToken();
+        return StringConsts.AND_BH_REST_TOKEN + bhApi.getBhRestToken();
     }
 
     public JSONObject getCall(EntityQuery entityQuery) throws IOException {
@@ -135,7 +136,7 @@ public class BullhornApiUpdater {
     }
 
     private String getSearchURL(EntityQuery entityQuery) {
-        return bhapi.getRestURL() + StringConsts.SEARCH
+        return bhApi.getRestURL() + StringConsts.SEARCH
                 + toLabel(entityQuery.getEntity()) + "?fields=id&query="
                 + entityQuery.getSearchClause()
                 + "&count=2"
@@ -144,7 +145,7 @@ public class BullhornApiUpdater {
     }
 
     private String getQueryURL(EntityQuery entityQuery) {
-        return bhapi.getRestURL() + StringConsts.QUERY
+        return bhApi.getRestURL() + StringConsts.QUERY
                 + toLabel(entityQuery.getEntity()) + "?fields=id&where="
                 + entityQuery.getWhereClause()
                 + "&count=2"
@@ -161,11 +162,11 @@ public class BullhornApiUpdater {
     private JSONObject getCall(String queryURL) throws IOException {
         log.info("Querying for " + queryURL);
         GetMethod getMethod = new GetMethod(queryURL);
-        return bhapi.call(getMethod);
+        return bhApi.call(getMethod);
     }
 
     private String toLabel(String entity) {
-        Optional<String> label = bhapi.getLabelByName(entity);
+        Optional<String> label = bhApi.getLabelByName(entity);
         if (!label.isPresent()) {
             return entity;
         }

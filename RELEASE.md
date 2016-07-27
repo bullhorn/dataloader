@@ -4,15 +4,13 @@
 
 DataLoader provides a release binary which allows end users to use DataLoader without having to build from source using the JDK. We use the Maven Assembly plugin to package the DataLoader jar file along with the directory structure, README.md, LICENSE, and other supporting files into `target/dataloader.zip`.
 
- 1. Bump Version
+ 1. Create release branch
   
-    1. Change the pom.xml `<version>x.y.z</version>` tag as part of your pull request
+    1. Remove the `-SNAPSHOT` from the pom.xml `<version>x.y.z-SNAPSHOT</version>` tag
+    
+ 1. Create release package
 
- 1. Merge Your [Pull Request](https://github.com/bullhorn/dataloader/pulls)
-
- 1. Create Release Package
-
-    1. Start with a clean checkout of the master branch
+    1. Start with a clean checkout of the release branch
   
         1. Remove any local uncommitted changes to files
      
@@ -24,7 +22,11 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
 
     1. Run assembly command: `mvn assembly:single` to generate the release zip file: `target/dataloader.zip`
 
- 1. Create Release in GitHub
+ 1. Test the new release package by stepping through the Quick Start Guide on both Windows and Mac/Linux
+
+ 1. Merge the release branch
+
+ 1. Create release in GitHub
 
     1. From the [Releases Page](https://github.com/bullhorn/dataloader/releases) click [Draft a New Release](https://github.com/bullhorn/dataloader/releases/new).
     
@@ -32,4 +34,4 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
     
     1. In the Attach Binaries section of the release page, attach the release package file: `target/dataloader.zip`
  
- 1. Test the new release by stepping through the Quick Start Guide on both Windows and Mac/Linux
+ 1. Make a new commit to master to bump the version and add `-SNAPSHOT` to the pom.xml version

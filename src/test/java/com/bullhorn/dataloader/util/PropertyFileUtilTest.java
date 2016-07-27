@@ -7,23 +7,17 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.google.common.collect.Sets;
 
 public class PropertyFileUtilTest {
 
-    private PropertyFileUtil propertyFileUtil;
-
-    @Before
-    public void setUp() throws Exception {
-        String path = getFilePath("PropertyFileUtilTest.properties");
-        propertyFileUtil = new PropertyFileUtil(path);
-    }
-
     @Test
     public void testGetters() throws Exception {
+        String path = getFilePath("PropertyFileUtilTest.properties");
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+
         Assert.assertEquals(propertyFileUtil.getUsername(), "john.smith");
         Assert.assertEquals(propertyFileUtil.getPassword(), "password123");
         Assert.assertEquals(propertyFileUtil.getClientId(), "1234abcd-123a-123a-123a-acbd1234567");
@@ -40,6 +34,9 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testExistsFields() throws Exception {
+        String path = getFilePath("PropertyFileUtilTest.properties");
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("BusinessSector"),
                 Optional.ofNullable(Arrays.asList(new String[] {"name"})));
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("Candidate"),
@@ -56,12 +53,23 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testFrontLoadedEntities() throws Exception {
+        String path = getFilePath("PropertyFileUtilTest.properties");
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+
         Set<String> expected = Sets.newHashSet(new String[] {"BusinessSector", "Skill", "Category"});
         Assert.assertEquals(propertyFileUtil.getFrontLoadedEntities(), expected);
 
         Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("BusinessSector"), true);
         Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("businessSector"), false);
         Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("BOGUS"), false);
+    }
+
+    @Test
+    public void testFrontLoadedEntities_Empty() throws Exception {
+        String path = getFilePath("PropertyFileUtilTest_Empty.properties");
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+
+        Assert.assertEquals(0, propertyFileUtil.getFrontLoadedEntities().size());
     }
 
     private String getFilePath(String filename) {

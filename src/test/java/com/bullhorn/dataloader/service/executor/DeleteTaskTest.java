@@ -14,7 +14,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -47,90 +46,90 @@ public class DeleteTaskTest {
 
     @Test
     public void softDeleteSuccessTest() throws ExecutionException, IOException {
-        //arrange
         JsonRow jsonRow = new JsonRow();
         jsonRow.addImmediateAction(new String[] {"id"}, 99);
         when(bhApi.call(any(PostMethod.class))).thenReturn(new JSONObject("{" + StringConsts.CHANGED_ENTITY_ID + ": 99}"));
         Result expectedResult = Result.Delete(99);
 
-        //act
         DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        //assert
         verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
     @Test
     public void softDeleteFailureTest() throws ExecutionException, IOException {
-        //arrange
         JsonRow jsonRow = new JsonRow();
         jsonRow.addImmediateAction(new String[] {"id"}, 99);
         when(bhApi.call(any(PostMethod.class))).thenReturn(new JSONObject("{errorMessage: REST ERROR}"));
         Result expectedResult = Result.Failure("REST ERROR");
 
-        //act
         DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        //assert
         verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
     @Test
     public void hardDeleteSuccessTest() throws ExecutionException, IOException {
-        //arrange
         JsonRow jsonRow = new JsonRow();
         jsonRow.addImmediateAction(new String[] {"id"}, 99);
         when(bhApi.call(any(PostMethod.class))).thenReturn(new JSONObject("{" + StringConsts.CHANGED_ENTITY_ID + ": 99}"));
         Result expectedResult = Result.Delete(99);
 
-        //act
         DeleteTask deleteTask = new DeleteTask("Placement", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        //assert
         verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
     @Test
     public void hardDeleteFailureTest() throws ExecutionException, IOException {
-        //arrange
         JsonRow jsonRow = new JsonRow();
         jsonRow.addImmediateAction(new String[] {"id"}, 99);
         when(bhApi.call(any(PostMethod.class))).thenReturn(new JSONObject("{errorMessage: REST ERROR}"));
         Result expectedResult = Result.Failure("REST ERROR");
 
-        //act
         DeleteTask deleteTask = new DeleteTask("Placement", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        //assert
         verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
     @Test
     public void readOnlyFailureTest() throws ExecutionException, IOException {
-        //arrange
         JsonRow jsonRow = new JsonRow();
         jsonRow.addImmediateAction(new String[] {"id"}, 99);
         Result expectedResult = Result.Failure("ERROR: Cannot delete BusinessSector because it is not deletable in REST.");
 
-        //act
         DeleteTask deleteTask = new DeleteTask("BusinessSector", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        //assert
         verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+        Assert.assertEquals(expectedResult, actualResult);
+    }
+
+    @Test
+    public void missingIdFailureTest() throws ExecutionException, IOException {
+        JsonRow jsonRow = new JsonRow();
+        jsonRow.setRowNumber(1);
+        jsonRow.addImmediateAction(new String[] {"name"}, "John Smith");
+        Result expectedResult = Result.Failure("ERROR: Cannot delete row: 1.  CSV row is missing the \"id\" column.");
+
+        DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
+        deleteTask.run();
+
+        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertEquals(expectedResult, actualResult);
     }
 }

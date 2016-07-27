@@ -1,7 +1,10 @@
 package com.bullhorn.dataloader.service.executor;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ActionTotals;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -28,6 +31,8 @@ public class ConcurrencyService {
     private final BullhornApiAssociator bullhornApiAssociator;
     private final LoadingCache<EntityQuery, Result> associationCache;
     private final PropertyFileUtil propertyFileUtil;
+    private final PrintUtil printUtil = new PrintUtil();
+    private ActionTotals actionTotals = new ActionTotals();
 
     private final Logger log = LogManager.getLogger(ConcurrencyService.class);
 
@@ -49,19 +54,23 @@ public class ConcurrencyService {
         this.propertyFileUtil = propertyFileUtil;
     }
 
-    public void runLoadProcess() {
+    public void runLoadProcess() throws InterruptedException {
         for (JsonRow jsonRow : csvReader) {
             LoadTask loadTask = new LoadTask(entityName, bhApi, bullhornApiAssociator, jsonRow, associationCache, csvWriter, propertyFileUtil);
             executorService.execute(loadTask);
         }
         executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
     }
 
-    public void runDeleteProcess() {
+    public void runDeleteProcess() throws InterruptedException {
         for (JsonRow jsonRow : csvReader) {
             DeleteTask deleteTask = new DeleteTask(entityName, bhApi, jsonRow, csvWriter, propertyFileUtil);
             executorService.execute(deleteTask);
         }
         executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
     }
 }

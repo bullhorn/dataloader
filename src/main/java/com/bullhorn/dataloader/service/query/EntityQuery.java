@@ -16,35 +16,26 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+/**
+ * Represents an entity query as a data value.
+ * <p>
+ * This class is a data type, not an instance type. Two different results can be considered identical if they
+ * contain the same data values. They have no identity in and of themselves.
+ */
 public class EntityQuery {
 
     private final Logger log = LogManager.getLogger(EntityQuery.class);
 
     private final String entity;
-
+    private final Object nestedJson;
     private final Map<String, String> filterFields = Maps.newConcurrentMap();
     private final Map<String, String> memberOfFields = Maps.newConcurrentMap();
-    private final Object nestedJson;
-
-    public Integer getFilterFieldCount() {
-        return filterFieldCount;
-    }
-
-    private Integer filterFieldCount = 0;
-
     private Optional<Integer> id = Optional.empty();
+    private Integer filterFieldCount = 0;
 
     public EntityQuery(String entity, Object nestedJson) {
         this.entity = entity;
         this.nestedJson = nestedJson;
-    }
-
-    public Object getNestedJson() {
-        return nestedJson;
-    }
-
-    public void addFieldWithoutCount(String key, String value) {
-        filterFields.put(key, value);
     }
 
     /**
@@ -63,32 +54,12 @@ public class EntityQuery {
         filterFields.put(key, "'" + value + "'");
     }
 
-    private void incrementCount() {
-        filterFieldCount += 1;
-    }
-
     public void addMemberOfWithoutCount(String key, String value) {
         memberOfFields.put(key, value);
     }
 
     public String getWhereClause() {
         return getWhereClause(fieldEntry -> fieldEntry.getKey() + "=" + fieldEntry.getValue());
-    }
-
-    private String getWhereClause(Function<Map.Entry<String, String>, String> equalityMap) {
-        List<String> whereClauses = Lists.newArrayList();
-        whereClauses.addAll(filterFields.entrySet().stream()
-                .map(equalityMap)
-                .collect(Collectors.toList()));
-        whereClauses.addAll(memberOfFields.entrySet().stream()
-                .map(member -> member.getValue() + " member of " + member.getKey())
-                .collect(Collectors.toList()));
-        try {
-            return URLEncoder.encode(Joiner.on(" AND ").join(whereClauses), StringConsts.UTF);
-        } catch (UnsupportedEncodingException e) {
-            log.error(e);
-            throw new IllegalArgumentException("Unable to encode where clause", e);
-        }
     }
 
     public String getSearchClause() {
@@ -105,6 +76,18 @@ public class EntityQuery {
             }
         }
         throw new IllegalArgumentException("Trying to build a query by ID but none was present");
+    }
+
+    public Integer getFilterFieldCount() {
+        return filterFieldCount;
+    }
+
+    public void addFieldWithoutCount(String key, String value) {
+        filterFields.put(key, value);
+    }
+
+    public Object getNestedJson() {
+        return nestedJson;
     }
 
     public Optional<Integer> getId() {
@@ -141,10 +124,30 @@ public class EntityQuery {
     @Override
     public String toString() {
         return "EntityQuery{" +
-                "entity='" + entity + '\'' +
+                "entity='" + entity + "'" +
                 ", filterFields=" + filterFields +
                 ", nestedJson=" + nestedJson +
                 ", id=" + id +
                 '}';
+    }
+
+    private String getWhereClause(Function<Map.Entry<String, String>, String> equalityMap) {
+        List<String> whereClauses = Lists.newArrayList();
+        whereClauses.addAll(filterFields.entrySet().stream()
+                .map(equalityMap)
+                .collect(Collectors.toList()));
+        whereClauses.addAll(memberOfFields.entrySet().stream()
+                .map(member -> member.getValue() + " member of " + member.getKey())
+                .collect(Collectors.toList()));
+        try {
+            return URLEncoder.encode(Joiner.on(" AND ").join(whereClauses), StringConsts.UTF);
+        } catch (UnsupportedEncodingException e) {
+            log.error(e);
+            throw new IllegalArgumentException("Unable to encode where clause", e);
+        }
+    }
+
+    private void incrementCount() {
+        filterFieldCount += 1;
     }
 }

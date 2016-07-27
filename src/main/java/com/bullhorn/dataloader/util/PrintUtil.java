@@ -11,32 +11,51 @@ public class PrintUtil {
     private Logger log = LogManager.getLogger(PrintUtil.class);
 
     public void printUsage() {
-        System.out.println("");
-        System.out.println("Usage:");
-        System.out.println("    Insert/Update: dataloader <EntityName> path/to/data.csv");
-        System.out.println("           Delete: dataloader delete <EntityName> path/to/data.csv");
-        System.out.println("  Create Template: dataloader template <EntityName>");
-        System.out.println("");
-        System.out.println("where <EntityName> is one of the supported entities listed at:");
-        System.out.println("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
-        System.out.println("");
+        printAndLog("");
+        printAndLog("Usage:");
+        printAndLog("    Insert/Update: dataloader <EntityName> path/to/data.csv");
+        printAndLog("           Delete: dataloader delete <EntityName> path/to/data.csv");
+        printAndLog("  Create Template: dataloader template <EntityName>");
+        printAndLog("");
+        printAndLog("where <EntityName> is one of the supported entities listed at:");
+        printAndLog("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
+        printAndLog("");
     }
 
     public void printEntityError(String entityName, String warningText) {
-        System.out.println("");
-        System.out.println("ERROR: " + warningText + " entity: \"" + entityName + "\"");
-        System.out.println("       The entity is " + warningText + " in REST and cannot be changed by DataLoader.\"");
-        System.out.println("       See the full list of DataLoader supported entities at:");
-        System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
-        System.out.println("");
+        printAndLog("");
+        printAndLog("ERROR: " + warningText + " entity: \"" + entityName + "\"");
+        printAndLog("       The entity is " + warningText + " in REST and cannot be changed by DataLoader.\"");
+        printAndLog("       See the full list of DataLoader supported entities at:");
+        printAndLog("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        printAndLog("");
     }
 
     public void printUnknownEntityError(String entityName) {
-        System.out.println("");
-        System.out.println("ERROR: Unknown entity: \"" + entityName + "\"");
-        System.out.println("       This entity is not known to DataLoader and cannot be used.");
-        System.out.println("       Check your spelling and see the full list of DataLoader supported entities at:");
-        System.out.println("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
-        System.out.println("");
+        printAndLog("");
+        printAndLog("ERROR: Unknown entity: \"" + entityName + "\"");
+        printAndLog("       This entity is not known to DataLoader and cannot be used.");
+        printAndLog("       Check your spelling and see the full list of DataLoader supported entities at:");
+        printAndLog("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
+        printAndLog("");
+    }
+
+    public void printActionTotals(ActionTotals result) {
+        final Integer totalRecords = result.getTotalError() + result.getTotalInsert() + result.getTotalUpdate() + result.getTotalDelete();
+
+        printAndLog("Results of DataLoader run");
+        printAndLog("Total records processed: " + totalRecords);
+        printAndLog("Total records inserted: " + result.getTotalInsert());
+        printAndLog("Total records updated: " + result.getTotalUpdate());
+        printAndLog("Total records deleted: " + result.getTotalDelete());
+        printAndLog("Total records failed: " + result.getTotalError());
+    }
+
+    /**
+     * Prints to the console and logs to the logfile
+     */
+    public void printAndLog(String line) {
+        System.out.println(line);
+        log.info(line);
     }
 }
