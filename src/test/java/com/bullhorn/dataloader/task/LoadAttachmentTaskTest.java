@@ -87,7 +87,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         //assert
-        verify(csvFileWriter).writeAttachmentRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
@@ -112,7 +112,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         //assert
-        verify(csvFileWriter).writeAttachmentRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }

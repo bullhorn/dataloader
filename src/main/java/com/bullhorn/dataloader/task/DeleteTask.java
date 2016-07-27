@@ -1,14 +1,13 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -17,12 +16,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.JsonRow;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.StringConsts;
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
@@ -100,7 +99,7 @@ public class DeleteTask implements Runnable {
                 }
             }
 
-            csvFileWriter.writeRow(data, result);
+            csvFileWriter.writeRow(data.getValues(), result);
 
             if(result.getAction().equals(Result.Action.DELETE)) {
                 actionTotals.incrementTotalDelete();

@@ -70,7 +70,7 @@ public class EntityAttachmentConcurrencyServiceTest {
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         //act
-        service.runLoadAttchmentProcess();
+        service.runLoadAttachmentProcess();
 
         //assert
         verify(executorService).execute(taskCaptor.capture());

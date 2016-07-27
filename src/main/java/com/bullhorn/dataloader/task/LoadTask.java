@@ -1,6 +1,23 @@
 package com.bullhorn.dataloader.task;
 
-import static com.bullhorn.dataloader.util.AssociationFilter.isInteger;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
+import com.bullhorn.dataloader.service.api.EntityInstance;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.query.EntityQuery;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhorn.dataloader.util.Timer;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -14,25 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ActionTotals;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
-import com.bullhorn.dataloader.service.api.EntityInstance;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.JsonRow;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.query.EntityQuery;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhorn.dataloader.util.Timer;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import static com.bullhorn.dataloader.util.AssociationFilter.isInteger;
 
 /**
  * Responsible for loading a single row from a CSV input file.
@@ -88,7 +87,7 @@ public class LoadTask implements Runnable {
                 saveToMany(result.getBullhornId(), entityName, data.getDeferredActions());
             }
 
-            csvFileWriter.writeRow(data, result);
+            csvFileWriter.writeRow(data.getValues(), result);
 
             if(result.getAction().equals(Result.Action.INSERT)) {
                 actionTotals.incrementTotalInsert();

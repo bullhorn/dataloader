@@ -93,7 +93,7 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
         if (validationUtil.isValidCsvFile(filePath)) {
             System.out.println("Loading " + entityName + " attachments from: " + filePath);
             EntityAttachmentConcurrencyService entityConcurrencyService = createEntityAttachmentConcurrencyService(method, entityName, filePath);
-            entityConcurrencyService.runLoadAttchmentProcess();
+            entityConcurrencyService.runLoadAttachmentProcess();
         }
     }
 }

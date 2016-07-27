@@ -29,7 +29,7 @@ public class EntityAttachmentConcurrencyService {
     private final BullhornData bullhornData;
     private final Method method;
     private final PrintUtil printUtil;
-    private ActionTotals actionTotals;
+    private final ActionTotals actionTotals;
 
     private final Logger log = LogManager.getLogger(EntityAttachmentConcurrencyService.class);
 
@@ -53,7 +53,7 @@ public class EntityAttachmentConcurrencyService {
         this.actionTotals = actionTotals;
     }
 
-    public void runLoadAttchmentProcess() throws IOException, InterruptedException {
+    public void runLoadAttachmentProcess() throws IOException, InterruptedException {
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
             LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);

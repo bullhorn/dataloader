@@ -77,22 +77,11 @@ public class CsvFileWriter {
      * Given the input for a row record and the output from REST, this method will output the results of the operation
      * to the results files.
      *
-     * @param jsonRow The original CSV record
+     * @param data The original CSV record
      * @param result The resulting status from REST
      * @throws IOException
      */
-    public synchronized void writeRow(JsonRow jsonRow, Result result) throws IOException {
-        if (result.isSuccess()) {
-            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
-                    ArrayUtil.prepend(result.getAction().toString(), jsonRow.getValues())));
-            successCsv.flush();
-        } else {
-            failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), jsonRow.getValues()));
-            failureCsv.flush();
-        }
-    }
-
-    public synchronized void writeAttachmentRow(String[] data, Result result) throws IOException {
+    public synchronized void writeRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {
             successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
                     ArrayUtil.prepend(result.getAction().toString(), data)));

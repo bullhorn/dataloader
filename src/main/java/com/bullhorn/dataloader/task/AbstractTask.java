@@ -78,7 +78,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected void writeToResultCSV(Result result) {
         try {
-            csvWriter.writeAttachmentRow(dataMap.values().toArray(new String[0]), result);
+            csvWriter.writeRow(dataMap.values().toArray(new String[0]), result);
             updateActionTotals(result);
             updateRowProcessedCounts();
         } catch (IOException e) {
@@ -98,7 +98,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             actionTotals.incrementTotalInsert();
         } else if(result.getAction().equals(Result.Action.UPDATE)){
             actionTotals.incrementTotalUpdate();
-        } else {
+        } else if(result.getStatus().equals(Result.Status.FAILURE)) {
             actionTotals.incrementTotalError();
         }
     }

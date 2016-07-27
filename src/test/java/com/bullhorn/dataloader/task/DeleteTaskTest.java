@@ -1,12 +1,11 @@
 package com.bullhorn.dataloader.task;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -15,12 +14,13 @@ import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.JsonRow;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.StringConsts;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeleteTaskTest {
 
@@ -54,7 +54,7 @@ public class DeleteTaskTest {
         DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(null), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
@@ -69,7 +69,7 @@ public class DeleteTaskTest {
         DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(null), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
@@ -84,7 +84,7 @@ public class DeleteTaskTest {
         DeleteTask deleteTask = new DeleteTask("Placement", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(null), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
@@ -99,7 +99,7 @@ public class DeleteTaskTest {
         DeleteTask deleteTask = new DeleteTask("Placement", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(null), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
@@ -113,7 +113,7 @@ public class DeleteTaskTest {
         DeleteTask deleteTask = new DeleteTask("BusinessSector", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(null), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
@@ -128,7 +128,7 @@ public class DeleteTaskTest {
         DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
         deleteTask.run();
 
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(null), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertEquals(expectedResult, actualResult);
     }
