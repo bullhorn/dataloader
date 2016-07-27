@@ -21,8 +21,6 @@ import java.util.LinkedHashMap;
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadAttachmentTask.class);
 
-    private static final String relativeFilePath = "relativeFilePath";
-
     public LoadAttachmentTask(String entityName,
                               LinkedHashMap<String, String> dataMap,
                               CsvFileWriter csvWriter,

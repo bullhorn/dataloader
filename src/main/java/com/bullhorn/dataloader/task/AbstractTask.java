@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -17,18 +18,16 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractTask<B extends BullhornEntity> implements Runnable {
+public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
     private static final Logger log = LogManager.getLogger(AbstractTask.class);
 
     protected String entityName;
-    public Integer bullhornParentId;
+    protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvWriter;
     protected PropertyFileUtil propertyFileUtil;
     protected BullhornData bullhornData;
     protected Class<B> entity;
-
-    protected static final String externalID = "externalID";
 
     public AbstractTask(String entityName,
                         LinkedHashMap<String, String> dataMap,

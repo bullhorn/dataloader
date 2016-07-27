@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.service.executor;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -43,7 +42,6 @@ public class LoadAttachmentTaskTest {
     private PropertyFileUtil propertyFileUtil;
     private BullhornAPI bhApi;
     private CsvFileWriter csvFileWriter;
-    private ArgumentCaptor<JsonRow> jsonRowArgumentCaptor;
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private LinkedHashMap<String, String> dataMap;
     private BullhornData bullhornData;
@@ -72,7 +70,7 @@ public class LoadAttachmentTaskTest {
     @Test
     public void loadAttachmentSuccessTest() throws Exception {
         //arrange
-        String[] expectedValues = {"1", "testResume/Amy Cherwin Resume.doc", "0"};
+        String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
         Result expectedResult = new Result(Result.Status.SUCCESS, 0, "");
         task = new LoadAttachmentTask("Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData);
         List<Candidate> candidates = new ArrayList<>();
@@ -97,7 +95,7 @@ public class LoadAttachmentTaskTest {
     @Test
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         //arrange
-        String[] expectedValues = {"1", "testResume/Amy Cherwin Resume.doc", "0"};
+        String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
         Result expectedResult = new Result(Result.Status.FAILURE, null, "Test");
         task = new LoadAttachmentTask("Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData);
         List<Candidate> candidates = new ArrayList<>();
