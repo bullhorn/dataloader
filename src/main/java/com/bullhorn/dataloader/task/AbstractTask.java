@@ -57,10 +57,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.actionTotals = actionTotals;
     }
 
-    protected String getExceptionMessage(Exception e) {
-        return e == null ? "" : e.getMessage();
-    }
-
     protected void getAndSetBullhornEntityInfo() {
         entity = BullhornEntityInfo.getTypeFromName(entityName).getType();
     }

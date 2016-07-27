@@ -60,7 +60,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     private Result handleAttachmentFailure(Exception e) {
         System.out.println(e);
         log.error(e);
-        return Result.Failure(getExceptionMessage(e));
+        return Result.Failure(e.toString());
     }
 
     private <F extends FileEntity> FileWrapper attachFile() {
