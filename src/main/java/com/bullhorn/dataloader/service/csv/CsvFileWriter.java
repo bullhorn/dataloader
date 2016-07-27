@@ -61,22 +61,16 @@ public class CsvFileWriter {
         failureCsv = new CsvWriter(failureFileWriter, ',');
 
         // Write headers to the files, adding our own custom columns, if they do not already exist.
-        createCSVHeaders(method, headers);
+        createCSVHeaders(headers);
 
         successCsv.flush();
         failureCsv.flush();
     }
 
-    private void createCSVHeaders(Method method, String[] headers) throws IOException {
-        if (Method.LOAD.equals(method)) {
+    private void createCSVHeaders(String[] headers) throws IOException {
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
                     ArrayUtil.prepend(ACTION_COLUMN, headers)));
             failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
-        }
-        else if (Method.LOADATTACHMENTS.equals(method)){
-            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, headers));
-            failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
-        }
     }
 
     /**
@@ -100,7 +94,8 @@ public class CsvFileWriter {
 
     public synchronized void writeAttachmentRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {
-            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(), data));
+            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
+                    ArrayUtil.prepend(result.getAction().toString(), data)));
             successCsv.flush();
         } else {
             failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), data));
