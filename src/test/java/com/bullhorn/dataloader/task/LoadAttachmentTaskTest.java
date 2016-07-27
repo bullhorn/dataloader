@@ -96,7 +96,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         //arrange
         String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
-        Result expectedResult = Result.Failure("Test");
+        Result expectedResult = Result.Failure(new RestApiException("Test").toString());
         task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
