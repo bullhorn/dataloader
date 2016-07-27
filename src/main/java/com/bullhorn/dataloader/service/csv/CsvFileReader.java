@@ -1,18 +1,17 @@
 package com.bullhorn.dataloader.service.csv;
 
-import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
-import static com.bullhorn.dataloader.util.AssociationFilter.isToMany;
-import static com.bullhorn.dataloader.util.AssociationFilter.isToOne;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.csvreader.CsvReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.bullhorn.dataloader.meta.MetaMap;
-import com.csvreader.CsvReader;
+import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
+import static com.bullhorn.dataloader.util.AssociationFilter.isToMany;
+import static com.bullhorn.dataloader.util.AssociationFilter.isToOne;
 
 public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
     private final Logger log = LogManager.getLogger(CsvFileReader.class);

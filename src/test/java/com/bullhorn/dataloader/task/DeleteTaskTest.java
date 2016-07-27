@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.task;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
