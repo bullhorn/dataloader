@@ -57,35 +57,35 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
                 }
             }
         } catch (Exception e) {
-            printAndLog(e.toString());
+            printUtil.printAndLog(e.toString());
         }
     }
 
     protected void template(String entityName) throws Exception {
-        printAndLog("Creating Template for " + entityName + "...");
+        printUtil.printAndLog("Creating Template for " + entityName + "...");
         final BullhornAPI bhApi = createSession();
         TemplateUtil templateUtil = new TemplateUtil(bhApi);
         templateUtil.writeExampleEntityCsv(entityName);
-        printAndLog("Generated template in " + timer.getDurationStringSec());
+        printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
     }
 
     protected void load(Method method, String entityName, String filePath) throws Exception {
         if (validationUtil.isLoadableEntity(entityName) && validationUtil.isValidCsvFile(filePath)) {
-            printAndLog("Loading " + entityName + " records from: " + filePath + "...");
+            printUtil.printAndLog("Loading " + entityName + " records from: " + filePath + "...");
             final BullhornAPI bhApi = createSession();
             EntityConcurrencyService concurrencyService = createEntityConcurrencyService(method, entityName, filePath);
             concurrencyService.runLoadProcess();
-            printAndLog("Completed setup (establishing connection, retrieving meta, front loading) in " + timer.getDurationStringSec());
+            printUtil.printAndLog("Completed setup (establishing connection, retrieving meta, front loading) in " + timer.getDurationStringSec());
         }
     }
 
     protected void delete(Method method, String entityName, String filePath) throws Exception {
         if (validationUtil.isDeletableEntity(entityName) && validationUtil.isValidCsvFile(filePath)) {
-            printAndLog("Deleting " + entityName + " records from: " + filePath + "...");
+            printUtil.printAndLog("Deleting " + entityName + " records from: " + filePath + "...");
             final BullhornAPI bhApi = createSession();
             EntityConcurrencyService concurrencyService = createEntityConcurrencyService(method, entityName, filePath);
             concurrencyService.runDeleteProcess();
-            printAndLog("Completed setup (establishing connection, retrieving meta) in " + timer.getDurationStringSec());
+            printUtil.printAndLog("Completed setup (establishing connection, retrieving meta) in " + timer.getDurationStringSec());
         }
     }
 
