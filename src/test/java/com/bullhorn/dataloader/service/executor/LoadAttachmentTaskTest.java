@@ -1,5 +1,33 @@
 package com.bullhorn.dataloader.service.executor;
 
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.task.LoadAttachmentTask;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.response.file.FileContent;
+import com.bullhornsdk.data.model.response.file.FileMeta;
+import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
+import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
+import com.bullhornsdk.data.model.response.list.ListWrapper;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
@@ -9,37 +37,6 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONObject;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.JsonRow;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.task.DeleteTask;
-import com.bullhorn.dataloader.task.LoadAttachmentTask;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.response.file.FileContent;
-import com.bullhornsdk.data.model.response.file.FileMeta;
-import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
 
 public class LoadAttachmentTaskTest {
 
@@ -76,7 +73,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         //arrange
         String[] expectedValues = {"1", "testResume/Amy Cherwin Resume.doc", "0"};
-//        Result result = new Result(Result.Status.SUCCESS, );
+        Result expectedResult = new Result(Result.Status.SUCCESS, 0, "");
         task = new LoadAttachmentTask("Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData);
         List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
@@ -93,22 +90,31 @@ public class LoadAttachmentTaskTest {
 
         //assert
         verify(csvFileWriter).writeAttachmentRow(eq(expectedValues), resultArgumentCaptor.capture());
+        Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     @Test
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         //arrange
-        JsonRow jsonRow = new JsonRow();
-        jsonRow.addImmediateAction(new String[] {"id"}, 99);
-        when(bhApi.call(any(PostMethod.class))).thenReturn(new JSONObject("{errorMessage: REST ERROR}"));
-        Result expectedResult = Result.Failure("REST ERROR");
+        String[] expectedValues = {"1", "testResume/Amy Cherwin Resume.doc", "0"};
+        Result expectedResult = new Result(Result.Status.FAILURE, null, "Test");
+        task = new LoadAttachmentTask("Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData);
+        List<Candidate> candidates = new ArrayList<>();
+        candidates.add(new Candidate(1));
+        ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        listWrapper.setData(candidates);
+        FileContent mockedFileContent = Mockito.mock(FileContent.class);
+        FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+        when(bullhornData.search(anyObject(), anyString(), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.addFile(anyObject(), anyInt(), any(File.class), anyString(), anyObject(), anyBoolean())).thenThrow(new RestApiException("Test"));
 
         //act
-        DeleteTask deleteTask = new DeleteTask("Candidate", bhApi, jsonRow, csvFileWriter, propertyFileUtil);
-        deleteTask.run();
+        task.run();
 
         //assert
-        verify(csvFileWriter).writeRow(jsonRowArgumentCaptor.capture(), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeAttachmentRow(eq(expectedValues), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
