@@ -9,7 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
-import com.bullhorn.dataloader.service.csv.EntityCsvReader;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -24,7 +24,7 @@ public class EntityConcurrencyService {
 
     private final ExecutorService executorService;
     private final String entityName;
-    private final EntityCsvReader csvReader;
+    private final CsvFileReader csvReader;
     private final CsvFileWriter csvWriter;
     private final BullhornAPI bhApi;
     private final BullhornApiAssociator bullhornApiAssociator;
@@ -34,7 +34,7 @@ public class EntityConcurrencyService {
     private final Logger log = LogManager.getLogger(EntityConcurrencyService.class);
 
     public EntityConcurrencyService(String entityName,
-                                    EntityCsvReader csvReader,
+                                    CsvFileReader csvReader,
                                     CsvFileWriter csvWriter,
                                     BullhornAPI bhApi,
                                     BullhornApiAssociator bullhornApiAssociator,

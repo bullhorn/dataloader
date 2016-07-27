@@ -1,21 +1,20 @@
 package com.bullhorn.dataloader.service.csv;
 
-import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
-import static com.bullhorn.dataloader.util.AssociationFilter.isToMany;
-import static com.bullhorn.dataloader.util.AssociationFilter.isToOne;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.csvreader.CsvReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import static com.bullhorn.dataloader.util.AssociationFilter.isCustomObject;
+import static com.bullhorn.dataloader.util.AssociationFilter.isToMany;
+import static com.bullhorn.dataloader.util.AssociationFilter.isToOne;
 
-import com.bullhorn.dataloader.meta.MetaMap;
-import com.csvreader.CsvReader;
-
-public class EntityCsvReader implements Iterator<JsonRow>, Iterable<JsonRow> {
-    private final Logger log = LogManager.getLogger(EntityCsvReader.class);
+public class CsvFileReader implements Iterator<JsonRow>, Iterable<JsonRow> {
+    private final Logger log = LogManager.getLogger(CsvFileReader.class);
 
     private final MetaMap metaMap;
     private CsvReader csvReader;
@@ -24,7 +23,7 @@ public class EntityCsvReader implements Iterator<JsonRow>, Iterable<JsonRow> {
     private String[] headers;
     private Integer rowCount = 0;
 
-    public EntityCsvReader(String filePath, MetaMap metaMap) throws IOException {
+    public CsvFileReader(String filePath, MetaMap metaMap) throws IOException {
         this.csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
         headers = csvReader.getHeaders();

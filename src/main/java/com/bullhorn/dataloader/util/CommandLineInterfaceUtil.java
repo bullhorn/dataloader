@@ -4,7 +4,7 @@ import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.EntityCsvReader;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
@@ -72,13 +72,13 @@ public class CommandLineInterfaceUtil {
                 .build(new EntityCache(bhApi));
 
         bhApi.frontLoad();
-        final EntityCsvReader entityCsvReader = new EntityCsvReader(filePath, bhApi.getRootMetaDataTypes(entity));
-        final CsvFileWriter csvFileWriter = new CsvFileWriter(method, filePath, entityCsvReader.getHeaders());
+        final CsvFileReader csvFileReader = new CsvFileReader(filePath, bhApi.getRootMetaDataTypes(entity));
+        final CsvFileWriter csvFileWriter = new CsvFileWriter(method, filePath, csvFileReader.getHeaders());
 
         final ExecutorService executorService = getExecutorService(getPropertyFileUtil());
         final EntityConcurrencyService entityConcurrencyService = new EntityConcurrencyService(
                 WordUtils.capitalize(entity),
-                entityCsvReader,
+                csvFileReader,
                 csvFileWriter,
                 bhApi,
                 bullhornApiAssociator,

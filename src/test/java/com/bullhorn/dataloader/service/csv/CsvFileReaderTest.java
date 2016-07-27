@@ -12,7 +12,7 @@ import com.bullhorn.dataloader.meta.MetaMap;
 
 import junit.framework.TestCase;
 
-public class EntityCsvReaderTest {
+public class CsvFileReaderTest {
 
     @Test
     public void testImmediateActions() throws IOException {
@@ -21,7 +21,7 @@ public class EntityCsvReaderTest {
         String path = getFilePath("CsvToJsonTest_base.csv");
 
         // act
-        EntityCsvReader entityCsvReader = new EntityCsvReader(path, metaMap);
+        CsvFileReader csvFileReader = new CsvFileReader(path, metaMap);
         Map<String, Object> onlyRow = new HashMap<String, Object>() {{
             put("a", "1");
             put("b", "2");
@@ -30,7 +30,7 @@ public class EntityCsvReaderTest {
 
         // assert
         int count = 0;
-        for (JsonRow jsonRow : entityCsvReader) {
+        for (JsonRow jsonRow : csvFileReader) {
             count++;
             TestCase.assertEquals(onlyRow, jsonRow.getImmediateActions());
         }
