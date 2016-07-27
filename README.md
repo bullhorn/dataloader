@@ -87,7 +87,7 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 ## Load
 
 ```
-dataloader <EntityName> /path/to/file.csv
+dataloader load <EntityName> /path/to/file.csv
 ```
 
 Update if record is present, Insert otherwise. The provided CSV file requires a column for each data field to load. These column names must match the names in entity template.
@@ -99,6 +99,14 @@ dataloader delete <EntityName> /path/to/file.csv
 ```
 
 The provided CSV file only requires an `id` column. This column will contain the Bullhorn internal IDs of the records to delete.
+
+## Load Attachments
+
+```
+dataloader loadAttachments <EntityName> /path/to/AttachmentMap.csv
+```
+
+Attaches files to preexisting records. Attachment file paths are mapped with provided CSV file. Only attaches files for one entity at a time, based on <EntityName>
 
 ## Console Output
 
