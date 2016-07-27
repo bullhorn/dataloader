@@ -1,22 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-
-import com.bullhorn.dataloader.task.LoadTask;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.json.JSONObject;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
+package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
@@ -28,8 +10,23 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
-
 import junit.framework.TestCase;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.json.JSONObject;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LoadTaskTest {
 

@@ -1,20 +1,22 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
 import com.bullhorn.dataloader.util.CommandLineInterfaceUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class CommandLineInterface extends CommandLineInterfaceUtil {
 
-    private Logger log = LogManager.getLogger(CommandLineInterface.class);
+    protected Logger log = LogManager.getLogger(CommandLineInterface.class);
 
-    final private PrintUtil printUtil;
-    final private ValidationUtil validationUtil;
+    protected PrintUtil printUtil;
+    protected ValidationUtil validationUtil;
 
     public CommandLineInterface() {
         printUtil = new PrintUtil();
@@ -44,7 +46,7 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
                         loadAttachments(Method.LOADATTACHMENTS, args[1], args[2]);
                     }
                     else {
-                        System.out.println("ERROR: Expected the 'delete' keyword, but was provided: " + args[0]);
+                        System.out.println("ERROR: Expected a valid method, but was provided: " + args[0]);
                         printUtil.printUsage();
                     }
                 }
@@ -55,7 +57,14 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
         }
     }
 
-    private void load(Method method, String entityName, String filePath) throws Exception {
+    protected void template(String entityName) throws Exception {
+        final BullhornAPI bhApi = createSession();
+        TemplateUtil templateUtil = new TemplateUtil(bhApi);
+        System.out.println("Creating Template for " + entityName);
+        templateUtil.writeExampleEntityCsv(entityName);
+    }
+
+    protected void load(Method method, String entityName, String filePath) throws Exception {
         if (validationUtil.isLoadableEntity(entityName) && validationUtil.isValidCsvFile(filePath)) {
             System.out.println("Loading " + entityName + " records from: " + filePath);
             EntityConcurrencyService entityConcurrencyService = createEntityConcurrencyService(method, entityName, filePath);
@@ -63,7 +72,7 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
         }
     }
 
-    private void delete(Method method, String entityName, String filePath) throws Exception {
+    protected void delete(Method method, String entityName, String filePath) throws Exception {
         if (validationUtil.isDeletableEntity(entityName) && validationUtil.isValidCsvFile(filePath)) {
             System.out.println("Deleting " + entityName + " records from: " + filePath);
             EntityConcurrencyService entityConcurrencyService = createEntityConcurrencyService(method, entityName, filePath);
@@ -71,7 +80,7 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
         }
     }
 
-    private void loadAttachments(Method method, String entityName, String filePath) throws Exception {
+    protected void loadAttachments(Method method, String entityName, String filePath) throws Exception {
         if (validationUtil.isValidCsvFile(filePath)) {
             System.out.println("Loading " + entityName + " attachments from: " + filePath);
             EntityAttachmentConcurrencyService entityConcurrencyService = createEntityAttachmentConcurrencyService(method, entityName, filePath);

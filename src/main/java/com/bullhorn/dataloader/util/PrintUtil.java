@@ -13,9 +13,10 @@ public class PrintUtil {
     public void printUsage() {
         System.out.println("");
         System.out.println("Usage:");
-        System.out.println("    Insert/Update: dataloader <EntityName> path/to/data.csv");
+        System.out.println("    Insert/Update: dataloader load <EntityName> path/to/data.csv");
         System.out.println("           Delete: dataloader delete <EntityName> path/to/data.csv");
         System.out.println("  Create Template: dataloader template <EntityName>");
+        System.out.println("  Load Attachment: dataloader loadAttachments <EntityName> path/to/AttachmentMap.csv");
         System.out.println("");
         System.out.println("where <EntityName> is one of the supported entities listed at:");
         System.out.println("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");

@@ -1,9 +1,7 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -40,7 +38,6 @@ import static org.mockito.Mockito.when;
 public class LoadAttachmentTaskTest {
 
     private PropertyFileUtil propertyFileUtil;
-    private BullhornAPI bhApi;
     private CsvFileWriter csvFileWriter;
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private LinkedHashMap<String, String> dataMap;
@@ -50,20 +47,16 @@ public class LoadAttachmentTaskTest {
 
     @Before
     public void setUp() throws Exception {
-        bhApi = Mockito.mock(BullhornAPI.class);
         propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornData = Mockito.mock(BullhornData.class);
-
-        // Mock out the bhApi class methods we need to call
-        when(bhApi.serialize(any())).thenReturn("{isDeleted: true}");
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("externalID","1");
-        dataMap.put("relativeFilePath","testResume/Amy Cherwin Resume.doc");
+        dataMap.put("relativeFilePath","testResume/Test Resume.doc");
         dataMap.put("isResume","0");
     }
 

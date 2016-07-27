@@ -42,14 +42,17 @@ public class EntityAttachmentConcurrencyService {
 
     public void runLoadAttchmentProcess() throws IOException {
         while (csvReader.readRecord()) {
-            LinkedHashMap<String, String> dataMap = getDataMap();
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
             LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(entityName, dataMap, csvWriter, propertyFileUtil, bullhornData);
             executorService.execute(loadAttachmentTask );
         }
         executorService.shutdown();
     }
 
-    private LinkedHashMap<String, String> getDataMap() throws IOException {
+    /**
+     * creates is a mapping of name to value pairs for a single row in the CSV file
+     */
+    protected LinkedHashMap<String, String> getCsvDataMap() throws IOException {
         LinkedHashMap<String, String> dataMap = new LinkedHashMap<>();
         for (int i = 0; i < csvReader.getHeaderCount(); i++){
             dataMap.put(csvReader.getHeader(i), csvReader.getValues()[i]);

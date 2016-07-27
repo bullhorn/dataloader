@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.task;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-import com.bullhorn.dataloader.task.DeleteTask;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.json.JSONObject;
 import org.junit.Assert;

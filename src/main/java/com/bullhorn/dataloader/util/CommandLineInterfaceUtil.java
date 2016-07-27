@@ -50,13 +50,6 @@ public class CommandLineInterfaceUtil {
         return Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
     }
 
-    protected void template(String entityName) throws Exception {
-        final BullhornAPI bhApi = createSession();
-        TemplateUtil templateUtil = new TemplateUtil(bhApi);
-        System.out.println("Creating Template for " + entityName);
-        templateUtil.writeExampleEntityCsv(entityName);
-    }
-
     protected BullhornAPI createSession() throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
         final BullhornAPI bhApi = new BullhornAPI(propertyFileUtil);
