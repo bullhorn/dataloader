@@ -1,7 +1,10 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -42,6 +45,8 @@ public class LoadAttachmentTaskTest {
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private LinkedHashMap<String, String> dataMap;
     private BullhornData bullhornData;
+    private PrintUtil printUtil;
+    private ActionTotals actionTotals;
 
     private LoadAttachmentTask task;
 
@@ -50,6 +55,8 @@ public class LoadAttachmentTaskTest {
         propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornData = Mockito.mock(BullhornData.class);
+        actionTotals = Mockito.mock(ActionTotals.class);
+        printUtil = Mockito.mock(PrintUtil.class);
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
@@ -64,8 +71,8 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         //arrange
         String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
-        Result expectedResult = new Result(Result.Status.SUCCESS, null, 0, "");
-        task = new LoadAttachmentTask("Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData);
+        Result expectedResult = Result.Insert(0);
+        task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
         ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
@@ -80,7 +87,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         //assert
-        verify(csvFileWriter).writeAttachmentRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
@@ -89,8 +96,8 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         //arrange
         String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
-        Result expectedResult = new Result(Result.Status.FAILURE, null, null, "Test");
-        task = new LoadAttachmentTask("Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData);
+        Result expectedResult = Result.Failure(new RestApiException("Test").toString());
+        task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
         ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
@@ -105,7 +112,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         //assert
-        verify(csvFileWriter).writeAttachmentRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }

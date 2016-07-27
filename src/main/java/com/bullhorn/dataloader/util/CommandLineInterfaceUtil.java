@@ -103,16 +103,22 @@ public abstract class CommandLineInterfaceUtil {
         final BullhornData bullhornData = getBullhornData(propertyFileUtil);
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
         final CsvReader csvReader = new CsvReader(filePath);
+        final PrintUtil printUtil = new PrintUtil();
+        ActionTotals actionTotals = new ActionTotals();
+
         csvReader.readHeaders();
         final CsvFileWriter csvFileWriter = new CsvFileWriter(method, filePath, csvReader.getHeaders());
 
         EntityAttachmentConcurrencyService entityAttachmentConcurrencyService = new EntityAttachmentConcurrencyService(
+                method,
                 entityName,
                 csvReader,
                 csvFileWriter,
                 executorService,
                 propertyFileUtil,
-                bullhornData
+                bullhornData,
+                printUtil,
+                actionTotals
         );
 
         return entityAttachmentConcurrencyService;
