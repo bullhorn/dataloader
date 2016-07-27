@@ -71,7 +71,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         //arrange
         String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 0, "");
+        Result expectedResult = Result.Insert(0);
         task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
@@ -96,7 +96,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         //arrange
         String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "Test");
+        Result expectedResult = Result.Failure("Test");
         task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
