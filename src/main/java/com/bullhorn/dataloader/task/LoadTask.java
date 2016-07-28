@@ -104,8 +104,8 @@ public class LoadTask implements Runnable {
             }
 
         } catch (IOException | ExecutionException e) {
+            actionTotals.incrementTotalError();
             printUtil.printAndLog(e.toString());
-            log.error(e);
         }
 
         log.debug("Loaded row " + data.getRowNumber() + " in " + timer.getDurationStringSec());
