@@ -1,0 +1,2 @@
+id,action,externalID,relativeFilePath,isResume,parentEntityID
+1,INSERT,1,src/test/resources/testResume/Test Resume.doc,0,1
