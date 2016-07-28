@@ -1,5 +1,22 @@
 package com.bullhorn.dataloader.task;
 
+import static com.bullhorn.dataloader.util.AssociationFilter.isInteger;
+
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
@@ -16,22 +33,6 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
-
-import static com.bullhorn.dataloader.util.AssociationFilter.isInteger;
 
 /**
  * Responsible for loading a single row from a CSV input file.
@@ -103,7 +104,7 @@ public class LoadTask implements Runnable {
             }
 
         } catch (IOException | ExecutionException e) {
-            System.out.println(e);
+            printUtil.printAndLog(e.toString());
             log.error(e);
         }
 

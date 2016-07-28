@@ -2,8 +2,9 @@ package com.bullhorn.dataloader.util.validation;
 
 import java.io.File;
 
-import com.bullhorn.dataloader.util.PrintUtil;
 import org.apache.commons.io.FilenameUtils;
+
+import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
  * Validation methods for validating user input on the command line.  Prints results and returns errors, does
@@ -25,11 +26,11 @@ public class ValidationUtil {
      */
     public boolean isValidParameters(String[] args) {
         if (args.length < 2) {
-            System.out.println("ERROR: Not enough arguments provided.");
+            printUtil.printAndLog("ERROR: Not enough arguments provided.");
             printUtil.printUsage();
             return false;
         } else if (args.length > 3) {
-            System.out.println("ERROR: Too many arguments provided.");
+            printUtil.printAndLog("ERROR: Too many arguments provided.");
             printUtil.printUsage();
             return false;
         }
@@ -42,17 +43,17 @@ public class ValidationUtil {
     public boolean isValidCsvFile(String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
-            System.out.println("ERROR: Cannot access: " + filePath);
-            System.out.println("       Ensure path is correct.");
+            printUtil.printAndLog("ERROR: Cannot access: " + filePath);
+            printUtil.printAndLog("       Ensure path is correct.");
             printUtil.printUsage();
             return false;
         } else if (file.isDirectory()) {
-            System.out.println("ERROR: Expected a file, but a directory was provided.");
+            printUtil.printAndLog("ERROR: Expected a file, but a directory was provided.");
             printUtil.printUsage();
             return false;
         } else if (!FilenameUtils.getExtension(filePath).equalsIgnoreCase("csv")) {
-            System.out.println("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
-            System.out.println("       Provide a csv file to load/update");
+            printUtil.printAndLog("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
+            printUtil.printAndLog("       Provide a csv file to load/update");
             printUtil.printUsage();
             return false;
         }

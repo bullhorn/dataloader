@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
@@ -9,8 +12,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 public class CommandLineInterface extends CommandLineInterfaceUtil {
 
@@ -51,7 +52,7 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
                         loadAttachments(Method.LOADATTACHMENTS, args[1], args[2]);
                     }
                     else {
-                        System.out.println("ERROR: Expected a valid method, but was provided: " + args[0]);
+                        printUtil.printAndLog("ERROR: Expected a valid method, but was provided: " + args[0]);
                         printUtil.printUsage();
                     }
                 }
@@ -91,7 +92,7 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
 
     protected void loadAttachments(Method method, String entityName, String filePath) throws Exception {
         if (validationUtil.isValidCsvFile(filePath)) {
-            System.out.println("Loading " + entityName + " attachments from: " + filePath);
+            printUtil.printAndLog("Loading " + entityName + " attachments from: " + filePath);
             EntityAttachmentConcurrencyService entityConcurrencyService = createEntityAttachmentConcurrencyService(method, entityName, filePath);
             entityConcurrencyService.runLoadAttachmentProcess();
         }
