@@ -1,5 +1,11 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.util.LinkedHashMap;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -11,11 +17,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.util.LinkedHashMap;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
@@ -58,8 +59,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private Result handleAttachmentFailure(Exception e) {
-        System.out.println(e);
-        log.error(e);
+        printUtil.printAndLog(e.toString());
         return Result.Failure(e.toString());
     }
 

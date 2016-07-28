@@ -61,7 +61,7 @@ public class MetaDataTypeTest {
                     new TestOption("Timestamp", "", null)
             };
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
