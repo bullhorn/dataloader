@@ -1,13 +1,17 @@
 package com.bullhorn.dataloader.meta;
 
+import static org.mockito.Mockito.verify;
+
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 public class MetaMapTest {
     private final String BAR = "|";
@@ -136,33 +140,19 @@ public class MetaMapTest {
     }
 
     @Test
-    public void testConvertFieldValue_Timestamp() {
+    public void testConvertFieldValue_Timestamp() throws ParseException {
         final String fieldName = "fieldName";
         final String dataType = "Timestamp";
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+        final SimpleDateFormat simpleDateFormat = Mockito.mock(SimpleDateFormat.class);
         final MetaMap metaMap = new MetaMap(simpleDateFormat, BAR);
+        ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
 
         metaMap.setFieldNameToDataType(fieldName, dataType);
+        metaMap.convertFieldValue(fieldName, "07/10/96 4:5 PM, PDT");
 
-        final Object value = metaMap.convertFieldValue(fieldName, "07/10/96 4:5 PM, PDT");
-
-        Assert.assertTrue(value instanceof Date);
-        Assert.assertEquals("7/10/96 4:05 PM", simpleDateFormat.format((Date) value));
-    }
-
-    @Test
-    public void testConvertFieldValue_Timestamp_HonorsDateFormat() {
-        final String fieldName = "fieldName";
-        final String dataType = "Timestamp";
-        final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-        final MetaMap metaMap = new MetaMap(simpleDateFormat, BAR);
-
-        metaMap.setFieldNameToDataType(fieldName, dataType);
-
-        final Object value = metaMap.convertFieldValue(fieldName, "07/10/1996");
-
-        Assert.assertTrue(value instanceof Date);
-        Assert.assertEquals("07/10/1996", simpleDateFormat.format((Date) value));
+        verify(simpleDateFormat).parse(stringArgumentCaptor.capture());
+        String actualValue = stringArgumentCaptor.getValue();
+        Assert.assertEquals("07/10/96 4:5 PM, PDT", actualValue);
     }
 
     @Test
