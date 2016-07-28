@@ -68,13 +68,11 @@ public class DeleteTask implements Runnable {
                 String failureText = "ERROR: Cannot delete " + entityName + " because it is not deletable in REST.";
                 result = Result.Failure(failureText);
                 printUtil.printAndLog(failureText);
-                log.error(failureText);
             } else if (!data.getImmediateActions().containsKey(StringConsts.ID)) {
                 String failureText = "ERROR: Cannot delete row: " + data.getRowNumber() + ". " +
                         " CSV row is missing the \"" + StringConsts.ID + "\" column.";
                 result = Result.Failure(failureText);
                 printUtil.printAndLog(failureText);
-                log.error(failureText);
             } else {
                 Integer entityId = new Integer(data.getImmediateActions().get(StringConsts.ID).toString());
                 String url = entityBase + "/" + entityId + restToken;
@@ -115,7 +113,6 @@ public class DeleteTask implements Runnable {
 
         } catch (IOException e) {
             printUtil.printAndLog(e.toString());
-            log.error(e);
         }
     }
 
@@ -136,7 +133,6 @@ public class DeleteTask implements Runnable {
 
             printUtil.printAndLog("ERROR: Row " + data.getRowNumber() + " - Cannot delete " + entityName + " with ID: " + entityId);
             printUtil.printAndLog("       Failure Message From Rest: " + restFailureMessage);
-            log.error(restFailureMessage);
             return Result.Failure(restFailureMessage);
         } else {
             return Result.Delete(jsonResponse.getInt(StringConsts.CHANGED_ENTITY_ID));
