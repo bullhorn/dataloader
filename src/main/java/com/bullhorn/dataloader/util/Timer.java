@@ -4,13 +4,13 @@ package com.bullhorn.dataloader.util;
  * Simple timer object used for performance analysis of the DataLoader.
  */
 public class Timer {
-    final long startTime;
+    private long startTime;
 
     /**
      * Initializes the timer to the point when the timer is created.
      */
     public Timer() {
-        startTime = System.currentTimeMillis();
+        start();
     }
 
     /**
@@ -29,5 +29,12 @@ public class Timer {
      */
     public String getDurationStringSec() {
         return String.format("%.1f", (double)(getDurationMillis()) / 1000) + " sec";
+    }
+    
+    /**
+     * Sets the start of the timer interval
+     */
+    public void start() {
+    	startTime = System.currentTimeMillis();
     }
 }

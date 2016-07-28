@@ -8,12 +8,11 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.meta.MetaMap;
-import com.bullhorn.dataloader.service.CommandLineInterface;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.BullhornApiUpdater;
-import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -21,6 +20,10 @@ import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyServi
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
@@ -28,16 +31,24 @@ import com.csvreader.CsvReader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 
-public abstract class CommandLineInterfaceUtil {
+public abstract class AbstractService {
 
     protected Logger log = LogManager.getLogger(CommandLineInterface.class);
 
-    protected BullhornData getBullhornData(PropertyFileUtil propertyFileUtil) throws Exception {
+    final protected Timer timer;
+    protected PrintUtil printUtil;
+
+    public AbstractService() {
+    	printUtil = new PrintUtil();
+    	timer = new Timer();
+    }
+
+    private BullhornData getBullhornData(PropertyFileUtil propertyFileUtil) throws Exception {
         BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(propertyFileUtil));
         return bullhornData;
     }
 
-    protected BullhornRestCredentials getBullhornRestCredentials(PropertyFileUtil propertyFileUtil) throws Exception {
+    private BullhornRestCredentials getBullhornRestCredentials(PropertyFileUtil propertyFileUtil) throws Exception {
         BullhornRestCredentials bullhornRestCredentials = new BullhornRestCredentials();
         bullhornRestCredentials.setPassword(propertyFileUtil.getPassword());
         bullhornRestCredentials.setRestAuthorizeUrl(propertyFileUtil.getAuthorizeUrl());
@@ -50,12 +61,17 @@ public abstract class CommandLineInterfaceUtil {
         return bullhornRestCredentials;
     }
 
-    protected PropertyFileUtil getPropertyFileUtil() throws IOException {
+    private PropertyFileUtil getPropertyFileUtil() throws IOException {
         return new PropertyFileUtil("dataloader.properties");
     }
 
     protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) throws IOException {
         return Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
+    }
+
+    protected void printAndLog(String line) {
+        System.out.println(line);
+        log.info(line);
     }
 
     protected BullhornAPI createSession() throws Exception {
@@ -65,7 +81,7 @@ public abstract class CommandLineInterfaceUtil {
         return bhApi;
     }
 
-    protected EntityConcurrencyService createEntityConcurrencyService(Method method, String entity, String filePath) throws Exception {
+    protected EntityConcurrencyService createEntityConcurrencyService(Command command, String entity, String filePath) throws Exception {
         final BullhornAPI bhApi = createSession();
         final BullhornApiUpdater bhApiUpdater = new BullhornApiUpdater(bhApi);
         final BullhornApiAssociator bhApiAssociator = new BullhornApiAssociator(bhApi);
@@ -76,7 +92,7 @@ public abstract class CommandLineInterfaceUtil {
         bhApi.frontLoad();
         MetaMap metaMap = bhApi.getRootMetaDataTypes(entity);
         final CsvFileReader csvFileReader = new CsvFileReader(filePath, metaMap);
-        final CsvFileWriter csvFileWriter = new CsvFileWriter(method, filePath, csvFileReader.getHeaders());
+        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
 
         final ExecutorService executorService = getExecutorService(getPropertyFileUtil());
         final EntityConcurrencyService entityConcurrencyService = new EntityConcurrencyService(
@@ -93,20 +109,18 @@ public abstract class CommandLineInterfaceUtil {
         return entityConcurrencyService;
     }
 
-    public EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Method method, String entityName, String filePath) throws Exception {
+    public EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Command command, String entityName, String filePath) throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
 
         final BullhornData bullhornData = getBullhornData(propertyFileUtil);
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
         final CsvReader csvReader = new CsvReader(filePath);
-        final PrintUtil printUtil = new PrintUtil();
+        csvReader.readHeaders();
+        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        csvReader.readHeaders();
-        final CsvFileWriter csvFileWriter = new CsvFileWriter(method, filePath, csvReader.getHeaders());
-
         EntityAttachmentConcurrencyService entityAttachmentConcurrencyService = new EntityAttachmentConcurrencyService(
-                method,
+        		command,
                 entityName,
                 csvReader,
                 csvFileWriter,
@@ -119,5 +133,40 @@ public abstract class CommandLineInterfaceUtil {
 
         return entityAttachmentConcurrencyService;
     }
+
+	protected String extractEntityNameFromFileName(String fileName) {
+		String upperCaseFileName = fileName.toUpperCase();
+		Entity bestMatch = null;
+		for (Entity entity: Entity.values()) {
+			if (upperCaseFileName.startsWith(entity.getUpperCase())) {
+				if (bestMatch == null) {
+					bestMatch = entity;
+				} else if (bestMatch.getEntityName().length() < entity.getEntityName().length()) {
+					// longer name is better
+					bestMatch = entity;
+				}
+			}
+		}
+
+		if (bestMatch == null) {
+			return null;
+		} else {
+			return bestMatch.getEntityName();
+		}
+
+	}
+
+	protected String extractEntityNameFromString(String string) {
+
+		for (Entity entity: Entity.values()) {
+			if (string.equalsIgnoreCase(entity.getEntityName())) {
+				return entity.getEntityName();
+			}
+		}
+
+		return null;
+
+	}
+
 
 }

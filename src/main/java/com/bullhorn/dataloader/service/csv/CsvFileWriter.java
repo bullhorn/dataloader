@@ -1,16 +1,14 @@
 package com.bullhorn.dataloader.service.csv;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.apache.commons.io.FilenameUtils;
-
-import com.bullhorn.dataloader.consts.TaskConsts;
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -41,18 +39,18 @@ public class CsvFileWriter {
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_failure.csv
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_success.csv
      *
-     * @param method
+     * @param command
      * @param filePath The full path to the Entity file to read in
      * @param headers The headers read in from the input CSV file
      */
-    public CsvFileWriter(Method method, String filePath, String[] headers) throws IOException {
+    public CsvFileWriter(Command command, String filePath, String[] headers) throws IOException {
         this.headers = headers;
 
         String baseName = FilenameUtils.getBaseName(filePath);
 
         // Create files, and create directory if it does not exist
-        File successFile = new File(RESULTS_DIR + baseName + "_" + method.getMethodName() + "_" + StringConsts.TIMESTAMP + SUCCESS_CSV);
-        File failureFile = new File(RESULTS_DIR + baseName + "_" + method.getMethodName() + "_" + StringConsts.TIMESTAMP + FAILURE_CSV);
+        File successFile = new File(RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + SUCCESS_CSV);
+        File failureFile = new File(RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + FAILURE_CSV);
         successFile.getParentFile().mkdirs();
         failureFile.getParentFile().mkdirs();
 
