@@ -15,8 +15,8 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGetters() throws Exception {
-        String path = getFilePath("PropertyFileUtilTest.properties");
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final String path = getFilePath("PropertyFileUtilTest.properties");
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(propertyFileUtil.getUsername(), "john.smith");
         Assert.assertEquals(propertyFileUtil.getPassword(), "password123");
@@ -34,8 +34,8 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testExistsFields() throws Exception {
-        String path = getFilePath("PropertyFileUtilTest.properties");
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final String path = getFilePath("PropertyFileUtilTest.properties");
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("BusinessSector"),
                 Optional.ofNullable(Arrays.asList(new String[] {"name"})));
@@ -53,8 +53,8 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testFrontLoadedEntities() throws Exception {
-        String path = getFilePath("PropertyFileUtilTest.properties");
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final String path = getFilePath("PropertyFileUtilTest.properties");
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Set<String> expected = Sets.newHashSet(new String[] {"BusinessSector", "Skill", "Category"});
         Assert.assertEquals(propertyFileUtil.getFrontLoadedEntities(), expected);
@@ -66,14 +66,14 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testFrontLoadedEntities_Empty() throws Exception {
-        String path = getFilePath("PropertyFileUtilTest_Empty.properties");
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final String path = getFilePath("PropertyFileUtilTest_Empty.properties");
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(0, propertyFileUtil.getFrontLoadedEntities().size());
     }
 
     private String getFilePath(String filename) {
-        ClassLoader classLoader = getClass().getClassLoader();
+        final ClassLoader classLoader = getClass().getClassLoader();
         return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

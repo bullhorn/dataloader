@@ -57,11 +57,6 @@ public abstract class CommandLineInterfaceUtil {
         return Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
     }
 
-    protected void printAndLog(String line) {
-        System.out.println(line);
-        log.info(line);
-    }
-
     protected BullhornAPI createSession() throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
         final BullhornAPI bhApi = new BullhornAPI(propertyFileUtil);

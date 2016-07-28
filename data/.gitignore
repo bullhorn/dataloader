@@ -1,3 +1,5 @@
 # Keeping around the empty data directory so that the release package can have an empty data folder in it.
 # The Maven Assembly requires that an existing folder is used, and cannot create a new one during assembly.
 # The data directory is a helpful way to funnel users into a consistent place to put their CSV files.
+# Data files put into this directory are ignored by git to keep it empty.
+*

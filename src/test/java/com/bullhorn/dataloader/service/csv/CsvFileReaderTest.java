@@ -15,11 +15,11 @@ public class CsvFileReaderTest {
 
     @Test
     public void testImmediateActions() throws IOException {
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat("MM/dd/yyyy"), "|");
-        String path = getFilePath("CsvToJsonTest_base.csv");
+        final MetaMap metaMap = new MetaMap(new SimpleDateFormat("MM/dd/yyyy"), "|");
+        final String path = getFilePath("CsvToJsonTest_base.csv");
 
-        CsvFileReader csvFileReader = new CsvFileReader(path, metaMap);
-        Map<String, Object> onlyRow = new HashMap<String, Object>() {{
+        final CsvFileReader csvFileReader = new CsvFileReader(path, metaMap);
+        final Map<String, Object> onlyRow = new HashMap<String, Object>() {{
             put("a", "1");
             put("b", "2");
             put("c", "3");
@@ -34,7 +34,7 @@ public class CsvFileReaderTest {
     }
 
     private String getFilePath(String filename) {
-        ClassLoader classLoader = getClass().getClassLoader();
+        final ClassLoader classLoader = getClass().getClassLoader();
         return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }
