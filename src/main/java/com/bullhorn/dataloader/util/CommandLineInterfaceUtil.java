@@ -1,5 +1,13 @@
 package com.bullhorn.dataloader.util;
 
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.lang3.text.WordUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.CommandLineInterface;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
@@ -19,13 +27,6 @@ import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
-import org.apache.commons.lang3.text.WordUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public abstract class CommandLineInterfaceUtil {
 
@@ -97,7 +98,7 @@ public abstract class CommandLineInterfaceUtil {
         return entityConcurrencyService;
     }
 
-    protected EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Method method, String entityName, String filePath) throws Exception {
+    public EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Method method, String entityName, String filePath) throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
 
         final BullhornData bullhornData = getBullhornData(propertyFileUtil);

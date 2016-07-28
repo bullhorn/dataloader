@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,23 +14,22 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
-import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.bullhornsdk.data.model.response.file.FileWrapper;
+import com.bullhornsdk.data.model.response.file.FileApiResponse;
 
 /**
- * Responsible for attaching a single row from a CSV input file.
+ * Responsible for deleting a single row from a CSV input file.
  */
-public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
-    private static final Logger log = LogManager.getLogger(LoadAttachmentTask.class);
+public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+    private static final Logger log = LogManager.getLogger(DeleteAttachmentTask.class);
 
-    public LoadAttachmentTask(Method method,
-                              String entityName,
-                              LinkedHashMap<String, String> dataMap,
-                              CsvFileWriter csvWriter,
-                              PropertyFileUtil propertyFileUtil,
-                              BullhornData bullhornData,
-                              PrintUtil printUtil,
-                              ActionTotals actionTotals) {
+    public DeleteAttachmentTask(Method method,
+                                String entityName,
+                                LinkedHashMap<String, String> dataMap,
+                                CsvFileWriter csvWriter,
+                                PropertyFileUtil propertyFileUtil,
+                                BullhornData bullhornData,
+                                PrintUtil printUtil,
+                                ActionTotals actionTotals) {
         super(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
@@ -51,10 +49,8 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
 
     private Result handleAttachment() throws Exception {
         getAndSetBullhornEntityInfo();
-        getAndSetBullhornID();
-        addParentEntityIDtoDataMap();
-        FileWrapper fileWrapper = attachFile();
-        return Result.Insert(fileWrapper.getId());
+        FileApiResponse fileApiResponse = deleteFile();
+        return Result.Delete(fileApiResponse.getFileId());
     }
 
     private Result handleAttachmentFailure(Exception e) {
@@ -63,9 +59,8 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         return Result.Failure(e.toString());
     }
 
-    private <F extends FileEntity> FileWrapper attachFile() {
-        File attachementFile = new File(dataMap.get(relativeFilePath));
-        return bullhornData.addFile((Class<F>) entity, bullhornParentId, attachementFile, dataMap.get(externalID), ParamFactory.fileParams(), false);
+    private <F extends FileEntity> FileApiResponse deleteFile() {
+        return bullhornData.deleteFile((Class<F>) entity, Integer.valueOf(dataMap.get(parentEntityID)), Integer.valueOf(dataMap.get(id)));
     }
 
 }

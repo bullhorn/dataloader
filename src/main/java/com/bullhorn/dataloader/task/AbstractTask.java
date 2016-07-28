@@ -1,5 +1,16 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -13,16 +24,6 @@ import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
     private static final Logger log = LogManager.getLogger(AbstractTask.class);
@@ -72,6 +73,11 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    protected  void addParentEntityIDtoDataMap() {
+        dataMap.put(TaskConsts.parentEntityID, bullhornParentId.toString());
+
+    }
+
     protected void writeToResultCSV(Result result) {
         try {
             csvWriter.writeRow(dataMap.values().toArray(new String[0]), result);
@@ -94,6 +100,8 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             actionTotals.incrementTotalInsert();
         } else if(result.getAction().equals(Result.Action.UPDATE)){
             actionTotals.incrementTotalUpdate();
+        } else if(result.getAction().equals(Result.Action.DELETE)){
+            actionTotals.incrementTotalDelete();
         } else if(result.getStatus().equals(Result.Status.FAILURE)) {
             actionTotals.incrementTotalError();
         }
