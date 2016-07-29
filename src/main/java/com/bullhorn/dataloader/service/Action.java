@@ -1,5 +1,11 @@
 package com.bullhorn.dataloader.service;
 
+/**
+ * The command line action definition
+ * 
+ * @author jlrutledge
+ *
+ */
 public interface Action {
 
 	/**

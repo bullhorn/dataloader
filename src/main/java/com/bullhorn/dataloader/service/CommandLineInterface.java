@@ -19,7 +19,7 @@ public class CommandLineInterface extends AbstractService {
         log.info("Args: " + String.join(" ", args));
 
         try {
-
+        	// parse command from command line
         	Command command = null;
         	for (Command iter: Command.values()) {
         		if (iter.getMethodName().equalsIgnoreCase(args[0])) {
@@ -34,18 +34,19 @@ public class CommandLineInterface extends AbstractService {
         		return;
         	}
 
-        	Action service = command.getAction();
+        	// get Action instance
+        	Action action = command.getAction();
 
-        	if (!service.isValidArguments(args)) {
-        		service.printUsage();
+        	// check if arguments are correct
+        	if (!action.isValidArguments(args)) {
+        		action.printUsage();
         		return;
         	}
 
-        	service.run(args);
+        	// run action
+        	action.run(args);
         } catch (Exception e) {
             printAndLog(e.toString());
         }
-
     }
-
 }

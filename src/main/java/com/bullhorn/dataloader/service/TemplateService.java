@@ -3,6 +3,12 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.util.TemplateUtil;
 
+/**
+ * Create example template implementation
+ * 
+ * @author jlrutledge
+ *
+ */
 public class TemplateService extends AbstractService implements Action {
 
 	@Override

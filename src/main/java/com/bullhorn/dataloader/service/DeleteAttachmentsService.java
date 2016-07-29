@@ -1,5 +1,11 @@
 package com.bullhorn.dataloader.service;
 
+/**
+ * Delete attachment implementation
+ * 
+ * @author jlrutledge
+ *
+ */
 public class DeleteAttachmentsService extends AbstractService implements Action {
 
 	@Override

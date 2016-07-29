@@ -2,6 +2,12 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
 
+/**
+ * Load attachment implementation
+ * 
+ * @author jlrutledge
+ *
+ */
 public class LoadAttachmentsService extends AbstractService implements Action {
 
 	@Override

@@ -32,6 +32,14 @@ import com.csvreader.CsvReader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 
+/**
+ * Basic class for all command line action.
+ *
+ * Contains common functionality.
+ *
+ * @author jlrutledge
+ *
+ */
 public abstract class AbstractService {
 
     protected Logger log = LogManager.getLogger(CommandLineInterface.class);
@@ -66,15 +74,32 @@ public abstract class AbstractService {
         return new PropertyFileUtil("dataloader.properties");
     }
 
-    protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) throws IOException {
+    /**
+     * Create a thread pool executor service for processing entities
+     *
+     * @param propertyFileUtil - properties for the thread pool
+     * @return java.util.concurrent.ExecutorService
+     */
+    protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
         return Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
     }
 
+    /**
+     * Output to console and log file
+     *
+     * @param line - message to output
+     */
     protected void printAndLog(String line) {
         System.out.println(line);
         log.info(line);
     }
 
+    /**
+     * Create BullhornAPI instance and open a session
+     *
+     * @return BullhornAPI instance
+     * @throws Exception if error reading in properties or error creating session
+     */
     protected BullhornAPI createSession() throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
         final BullhornAPI bhApi = new BullhornAPI(propertyFileUtil);
@@ -82,6 +107,15 @@ public abstract class AbstractService {
         return bhApi;
     }
 
+    /**
+     * Create thread pool for processing entity changes
+     *
+     * @param command - command line action to perform
+     * @param entity - entity name
+     * @param filePath - CSV file with entity data
+     * @return EntityConcurrencyService thread pool service
+     * @throws Exception if error when opening session, loading entity data, or reading CSV
+     */
     protected EntityConcurrencyService createEntityConcurrencyService(Command command, String entity, String filePath) throws Exception {
         final BullhornAPI bhApi = createSession();
         final BullhornApiUpdater bhApiUpdater = new BullhornApiUpdater(bhApi);
@@ -110,7 +144,16 @@ public abstract class AbstractService {
         return entityConcurrencyService;
     }
 
-    public EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Command command, String entityName, String filePath) throws Exception {
+    /**
+     * Create thread pool for processing entity attachement changes
+     *
+     * @param command - command line action to perform
+     * @param entity - entity name
+     * @param filePath - CSV file with attachment data
+     * @return EntityAttachmentConcurrencyService thread pool service
+     * @throws Exception if error when opening session, loading entity data, or reading CSV
+     */
+    protected EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Command command, String entityName, String filePath) throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
 
         final BullhornData bullhornData = getBullhornData(propertyFileUtil);
@@ -135,6 +178,14 @@ public abstract class AbstractService {
         return entityAttachmentConcurrencyService;
     }
 
+    /**
+     * Extractions entity name from a file path.
+     *
+     * The entity name is the prefix of the tail of the file name.
+     *
+     * @param fileName path from which to extract entity name
+     * @return the SDK-Rest name of the entity
+     */
 	protected String extractEntityNameFromFileName(String fileName) {
 		File file = new File(fileName);
 
@@ -158,6 +209,12 @@ public abstract class AbstractService {
 		}
 	}
 
+	/**
+	 * Return properly capitalize SDK-REST entity name from a string with any capitalization
+	 *
+	 * @param string a string of the entity name
+	 * @return SDK-REST entity name
+	 */
 	protected String extractEntityNameFromString(String string) {
 
 		for (Entity entity: Entity.values()) {

@@ -61,7 +61,7 @@ public enum Entity {
 	}
 	
 	/**
-	 * @return the entity name usable in the Bullhorn's sdk-rest
+	 * @return the entity name usable in the Bullhorn's SDK-REST
 	 */
 	public String getEntityName() {
 		return entityInfo.getName();
@@ -69,7 +69,7 @@ public enum Entity {
 	
 	/**
 	 * 
-	 * @return the all uppercase version of this entity's name
+	 * @return the all upper case version of this entity's name
 	 */
 	public String getUpperCase() {
 		return upperCase;

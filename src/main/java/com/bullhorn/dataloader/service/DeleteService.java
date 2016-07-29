@@ -2,6 +2,12 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
 
+/**
+ * Delete entity implementation
+ * 
+ * @author jlrutledge
+ *
+ */
 public class DeleteService extends AbstractService implements Action {
 
 	@Override

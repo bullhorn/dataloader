@@ -2,6 +2,12 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
 
+/**
+ * Load/create entity implementation
+ * 
+ * @author jlrutledge
+ *
+ */
 public class LoadService extends AbstractService implements Action {
 
 	@Override
