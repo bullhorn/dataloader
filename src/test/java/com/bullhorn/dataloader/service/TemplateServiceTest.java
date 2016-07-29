@@ -18,21 +18,18 @@ public class TemplateServiceTest {
 
 	@Test
 	public void testRun() throws Exception {
-		String entity = "Candidate";
+		final String entity = "Candidate";
         final String fieldName = "fieldName";
         final String dataType = "String";
-		
-		//arrange
-		BullhornAPI bullhornAPIMock = Mockito.mock(BullhornAPI.class);
-		
-		MetaMap metaMap = new MetaMap(new SimpleDateFormat(), ",");
+		final BullhornAPI bullhornAPIMock = Mockito.mock(BullhornAPI.class);
+
+		final MetaMap metaMap = new MetaMap(new SimpleDateFormat(), ",");
 		metaMap.setFieldNameToDataType(fieldName, dataType);
 				
 		Mockito.doReturn(metaMap).when(bullhornAPIMock).getRootMetaDataTypes(entity);
-		
-		TemplateService loadService = Mockito.spy(new TemplateService());
-		
-		// mock out AbstractService Methods that should not be called
+
+		final TemplateService loadService = Mockito.spy(new TemplateService());
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -43,19 +40,18 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
+
+		final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
 		loadService.run(testArgs);
-		
-		//assert
+
 		Mockito.verify(loadService, Mockito.times(2)).printAndLog(Mockito.anyString());
-		String fileName = entity + "Example.csv";
-		File outputFile = new File(fileName);
+		final String fileName = entity + "Example.csv";
+		final File outputFile = new File(fileName);
+
 		Assert.assertTrue(outputFile.isFile());
-		
-		CsvFileReader csvFileReader = new CsvFileReader(fileName, metaMap);
-		JsonRow actualJson = csvFileReader.next();
+
+		final CsvFileReader csvFileReader = new CsvFileReader(fileName, metaMap);
+		final JsonRow actualJson = csvFileReader.next();
 		
 		Assert.assertEquals(dataType, actualJson.getValues()[0]);
 		
@@ -65,12 +61,9 @@ public class TemplateServiceTest {
 	
 	@Test
 	public void testIsValidArgments() throws Exception {
-		String filePath = "Candidate.csv";
+		final String filePath = "Candidate.csv";
+		final LoadService loadService = Mockito.spy(new LoadService());
 
-		//arrange
-		LoadService loadService = Mockito.spy(new LoadService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -78,10 +71,9 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		boolean actualResult = loadService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
 		Assert.assertTrue(actualResult);
 		
@@ -91,10 +83,8 @@ public class TemplateServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsMissingArgment() throws Exception {
-		//arrange
-		LoadService loadService = Mockito.spy(new LoadService());
-		
-		// mock out AbstractService Methods that should not be called
+		final LoadService loadService = Mockito.spy(new LoadService());
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -102,10 +92,9 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD.getMethodName()};
-		boolean actualResult = loadService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD.getMethodName()};
+		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -115,12 +104,9 @@ public class TemplateServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsTooManyArgments() throws Exception {
-		String filePath = "Candidate.csv";
+		final String filePath = "Candidate.csv";
+		final LoadService loadService = Mockito.spy(new LoadService());
 
-		//arrange
-		LoadService loadService = Mockito.spy(new LoadService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -128,10 +114,9 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD.getMethodName(), filePath, "tooMany"};
-		boolean actualResult = loadService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath, "tooMany"};
+		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -141,12 +126,9 @@ public class TemplateServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsBadEntity() throws Exception {
-		String filePath = "filePath";
+		final String filePath = "filePath";
+		final LoadService loadService = Mockito.spy(new LoadService());
 
-		//arrange
-		LoadService loadService = Mockito.spy(new LoadService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -154,10 +136,9 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		boolean actualResult = loadService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -167,12 +148,9 @@ public class TemplateServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsEmptyFile() throws Exception {
-		String filePath = "";
+		final String filePath = "";
+		final LoadService loadService = Mockito.spy(new LoadService());
 
-		//arrange
-		LoadService loadService = Mockito.spy(new LoadService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -180,10 +158,9 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		boolean actualResult = loadService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -193,18 +170,16 @@ public class TemplateServiceTest {
 	
 	@Test
 	public void testUsage() throws Exception {
-		//arrange
-		PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
+		final PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
 		
 		Mockito.doNothing().when(printUtilMock).printUsage();
-		
-		LoadService loadService = Mockito.spy(new LoadService());
-		
-		Field prinUtilField = AbstractService.class.getDeclaredField("printUtil");
+
+		final LoadService loadService = Mockito.spy(new LoadService());
+
+		final Field prinUtilField = AbstractService.class.getDeclaredField("printUtil");
 		prinUtilField.setAccessible(true);
 		prinUtilField.set(loadService, printUtilMock);
-		
-		// mock out AbstractService Methods that should not be called
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
@@ -212,13 +187,11 @@ public class TemplateServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
-		
-		//act
+
 		loadService.printUsage();
 		
 		Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
 		
 	}
-	
 
 }

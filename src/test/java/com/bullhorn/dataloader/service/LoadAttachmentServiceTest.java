@@ -10,19 +10,17 @@ import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyServi
 import com.bullhorn.dataloader.util.PrintUtil;
 
 public class LoadAttachmentServiceTest {
+
 	@Test
 	public void testRun() throws Exception {
-		String entity = "Candidate";
-		String filePath = "filePath";
-		
-		//arrange
-		EntityAttachmentConcurrencyService entityAttachmentConcurrencyServiceMock = Mockito.mock(EntityAttachmentConcurrencyService.class);
+		final String entity = "Candidate";
+		final String filePath = "filePath";
+		final EntityAttachmentConcurrencyService entityAttachmentConcurrencyServiceMock = Mockito.mock(EntityAttachmentConcurrencyService.class);
 		
 		Mockito.doNothing().when(entityAttachmentConcurrencyServiceMock).runLoadAttachmentProcess();
-		
-		LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
-		
-		// mock out AbstractService Methods that should not be called
+
+		final LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createSession();
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).getExecutorService(Mockito.any());
@@ -32,12 +30,10 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadAttachmentService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
+
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
 		loadAttachmentService.run(testArgs);
-		
-		//assert
+
 		Mockito.verify(entityAttachmentConcurrencyServiceMock, Mockito.times(1)).runLoadAttachmentProcess();
 		Mockito.verify(loadAttachmentService, Mockito.times(2)).printAndLog(Mockito.anyString());
 		
@@ -45,13 +41,10 @@ public class LoadAttachmentServiceTest {
 	
 	@Test
 	public void testIsValidArgments() throws Exception {
-		String entity = "Candidate";
-		String filePath = "filePath";
+		final String entity = "Candidate";
+		final String filePath = "filePath";
+		final LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
 
-		//arrange
-		LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createSession();
@@ -59,10 +52,9 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadAttachmentService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
-		boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
+		final boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
 		
 		Assert.assertTrue(actualResult);
 		
@@ -72,10 +64,8 @@ public class LoadAttachmentServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsMissingArgment() throws Exception {
-		//arrange
-		LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
-		
-		// mock out AbstractService Methods that should not be called
+		final LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createSession();
@@ -83,10 +73,9 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadAttachmentService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName()};
-		boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName()};
+		final boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -96,13 +85,10 @@ public class LoadAttachmentServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsTooManyArgments() throws Exception {
-		String entity = "Candidate";
-		String filePath = "filePath";
+		final String entity = "Candidate";
+		final String filePath = "filePath";
+		final LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
 
-		//arrange
-		LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createSession();
@@ -110,10 +96,9 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadAttachmentService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath, "tooMany"};
-		boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath, "tooMany"};
+		final boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -123,13 +108,10 @@ public class LoadAttachmentServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsBadEntity() throws Exception {
-		String entity = "Candidates";
-		String filePath = "filePath";
+		final String entity = "Candidates";
+		final String filePath = "filePath";
+		final LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
 
-		//arrange
-		LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createSession();
@@ -137,10 +119,9 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadAttachmentService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
-		boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
+		final boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -150,13 +131,10 @@ public class LoadAttachmentServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsEmptyFile() throws Exception {
-		String entity = "Candidates";
-		String filePath = "";
+		final String entity = "Candidates";
+		final String filePath = "";
+		final LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
 
-		//arrange
-		LoadAttachmentsService loadAttachmentService = Mockito.spy(new LoadAttachmentsService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentService).createSession();
@@ -164,10 +142,9 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(loadAttachmentService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
-		boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), entity, filePath};
+		final boolean actualResult = loadAttachmentService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -177,18 +154,16 @@ public class LoadAttachmentServiceTest {
 	
 	@Test
 	public void testUsage() throws Exception {
-		//arrange
-		PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
+		final PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
 		
 		Mockito.doNothing().when(printUtilMock).printUsage();
-		
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		Field prinUtilField = AbstractService.class.getDeclaredField("printUtil");
+
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
+
+		final Field prinUtilField = AbstractService.class.getDeclaredField("printUtil");
 		prinUtilField.setAccessible(true);
 		prinUtilField.set(deleteService, printUtilMock);
-		
-		// mock out AbstractService Methods that should not be called
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -196,13 +171,11 @@ public class LoadAttachmentServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
+
 		deleteService.printUsage();
 		
 		Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
 		
 	}
-	
 
 }

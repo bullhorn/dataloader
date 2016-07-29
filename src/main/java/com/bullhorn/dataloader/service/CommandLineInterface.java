@@ -40,16 +40,13 @@ public class CommandLineInterface extends AbstractService {
         		return;
         	}
 
-        	// get Action instance
         	Action action = command.getAction();
 
-        	// check if arguments are correct
         	if (!action.isValidArguments(args)) {
         		action.printUsage();
         		return;
         	}
 
-        	// run action
         	action.run(args);
         } catch (Exception e) {
             printAndLog(e.toString());

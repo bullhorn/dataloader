@@ -44,7 +44,6 @@ public class LoadService extends AbstractService implements Action {
 	public boolean isValidArguments(String[] args) {
 		
 		if (args.length == 2) {
-			// Filename only
 			String fileName = args[1];
 			
 			if (fileName == null || fileName.length() == 0) {

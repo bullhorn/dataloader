@@ -13,17 +13,14 @@ public class DeleteServiceTest {
 
 	@Test
 	public void testRun() throws Exception {
-		String entity = "Candidate";
-		String filePath = "filePath";
-		
-		//arrange
-		EntityConcurrencyService entityConcurrencyServiceMock = Mockito.mock(EntityConcurrencyService.class);
+		final String entity = "Candidate";
+		final String filePath = "filePath";
+		final EntityConcurrencyService entityConcurrencyServiceMock = Mockito.mock(EntityConcurrencyService.class);
 		
 		Mockito.doNothing().when(entityConcurrencyServiceMock).runDeleteProcess();
-		
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		// mock out AbstractService Methods that should not be called
+
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).getExecutorService(Mockito.any());
@@ -33,12 +30,10 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+
+		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
 		deleteService.run(testArgs);
-		
-		//assert
+
 		Mockito.verify(entityConcurrencyServiceMock, Mockito.times(1)).runDeleteProcess();
 		Mockito.verify(deleteService, Mockito.times(2)).printAndLog(Mockito.anyString());
 		
@@ -46,13 +41,10 @@ public class DeleteServiceTest {
 	
 	@Test
 	public void testIsValidArgments() throws Exception {
-		String entity = "Candidate";
-		String filePath = "filePath";
+		final String entity = "Candidate";
+		final String filePath = "filePath";
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
 
-		//arrange
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -60,10 +52,9 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
-		boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
 		
 		Assert.assertTrue(actualResult);
 		
@@ -73,10 +64,8 @@ public class DeleteServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsMissingArgment() throws Exception {
-		//arrange
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		// mock out AbstractService Methods that should not be called
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -84,10 +73,9 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.DELETE.getMethodName()};
-		boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.DELETE.getMethodName()};
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -97,13 +85,10 @@ public class DeleteServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsTooManyArgments() throws Exception {
-		String entity = "Candidate";
-		String filePath = "filePath";
+		final String entity = "Candidate";
+		final String filePath = "filePath";
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
 
-		//arrange
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -111,9 +96,8 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath, "tooMany"};
+
+		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath, "tooMany"};
 		boolean actualResult = deleteService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
@@ -124,13 +108,10 @@ public class DeleteServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsBadEntity() throws Exception {
-		String entity = "Candidates";
-		String filePath = "filePath";
+		final String entity = "Candidates";
+		final String filePath = "filePath";
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
 
-		//arrange
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -138,9 +119,8 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+
+		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
 		boolean actualResult = deleteService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
@@ -151,13 +131,10 @@ public class DeleteServiceTest {
 	
 	@Test
 	public void testIsValidArgumentsEmptyFile() throws Exception {
-		String entity = "Candidates";
-		String filePath = "";
+		final String entity = "Candidates";
+		final String filePath = "";
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
 
-		//arrange
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		// mock out AbstractService Methods that should not be called
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -165,10 +142,9 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
-		String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
-		boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		
@@ -178,18 +154,16 @@ public class DeleteServiceTest {
 	
 	@Test
 	public void testUsage() throws Exception {
-		//arrange
-		PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
+		final PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
 		
 		Mockito.doNothing().when(printUtilMock).printUsage();
-		
-		DeleteService deleteService = Mockito.spy(new DeleteService());
-		
-		Field prinUtilField = AbstractService.class.getDeclaredField("printUtil");
+
+		final DeleteService deleteService = Mockito.spy(new DeleteService());
+
+		final Field prinUtilField = AbstractService.class.getDeclaredField("printUtil");
 		prinUtilField.setAccessible(true);
 		prinUtilField.set(deleteService, printUtilMock);
-		
-		// mock out AbstractService Methods that should not be called
+
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
@@ -197,8 +171,7 @@ public class DeleteServiceTest {
 		
 		// track this call
 		Mockito.doNothing().when(deleteService).printAndLog(Mockito.anyString());
-		
-		//act
+
 		deleteService.printUsage();
 		
 		Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
