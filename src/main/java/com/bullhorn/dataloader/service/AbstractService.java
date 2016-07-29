@@ -148,7 +148,7 @@ public abstract class AbstractService {
      * Create thread pool for processing entity attachement changes
      *
      * @param command - command line action to perform
-     * @param entity - entity name
+     * @param entityName - entity name
      * @param filePath - CSV file with attachment data
      * @return EntityAttachmentConcurrencyService thread pool service
      * @throws Exception if error when opening session, loading entity data, or reading CSV
