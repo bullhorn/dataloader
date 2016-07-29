@@ -16,6 +16,20 @@ public class ArrayUtil {
         return newArray;
     }
 
+    /**
+     * Appends an element to a String array
+     *
+     * @param lastElement  The first element to add to the new array
+     * @param originalArray The original array
+     * @return A copy of the original array with a preceeding first element
+     */
+    public static String[] append(String lastElement, String[] originalArray) {
+        String[] newArray = new String[originalArray.length + 1];
+        newArray[originalArray.length] = lastElement;
+        System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
+        return newArray;
+    }
+
     private ArrayUtil() {
     }
 }

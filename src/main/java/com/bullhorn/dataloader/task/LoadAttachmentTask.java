@@ -24,7 +24,8 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadAttachmentTask.class);
 
-    public LoadAttachmentTask(Method method, String entityName,
+    public LoadAttachmentTask(Method method,
+                              String entityName,
                               LinkedHashMap<String, String> dataMap,
                               CsvFileWriter csvWriter,
                               PropertyFileUtil propertyFileUtil,
@@ -36,9 +37,6 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
 
     /**
      * Run method on this runnable object called by the thread manager.
-     * <p>
-     * The createOrGetEntity method performs the update/insert in REST.
-     * The results of this are passed to the csvWriter
      */
     @Override
     public void run() {
@@ -54,6 +52,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     private Result handleAttachment() throws Exception {
         getAndSetBullhornEntityInfo();
         getAndSetBullhornID();
+        addParentEntityIDtoDataMap();
         FileWrapper fileWrapper = attachFile();
         return Result.Insert(fileWrapper.getId());
     }

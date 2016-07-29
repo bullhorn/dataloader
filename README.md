@@ -108,6 +108,14 @@ dataloader loadAttachments <EntityName> /path/to/AttachmentMap.csv
 
 Attaches files to preexisting records. Attachment file paths are mapped with provided CSV file. Only attaches files for one entity at a time, based on <EntityName>
 
+## Delete Attachments
+
+```
+dataloader deleteAttachments <EntityName> /path/to/file.csv
+```
+
+The provided CSV file requires an `id` column and a `parentEntityID` column. The `id` column will contain the Bullhorn internal IDs of the files to delete and the `parentEntityID` column will contain the Bullhorn internal IDs of the entity the file is attached to.
+
 ## Console Output
 
 DataLoader provides run process status for the console. Every 111 records, there will be an output of `Processed: # records.` 

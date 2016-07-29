@@ -1,20 +1,22 @@
 package com.bullhorn.dataloader.service.executor;
 
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.service.consts.Method;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.csvreader.CsvReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -58,6 +60,17 @@ public class EntityAttachmentConcurrencyService {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
             LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(loadAttachmentTask );
+        }
+        executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
+    }
+
+    public void runDeleteAttachmentProcess() throws IOException, InterruptedException {
+        while (csvReader.readRecord()) {
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
+            DeleteAttachmentTask deleteAttachmentTask = new DeleteAttachmentTask(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            executorService.execute(deleteAttachmentTask);
         }
         executorService.shutdown();
         while(!executorService.awaitTermination(1, TimeUnit.MINUTES));

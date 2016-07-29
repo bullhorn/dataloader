@@ -51,6 +51,9 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
                     else if (args[0].equalsIgnoreCase(Method.LOADATTACHMENTS.getMethodName())) {
                         loadAttachments(Method.LOADATTACHMENTS, args[1], args[2]);
                     }
+                    else if (args[0].equalsIgnoreCase(Method.DELETEATTACHMENTS.getMethodName())) {
+                        deleteAttachments(Method.DELETEATTACHMENTS, args[1], args[2]);
+                    }
                     else {
                         printUtil.printAndLog("ERROR: Expected a valid method, but was provided: " + args[0]);
                         printUtil.printUsage();
@@ -95,6 +98,14 @@ public class CommandLineInterface extends CommandLineInterfaceUtil {
             printUtil.printAndLog("Loading " + entityName + " attachments from: " + filePath);
             EntityAttachmentConcurrencyService entityConcurrencyService = createEntityAttachmentConcurrencyService(method, entityName, filePath);
             entityConcurrencyService.runLoadAttachmentProcess();
+        }
+    }
+
+    protected void deleteAttachments(Method method, String entityName, String filePath) throws Exception {
+        if (validationUtil.isValidCsvFile(filePath)) {
+            System.out.println("Deleting " + entityName + " attachments from: " + filePath);
+            EntityAttachmentConcurrencyService entityConcurrencyService = createEntityAttachmentConcurrencyService(method, entityName, filePath);
+            entityConcurrencyService.runDeleteAttachmentProcess();
         }
     }
 }
