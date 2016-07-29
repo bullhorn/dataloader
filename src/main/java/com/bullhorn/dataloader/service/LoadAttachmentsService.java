@@ -16,8 +16,9 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 		try {
             printAndLog("Loading " + entityName + " attachment from: " + fileName + "...");
             EntityAttachmentConcurrencyService concurrencyService = createEntityAttachmentConcurrencyService(Command.LOAD_ATTACHMENTS, entityName, fileName);
+            timer.start();
             concurrencyService.runLoadAttachmentProcess();
-            printAndLog("Completed setup (establishing connection, retrieving meta) in " + timer.getDurationStringSec());			
+            printAndLog("Finished loading " + entityName + " in " + timer.getDurationStringSec());			
 		} catch (Exception e) {
 			printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
 		}

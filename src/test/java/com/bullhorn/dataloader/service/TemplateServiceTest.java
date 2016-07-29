@@ -3,7 +3,6 @@ package com.bullhorn.dataloader.service;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;

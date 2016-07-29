@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.File;
 import java.lang.reflect.Field;
 
 import org.junit.Assert;
@@ -47,6 +48,32 @@ public class LoadServiceTest {
 	@Test
 	public void testIsValidArgments() throws Exception {
 		String filePath = "Candidate.csv";
+
+		//arrange
+		LoadService loadService = Mockito.spy(new LoadService());
+		
+		// mock out AbstractService Methods that should not be called
+		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
+		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).getExecutorService(Mockito.any());
+		
+		// track this call
+		Mockito.doNothing().when(loadService).printAndLog(Mockito.anyString());
+		
+		//act
+		String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		boolean actualResult = loadService.isValidArguments(testArgs);
+		
+		Assert.assertTrue(actualResult);
+		
+		Mockito.verify(loadService, Mockito.never()).printAndLog(Mockito.anyString());
+		
+	}
+	
+	@Test
+	public void testIsValidArgmentsLongPath() throws Exception {
+		String filePath = "path" + File.separatorChar + "to" + File.separatorChar + "Candidate.csv";
 
 		//arrange
 		LoadService loadService = Mockito.spy(new LoadService());

@@ -13,7 +13,7 @@ public class PrintUtil {
     public void printUsage() {
         System.out.println("");
         System.out.println("Usage:");
-        System.out.println("    Insert/Update: dataloader load <EntityName> path/to/data.csv");
+        System.out.println("    Insert/Update: dataloader load path/to/<EntityName>.csv");
         System.out.println("           Delete: dataloader delete <EntityName> path/to/data.csv");
         System.out.println("  Create Template: dataloader template <EntityName>");
         System.out.println("  Load Attachment: dataloader loadAttachments <EntityName> path/to/AttachmentMap.csv");

@@ -11,6 +11,7 @@ public class LoadService extends AbstractService implements Action {
 		}
 
 		String fileName = args[1];
+		
 		String	entityName = extractEntityNameFromFileName(fileName);
 		
 		if (entityName == null) {
@@ -26,7 +27,7 @@ public class LoadService extends AbstractService implements Action {
         	EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.LOAD, entityName, fileName);
         	timer.start();
         	concurrencyService.runLoadProcess();
-            printAndLog("Completed setup (establishing connection, retrieving meta, front loading) in " + timer.getDurationStringSec());
+            printAndLog("Finished loading " + entityName + " in " + timer.getDurationStringSec());
         } catch (Exception e) {
         	printAndLog("Failure starting load: " + e.getMessage());
         }

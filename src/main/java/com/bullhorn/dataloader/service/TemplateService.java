@@ -36,10 +36,16 @@ public class TemplateService extends AbstractService implements Action {
 		if (args.length == 2) {
 			String entityName = extractEntityNameFromString(args[1]);
 			
-			return entityName != null;
+			if (entityName == null) {
+				printAndLog("Unknown entity " + args[1]);
+				return false;
+			}
+			
+			return true;
+		} else {
+			printAndLog("Wrong number of arguments");
+			return false;
 		}
-		
-		return false;
 		
 	}
 

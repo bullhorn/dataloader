@@ -30,6 +30,14 @@ import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
+import org.apache.commons.lang3.text.WordUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public abstract class AbstractService {
 
@@ -135,7 +143,9 @@ public abstract class AbstractService {
     }
 
 	protected String extractEntityNameFromFileName(String fileName) {
-		String upperCaseFileName = fileName.toUpperCase();
+		File file = new File(fileName);
+
+		String upperCaseFileName = file.getName().toUpperCase();
 		Entity bestMatch = null;
 		for (Entity entity: Entity.values()) {
 			if (upperCaseFileName.startsWith(entity.getUpperCase())) {

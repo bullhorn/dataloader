@@ -9,7 +9,7 @@ package com.bullhorn.dataloader.meta;
 public enum Entity {
 	
 	APPOINTMENT(true, "Appointment"),
-	APPOINTMENT_ATTENDEE(true, "AppointmentAttendeed"),
+	APPOINTMENT_ATTENDEE(true, "AppointmentAttendee"),
 	BUSINESS_SECTOR(false, "BusinessSector"),
 	CANDIDATE(true, "Candidate"),
 	CANDIDATE_CERTIFICATION(true, "CandidateCertification"),
