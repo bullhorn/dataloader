@@ -19,6 +19,12 @@ public class CommandLineInterface extends AbstractService {
         log.info("Args: " + String.join(" ", args));
 
         try {
+        	if (args.length == 0) {
+        		printUtil.printAndLog("ERROR: Missing action");
+				printUtil.printUsage();
+				return;
+			}
+
         	// parse command from command line
         	Command command = null;
         	for (Command iter: Command.values()) {
