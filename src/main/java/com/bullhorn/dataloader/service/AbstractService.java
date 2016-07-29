@@ -145,7 +145,7 @@ public abstract class AbstractService {
     }
 
     /**
-     * Create thread pool for processing entity attachement changes
+     * Create thread pool for processing entity attachment changes
      *
      * @param command - command line action to perform
      * @param entityName - entity name
