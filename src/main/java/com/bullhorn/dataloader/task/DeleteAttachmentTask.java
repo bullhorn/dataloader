@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -22,7 +22,7 @@ import com.bullhornsdk.data.model.response.file.FileApiResponse;
 public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(DeleteAttachmentTask.class);
 
-    public DeleteAttachmentTask(Method method,
+    public DeleteAttachmentTask(Command command,
                                 String entityName,
                                 LinkedHashMap<String, String> dataMap,
                                 CsvFileWriter csvWriter,
@@ -30,7 +30,7 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
                                 BullhornData bullhornData,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     /**

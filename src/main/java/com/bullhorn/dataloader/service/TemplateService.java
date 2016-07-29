@@ -7,7 +7,6 @@ public class TemplateService extends AbstractService implements Action {
 
 	@Override
 	public void run(String[] args) {
-		
 		if (!isValidArguments(args)) {
 			throw new IllegalArgumentException("Invalid arguments");
 		}
@@ -27,12 +26,10 @@ public class TemplateService extends AbstractService implements Action {
         } catch (Exception e) {
         	printAndLog("Failed to create template for " + entityName + " - " + e.toString());
         }
-        
 	}
 
 	@Override
 	public boolean isValidArguments(String[] args) {
-		
 		if (args.length == 2) {
 			String entityName = extractEntityNameFromString(args[1]);
 			
@@ -46,14 +43,10 @@ public class TemplateService extends AbstractService implements Action {
 			printAndLog("Wrong number of arguments");
 			return false;
 		}
-		
 	}
 
 	@Override
 	public void printUsage() {
-		
 		printUtil.printUsage();
-		
 	}
-
 }

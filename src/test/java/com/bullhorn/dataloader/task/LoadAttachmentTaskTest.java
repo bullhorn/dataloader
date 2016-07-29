@@ -1,5 +1,29 @@
 package com.bullhorn.dataloader.task;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -14,29 +38,6 @@ import com.bullhornsdk.data.model.response.file.FileMeta;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
 import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class LoadAttachmentTaskTest {
 
@@ -68,14 +69,14 @@ public class LoadAttachmentTaskTest {
 
     @Test
     public void loadAttachmentSuccessTest() throws Exception {
-        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
+        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Insert(0);
         task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
 
-        List<Candidate> candidates = new ArrayList<>();
+        final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
 
-        ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
         listWrapper.setData(candidates);
 
         final FileContent mockedFileContent = Mockito.mock(FileContent.class);
@@ -95,14 +96,14 @@ public class LoadAttachmentTaskTest {
 
     @Test
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0"};
+        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
         task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
 
-        List<Candidate> candidates = new ArrayList<>();
+        final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
 
-        ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
         listWrapper.setData(candidates);
 
         final FileContent mockedFileContent = Mockito.mock(FileContent.class);

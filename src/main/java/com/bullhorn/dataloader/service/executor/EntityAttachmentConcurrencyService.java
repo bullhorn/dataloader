@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
@@ -69,7 +69,7 @@ public class EntityAttachmentConcurrencyService {
     public void runDeleteAttachmentProcess() throws IOException, InterruptedException {
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteAttachmentTask deleteAttachmentTask = new DeleteAttachmentTask(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            DeleteAttachmentTask deleteAttachmentTask = new DeleteAttachmentTask(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(deleteAttachmentTask);
         }
         executorService.shutdown();

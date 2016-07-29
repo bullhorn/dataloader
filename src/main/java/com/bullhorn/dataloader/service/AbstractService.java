@@ -1,5 +1,6 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,14 +31,6 @@ import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
-import org.apache.commons.lang3.text.WordUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public abstract class AbstractService {
 
@@ -163,7 +156,6 @@ public abstract class AbstractService {
 		} else {
 			return bestMatch.getEntityName();
 		}
-
 	}
 
 	protected String extractEntityNameFromString(String string) {
@@ -175,8 +167,5 @@ public abstract class AbstractService {
 		}
 
 		return null;
-
 	}
-
-
 }

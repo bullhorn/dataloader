@@ -1,14 +1,16 @@
 package com.bullhorn.dataloader.service.csv;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.apache.commons.io.FilenameUtils;
+
+import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -21,8 +23,6 @@ public class CsvFileWriter {
     public static final String REASON_COLUMN = "reason";
     public static final String SUCCESS_CSV = "_success.csv";
     public static final String FAILURE_CSV = "_failure.csv";
-
-    private String[] headers;
 
     private CsvWriter successCsv;
     private CsvWriter failureCsv;
@@ -44,8 +44,6 @@ public class CsvFileWriter {
      * @param headers The headers read in from the input CSV file
      */
     public CsvFileWriter(Command command, String filePath, String[] headers) throws IOException {
-        this.headers = headers;
-
         String baseName = FilenameUtils.getBaseName(filePath);
 
         // Create files, and create directory if it does not exist
@@ -61,14 +59,14 @@ public class CsvFileWriter {
         failureCsv = new CsvWriter(failureFileWriter, ',');
 
         // Write headers to the files, adding our own custom columns, if they do not already exist.
-        createCSVHeaders(headers, method);
+        createCSVHeaders(headers, command);
 
         successCsv.flush();
         failureCsv.flush();
     }
 
-    protected void createCSVHeaders(String[] headers, Method method) throws IOException {
-            if (method.equals(Method.LOADATTACHMENTS)) {
+    protected void createCSVHeaders(String[] headers, Command command) throws IOException {
+            if (command.equals(Command.LOAD_ATTACHMENTS)) {
                 headers = ArrayUtil.append(TaskConsts.parentEntityID, headers);
             }
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,

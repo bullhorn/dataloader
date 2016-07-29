@@ -1,5 +1,20 @@
 package com.bullhorn.dataloader.service.executor;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -39,7 +54,7 @@ public class EntityAttachmentConcurrencyServiceTest {
     @Test
     public void EntityAttachmentConcurrencyServiceTestLoadAttachments() throws IOException, InterruptedException {
         final EntityAttachmentConcurrencyService service = new EntityAttachmentConcurrencyService(
-                Command.LOADATTACHMENTS,
+                Command.LOAD_ATTACHMENTS,
                 "Candidate",
                 csvReader,
                 csvFileWriter,
@@ -72,7 +87,7 @@ public class EntityAttachmentConcurrencyServiceTest {
         csvReader = new CsvReader("src/test/resources/CandidateAttachments_success.csv");
         csvReader.readHeaders();
         final EntityAttachmentConcurrencyService service = new EntityAttachmentConcurrencyService(
-                Method.DELETEATTACHMENTS,
+                Command.DELETE_ATTACHMENTS,
                 "Candidate",
                 csvReader,
                 csvFileWriter,
@@ -88,7 +103,7 @@ public class EntityAttachmentConcurrencyServiceTest {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
         expectedDataMap.put("parentEntityID", "1");
-        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Method.DELETEATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteAttachmentProcess();

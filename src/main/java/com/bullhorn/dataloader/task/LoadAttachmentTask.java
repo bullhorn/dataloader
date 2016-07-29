@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.util.LinkedHashMap;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -16,7 +19,6 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
  * Responsible for attaching a single row from a CSV input file.
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
-    private static final Logger log = LogManager.getLogger(LoadAttachmentTask.class);
 
     public LoadAttachmentTask(Command command,
                               String entityName,
