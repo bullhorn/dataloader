@@ -9,13 +9,9 @@ public class ArrayUtilTest {
 
     @Test
     public void testPrepend() throws IOException {
-        //arrange
-        String[] original = new String[] {"a", "b", "c"};
+        final String[] original = new String[] {"a", "b", "c"};
+        final String[] actual = ArrayUtil.prepend("x", original);
 
-        //act
-        String[] actual = ArrayUtil.prepend("x", original);
-
-        //assert
         Assert.assertEquals(actual.length, 4);
         Assert.assertEquals(actual[0], "x");
         Assert.assertEquals(actual[1], "a");
@@ -26,13 +22,9 @@ public class ArrayUtilTest {
 
     @Test
     public void testAppend() throws IOException {
-        //arrange
         final String[] original = new String[] {"a", "b", "c"};
-
-        //act
         final String[] actual = ArrayUtil.append("x", original);
 
-        //assert
         Assert.assertEquals(actual.length, 4);
         Assert.assertEquals(actual[0], "a");
         Assert.assertEquals(actual[1], "b");

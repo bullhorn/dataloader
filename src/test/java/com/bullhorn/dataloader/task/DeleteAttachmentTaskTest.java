@@ -61,7 +61,6 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void deleteAttachmentSuccessTest() throws Exception {
-        //arrange
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Delete(0);
         task = new DeleteAttachmentTask(Method.DELETEATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
@@ -69,30 +68,26 @@ public class DeleteAttachmentTaskTest {
         fileApiResponse.setFileId(0);
         when(bullhornData.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
 
-        //act
         task.run();
 
-        //assert
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
+        final Result actualResult = resultArgumentCaptor.getValue();
+
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     @Test
     public void deleteAttachmentFailureTest() throws ExecutionException, IOException {
-        //arrange
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
         task = new DeleteAttachmentTask(Method.DELETEATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(bullhornData.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
-        //act
         task.run();
 
-        //assert
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
+        final Result actualResult = resultArgumentCaptor.getValue();
+
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
-
 }

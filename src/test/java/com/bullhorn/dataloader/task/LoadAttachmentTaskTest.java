@@ -70,52 +70,47 @@ public class LoadAttachmentTaskTest {
 
     @Test
     public void loadAttachmentSuccessTest() throws Exception {
-        //arrange
-        String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
-        Result expectedResult = Result.Insert(0);
+        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
+        final Result expectedResult = Result.Insert(0);
         task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        List<Candidate> candidates = new ArrayList<>();
+        final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
-        ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
         listWrapper.setData(candidates);
-        FileContent mockedFileContent = Mockito.mock(FileContent.class);
-        FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
-        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
+        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(bullhornData.search(anyObject(), anyString(), anySet(), anyObject())).thenReturn(listWrapper);
         when(bullhornData.addFile(anyObject(), anyInt(), any(File.class), anyString(), anyObject(), anyBoolean())).thenReturn(fileWrapper);
 
-        //act
         task.run();
 
-        //assert
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
+        final Result actualResult = resultArgumentCaptor.getValue();
+
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     @Test
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
-        //arrange
-        String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
-        Result expectedResult = Result.Failure(new RestApiException("Test").toString());
+        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
+        final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
         task = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        List<Candidate> candidates = new ArrayList<>();
+        final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
-        ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
         listWrapper.setData(candidates);
-        FileContent mockedFileContent = Mockito.mock(FileContent.class);
-        FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
-        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
+        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(bullhornData.search(anyObject(), anyString(), anySet(), anyObject())).thenReturn(listWrapper);
         when(bullhornData.addFile(anyObject(), anyInt(), any(File.class), anyString(), anyObject(), anyBoolean())).thenThrow(new RestApiException("Test"));
 
-        //act
         task.run();
 
-        //assert
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
+        final Result actualResult = resultArgumentCaptor.getValue();
+
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
-
 }
