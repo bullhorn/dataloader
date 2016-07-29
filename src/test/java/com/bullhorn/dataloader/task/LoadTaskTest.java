@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.meta.MetaMap;
 import com.bullhorn.dataloader.service.api.BullhornAPI;
@@ -8,7 +8,6 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.query.EntityQuery;
-import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -51,7 +50,7 @@ public class LoadTaskTest {
         }
 
         public SetupLoadTask invoke() throws ExecutionException, IOException {
-            LoadingCache<EntityQuery, Result> loadingCache = Mockito.mock(LoadingCache.class);
+            final LoadingCache<EntityQuery, Result> loadingCache = Mockito.mock(LoadingCache.class);
             JsonRow jsonRow = new JsonRow();
             jsonRow.addDeferredAction(
                     new String[] {"categories", "id"},
@@ -77,12 +76,12 @@ public class LoadTaskTest {
 
     @Test
     public void testToManyAssociations_multipleValues() throws ExecutionException, IOException {
-        SetupLoadTask setupLoadTask = new SetupLoadTask().invoke();
+        final SetupLoadTask setupLoadTask = new SetupLoadTask().invoke();
 
-        LoadTask loadTask = setupLoadTask.getLoadTask();
-        BullhornApiAssociator bhapiAssociator = setupLoadTask.getBhapiAssociator();
-        BullhornAPI bhapi = setupLoadTask.getBhapi();
-        MetaMap metaMap = new MetaMap(new SimpleDateFormat("mm/dd/yyyy"), "|");
+        final LoadTask loadTask = setupLoadTask.getLoadTask();
+        final BullhornApiAssociator bhapiAssociator = setupLoadTask.getBhapiAssociator();
+        final BullhornAPI bhapi = setupLoadTask.getBhapi();
+        final MetaMap metaMap = new MetaMap(new SimpleDateFormat("mm/dd/yyyy"), "|");
         metaMap.setFieldNameToDataType("id", "Integer");
 
         when(bhapi.call(any(GetMethod.class))).thenReturn(new JSONObject());
@@ -90,13 +89,13 @@ public class LoadTaskTest {
 
         loadTask.run();
 
-        ArgumentCaptor<EntityInstance> actualParent = ArgumentCaptor.forClass(EntityInstance.class);
-        ArgumentCaptor<EntityInstance> actualAssociation = ArgumentCaptor.forClass(EntityInstance.class);
+        final ArgumentCaptor<EntityInstance> actualParent = ArgumentCaptor.forClass(EntityInstance.class);
+        final ArgumentCaptor<EntityInstance> actualAssociation = ArgumentCaptor.forClass(EntityInstance.class);
 
         verify(bhapiAssociator).associate(actualParent.capture(), actualAssociation.capture());
 
-        EntityInstance expectedParent = new EntityInstance("1", "Candidate");
-        EntityInstance expectedAssociation = new EntityInstance("2,3", "categories");
+        final EntityInstance expectedParent = new EntityInstance("1", "Candidate");
+        final EntityInstance expectedAssociation = new EntityInstance("2,3", "categories");
 
         Assert.assertEquals(expectedParent, actualParent.getValue());
         Assert.assertEquals(expectedAssociation, actualAssociation.getValue());

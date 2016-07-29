@@ -12,7 +12,7 @@ public class ResultTest {
 
     @Test
     public void testConstructor() {
-        Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
+        final Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
         result.setStatus(Result.Status.FAILURE);
         result.setFailureText("Message 1");
 
@@ -25,7 +25,7 @@ public class ResultTest {
 
     @Test
     public void testInsert() {
-        Result result = Result.Insert(99);
+        final Result result = Result.Insert(99);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -36,7 +36,7 @@ public class ResultTest {
 
     @Test
     public void testUpdate() {
-        Result result = Result.Update(99);
+        final Result result = Result.Update(99);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -47,7 +47,7 @@ public class ResultTest {
 
     @Test
     public void testDelete() {
-        Result result = Result.Delete(99);
+        final Result result = Result.Delete(99);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -58,7 +58,7 @@ public class ResultTest {
 
     @Test
     public void testFailure() {
-        Result result = Result.Failure("Message 1");
+        final Result result = Result.Failure("Message 1");
 
         Assert.assertEquals(result.isSuccess(), false);
         Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
@@ -69,41 +69,46 @@ public class ResultTest {
 
     @Test
     public void testInsertEnumToString() {
-        Result result = Result.Insert(99);
+        final Result result = Result.Insert(99);
+
         Assert.assertEquals(result.getAction().toString(), "INSERT");
     }
 
     @Test
     public void testUpdateEnumToString() {
-        Result result = Result.Update(99);
+        final Result result = Result.Update(99);
+
         Assert.assertEquals(result.getAction().toString(), "UPDATE");
     }
 
     @Test
     public void testToString() {
-        Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
+        final Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
+
         Assert.assertEquals(result.toString(), "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, failureText=''}");
     }
 
     @Test
     public void testEquals_identity() {
-        Result result1 = Result.Insert(99);
-        Result result2 = result1;
+        final Result result1 = Result.Insert(99);
+        final Result result2 = result1;
+
         Assert.assertEquals(result1, result2);
     }
 
     @Test
     public void testEquals_type() {
-        Result result = Result.Insert(99);
-        EntityInstance entityInstance = new EntityInstance("99", "Candidate");
+        final Result result = Result.Insert(99);
+        final EntityInstance entityInstance = new EntityInstance("99", "Candidate");
+
         Assert.assertNotEquals(result, entityInstance);
     }
 
     @Test
     public void testEquals_status() {
-        Result result1 = Result.Insert(99);
-        Result result2 = Result.Insert(99);
-        Result different = Result.Failure("");
+        final Result result1 = Result.Insert(99);
+        final Result result2 = Result.Insert(99);
+        final Result different = Result.Failure("");
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -111,9 +116,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_action() {
-        Result result1 = Result.Insert(1);
-        Result result2 = Result.Insert(1);
-        Result different = Result.Update(1);
+        final Result result1 = Result.Insert(1);
+        final Result result2 = Result.Insert(1);
+        final Result different = Result.Update(1);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -121,9 +126,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_bullhornId() {
-        Result result1 = Result.Insert(1);
-        Result result2 = Result.Insert(1);
-        Result different = Result.Insert(2);
+        final Result result1 = Result.Insert(1);
+        final Result result2 = Result.Insert(1);
+        final Result different = Result.Insert(2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -131,9 +136,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_failureText() {
-        Result result1 = Result.Failure("Message 1");
-        Result result2 = Result.Failure("Message 1");
-        Result different = Result.Failure("Message 2");
+        final Result result1 = Result.Failure("Message 1");
+        final Result result2 = Result.Failure("Message 1");
+        final Result different = Result.Failure("Message 2");
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -141,7 +146,7 @@ public class ResultTest {
 
     @Test
     public void testHashCode_status() {
-        Set<Result> results = Sets.newHashSet();
+        final Set<Result> results = Sets.newHashSet();
         results.add(Result.Insert(99));
         results.add(Result.Failure(""));
         results.add(Result.Failure(""));
@@ -151,7 +156,7 @@ public class ResultTest {
 
     @Test
     public void testHashCode_action() {
-        Set<Result> results = Sets.newHashSet();
+        final Set<Result> results = Sets.newHashSet();
         results.add(Result.Insert(99));
         results.add(Result.Insert(99));
         results.add(Result.Update(99));
@@ -162,7 +167,7 @@ public class ResultTest {
 
     @Test
     public void testHashCode_bullhornId() {
-        Set<Result> results = Sets.newHashSet();
+        final Set<Result> results = Sets.newHashSet();
         results.add(Result.Insert(99));
         results.add(Result.Insert(99));
         results.add(Result.Insert(100));
@@ -172,7 +177,7 @@ public class ResultTest {
 
     @Test
     public void testHashCode_failureMessage() {
-        Set<Result> results = Sets.newHashSet();
+        final Set<Result> results = Sets.newHashSet();
         results.add(Result.Failure("Message 1"));
         results.add(Result.Failure("Message 1"));
         results.add(Result.Failure("Message 2"));

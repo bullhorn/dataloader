@@ -84,7 +84,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             updateActionTotals(result);
             updateRowProcessedCounts();
         } catch (IOException e) {
-            e.printStackTrace();
+            printUtil.printAndLog(e.toString());
         }
     }
 

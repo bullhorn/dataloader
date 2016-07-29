@@ -1,5 +1,19 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.IOException;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.json.JSONObject;
+
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.JsonRow;
@@ -9,19 +23,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
@@ -66,14 +67,12 @@ public class DeleteTask implements Runnable {
             if (!EntityValidation.isDeletable(entityName)) {
                 String failureText = "ERROR: Cannot delete " + entityName + " because it is not deletable in REST.";
                 result = Result.Failure(failureText);
-                System.out.println(failureText);
-                log.error(failureText);
+                printUtil.printAndLog(failureText);
             } else if (!data.getImmediateActions().containsKey(StringConsts.ID)) {
                 String failureText = "ERROR: Cannot delete row: " + data.getRowNumber() + ". " +
                         " CSV row is missing the \"" + StringConsts.ID + "\" column.";
                 result = Result.Failure(failureText);
-                System.out.println(failureText);
-                log.error(failureText);
+                printUtil.printAndLog(failureText);
             } else {
                 Integer entityId = new Integer(data.getImmediateActions().get(StringConsts.ID).toString());
                 String url = entityBase + "/" + entityId + restToken;
@@ -113,8 +112,7 @@ public class DeleteTask implements Runnable {
             }
 
         } catch (IOException e) {
-            System.out.println(e);
-            log.error(e);
+            printUtil.printAndLog(e.toString());
         }
     }
 
@@ -133,9 +131,8 @@ public class DeleteTask implements Runnable {
                 restFailureMessage += ". REST Errors: " + jsonResponse.getJSONArray("errors");
             }
 
-            System.out.println("ERROR: Row " + data.getRowNumber() + " - Cannot delete " + entityName + " with ID: " + entityId);
-            System.out.println("       Failure Message From Rest: " + restFailureMessage);
-            log.error(restFailureMessage);
+            printUtil.printAndLog("ERROR: Row " + data.getRowNumber() + " - Cannot delete " + entityName + " with ID: " + entityId);
+            printUtil.printAndLog("       Failure Message From Rest: " + restFailureMessage);
             return Result.Failure(restFailureMessage);
         } else {
             return Result.Delete(jsonResponse.getInt(StringConsts.CHANGED_ENTITY_ID));

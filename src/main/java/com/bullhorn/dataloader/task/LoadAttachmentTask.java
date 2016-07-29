@@ -58,8 +58,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private Result handleAttachmentFailure(Exception e) {
-        System.out.println(e);
-        log.error(e);
+        printUtil.printAndLog(e.toString());
         return Result.Failure(e.toString());
     }
 

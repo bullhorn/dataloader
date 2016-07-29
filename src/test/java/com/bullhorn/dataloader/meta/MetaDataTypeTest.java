@@ -10,10 +10,10 @@ public class MetaDataTypeTest {
     private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/mm/yy");
 
     private static class TestOption {
-        private String type;
-        private String testValue;
-        private Object expectedResult;
-        private SimpleDateFormat simpleDateFormat = MetaDataTypeTest.simpleDateFormat;
+        final private String type;
+        final private String testValue;
+        final private Object expectedResult;
+        final private SimpleDateFormat simpleDateFormat = MetaDataTypeTest.simpleDateFormat;
 
         public TestOption(String type, String testValue, Object expectedResult) {
             Assert.assertNotNull(type);
@@ -61,7 +61,7 @@ public class MetaDataTypeTest {
                     new TestOption("Timestamp", "", null)
             };
         } catch (ParseException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -74,23 +74,24 @@ public class MetaDataTypeTest {
     @Test
     public void testFromName() {
         for (MetaDataType metaDataType : MetaDataType.values()) {
-            String type = metaDataType.name();
-            MetaDataType myMetaDataType = MetaDataType.fromName(type);
+            final String type = metaDataType.name();
+            final MetaDataType myMetaDataType = MetaDataType.fromName(type);
+
             Assert.assertEquals(metaDataType, myMetaDataType);
         }
     }
 
     @Test
     public void testFromName_null() {
-        MetaDataType metaDataType = MetaDataType.fromName(null);
+        final MetaDataType metaDataType = MetaDataType.fromName(null);
         Assert.assertEquals(null, metaDataType);
     }
 
     @Test
     public void testConvertFromValue() {
         for (TestOption testOption : TEST_OPTIONS) {
-            MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
-            Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
+            final MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
+            final Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
             Assert.assertEquals(testOption.getExpectedResult(), o);
         }
     }
@@ -98,8 +99,8 @@ public class MetaDataTypeTest {
     @Test
     public void testConvertFromValue_defaults() {
         for (TestOption testOption : TEST_OPTIONS_EMPTY) {
-            MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
-            Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
+            final MetaDataType metaDataType = MetaDataType.fromName(testOption.getType());
+            final Object o = metaDataType.convertFieldValue(testOption.getTestValue(), testOption.getSimpleDateFormat());
             Assert.assertEquals(testOption.getExpectedResult(), o);
         }
     }
