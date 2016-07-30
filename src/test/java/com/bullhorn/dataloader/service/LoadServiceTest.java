@@ -15,8 +15,8 @@ public class LoadServiceTest {
 
 	private PrintUtil printUtil;
 	private LoadService loadService;
-	private BullhornAPI bullhornAPIMock;
 	private EntityConcurrencyService entityConcurrencyServiceMock;
+	private BullhornAPI bullhornAPIMock;
 
 	@Before
 	public void setup() throws Exception {

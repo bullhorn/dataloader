@@ -15,8 +15,8 @@ public class DeleteServiceTest {
 
 	private PrintUtil printUtil;
 	private DeleteService deleteService;
-	private BullhornAPI bullhornAPIMock;
 	private EntityConcurrencyService entityConcurrencyServiceMock;
+    private BullhornAPI bullhornAPIMock;
 
 	@Before
 	public void setup() throws Exception {

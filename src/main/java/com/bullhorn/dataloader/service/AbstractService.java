@@ -15,7 +15,7 @@ import com.bullhorn.dataloader.service.api.BullhornApiUpdater;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
+import com.bullhorn.dataloader.service.executor.EntityAttachmentsConcurrencyService;
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
 import com.bullhorn.dataloader.service.query.EntityCache;
 import com.bullhorn.dataloader.service.query.EntityQuery;
@@ -136,10 +136,10 @@ public abstract class AbstractService {
      * @param command - command line action to perform
      * @param entityName - entity name
      * @param filePath - CSV file with attachment data
-     * @return EntityAttachmentConcurrencyService thread pool service
+     * @return EntityAttachmentsConcurrencyService thread pool service
      * @throws Exception if error when opening session, loading entity data, or reading CSV
      */
-    protected EntityAttachmentConcurrencyService createEntityAttachmentConcurrencyService(Command command, String entityName, String filePath) throws Exception {
+    protected EntityAttachmentsConcurrencyService createEntityAttachmentConcurrencyService(Command command, String entityName, String filePath) throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
 
         final BullhornData bullhornData = getBullhornData(propertyFileUtil);
@@ -149,7 +149,7 @@ public abstract class AbstractService {
         final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        EntityAttachmentConcurrencyService entityAttachmentConcurrencyService = new EntityAttachmentConcurrencyService(
+        EntityAttachmentsConcurrencyService entityAttachmentsConcurrencyService = new EntityAttachmentsConcurrencyService(
         		command,
                 entityName,
                 csvReader,
@@ -161,7 +161,7 @@ public abstract class AbstractService {
                 actionTotals
         );
 
-        return entityAttachmentConcurrencyService;
+        return entityAttachmentsConcurrencyService;
     }
 
     /**
