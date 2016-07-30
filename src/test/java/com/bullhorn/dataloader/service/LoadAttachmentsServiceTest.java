@@ -42,7 +42,7 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testRun() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 
 		loadAttachmentsService.run(testArgs);
 
@@ -53,7 +53,7 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -65,7 +65,7 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_BadEntity() throws Exception {
 		final String filePath = getFilePath("Invalid_Candidate_File.csv");
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -76,7 +76,7 @@ public class LoadAttachmentsServiceTest {
 
 	@Test
 	public void testIsValidArguments_MissingArgument() throws Exception {
-		final String[] testArgs = {Command.LOAD.getMethodName()};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName()};
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -88,7 +88,7 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_TooManyArgments() throws Exception {
 		final String filePath = "Candidate.csv";
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath, "tooMany"};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -100,7 +100,7 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_InvalidFile() throws Exception {
 		final String filePath = "filePath";
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -112,7 +112,7 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_EmptyFile() throws Exception {
 		final String filePath = "";
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
