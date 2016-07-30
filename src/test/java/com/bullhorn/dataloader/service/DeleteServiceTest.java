@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,7 +33,6 @@ public class DeleteServiceTest {
 		Mockito.doReturn(bullhornAPIMock).when(deleteService).createSession();
 
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
 		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).getExecutorService(Mockito.any());
 
 		// track this call
@@ -40,71 +41,88 @@ public class DeleteServiceTest {
 
 	@Test
 	public void testRun() throws Exception {
-		final String entity = "Candidate";
-		final String filePath = "filePath";
-		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+		final String filePath = getFilePath("Candidate_Valid_File.csv");
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
 		deleteService.run(testArgs);
 
 		Mockito.verify(entityConcurrencyServiceMock, Mockito.times(1)).runDeleteProcess();
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
-	
+
 	@Test
 	public void testIsValidArguments() throws Exception {
-		final String entity = "Candidate";
-		final String filePath = "filePath";
-		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+		final String filePath = getFilePath("Candidate_Valid_File.csv");
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
 
 		final boolean actualResult = deleteService.isValidArguments(testArgs);
-		
+
 		Assert.assertTrue(actualResult);
 		Mockito.verify(printUtil, Mockito.never()).printAndLog(Mockito.anyString());
 	}
-	
+
+	@Test
+	public void testIsValidArguments_BadEntity() throws Exception {
+		final String filePath = getFilePath("Invalid_Candidate_File.csv");
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
+
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+	}
+
 	@Test
 	public void testIsValidArguments_MissingArgument() throws Exception {
 		final String[] testArgs = {Command.DELETE.getMethodName()};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
 
 		final boolean actualResult = deleteService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
-	
+
 	@Test
 	public void testIsValidArguments_TooManyArgments() throws Exception {
-		final String entity = "Candidate";
-		final String filePath = "filePath";
-		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath, "tooMany"};
-
-		boolean actualResult = deleteService.isValidArguments(testArgs);
-		
-		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
-	}
-	
-	@Test
-	public void testIsValidArguments_BadEntity() throws Exception {
-		final String entity = "Candidates";
-		final String filePath = "filePath";
-		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
-
-		boolean actualResult = deleteService.isValidArguments(testArgs);
-		
-		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
-	}
-	
-	@Test
-	public void testIsValidArguments_EmptyFile() throws Exception {
-		final String entity = "Candidates";
-		final String filePath = "";
-		final String[] testArgs = {Command.DELETE.getMethodName(), entity, filePath};
+		final String filePath = "Candidate.csv";
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath, "tooMany"};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
 
 		final boolean actualResult = deleteService.isValidArguments(testArgs);
-		
+
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+	}
+
+	@Test
+	public void testIsValidArguments_InvalidFile() throws Exception {
+		final String filePath = "filePath";
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
+
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+	}
+
+	@Test
+	public void testIsValidArguments_EmptyFile() throws Exception {
+		final String filePath = "";
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
+
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+	}
+
+	private String getFilePath(String filename) {
+		final ClassLoader classLoader = getClass().getClassLoader();
+		return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
 	}
 }

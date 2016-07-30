@@ -4,7 +4,7 @@ import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
- * Delete entity implementation
+ * Delete service implementation
  */
 public class DeleteService extends AbstractService implements Action {
 
@@ -18,12 +18,15 @@ public class DeleteService extends AbstractService implements Action {
 			throw new IllegalStateException("invalid command line arguments");
 		}
 
-		String entityName = extractEntityNameFromString(args[1]);
-		String fileName = args[2];
+		String filePath = args[1];
+		String entityName = extractEntityNameFromFileName(filePath);
+		if (entityName == null) {
+			throw new IllegalArgumentException("unknown or missing entity");
+		}
 
 		try {
-			printUtil.printAndLog("Deleting " + entityName + " records from: " + fileName + "...");
-            EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.DELETE, entityName, fileName);
+			printUtil.printAndLog("Deleting " + entityName + " records from: " + filePath + "...");
+            EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.DELETE, entityName, filePath);
             timer.start();
             concurrencyService.runDeleteProcess();
 			printUtil.printAndLog("Deleting " + entityName + " records in " + timer.getDurationStringSec());
@@ -34,25 +37,21 @@ public class DeleteService extends AbstractService implements Action {
 
 	@Override
 	public boolean isValidArguments(String[] args) {
-		
-		if (args.length == 3) {
-			String entityName = extractEntityNameFromString(args[1]);
-			String fileName = args[2];
-			
-			if (entityName == null) {
-				printUtil.printAndLog("Unknown entity " + args[1]);
-				return false;
-			}
-			
-			if (fileName == null || fileName.length() == 0) {
-				printUtil.printAndLog("Empty file name");
-				return false;
-			}
-			
-			return true;
-		} else {
-			printUtil.printAndLog("Wrong number of arguments");
+		if (!validationUtil.isNumParametersValid(args, 2)) {
 			return false;
 		}
+
+		String filePath = args[1];
+		if (!validationUtil.isValidCsvFile(args[1])) {
+			return false;
+		}
+
+		String entityName = extractEntityNameFromFileName(filePath);
+		if (entityName == null) {
+			printUtil.printAndLog("Could not determine entity from file name: " + filePath);
+			return false;
+		}
+
+		return true;
 	}
 }
