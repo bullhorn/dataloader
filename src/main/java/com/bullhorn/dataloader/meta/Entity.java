@@ -4,9 +4,6 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 
 /**
  * The list of all entities in SDK-REST supported by DataLoader.
- * 
- * @author jlrutledge
- *
  */
 public enum Entity {
 	
