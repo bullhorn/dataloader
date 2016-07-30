@@ -8,9 +8,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -26,7 +23,6 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
-    private static final Logger log = LogManager.getLogger(AbstractTask.class);
 
     protected Command command;
     protected String entityName;

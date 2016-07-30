@@ -1,14 +1,16 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
- * Load attachment implementation
- * 
- * @author jlrutledge
- *
+ * Handles loading attachments
  */
 public class LoadAttachmentsService extends AbstractService implements Action {
+
+	public LoadAttachmentsService(PrintUtil printUtil) {
+		super(printUtil);
+	}
 
 	@Override
 	public void run(String[] args) {
@@ -20,17 +22,15 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 		String fileName = args[2];
 
 		try {
-            printAndLog("Loading " + entityName + " attachment from: " + fileName + "...");
+			printUtil.printAndLog("Loading " + entityName + " attachment from: " + fileName + "...");
             EntityAttachmentConcurrencyService concurrencyService = createEntityAttachmentConcurrencyService(Command.LOAD_ATTACHMENTS, entityName, fileName);
             timer.start();
             concurrencyService.runLoadAttachmentProcess();
-            printAndLog("Finished loading " + entityName + " in " + timer.getDurationStringSec());			
+			printUtil.printAndLog("Finished loading " + entityName + " in " + timer.getDurationStringSec());
 		} catch (Exception e) {
-			printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
+			printUtil.printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
 		}
-		
 	}
-
 
 	@Override
 	public boolean isValidArguments(String[] args) {
@@ -40,26 +40,19 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 			String fileName = args[2];
 			
 			if (entityName == null) {
-				printAndLog("Unknown entity " + args[1]);
+				printUtil.printAndLog("Unknown entity " + args[1]);
 				return false;
 			}
 			
 			if (fileName == null || fileName.length() == 0) {
-				printAndLog("Empty file name");
+				printUtil.printAndLog("Empty file name");
 				return false;
 			}
 			
 			return true;
 		} else {
-			printAndLog("Wrong number of arguments");
+			printUtil.printAndLog("Wrong number of arguments");
 			return false;
 		}
-
 	}
-
-	@Override
-	public void printUsage() {
-		printUtil.printUsage();
-	}
-
 }

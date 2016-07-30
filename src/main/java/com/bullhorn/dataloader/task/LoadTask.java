@@ -14,9 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.api.EntityInstance;
@@ -28,7 +25,6 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhorn.dataloader.util.Timer;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -38,7 +34,6 @@ import com.google.common.collect.Sets;
  * Responsible for loading a single row from a CSV input file.
  */
 public class LoadTask implements Runnable {
-    private static final Logger log = LogManager.getLogger(LoadTask.class);
 
     private String entityName;
     private final BullhornAPI bhApi;
@@ -75,8 +70,6 @@ public class LoadTask implements Runnable {
      */
     @Override
     public void run() {
-        Timer timer = new Timer();
-
         String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
         String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
         try {
@@ -107,8 +100,6 @@ public class LoadTask implements Runnable {
             actionTotals.incrementTotalError();
             printUtil.printAndLog(e.toString());
         }
-
-        log.debug("Loaded row " + data.getRowNumber() + " in " + timer.getDurationStringSec());
     }
 
     private Map<String, Object> upsertPreprocessingActions() throws ExecutionException {
@@ -123,7 +114,7 @@ public class LoadTask implements Runnable {
                 toOneAssociation.put(StringConsts.ID, toOneResult.getBullhornId());
                 toOneIdentifiers.put(entityEntry.getKey(), toOneAssociation);
             } else {
-                log.error("Failed to upsert to-one association " + entityQuery);
+                printUtil.printAndLog("ERROR: Failed to upsert to-one association " + entityQuery);
             }
         }
         return toOneIdentifiers;
@@ -178,7 +169,7 @@ public class LoadTask implements Runnable {
                         ifPresentPut(entityQuery::addString, entityExistField, actions.get(entityExistField));
                     }
                 } catch (IOException e) {
-                    log.debug("Error retrieving meta information for: " + entityName, e);
+                    printUtil.printAndLog("Error retrieving meta information for: " + entityName + " - " + e);
                     ifPresentPut(entityQuery::addString, entityExistField, actions.get(entityExistField));
                 }
             }

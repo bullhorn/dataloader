@@ -1,14 +1,16 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
- * Load/create entity implementation
- * 
- * @author jlrutledge
- *
+ * Load (Insert/Update) service implementation
  */
 public class LoadService extends AbstractService implements Action {
+
+	public LoadService(PrintUtil printUtil) {
+		super(printUtil);
+	}
 
 	@Override
 	public void run(String[] args) {
@@ -16,59 +18,40 @@ public class LoadService extends AbstractService implements Action {
 			throw new IllegalStateException("invalid command line arguments");
 		}
 
-		String fileName = args[1];
-		
-		String	entityName = extractEntityNameFromFileName(fileName);
-		
+		String filePath = args[1];
+		String entityName = extractEntityNameFromFileName(filePath);
 		if (entityName == null) {
 			throw new IllegalArgumentException("unknown or missing entity");
 		}
 		
-		if (fileName == null || fileName.length() == 0) {
-			throw new IllegalArgumentException("missing file name");
-		}
-		
         try {
-            printAndLog("Loading " + entityName + " records from: " + fileName + "...");
-        	EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.LOAD, entityName, fileName);
+            printUtil.printAndLog("Loading " + entityName + " records from: " + filePath + "...");
+        	EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.LOAD, entityName, filePath);
         	timer.start();
         	concurrencyService.runLoadProcess();
-            printAndLog("Finished loading " + entityName + " in " + timer.getDurationStringSec());
+			printUtil.printAndLog("Finished loading " + entityName + " in " + timer.getDurationStringSec());
         } catch (Exception e) {
-        	printAndLog("Failure starting load: " + e.getMessage());
+			printUtil.printAndLog("Failure starting load: " + e.getMessage());
         }
-
 	}
 
 	@Override
 	public boolean isValidArguments(String[] args) {
-		
-		if (args.length == 2) {
-			String fileName = args[1];
-			
-			if (fileName == null || fileName.length() == 0) {
-				printAndLog("Empty file name");
-				return false;
-			}
-			
-			String entityName = extractEntityNameFromFileName(fileName);
-			
-			if (entityName == null) {
-				printAndLog("Could not determine entity from file name: " + fileName);
-				return false;
-			}
-			
-			return true;
-		} else {
-			printAndLog("Wrong number of arguments");
+		if (!validationUtil.isNumParametersValid(args, 2)) {
 			return false;
 		}
-	}
 
-	@Override
-	public void printUsage() {
-		printUtil.printUsage();
-	}
+		String filePath = args[1];
+		if (!validationUtil.isValidCsvFile(args[1])) {
+			return false;
+		}
 
-	
+		String entityName = extractEntityNameFromFileName(filePath);
+		if (entityName == null) {
+			printUtil.printAndLog("Could not determine entity from file name: " + filePath);
+			return false;
+		}
+
+		return true;
+	}
 }

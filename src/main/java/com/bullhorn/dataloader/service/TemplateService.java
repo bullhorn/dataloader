@@ -1,15 +1,17 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 
 /**
  * Create example template implementation
- * 
- * @author jlrutledge
- *
  */
 public class TemplateService extends AbstractService implements Action {
+
+	public TemplateService (PrintUtil printUtil) {
+		super(printUtil);
+	}
 
 	@Override
 	public void run(String[] args) {
@@ -23,14 +25,14 @@ public class TemplateService extends AbstractService implements Action {
 		}
 		
         try {
-            printAndLog("Creating Template for " + entityName + "...");
+            printUtil.printAndLog("Creating Template for " + entityName + "...");
         	final BullhornAPI bhApi = createSession();
         	TemplateUtil templateUtil = new TemplateUtil(bhApi);
-            timer.start();        	
+            timer.start();
         	templateUtil.writeExampleEntityCsv(entityName);
-            printAndLog("Generated template in " + timer.getDurationStringSec());
+			printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
         } catch (Exception e) {
-        	printAndLog("Failed to create template for " + entityName + " - " + e.toString());
+			printUtil.printAndLog("Failed to create template for " + entityName + " - " + e.toString());
         }
 	}
 
@@ -38,21 +40,14 @@ public class TemplateService extends AbstractService implements Action {
 	public boolean isValidArguments(String[] args) {
 		if (args.length == 2) {
 			String entityName = extractEntityNameFromString(args[1]);
-			
 			if (entityName == null) {
-				printAndLog("Unknown entity " + args[1]);
+				printUtil.printAndLog("Unknown entity " + args[1]);
 				return false;
 			}
-			
 			return true;
 		} else {
-			printAndLog("Wrong number of arguments");
+			printUtil.printAndLog("Wrong number of arguments");
 			return false;
 		}
-	}
-
-	@Override
-	public void printUsage() {
-		printUtil.printUsage();
 	}
 }

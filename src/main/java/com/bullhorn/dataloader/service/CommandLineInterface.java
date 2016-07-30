@@ -1,13 +1,14 @@
 package com.bullhorn.dataloader.service;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 public class CommandLineInterface extends AbstractService {
 
-    protected Logger log = LogManager.getLogger(CommandLineInterface.class);
+    ActionBuilder actionBuilder;
 
-    public CommandLineInterface() {
+    public CommandLineInterface(PrintUtil printUtil, ActionBuilder actionBuilder) {
+        super(printUtil);
+        this.actionBuilder = actionBuilder;
     }
 
     /**
@@ -16,7 +17,7 @@ public class CommandLineInterface extends AbstractService {
      * @param args The user's command line parameters
      */
     public void start(String[] args) {
-        log.info("Args: " + String.join(" ", args));
+        printUtil.log("Args: " + String.join(" ", args));
 
         try {
         	if (args.length == 0) {
@@ -35,21 +36,20 @@ public class CommandLineInterface extends AbstractService {
         	}
 
         	if (command == null) {
-        		printAndLog("ERROR: Unrecognized action: " + args[0]);
+                printUtil.printAndLog("ERROR: Unrecognized action: " + args[0]);
         		printUtil.printUsage();
         		return;
         	}
 
-        	Action action = command.getAction();
-
+            Action action = actionBuilder.getAction(command);
         	if (!action.isValidArguments(args)) {
-        		action.printUsage();
+        		printUtil.printUsage();
         		return;
         	}
 
         	action.run(args);
         } catch (Exception e) {
-            printAndLog(e.toString());
+            printUtil.printAndLog(e.toString());
         }
     }
 }

@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -32,8 +29,6 @@ public class EntityAttachmentConcurrencyService {
     private final Command command;
     private final PrintUtil printUtil;
     private final ActionTotals actionTotals;
-
-    private final Logger log = LogManager.getLogger(EntityAttachmentConcurrencyService.class);
 
     public EntityAttachmentConcurrencyService(Command command,
                                               String entityName,

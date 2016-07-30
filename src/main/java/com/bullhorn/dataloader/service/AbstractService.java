@@ -6,8 +6,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apache.commons.lang3.text.WordUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.meta.MetaMap;
@@ -25,6 +23,7 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
@@ -33,22 +32,19 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 
 /**
- * Basic class for all command line action.
+ * Base class for all command line actions.
  *
  * Contains common functionality.
- *
- * @author jlrutledge
- *
  */
 public abstract class AbstractService {
 
-    protected Logger log = LogManager.getLogger(CommandLineInterface.class);
-
     final protected Timer timer;
-    protected PrintUtil printUtil;
+    final protected PrintUtil printUtil;
+    final protected ValidationUtil validationUtil;
 
-    public AbstractService() {
-    	printUtil = new PrintUtil();
+    public AbstractService(PrintUtil printUtil) {
+    	this.printUtil = printUtil;
+    	validationUtil = new ValidationUtil(printUtil);
     	timer = new Timer();
     }
 
@@ -82,16 +78,6 @@ public abstract class AbstractService {
      */
     protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
         return Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
-    }
-
-    /**
-     * Output to console and log file
-     *
-     * @param line - message to output
-     */
-    protected void printAndLog(String line) {
-        System.out.println(line);
-        log.info(line);
     }
 
     /**
@@ -184,7 +170,7 @@ public abstract class AbstractService {
      * The entity name is the prefix of the tail of the file name.
      *
      * @param fileName path from which to extract entity name
-     * @return the SDK-Rest name of the entity
+     * @return the SDK-Rest name of the entity, or null if not found
      */
 	protected String extractEntityNameFromFileName(String fileName) {
 		File file = new File(fileName);
@@ -216,13 +202,11 @@ public abstract class AbstractService {
 	 * @return SDK-REST entity name
 	 */
 	protected String extractEntityNameFromString(String string) {
-
 		for (Entity entity: Entity.values()) {
 			if (string.equalsIgnoreCase(entity.getEntityName())) {
 				return entity.getEntityName();
 			}
 		}
-
 		return null;
 	}
 }

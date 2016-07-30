@@ -58,6 +58,13 @@ public class PrintUtil {
      */
     public void printAndLog(String line) {
         System.out.println(line);
+        log(line);
+    }
+
+    /**
+     * Logs to the logfile
+     */
+    public void log(String line) {
         log.info(line);
     }
 }

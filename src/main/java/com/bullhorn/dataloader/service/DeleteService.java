@@ -1,14 +1,16 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
  * Delete entity implementation
- * 
- * @author jlrutledge
- *
  */
 public class DeleteService extends AbstractService implements Action {
+
+	public DeleteService(PrintUtil printUtil) {
+		super(printUtil);
+	}
 
 	@Override
 	public void run(String[] args) {
@@ -20,13 +22,13 @@ public class DeleteService extends AbstractService implements Action {
 		String fileName = args[2];
 
 		try {
-            printAndLog("Deleting " + entityName + " records from: " + fileName + "...");
+			printUtil.printAndLog("Deleting " + entityName + " records from: " + fileName + "...");
             EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.DELETE, entityName, fileName);
             timer.start();
             concurrencyService.runDeleteProcess();
-            printAndLog("Deleting " + entityName + " records in " + timer.getDurationStringSec());			
+			printUtil.printAndLog("Deleting " + entityName + " records in " + timer.getDurationStringSec());
 		} catch (Exception e) {
-			printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
+			printUtil.printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
 		}
 	}
 
@@ -38,26 +40,19 @@ public class DeleteService extends AbstractService implements Action {
 			String fileName = args[2];
 			
 			if (entityName == null) {
-				printAndLog("Unknown entity " + args[1]);
+				printUtil.printAndLog("Unknown entity " + args[1]);
 				return false;
 			}
 			
 			if (fileName == null || fileName.length() == 0) {
-				printAndLog("Empty file name");
+				printUtil.printAndLog("Empty file name");
 				return false;
 			}
 			
 			return true;
 		} else {
-			printAndLog("Wrong number of arguments");
+			printUtil.printAndLog("Wrong number of arguments");
 			return false;
 		}
-
 	}
-
-	@Override
-	public void printUsage() {
-		printUtil.printUsage();
-	}
-
 }

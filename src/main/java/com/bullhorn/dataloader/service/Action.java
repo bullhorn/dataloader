@@ -1,10 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 /**
- * The command line action definition
- * 
- * @author jlrutledge
- *
+ * The command line action interface
  */
 public interface Action {
 
@@ -22,10 +19,4 @@ public interface Action {
 	 * @return true if the arguments are valid
 	 */
 	public boolean isValidArguments(String[] args);
-	
-	/**
-	 * Prints the command line usage for this action.
-	 */
-	public void printUsage();
-	
 }

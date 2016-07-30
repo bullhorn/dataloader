@@ -1,51 +1,28 @@
 package com.bullhorn.dataloader.service;
 
 /**
- * Command line actions 
- * 
- * @author jlrutledge
- *
+ * Enumeration of Command Line Actions
  */
 public enum Command {
 
-    TEMPLATE("template", new TemplateService()),
-    LOAD("load", new LoadService()),
-    DELETE("delete", new DeleteService()),
-    LOAD_ATTACHMENTS("loadAttachments", new LoadAttachmentsService()),
-    DELETE_ATTACHMENTS("deleteAttachments", new DeleteAttachmentsService());
+    TEMPLATE("template"),
+    LOAD("load"),
+    DELETE("delete"),
+    LOAD_ATTACHMENTS("loadAttachments"),
+    DELETE_ATTACHMENTS("deleteAttachments");
 
-	private Action action;
     private final String methodName;
-	
-    private Command(String methodName, Action action){
-       this.methodName = methodName;
-       this.action = action;
+
+    private Command(String methodName) {
+        this.methodName = methodName;
     }
 
     /**
-     * Return implementing interface instance
-     * 
-     * @return Action implementation
+     * Return command line method name
+     *
+     * @return the action the user specifies on the command line
      */
-	public Action getAction() {
-		return this.action;
-	}
-
-	/**
-	 * Return command line method name
-	 * 
-	 * @return the action the user specifies on the command line
-	 */
-    public String getMethodName(){
+    public String getMethodName() {
         return this.methodName;
-    }
-    
-    /**
-     * Override for unit testing
-     * 
-     * @param action mock Action implementation
-     */
-    void setAction(Action action) {
-    	this.action = action;
     }
 }
