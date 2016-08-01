@@ -15,7 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
@@ -23,16 +23,18 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.csvreader.CsvReader;
 
-public class EntityAttachmentConcurrencyServiceTest {
+public class EntityAttachmentsConcurrencyServiceTest {
 
     private PropertyFileUtil propertyFileUtil;
     private CsvFileWriter csvFileWriter;
     private CsvReader csvReader;
     private BullhornData bullhornData;
     private ExecutorService executorService;
-    private ArgumentCaptor<LoadAttachmentTask> taskCaptor;
+    @SuppressWarnings("rawtypes")
+	private ArgumentCaptor<LoadAttachmentTask> taskCaptor;
     private PrintUtil printUtil;
     private ActionTotals actionTotals;
 
@@ -46,15 +48,13 @@ public class EntityAttachmentConcurrencyServiceTest {
         actionTotals = Mockito.mock(ActionTotals.class);
         csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
         csvReader.readHeaders();
-
-        taskCaptor  = ArgumentCaptor.forClass(LoadAttachmentTask.class);
-
+        taskCaptor = ArgumentCaptor.forClass(LoadAttachmentTask.class);
     }
 
     @Test
     public void EntityAttachmentConcurrencyServiceTestLoadAttachments() throws IOException, InterruptedException {
-        EntityAttachmentConcurrencyService service = new EntityAttachmentConcurrencyService(
-                Method.LOADATTACHMENTS,
+        final EntityAttachmentsConcurrencyService service = new EntityAttachmentsConcurrencyService(
+                Command.LOAD_ATTACHMENTS,
                 "Candidate",
                 csvReader,
                 csvFileWriter,
@@ -63,17 +63,20 @@ public class EntityAttachmentConcurrencyServiceTest {
                 bullhornData,
                 printUtil,
                 actionTotals);
+
         final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
-        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Method.LOADATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+
+        final LoadAttachmentTask<Candidate> expectedTask = new LoadAttachmentTask<Candidate>(Command.LOAD_ATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
-        service.runLoadAttachmentProcess();
-
+        service.runLoadAttachmentsProcess();
         verify(executorService).execute(taskCaptor.capture());
-        final LoadAttachmentTask actualTask = taskCaptor.getValue();
+
+        @SuppressWarnings("unchecked")
+		final LoadAttachmentTask<Candidate> actualTask = (LoadAttachmentTask<Candidate>)taskCaptor.getValue();
 
         Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
     }
@@ -83,8 +86,8 @@ public class EntityAttachmentConcurrencyServiceTest {
         final ArgumentCaptor<DeleteAttachmentTask> deleteAttachmentTaskArgumentCaptor = ArgumentCaptor.forClass(DeleteAttachmentTask.class);
         csvReader = new CsvReader("src/test/resources/CandidateAttachments_success.csv");
         csvReader.readHeaders();
-        final EntityAttachmentConcurrencyService service = new EntityAttachmentConcurrencyService(
-                Method.DELETEATTACHMENTS,
+        final EntityAttachmentsConcurrencyService service = new EntityAttachmentsConcurrencyService(
+                Command.DELETE_ATTACHMENTS,
                 "Candidate",
                 csvReader,
                 csvFileWriter,
@@ -100,10 +103,10 @@ public class EntityAttachmentConcurrencyServiceTest {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
         expectedDataMap.put("parentEntityID", "1");
-        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Method.DELETEATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, "Candidate", expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
-        service.runDeleteAttachmentProcess();
+        service.runDeleteAttachmentsProcess();
 
         verify(executorService).execute(deleteAttachmentTaskArgumentCaptor.capture());
         final DeleteAttachmentTask actualTask = deleteAttachmentTaskArgumentCaptor.getValue();

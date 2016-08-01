@@ -3,10 +3,7 @@ package com.bullhorn.dataloader.task;
 import java.io.File;
 import java.util.LinkedHashMap;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -22,9 +19,8 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
  * Responsible for attaching a single row from a CSV input file.
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
-    private static final Logger log = LogManager.getLogger(LoadAttachmentTask.class);
 
-    public LoadAttachmentTask(Method method,
+    public LoadAttachmentTask(Command command,
                               String entityName,
                               LinkedHashMap<String, String> dataMap,
                               CsvFileWriter csvWriter,
@@ -32,7 +28,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
                               BullhornData bullhornData,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     /**

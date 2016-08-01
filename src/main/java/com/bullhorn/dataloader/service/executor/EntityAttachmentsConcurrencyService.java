@@ -5,10 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
@@ -21,7 +18,7 @@ import com.csvreader.CsvReader;
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
  */
-public class EntityAttachmentConcurrencyService {
+public class EntityAttachmentsConcurrencyService {
 
     private final ExecutorService executorService;
     private final String entityName;
@@ -29,22 +26,20 @@ public class EntityAttachmentConcurrencyService {
     private final CsvFileWriter csvWriter;
     private final PropertyFileUtil propertyFileUtil;
     private final BullhornData bullhornData;
-    private final Method method;
+    private final Command command;
     private final PrintUtil printUtil;
     private final ActionTotals actionTotals;
 
-    private final Logger log = LogManager.getLogger(EntityAttachmentConcurrencyService.class);
-
-    public EntityAttachmentConcurrencyService(Method method,
-                                              String entityName,
-                                              CsvReader csvReader,
-                                              CsvFileWriter csvWriter,
-                                              ExecutorService executorService,
-                                              PropertyFileUtil propertyFileUtil,
-                                              BullhornData bullhornData,
-                                              PrintUtil printUtil,
-                                              ActionTotals actionTotals) {
-        this.method = method;
+    public EntityAttachmentsConcurrencyService(Command command,
+                                               String entityName,
+                                               CsvReader csvReader,
+                                               CsvFileWriter csvWriter,
+                                               ExecutorService executorService,
+                                               PropertyFileUtil propertyFileUtil,
+                                               BullhornData bullhornData,
+                                               PrintUtil printUtil,
+                                               ActionTotals actionTotals) {
+        this.command = command;
         this.entityName = entityName;
         this.csvReader = csvReader;
         this.csvWriter = csvWriter;
@@ -55,10 +50,10 @@ public class EntityAttachmentConcurrencyService {
         this.actionTotals = actionTotals;
     }
 
-    public void runLoadAttachmentProcess() throws IOException, InterruptedException {
+    public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(loadAttachmentTask );
         }
         executorService.shutdown();
@@ -66,10 +61,10 @@ public class EntityAttachmentConcurrencyService {
         printUtil.printActionTotals(actionTotals);
     }
 
-    public void runDeleteAttachmentProcess() throws IOException, InterruptedException {
+    public void runDeleteAttachmentsProcess() throws IOException, InterruptedException {
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteAttachmentTask deleteAttachmentTask = new DeleteAttachmentTask(method, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            DeleteAttachmentTask deleteAttachmentTask = new DeleteAttachmentTask(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(deleteAttachmentTask);
         }
         executorService.shutdown();
@@ -87,5 +82,4 @@ public class EntityAttachmentConcurrencyService {
         }
         return dataMap;
     }
-
 }

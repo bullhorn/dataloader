@@ -2,8 +2,6 @@ package com.bullhorn.dataloader.service.query;
 
 import java.io.IOException;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -33,7 +31,6 @@ import com.google.common.cache.CacheLoader;
  */
 public class EntityCache extends CacheLoader<EntityQuery, Result> {
 
-    private final Logger log = LogManager.getLogger(EntityCache.class);
     private final BullhornApiUpdater bhApiUpdater;
 
     public EntityCache(BullhornApiUpdater bhApiUpdater) {

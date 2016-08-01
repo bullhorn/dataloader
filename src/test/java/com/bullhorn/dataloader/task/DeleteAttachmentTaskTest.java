@@ -18,7 +18,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -63,7 +63,7 @@ public class DeleteAttachmentTaskTest {
     public void deleteAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Delete(0);
-        task = new DeleteAttachmentTask(Method.DELETEATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         final StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
         fileApiResponse.setFileId(0);
         when(bullhornData.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
@@ -80,7 +80,7 @@ public class DeleteAttachmentTaskTest {
     public void deleteAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
-        task = new DeleteAttachmentTask(Method.DELETEATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(bullhornData.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
         task.run();

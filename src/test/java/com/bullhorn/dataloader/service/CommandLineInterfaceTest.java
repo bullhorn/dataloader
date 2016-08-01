@@ -1,104 +1,301 @@
 package com.bullhorn.dataloader.service;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.service.consts.Method;
-import com.bullhorn.dataloader.service.executor.EntityAttachmentConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 public class CommandLineInterfaceTest {
 
-    public CommandLineInterface commandLineInterface;
-    public EntityAttachmentConcurrencyService entityConcurrencyService;
+    private CommandLineInterface commandLineInterface;
+    private ActionBuilder actionBuilderMock;
+    private PrintUtil printUtilMock;
+    private LoadService loadServiceMock;
+    private DeleteService deleteServiceMock;
+    private LoadAttachmentsService loadAttachmentsServiceMock;
+    private DeleteAttachmentsService deleteAttachmentsServiceMock;
+    private TemplateService templateServiceMock;
 
     @Before
-    public void setUp(){
-        commandLineInterface = Mockito.spy(new CommandLineInterface());
-        entityConcurrencyService = Mockito.mock(EntityAttachmentConcurrencyService.class);
-    }
+    public void setUp() throws Exception {
+        printUtilMock = Mockito.mock(PrintUtil.class);
+        actionBuilderMock = Mockito.mock(ActionBuilder.class);
+        commandLineInterface = new CommandLineInterface(printUtilMock, actionBuilderMock);
 
-    @Test
-    public void templateTest() throws Exception {
-        final String[] testArgs = {Method.TEMPLATES.getMethodName(), "Candidate"};
-        doNothing().when(commandLineInterface).template(anyString());
+        loadServiceMock = Mockito.mock(LoadService.class);
+        deleteServiceMock = Mockito.mock(DeleteService.class);
+        loadAttachmentsServiceMock = Mockito.mock(LoadAttachmentsService.class);
+        deleteAttachmentsServiceMock = Mockito.mock(DeleteAttachmentsService.class);
+        templateServiceMock = Mockito.mock(TemplateService.class);
 
-        commandLineInterface.start(testArgs);
+        Mockito.doReturn(loadServiceMock).when(actionBuilderMock).getAction(Command.LOAD);
+        Mockito.doReturn(deleteServiceMock).when(actionBuilderMock).getAction(Command.DELETE);
+        Mockito.doReturn(loadAttachmentsServiceMock).when(actionBuilderMock).getAction(Command.LOAD_ATTACHMENTS);
+        Mockito.doReturn(deleteAttachmentsServiceMock).when(actionBuilderMock).getAction(Command.DELETE_ATTACHMENTS);
+        Mockito.doReturn(templateServiceMock).when(actionBuilderMock).getAction(Command.TEMPLATE);
 
-        verify(commandLineInterface).template("Candidate");
+        // track this call
+        Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
+        Mockito.doNothing().when(printUtilMock).printUsage();
     }
 
     @Test
     public void loadTest() throws Exception {
-        final String[] testArgs = {Method.LOAD.getMethodName(), "Candidate", "Test.csv"};
-        doNothing().when(commandLineInterface).load(any(), anyString(), anyString());
+        final String[] testArgs = {Command.LOAD.getMethodName(), "Candidate.csv"};
+        Mockito.when(loadServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
         commandLineInterface.start(testArgs);
 
-        verify(commandLineInterface).load(Method.LOAD, "Candidate", "Test.csv");
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(loadServiceMock, Mockito.times(1)).run(testArgs);
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
+    }
+
+    @Test
+    public void loadInvalidArgsTest() throws Exception {
+        final String[] testArgs = {Command.LOAD.getMethodName(), "Candidate.csv"};
+        Mockito.when(loadServiceMock.isValidArguments(testArgs)).thenReturn(false);
+
+        commandLineInterface.start(testArgs);
+
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
     }
 
     @Test
     public void deleteTest() throws Exception {
-        final String[] testArgs = {Method.DELETE.getMethodName(), "Candidate", "Test.csv"};
-        doNothing().when(commandLineInterface).delete(any(), anyString(), anyString());
+        final String[] testArgs = {Command.DELETE.getMethodName(), "Candidate", "Candidate.csv"};
+        Mockito.when(deleteServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
         commandLineInterface.start(testArgs);
 
-        verify(commandLineInterface).delete(Method.DELETE, "Candidate", "Test.csv");
+        Mockito.verify(deleteServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(deleteServiceMock, Mockito.times(1)).run(testArgs);
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
+    }
+
+    @Test
+    public void deleteInvalidArgsTest() throws Exception {
+        final String[] testArgs = {Command.DELETE.getMethodName()};
+        Mockito.when(deleteServiceMock.isValidArguments(testArgs)).thenReturn(false);
+
+        commandLineInterface.start(testArgs);
+
+        Mockito.verify(deleteServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
     }
 
     @Test
     public void loadAttachmentTest() throws Exception {
-        final String[] testArgs = {Method.LOADATTACHMENTS.getMethodName(), "Candidate", "src/test/resources/CandidateAttachments.csv"};
-        doNothing().when(commandLineInterface).loadAttachments(any(), anyString(), anyString());
+        final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), "Candidate", "Attachements.csv"};
+        Mockito.when(loadAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
         commandLineInterface.start(testArgs);
 
-        verify(commandLineInterface).loadAttachments(Method.LOADATTACHMENTS, "Candidate", "src/test/resources/CandidateAttachments.csv");
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.times(1)).run(testArgs);
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
     }
 
     @Test
-    public void testLoadAttachments() throws Exception {
-        Mockito.doReturn(entityConcurrencyService).when(commandLineInterface).createEntityAttachmentConcurrencyService(any(), anyString(), anyString());
-
-        commandLineInterface.loadAttachments(Method.LOADATTACHMENTS, "Candidate", "src/test/resources/CandidateAttachments.csv");
-
-        verify(entityConcurrencyService).runLoadAttachmentProcess();
-    }
-
-    @Test
-    public void deleteAttachmentTest() throws Exception {
-        final String[] testArgs = {Method.DELETEATTACHMENTS.getMethodName(), "Candidate", "src/test/resources/CandidateAttachments_success.csv"};
-        doNothing().when(commandLineInterface).deleteAttachments(any(), anyString(), anyString());
+    public void loadAttachmentInvalidArgsTest() throws Exception {
+        final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), "Candidate"};
+        Mockito.when(loadAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
         commandLineInterface.start(testArgs);
 
-        verify(commandLineInterface).deleteAttachments(Method.DELETEATTACHMENTS, "Candidate", "src/test/resources/CandidateAttachments_success.csv");
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
     }
 
     @Test
-    public void testDeleteAttachments() throws Exception {
-        Mockito.doReturn(entityConcurrencyService).when(commandLineInterface).createEntityAttachmentConcurrencyService(any(),anyString(), anyString());
-
-        commandLineInterface.deleteAttachments(Method.DELETEATTACHMENTS, "Candidate", "src/test/resources/CandidateAttachments_success.csv");
-
-        verify(entityConcurrencyService).runDeleteAttachmentProcess();
-    }
-
-    @Test
-    public void noValidMethodTest() throws Exception {
-        commandLineInterface.printUtil = Mockito.mock(PrintUtil.class);
-        final String[] testArgs = {"Insanity", "Candidate", "Nothing"};
+    public void deleteAttachmentsTest() throws Exception {
+        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachements.csv"};
+        Mockito.when(deleteAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
         commandLineInterface.start(testArgs);
 
-        verify(commandLineInterface.printUtil).printUsage();
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.times(1)).run(testArgs);
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
     }
+
+    @Test
+    public void deleteAttachmentsInvalidArgsTest() throws Exception {
+        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachements.csv"};
+        Mockito.when(deleteAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(false);
+
+        commandLineInterface.start(testArgs);
+
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
+    }
+
+    @Test
+    public void templateTest() throws Exception {
+        final String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidate"};
+        Mockito.when(templateServiceMock.isValidArguments(testArgs)).thenReturn(true);
+
+        commandLineInterface.start(testArgs);
+
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(templateServiceMock, Mockito.times(1)).run(testArgs);
+    }
+
+    @Test
+    public void templateInvalidArgsTest() throws Exception {
+        final String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidates"};
+        Mockito.when(templateServiceMock.isValidArguments(testArgs)).thenReturn(false);
+
+        commandLineInterface.start(testArgs);
+
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.times(1)).isValidArguments(testArgs);
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
+        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.any());
+    }
+
+    @Test
+    public void invalidCommandTest() throws Exception {
+        final String[] testArgs = {"bad", "Candidate"};
+
+        commandLineInterface.start(testArgs);
+
+        Mockito.verify(deleteServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(deleteAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(loadAttachmentsServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(templateServiceMock, Mockito.never()).isValidArguments(Mockito.any());
+        Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
+
+        Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.any());
+    }
+
 }

@@ -12,11 +12,12 @@ public class PrintUtil {
 
     public void printUsage() {
         System.out.println("");
-        System.out.println("Usage:");
-        System.out.println("    Insert/Update: dataloader load <EntityName> path/to/data.csv");
-        System.out.println("           Delete: dataloader delete <EntityName> path/to/data.csv");
-        System.out.println("  Create Template: dataloader template <EntityName>");
-        System.out.println("  Load Attachment: dataloader loadAttachments <EntityName> path/to/AttachmentMap.csv");
+        System.out.println("Usage: <action> <parameter>");
+        System.out.println("                Load: dataloader load path/to/<EntityName>.csv");
+        System.out.println("              Delete: dataloader delete path/to/<EntityName>.csv");
+        System.out.println("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
+        System.out.println("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
+        System.out.println("     Create Template: dataloader template <EntityName>");
         System.out.println("");
         System.out.println("where <EntityName> is one of the supported entities listed at:");
         System.out.println("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
@@ -57,6 +58,13 @@ public class PrintUtil {
      */
     public void printAndLog(String line) {
         System.out.println(line);
+        log(line);
+    }
+
+    /**
+     * Logs to the logfile
+     */
+    public void log(String line) {
         log.info(line);
     }
 }

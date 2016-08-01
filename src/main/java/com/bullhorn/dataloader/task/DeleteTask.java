@@ -10,8 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 import com.bullhorn.dataloader.service.api.BullhornAPI;
@@ -37,8 +35,6 @@ public class DeleteTask implements Runnable {
     private final PrintUtil printUtil = new PrintUtil();
     private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
-    private static final Logger log = LogManager.getLogger(DeleteTask.class);
-
     public DeleteTask(String entityName,
                       BullhornAPI bhApi,
                       JsonRow data,
@@ -62,7 +58,7 @@ public class DeleteTask implements Runnable {
             Result result = Result.Failure("Internal Error: row: " + data.getRowNumber() + ". This should never happen.");
             String entityBase = bhApi.getRestURL() + StringConsts.ENTITY_SLASH + entityName;
             String restToken = StringConsts.END_BH_REST_TOKEN + bhApi.getBhRestToken();
-            log.info("Deleting row: " + data.getRowNumber());
+            printUtil.log("Deleting row: " + data.getRowNumber());
 
             if (!EntityValidation.isDeletable(entityName)) {
                 String failureText = "ERROR: Cannot delete " + entityName + " because it is not deletable in REST.";
@@ -78,7 +74,7 @@ public class DeleteTask implements Runnable {
                 String url = entityBase + "/" + entityId + restToken;
 
                 if (EntityValidation.isHardDeletable(entityName)) {
-                    log.info("Calling hard delete: " + url);
+                    printUtil.log("Calling hard delete: " + url);
                     DeleteMethod deleteMethod = new DeleteMethod(url);
                     JSONObject jsonResponse = bhApi.call(deleteMethod);
                     result = parseJsonResponse(jsonResponse, entityId);
@@ -92,7 +88,7 @@ public class DeleteTask implements Runnable {
                     StringRequestEntity stringRequestEntity = new StringRequestEntity(jsonString, StringConsts.APPLICATION_JSON, StringConsts.UTF);
                     postMethod.setRequestEntity(stringRequestEntity);
 
-                    log.info("Calling soft delete: " + url + " with request body: " + jsonString);
+                    printUtil.log("Calling soft delete: " + url + " with request body: " + jsonString);
                     JSONObject jsonResponse = bhApi.call(postMethod);
                     result = parseJsonResponse(jsonResponse, entityId);
                 }
@@ -124,7 +120,7 @@ public class DeleteTask implements Runnable {
      * @return A filled out Result object
      */
     private Result parseJsonResponse(JSONObject jsonResponse, Integer entityId) {
-        log.info("REST Response: " + jsonResponse.toString());
+        printUtil.log("REST Response: " + jsonResponse.toString());
         if (jsonResponse.has("errorMessage")) {
             String restFailureMessage = jsonResponse.getString("errorMessage");
             if (jsonResponse.has("errors")) {

@@ -7,8 +7,7 @@ import org.apache.commons.io.FilenameUtils;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
- * Validation methods for validating user input on the command line.  Prints results and returns errors, does
- * not log errors because this should happen before the log file is created.
+ * Validation methods for validating user input on the command line.
  */
 public class ValidationUtil {
 
@@ -22,16 +21,15 @@ public class ValidationUtil {
      * Validates the number of command line parameters
      *
      * @param args The user's command line parameters
+     * @param expectedNumArgs The expected number of arguments
      * @return true if there are the correct number of parameters returned
      */
-    public boolean isValidParameters(String[] args) {
-        if (args.length < 2) {
+    public boolean isNumParametersValid(String[] args, Integer expectedNumArgs) {
+        if (args.length < expectedNumArgs) {
             printUtil.printAndLog("ERROR: Not enough arguments provided.");
-            printUtil.printUsage();
             return false;
-        } else if (args.length > 3) {
+        } else if (args.length > expectedNumArgs) {
             printUtil.printAndLog("ERROR: Too many arguments provided.");
-            printUtil.printUsage();
             return false;
         }
         return true;
@@ -45,16 +43,13 @@ public class ValidationUtil {
         if (!file.exists()) {
             printUtil.printAndLog("ERROR: Cannot access: " + filePath);
             printUtil.printAndLog("       Ensure path is correct.");
-            printUtil.printUsage();
             return false;
         } else if (file.isDirectory()) {
             printUtil.printAndLog("ERROR: Expected a file, but a directory was provided.");
-            printUtil.printUsage();
             return false;
         } else if (!FilenameUtils.getExtension(filePath).equalsIgnoreCase("csv")) {
             printUtil.printAndLog("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
             printUtil.printAndLog("       Provide a csv file to load/update");
-            printUtil.printUsage();
             return false;
         }
         return true;

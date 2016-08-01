@@ -8,11 +8,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
-import com.bullhorn.dataloader.service.consts.Method;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -26,9 +23,8 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
-    private static final Logger log = LogManager.getLogger(AbstractTask.class);
 
-    protected Method method;
+    protected Command command;
     protected String entityName;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
@@ -40,7 +36,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected ActionTotals actionTotals;
     private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
-    public AbstractTask(Method method,
+    public AbstractTask(Command command,
                         String entityName,
                         LinkedHashMap<String, String> dataMap,
                         CsvFileWriter csvWriter,
@@ -48,7 +44,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                         BullhornData bullhornData,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
-        this.method = method;
+        this.command = command;
         this.entityName = entityName;
         this.dataMap = dataMap;
         this.csvWriter = csvWriter;
@@ -75,7 +71,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected  void addParentEntityIDtoDataMap() {
         dataMap.put(TaskConsts.parentEntityID, bullhornParentId.toString());
-
     }
 
     protected void writeToResultCSV(Result result) {

@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.service.executor;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
@@ -13,11 +16,6 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.cache.LoadingCache;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -34,8 +32,6 @@ public class EntityConcurrencyService {
     private final PropertyFileUtil propertyFileUtil;
     private final PrintUtil printUtil = new PrintUtil();
     private ActionTotals actionTotals = new ActionTotals();
-
-    private final Logger log = LogManager.getLogger(EntityConcurrencyService.class);
 
     public EntityConcurrencyService(String entityName,
                                     CsvFileReader csvReader,
