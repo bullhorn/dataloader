@@ -38,16 +38,16 @@ public class TemplateService extends AbstractService implements Action {
 
 	@Override
 	public boolean isValidArguments(String[] args) {
-		if (args.length == 2) {
-			String entityName = extractEntityNameFromString(args[1]);
-			if (entityName == null) {
-				printUtil.printAndLog("Unknown entity " + args[1]);
-				return false;
-			}
-			return true;
-		} else {
-			printUtil.printAndLog("Wrong number of arguments");
+		if (!validationUtil.isNumParametersValid(args, 2)) {
 			return false;
 		}
+
+		String entityName = extractEntityNameFromString(args[1]);
+		if (entityName == null) {
+			printUtil.printAndLog("Could not determine entity from file name: " + entityName);
+			return false;
+		}
+
+		return true;
 	}
 }
