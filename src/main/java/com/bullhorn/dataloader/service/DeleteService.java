@@ -29,9 +29,9 @@ public class DeleteService extends AbstractService implements Action {
             EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.DELETE, entityName, filePath);
             timer.start();
             concurrencyService.runDeleteProcess();
-			printUtil.printAndLog("Deleting " + entityName + " records in " + timer.getDurationStringSec());
+			printUtil.printAndLog("Finished deleting " + entityName + " records in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
-			printUtil.printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
+			printUtil.printAndLog("FAILED to delete " + entityName + " records - " + e.getMessage());
 		}
 	}
 
