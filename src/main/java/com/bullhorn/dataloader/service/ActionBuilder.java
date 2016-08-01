@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
@@ -18,7 +20,7 @@ public class ActionBuilder {
      * @param command The user's command
      * @return The corresponding action
      */
-    public Action getAction(Command command) {
+    public Action getAction(Command command) throws IOException {
         Action action = null;
         if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil);

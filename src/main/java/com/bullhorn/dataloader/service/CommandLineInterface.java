@@ -2,12 +2,13 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.util.PrintUtil;
 
-public class CommandLineInterface extends AbstractService {
+public class CommandLineInterface {
 
+    PrintUtil printUtil;
     ActionBuilder actionBuilder;
 
     public CommandLineInterface(PrintUtil printUtil, ActionBuilder actionBuilder) {
-        super(printUtil);
+		this.printUtil = printUtil;
         this.actionBuilder = actionBuilder;
     }
 
