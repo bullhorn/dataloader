@@ -29,9 +29,9 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 			EntityAttachmentsConcurrencyService concurrencyService = createEntityAttachmentConcurrencyService(Command.DELETE_ATTACHMENTS, entityName, filePath);
 			timer.start();
 			concurrencyService.runDeleteAttachmentsProcess();
-			printUtil.printAndLog("Finished deleting " + entityName + " in " + timer.getDurationStringSec());
+			printUtil.printAndLog("Finished deleting " + entityName + " attachments in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
-			printUtil.printAndLog("Failure to delete " + entityName + " = " + e.getMessage());
+			printUtil.printAndLog("FAILED to delete " + entityName + " attachments - " + e.getMessage());
 		}
 	}
 
