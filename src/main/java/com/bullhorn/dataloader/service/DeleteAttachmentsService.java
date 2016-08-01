@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+
 import com.bullhorn.dataloader.service.executor.EntityAttachmentsConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
@@ -8,7 +10,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
  */
 public class DeleteAttachmentsService extends AbstractService implements Action {
 
-	public DeleteAttachmentsService(PrintUtil printUtil) {
+	public DeleteAttachmentsService(PrintUtil printUtil) throws IOException {
 		super(printUtil);
 	}
 

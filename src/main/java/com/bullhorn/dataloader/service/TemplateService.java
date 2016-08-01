@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+
 import com.bullhorn.dataloader.service.api.BullhornAPI;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
@@ -9,7 +11,7 @@ import com.bullhorn.dataloader.util.TemplateUtil;
  */
 public class TemplateService extends AbstractService implements Action {
 
-	public TemplateService (PrintUtil printUtil) {
+	public TemplateService (PrintUtil printUtil) throws IOException {
 		super(printUtil);
 	}
 

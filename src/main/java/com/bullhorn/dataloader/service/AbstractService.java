@@ -41,10 +41,12 @@ public abstract class AbstractService {
     final protected Timer timer;
     final protected PrintUtil printUtil;
     final protected ValidationUtil validationUtil;
+    final protected PropertyFileUtil propertyFileUtil;
 
-    public AbstractService(PrintUtil printUtil) {
+    public AbstractService(PrintUtil printUtil) throws IOException {
     	this.printUtil = printUtil;
     	validationUtil = new ValidationUtil(printUtil);
+        propertyFileUtil = new PropertyFileUtil("dataloader.properties");
     	timer = new Timer();
     }
 
@@ -66,8 +68,8 @@ public abstract class AbstractService {
         return bullhornRestCredentials;
     }
 
-    private PropertyFileUtil getPropertyFileUtil() throws IOException {
-        return new PropertyFileUtil("dataloader.properties");
+    private PropertyFileUtil getPropertyFileUtil() {
+        return propertyFileUtil;
     }
 
     /**
