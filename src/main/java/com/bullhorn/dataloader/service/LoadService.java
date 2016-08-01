@@ -52,6 +52,10 @@ public class LoadService extends AbstractService implements Action {
 			return false;
 		}
 
+		if (!validationUtil.isLoadableEntity(entityName)) {
+			return false;
+		}
+
 		return true;
 	}
 }

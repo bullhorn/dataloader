@@ -121,6 +121,18 @@ public class LoadServiceTest {
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
+	@Test
+	public void testIsValidArguments_ReadOnlyEntity() throws Exception {
+		final String filePath = getFilePath("Certification.csv");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
+
+		final boolean actualResult = loadService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(1)).printEntityError("Certification", "read only");
+	}
+
 	private String getFilePath(String filename) {
 		final ClassLoader classLoader = getClass().getClassLoader();
 		return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
