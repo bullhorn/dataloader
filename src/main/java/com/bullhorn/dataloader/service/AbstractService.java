@@ -167,7 +167,7 @@ public abstract class AbstractService {
     /**
      * Extractions entity name from a file path.
      *
-     * The entity name is the prefix of the tail of the file name.
+     * The file name must start with the name of the entity
      *
      * @param fileName path from which to extract entity name
      * @return the SDK-Rest name of the entity, or null if not found

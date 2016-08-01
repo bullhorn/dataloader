@@ -52,6 +52,10 @@ public class DeleteService extends AbstractService implements Action {
 			return false;
 		}
 
+		if (!validationUtil.isDeletableEntity(entityName)) {
+			return false;
+		}
+
 		return true;
 	}
 }

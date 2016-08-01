@@ -121,6 +121,30 @@ public class DeleteServiceTest {
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
+	@Test
+	public void testIsValidArguments_ReadOnlyEntity() throws Exception {
+		final String filePath = getFilePath("Certification.csv");
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
+
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(1)).printEntityError("Certification", "not deletable");
+	}
+
+	@Test
+	public void testIsValidArguments_NonDeletableEntity() throws Exception {
+		final String filePath = getFilePath("ClientCorporation.csv");
+		final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).createSession();
+
+		final boolean actualResult = deleteService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(1)).printEntityError("ClientCorporation", "not deletable");
+	}
+
 	private String getFilePath(String filename) {
 		final ClassLoader classLoader = getClass().getClassLoader();
 		return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();

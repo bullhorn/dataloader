@@ -39,6 +39,10 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 *  **[Bullhorn Open Source](http://bullhorn.github.io)**
 *  **[Bullhorn Website](http://www.bullhorn.com)**
 
+## Requirements
+
+*  16GB RAM
+
 ## Configure
 
 Edit the file: `dataloader.properties` to specify the login credentials, data configuration and more.
