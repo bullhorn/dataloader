@@ -1,5 +1,14 @@
 package com.bullhorn.dataloader.service.executor;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -13,17 +22,6 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.csvreader.CsvReader;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -40,8 +38,6 @@ public class ConcurrencyService<B extends BullhornEntity> {
     private final PrintUtil printUtil;
     private final ActionTotals actionTotals;
     private Integer rowNumber = 1;
-
-    private final Logger log = LogManager.getLogger(ConcurrencyService.class);
 
     public ConcurrencyService(Command method,
                               String entityName,
