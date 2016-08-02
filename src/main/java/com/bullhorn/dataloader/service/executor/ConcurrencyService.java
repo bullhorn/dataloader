@@ -39,7 +39,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
     private final Command method;
     private final PrintUtil printUtil;
     private final ActionTotals actionTotals;
-    private Integer rowNumber;
+    private Integer rowNumber = 1;
 
     private final Logger log = LogManager.getLogger(ConcurrencyService.class);
 
