@@ -45,7 +45,6 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
     }
 
     private Result handle() throws Exception {
-        getAndSetBullhornID();
         FileApiResponse fileApiResponse = deleteFile();
         return Result.Delete(fileApiResponse.getFileId());
     }

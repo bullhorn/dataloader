@@ -1,9 +1,9 @@
 package com.bullhorn.dataloader.service;
 
-import java.io.IOException;
-
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
+
+import java.io.IOException;
 
 /**
  * Create example template implementation
@@ -27,13 +27,17 @@ public class TemplateService extends AbstractService implements Action {
 
         try {
             printUtil.printAndLog("Creating Template for " + entityName + "...");
-        	TemplateUtil templateUtil = new TemplateUtil(getBullhornData());
+        	TemplateUtil templateUtil = getTemplateUtil();
             timer.start();
         	templateUtil.writeExampleEntityCsv(entityName);
 			printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
         } catch (Exception e) {
 			printUtil.printAndLog("Failed to create template for " + entityName + " - " + e.toString());
         }
+	}
+
+	protected TemplateUtil getTemplateUtil() throws Exception {
+		return new TemplateUtil(getBullhornData());
 	}
 
 	@Override

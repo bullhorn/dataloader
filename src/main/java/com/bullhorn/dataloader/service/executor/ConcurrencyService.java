@@ -1,20 +1,9 @@
 package com.bullhorn.dataloader.service.executor;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
+import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -24,6 +13,17 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.csvreader.CsvReader;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -77,7 +77,15 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runDeleteProcess() throws IOException, InterruptedException {
-        // TODO
+        Class<B> entity = getAndSetBullhornEntityInfo();
+        while (csvReader.readRecord()) {
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
+            DeleteTask deleteTask = new DeleteTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            executorService.execute(deleteTask );
+        }
+        executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
     }
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {

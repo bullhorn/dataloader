@@ -1,7 +1,8 @@
 package com.bullhorn.dataloader.service;
 
 import java.io.File;
-
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +10,7 @@ import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
+import java.io.File;
 
 public class DeleteAttachmentsServiceTest {
 
