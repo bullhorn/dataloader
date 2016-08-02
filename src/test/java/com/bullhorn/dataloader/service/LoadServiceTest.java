@@ -1,13 +1,14 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
-import com.bullhorn.dataloader.util.PrintUtil;
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 public class LoadServiceTest {
 
@@ -103,6 +104,17 @@ public class LoadServiceTest {
 		
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+	}
+
+	@Test
+	public void testIsValidArguments_ReadOnlyEntity() throws Exception {
+		final String filePath = getFilePath("Certification.csv");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		final boolean actualResult = loadService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtil, Mockito.times(1)).printEntityError("Certification", "read only");
 	}
 
 	private String getFilePath(String filename) {
