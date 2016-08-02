@@ -5,7 +5,6 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bullhorn.dataloader.service.api.EntityInstance;
 import com.google.common.collect.Sets;
 
 public class ResultTest {
@@ -94,14 +93,6 @@ public class ResultTest {
         final Result result2 = result1;
 
         Assert.assertEquals(result1, result2);
-    }
-
-    @Test
-    public void testEquals_type() {
-        final Result result = Result.Insert(99);
-        final EntityInstance entityInstance = new EntityInstance("99", "Candidate");
-
-        Assert.assertNotEquals(result, entityInstance);
     }
 
     @Test

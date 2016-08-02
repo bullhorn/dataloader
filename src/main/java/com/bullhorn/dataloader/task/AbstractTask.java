@@ -2,11 +2,13 @@ package com.bullhorn.dataloader.task;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
@@ -18,26 +20,26 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
 
     protected Command command;
-    protected String entityName;
+    protected Integer rowNumber;
+    protected Class<B> entityClass;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvWriter;
     protected PropertyFileUtil propertyFileUtil;
     protected BullhornData bullhornData;
-    protected Class<B> entity;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
     private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     public AbstractTask(Command command,
-                        String entityName,
+                        Integer rowNumber,
+                        Class<B> entityClass,
                         LinkedHashMap<String, String> dataMap,
                         CsvFileWriter csvWriter,
                         PropertyFileUtil propertyFileUtil,
@@ -45,7 +47,8 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
         this.command = command;
-        this.entityName = entityName;
+        this.rowNumber = rowNumber;
+        this.entityClass = entityClass;
         this.dataMap = dataMap;
         this.csvWriter = csvWriter;
         this.propertyFileUtil = propertyFileUtil;
@@ -54,13 +57,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.actionTotals = actionTotals;
     }
 
-    protected void getAndSetBullhornEntityInfo() {
-        entity = BullhornEntityInfo.getTypeFromName(entityName).getType();
-    }
-
     public <S extends SearchEntity> void getAndSetBullhornID() throws Exception {
         String query = externalID + ":" + dataMap.get(externalID);
-        List<S> searchList = bullhornData.search((Class<S>) entity, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
         if (!searchList.isEmpty()){
             bullhornParentId = searchList.get(0).getId();
         }
@@ -74,12 +73,18 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected void writeToResultCSV(Result result) {
-        try {
-            csvWriter.writeRow(dataMap.values().toArray(new String[0]), result);
-            updateActionTotals(result);
-            updateRowProcessedCounts();
-        } catch (IOException e) {
-            printUtil.printAndLog(e.toString());
+        printUtil.log("Processing row: " + rowNumber);
+        int attempts = 0;
+        while (attempts < 3) {
+            try {
+                csvWriter.writeRow(dataMap.values().toArray(new String[0]), result);
+                updateActionTotals(result);
+                updateRowProcessedCounts();
+                break;
+            } catch (IOException e) {
+                e.printStackTrace();
+                attempts++;
+            }
         }
     }
 
@@ -102,4 +107,28 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    protected Result handleFailure(Exception e) {
+        printUtil.printAndLog(e.toString());
+        return Result.Failure(e.toString());
+    }
+
+    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class<B> entityClass) {
+        String query = field + ":" + value;
+        return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+    }
+
+    protected <S extends SearchEntity> List<B> searchForEntity() {
+        Map<String, String> valueMap = getValueMap();
+        String query = valueMap.keySet().stream().map(n -> n + ":" + valueMap.get(n)).collect(Collectors.joining(" AND "));
+        return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+    }
+
+    protected Map<String, String> getValueMap() {
+        Map<String, String> valueMap = new HashMap<>();
+        List<String> entityExistFieldList = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName()).get();
+        for (String entityExistField : entityExistFieldList){
+            valueMap.put(entityExistField, dataMap.get(entityExistField));
+        }
+        return valueMap;
+    }
 }

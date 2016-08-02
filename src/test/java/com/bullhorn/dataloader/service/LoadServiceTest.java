@@ -7,33 +7,24 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 public class LoadServiceTest {
 
 	private PrintUtil printUtil;
 	private LoadService loadService;
-	private EntityConcurrencyService entityConcurrencyServiceMock;
-	private BullhornAPI bullhornAPIMock;
+	private ConcurrencyService concurrencyServiceMock;
 
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
 		loadService = Mockito.spy(new LoadService(printUtil));
-		bullhornAPIMock = Mockito.mock(BullhornAPI.class);
 
 		// mock out AbstractService Methods that call class outside of this test scope
-		entityConcurrencyServiceMock = Mockito.mock(EntityConcurrencyService.class);
-		Mockito.doReturn(entityConcurrencyServiceMock).when(loadService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-		Mockito.doNothing().when(entityConcurrencyServiceMock).runLoadProcess();
-
-		// mock out AbstractService Methods that call class outside of this test scope
-		Mockito.doReturn(bullhornAPIMock).when(loadService).createSession();
-
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).getExecutorService(Mockito.any());
+		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
+		Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
 
 		// track this call
 		Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
@@ -46,7 +37,7 @@ public class LoadServiceTest {
 
 		loadService.run(testArgs);
 
-		Mockito.verify(entityConcurrencyServiceMock, Mockito.times(1)).runLoadProcess();
+		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 	
@@ -54,7 +45,6 @@ public class LoadServiceTest {
 	public void testIsValidArguments() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
 
@@ -66,7 +56,6 @@ public class LoadServiceTest {
 	public void testIsValidArguments_BadEntity() throws Exception {
 		final String filePath = getFilePath("Invalid_Candidate_File.csv");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
 
@@ -77,7 +66,6 @@ public class LoadServiceTest {
 	@Test
 	public void testIsValidArguments_MissingArgument() throws Exception {
 		final String[] testArgs = {Command.LOAD.getMethodName()};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
 
@@ -89,7 +77,6 @@ public class LoadServiceTest {
 	public void testIsValidArguments_TooManyArgments() throws Exception {
 		final String filePath = "Candidate.csv";
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath, "tooMany"};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
@@ -101,7 +88,6 @@ public class LoadServiceTest {
 	public void testIsValidArguments_InvalidFile() throws Exception {
 		final String filePath = "filePath";
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
 
@@ -113,24 +99,11 @@ public class LoadServiceTest {
 	public void testIsValidArguments_EmptyFile() throws Exception {
 		final String filePath = "";
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
-	}
-
-	@Test
-	public void testIsValidArguments_ReadOnlyEntity() throws Exception {
-		final String filePath = getFilePath("Certification.csv");
-		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).createSession();
-
-		final boolean actualResult = loadService.isValidArguments(testArgs);
-
-		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printEntityError("Certification", "read only");
 	}
 
 	private String getFilePath(String filename) {

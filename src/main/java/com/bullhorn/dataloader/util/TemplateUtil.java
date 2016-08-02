@@ -2,36 +2,38 @@ package com.bullhorn.dataloader.util;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 
-import com.bullhorn.dataloader.meta.MetaMap;
-import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.meta.Field;
+import com.bullhornsdk.data.model.entity.meta.MetaData;
+import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
+import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.csvreader.CsvWriter;
 import com.google.common.collect.Sets;
 
-public class TemplateUtil {
+public class TemplateUtil<B extends BullhornEntity> {
 
-    private final BullhornAPI bullhornAPI;
     private final Set<String> compositeTypes = Sets.newHashSet("Address");
-    private MetaMap metaMap;
+    private MetaData<B> metaData;
+    private BullhornData bullhornData;
 
-    public TemplateUtil(BullhornAPI bullhornAPI) {
-        this.bullhornAPI = bullhornAPI;
+    public TemplateUtil(BullhornData bullhornData) {
+        this.bullhornData = bullhornData;
     }
 
     public void writeExampleEntityCsv(String entity) throws IOException {
-        metaMap = bullhornAPI.getRootMetaDataTypes(entity);
-        Map<String, String> fieldNameToDataType = metaMap.getFieldNameToDataType();
-        Set<String> fieldNames = fieldNameToDataType.keySet();
+        metaData = bullhornData.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
+        Set<Field> fieldSet = new HashSet<>(metaData.getFields());
 
         ArrayList<String> headers = new ArrayList<>();
         ArrayList<String> dataTypes = new ArrayList<>();
-        for (String fieldName : fieldNames) {
-            String dataType = fieldNameToDataType.get(fieldName);
-            if (!isCompositeType(dataType) && !hasId(fieldName)) {
-                headers.add(fieldName);
-                dataTypes.add(dataType);
+        for (Field field : fieldSet) {
+            if (!isCompositeType(field.getDataType())) {
+                headers.add(field.getName());
+                dataTypes.add(field.getDataType());
             }
         }
 
@@ -40,10 +42,6 @@ public class TemplateUtil {
         csvWriter.writeRecord(dataTypes.toArray(new String[0]));
         csvWriter.flush();
         csvWriter.close();
-    }
-
-    private boolean hasId(String column) {
-        return metaMap.getDataTypeByFieldName(column + ".id").isPresent();
     }
 
     private boolean isCompositeType(String datetype) {

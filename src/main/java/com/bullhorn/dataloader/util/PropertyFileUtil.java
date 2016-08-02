@@ -69,13 +69,18 @@ public class PropertyFileUtil {
             fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
         }
 
+        Properties properties = getProperties(fileName);
+
+        processProperties(properties);
+        logProperties(fileName, properties);
+    }
+
+    private Properties getProperties(String fileName) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(fileName);
         Properties properties = new Properties();
         properties.load(fileInputStream);
         fileInputStream.close();
-
-        processProperties(properties);
-        logProperties(fileName, properties);
+        return properties;
     }
 
     /**

@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import java.io.IOException;
 
-import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
@@ -28,9 +28,9 @@ public class DeleteService extends AbstractService implements Action {
 
 		try {
 			printUtil.printAndLog("Deleting " + entityName + " records from: " + filePath + "...");
-            EntityConcurrencyService concurrencyService = createEntityConcurrencyService(Command.DELETE, entityName, filePath);
+            ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE, entityName, filePath);
             timer.start();
-            concurrencyService.runDeleteProcess();
+			concurrencyService.runDeleteProcess();
 			printUtil.printAndLog("Finished deleting " + entityName + " records in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
 			printUtil.printAndLog("FAILED to delete " + entityName + " records - " + e.getMessage());

@@ -34,8 +34,8 @@ public class PrintUtilTest {
         printUtil.printEntityError(entity, warning);
 
         verify(printUtil, times(6)).printAndLog(anyString());
-        verify(printUtil, times(1)).printAndLog("ERROR: " + warning + " entity: \"" + entity + "\"");
-        verify(printUtil, times(1)).printAndLog("       The entity is " + warning + " in REST and cannot be changed by DataLoader.\"");
+        verify(printUtil, times(1)).printAndLog("ERROR: " + warning + " entityClass: \"" + entity + "\"");
+        verify(printUtil, times(1)).printAndLog("       The entityClass is " + warning + " in REST and cannot be changed by DataLoader.\"");
     }
 
     @Test
@@ -46,7 +46,7 @@ public class PrintUtilTest {
         printUtil.printUnknownEntityError(entity);
 
         verify(printUtil, times(6)).printAndLog(anyString());
-        verify(printUtil, times(1)).printAndLog("ERROR: Unknown entity: \"" + entity + "\"");
+        verify(printUtil, times(1)).printAndLog("ERROR: Unknown entityClass: \"" + entity + "\"");
     }
 
     @Test

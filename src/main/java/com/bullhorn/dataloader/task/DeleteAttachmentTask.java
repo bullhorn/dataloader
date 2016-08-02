@@ -18,15 +18,16 @@ import com.bullhornsdk.data.model.response.file.FileApiResponse;
  */
 public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
 
-    public DeleteAttachmentTask(Command command,
-                                String entityName,
+    public DeleteAttachmentTask(Command method,
+                                Integer rowNumber,
+                                Class<B> entity,
                                 LinkedHashMap<String, String> dataMap,
                                 CsvFileWriter csvWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornData bullhornData,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(method, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     /**
@@ -36,26 +37,21 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
     public void run() {
         Result result;
         try {
-            result = handleAttachment();
+            result = handle();
         } catch(Exception e){
-            result = handleAttachmentFailure(e);
+            result = handleFailure(e);
         }
         writeToResultCSV(result);
     }
 
-    private Result handleAttachment() throws Exception {
-        getAndSetBullhornEntityInfo();
+    private Result handle() throws Exception {
+        getAndSetBullhornID();
         FileApiResponse fileApiResponse = deleteFile();
         return Result.Delete(fileApiResponse.getFileId());
     }
 
-    private Result handleAttachmentFailure(Exception e) {
-        printUtil.printAndLog(e.toString());
-        return Result.Failure(e.toString());
-    }
-
     private <F extends FileEntity> FileApiResponse deleteFile() {
-        return bullhornData.deleteFile((Class<F>) entity, Integer.valueOf(dataMap.get(parentEntityID)), Integer.valueOf(dataMap.get(id)));
+        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(parentEntityID)), Integer.valueOf(dataMap.get(id)));
     }
 
 }
