@@ -1,15 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.IOException;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -19,9 +9,28 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
 
@@ -119,8 +128,13 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected <S extends SearchEntity> List<B> searchForEntity() {
         Map<String, String> valueMap = getValueMap();
-        String query = valueMap.keySet().stream().map(n -> n + ":" + valueMap.get(n)).collect(Collectors.joining(" AND "));
+        String query = valueMap.keySet().stream().map(n -> n + ":" + dataMap.get(n)).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+    }
+
+    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class<B> entityClass) {
+        String where = field + "='" + value + "'";
+        return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected Map<String, String> getValueMap() {
@@ -131,4 +145,30 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
         return valueMap;
     }
+
+    protected static final Object convertStringToClass(Method method, String value) throws ParseException {
+        if (StringUtils.isEmpty(value)){
+            return null;
+        }
+        Class convertToClass = method.getParameterTypes()[0];
+        value = value.trim();
+        if (String.class.equals(convertToClass)) {
+            return value;
+        } else if (Integer.class.equals(convertToClass)) {
+            return Integer.parseInt(value);
+        } else if (Double.class.equals(convertToClass)) {
+            return Double.parseDouble(value);
+        } else if (Boolean.class.equals(convertToClass)) {
+            return Boolean.getBoolean(value);
+        } else if (DateTime.class.equals(convertToClass)) {
+            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+            return formatter.parseDateTime(value);
+        } else if (BigDecimal.class.equals(convertToClass)) {
+            DecimalFormat decimalFormat = new DecimalFormat();
+            decimalFormat.setParseBigDecimal(true);
+            return (BigDecimal) decimalFormat.parse(value);
+        }
+        return null;
+    }
+
 }

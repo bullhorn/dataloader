@@ -1,14 +1,5 @@
 package com.bullhorn.dataloader.service.executor;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -19,9 +10,23 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
+import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
+import com.google.common.collect.Sets;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -62,14 +67,25 @@ public class ConcurrencyService<B extends BullhornEntity> {
     public void runLoadProcess() throws IOException, InterruptedException {
         Class<B> entity = getAndSetBullhornEntityInfo();
         Map<String, Method> methodMap = createMethodMap(entity);
+        Map<String, Integer> countryNameToIdMap = createCountryNameToIdMap(methodMap);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            LoadTask loadTask = new LoadTask(method, rowNumber++, entity, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            LoadTask loadTask = new LoadTask(method, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(loadTask );
         }
         executorService.shutdown();
         while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
         printUtil.printActionTotals(actionTotals);
+    }
+
+    private Map<String, Integer> createCountryNameToIdMap(Map<String, Method> methodMap) {
+        if (methodMap.containsKey("countryid")){
+            Map<String, Integer> countryNameToIdMap = new HashMap<>();
+            List<Country> countryList = bullhornData.queryForAllRecords(Country.class, "id IS NOT null", Sets.newHashSet("id", "name"), ParamFactory.queryParams()).getData();
+            countryList.stream().forEach(n -> countryNameToIdMap.put(n.getName().trim(),n.getId()));
+            return countryNameToIdMap;
+        }
+        return null;
     }
 
     public void runDeleteProcess() throws IOException, InterruptedException {
@@ -115,7 +131,18 @@ public class ConcurrencyService<B extends BullhornEntity> {
                 methodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
         }
+        addAddressMethodsIfNeeded(methodMap);
         return methodMap;
+    }
+
+    private void addAddressMethodsIfNeeded(Map<String, Method> methodMap) {
+        if (methodMap.containsKey("address")){
+            for (Method method : Arrays.asList(Address.class.getMethods())){
+                if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
+                    methodMap.put(method.getName().substring(3).toLowerCase(), method);
+                }
+            }
+        }
     }
 
     /**

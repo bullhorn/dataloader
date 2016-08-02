@@ -1,19 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -21,6 +7,7 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
@@ -40,23 +27,40 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
+import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
     private Map<String, Method> methodMap;
+    private Map<String, Integer> countryNameToIdMap;
     private Map<String, AssociationField> associationMap = new HashMap<>();
+    private Map<String, Address> addressMap = new HashMap<>();
     private B entity;
     private Integer entityID;
     private boolean isNewEntity = true;
 
     public LoadTask(Command command,
                     Integer rowNumber,
-                    Class<B> entityClass,
+                    Class entityClass,
                     LinkedHashMap<String, String> dataMap,
                     Map<String, Method> methodMap,
+                    Map<String, Integer> countryNameToIdMap,
                     CsvFileWriter csvWriter,
                     PropertyFileUtil propertyFileUtil,
                     BullhornData bullhornData,
@@ -64,6 +68,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
                     ActionTotals actionTotals) {
         super(command, rowNumber, entityClass, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         this.methodMap = methodMap;
+        this.countryNameToIdMap = countryNameToIdMap;
     }
 
     @Override
@@ -79,18 +84,30 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private Result handle() throws Exception {
         createEntityObject();
-        parseData();
+        handleData();
         insertOrUpdateEntity();
         createNewAssociations();
-        return Result.Insert(entityID);
+        return createResult();
     }
 
-    private void createEntityObject() throws InstantiationException, IllegalAccessException {
+    private Result createResult() {
+        if (isNewEntity) {
+            return Result.Insert(entityID);
+        } else {
+            return Result.Update(entityID);
+        }
+    }
+
+    private void createEntityObject() throws Exception {
         List<B> existingEntityList = searchForEntity();
         if (!existingEntityList.isEmpty()){
-            isNewEntity = false;
-            entity = existingEntityList.get(0);
-            entityID = entity.getId();
+            if (existingEntityList.size() > 1){
+                throw new RestApiException("More than one entity exists with given externalID");
+            } else {
+                isNewEntity = false;
+                entity = existingEntityList.get(0);
+                entityID = entity.getId();
+            }
         } else {
             entity = entityClass.newInstance();
         }
@@ -98,53 +115,91 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
-            entityID = bullhornData.insertEntity((CreateEntity) entity).getChangedEntityId();
+            CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
+            entityID = response.getChangedEntityId();
         } else {
             bullhornData.updateEntity((UpdateEntity) entity);
         }
     }
 
-    private void parseData() throws InvocationTargetException, IllegalAccessException {
+    private void handleData() throws InvocationTargetException, IllegalAccessException {
         for (String field : dataMap.keySet()){
             if (field.contains(".")) {
                 handleAssociations(field);
-            }
-            else {
+            } else {
                 populateFieldOnEntity(field);
             }
         }
+        for (String addressField : addressMap.keySet()){
+            methodMap.get(addressField.toLowerCase()).invoke(entity,addressMap.get(addressField));
+        }
     }
-
-
 
     private void populateFieldOnEntity(String field) {
         try {
-            methodMap.get(field.toLowerCase()).invoke(entity,dataMap.get(field));
+            String value = dataMap.get(field);
+            Method method = methodMap.get(field.toLowerCase());
+            if (method != null && value != null && !"".equalsIgnoreCase(value)){
+                method.invoke(entity, convertStringToClass(method, value));
+            }
         } catch (Exception e) {
+            printUtil.printAndLog("Error populating " + field);
             printUtil.printAndLog(e.toString());
         }
     }
 
     private void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {
-        List<AssociationField<A, B>> associationFieldList = getAssociationFields();
-        boolean isOneToMany = verifyIfOneToMany(field, associationFieldList);
-        if (!isOneToMany){
-            handleOneToOne(field);
+        try {
+            List<AssociationField<A, B>> associationFieldList = getAssociationFields();
+            boolean isOneToMany = verifyIfOneToMany(field, associationFieldList);
+            if (!isOneToMany) {
+                handleOneToOne(field);
+            }
+        } catch(Exception e){
+            printUtil.printAndLog("Error populating " + field);
+            printUtil.printAndLog(e.toString());
         }
     }
 
     private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException {
         String toOneEntityName = field.substring(0, field.indexOf("."));
-        Class<B> toOneEntityClass = BullhornEntityInfo.getTypeFromName(toOneEntityName).getType();
-        B toOneEntity = searchForEntity(field.substring(field.indexOf("."), field.length()), dataMap.get(field), toOneEntityClass).get(0);
-        methodMap.get(field.toLowerCase()).invoke(entity,toOneEntity);
+        String fieldName = field.substring(field.indexOf(".") + 1, field.length());
+        if (toOneEntityName.toLowerCase().contains("address")){
+            handleAddress(toOneEntityName, field, fieldName);
+        }
+        else {
+            Class<B> toOneEntityClass = (Class<B>) methodMap.get(toOneEntityName).getParameterTypes()[0];
+            B toOneEntity = getToOneEntity(field, fieldName, toOneEntityClass);
+            methodMap.get(toOneEntityName.toLowerCase()).invoke(entity, toOneEntity);
+        }
+    }
+
+    private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
+        B toOneEntity;
+        if (toOneEntityClass.isInstance(SearchEntity.class)){
+            toOneEntity = searchForEntity(fieldName, dataMap.get(field), toOneEntityClass).get(0);
+        } else {
+            toOneEntity = queryForEntity(fieldName, dataMap.get(field), toOneEntityClass).get(0);
+        }
+        return toOneEntity;
+    }
+
+    private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
+        if (!addressMap.containsKey(toOneEntityName)) {
+            addressMap.put(toOneEntityName, new Address());
+        }
+        if (fieldName.contains("country")) {
+            methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
+        } else {
+            methodMap.get(fieldName).invoke(addressMap.get(toOneEntityName), dataMap.get(field));
+        }
     }
 
     private boolean verifyIfOneToMany(String field, List<AssociationField<A, B>> associationFieldList) {
         boolean isOneToMany = false;
         for (AssociationField associationField : associationFieldList){
             if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0,field.indexOf(".")))) {
-                associationMap.put(field.toLowerCase(), associationField);
+                associationMap.put(field, associationField);
                 isOneToMany = true;
                 break;
             }
@@ -154,42 +209,54 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         for (String associationName : associationMap.keySet()){
-            addAssociationToEntity(associationName, associationMap.get(associationName));
+            if (dataMap.get(associationName) != null && dataMap.get(associationName) != "") {
+                addAssociationToEntity(associationName, associationMap.get(associationName));
+            }
         }
     }
 
     private void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         for (Integer associationId : newAssociationIdList) {
-            bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
+            try {
+                bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
+            } catch(Exception e){
+                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName() + " " + entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")){
+                    throw e;
+                }
+            }
         }
     }
 
     private List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String associationName = field.substring(0,field.indexOf("."));
+        String fieldName = field.substring(field.indexOf(".") + 1);
 
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
-        Method method = getGetMethod(associationField, associationName);
+        if (existingAssociations.isEmpty()){
+            printUtil.printAndLog("Error occurred: " + associationName + " does not exist with " + fieldName + " of " + dataMap.get(field));
+        }
+        Method method = getGetMethod(associationField, fieldName);
 
-        List<Integer> newAssociationList = filterOutExistingAssociations(valueSet, existingAssociations, method);
-        return newAssociationList;
+        List<Integer> associationIdList = findIdsOfAssociations(valueSet, existingAssociations, method);
+        return associationIdList;
     }
 
-    private List<Integer> filterOutExistingAssociations(Set<String> valueSet, List<B> existingAssociations, Method method) throws IllegalAccessException, InvocationTargetException {
-        List<Integer> newAssociationList = new ArrayList<>();
+    private List<Integer> findIdsOfAssociations(Set<String> valueSet, List<B> existingAssociations, Method method) throws IllegalAccessException, InvocationTargetException {
+        List<Integer> associationIdList = new ArrayList<>();
         for (B association : existingAssociations){
             String returnedValue = String.valueOf(method.invoke(association));
-            if (!valueSet.contains(returnedValue)){
-                newAssociationList.add(association.getId());
+            if (valueSet.contains(returnedValue)){
+                associationIdList.add(association.getId());
             }
         }
-        return newAssociationList;
+        return associationIdList;
     }
 
     private List<B> getExistingAssociations(String field, AssociationField associationField, Set<String> valueSet) {
         String where = getWhereStatement(valueSet, field);
-        return bullhornData.query(associationField.getAssociationType(), where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        return bullhornData.query(associationField.getAssociationType(), where, null, ParamFactory.queryParams()).getData();
     }
 
     private Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
@@ -202,8 +269,8 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private String getWhereStatement(Set<String> valueSet, String field) {
-        String fieldName = field.substring(field.indexOf("."), field.length());
-        return fieldName + valueSet.stream().map(n -> fieldName + " = " + n).collect(Collectors.joining(" OR "));
+        String fieldName = field.substring(field.indexOf(".") + 1, field.length());
+        return valueSet.stream().map(n -> fieldName + " = '" + n + "'").collect(Collectors.joining(" OR "));
     }
 
     private List<AssociationField<A, B>> getAssociationFields() {
