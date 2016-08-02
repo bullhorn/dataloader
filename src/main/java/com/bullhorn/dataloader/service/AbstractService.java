@@ -43,7 +43,7 @@ public abstract class AbstractService {
     }
 
     protected BullhornData getBullhornData() throws Exception {
-        BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(propertyFileUtil));
+        BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(getPropertyFileUtil()));
         return bullhornData;
     }
 
