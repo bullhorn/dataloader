@@ -1,14 +1,14 @@
 package com.bullhorn.dataloader.util;
 
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.io.PrintStream;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.io.PrintStream;
+
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class PrintUtilTest {
 

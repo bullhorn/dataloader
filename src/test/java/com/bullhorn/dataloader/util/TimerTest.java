@@ -15,7 +15,16 @@ public class TimerTest {
     }
 
     @Test
-    public void testToString() throws InterruptedException {
+    public void testGetDurationStringHMS() throws InterruptedException {
+        final Timer timer = new Timer();
+        Thread.sleep(1); // Create a 1 msec wait
+        final String durationString = timer.getDurationStringHMS();
+
+        Assert.assertEquals("00:00:00", durationString);
+    }
+
+    @Test
+    public void testGetDurationStringSec() throws InterruptedException {
         final Timer timer = new Timer();
         Thread.sleep(1); // Create a 1 msec wait
         final String durationString = timer.getDurationStringSec();
