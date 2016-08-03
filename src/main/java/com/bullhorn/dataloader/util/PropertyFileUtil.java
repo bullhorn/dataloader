@@ -99,13 +99,21 @@ public class PropertyFileUtil {
         this.clientSecret = properties.getProperty(CLIENT_SECRET);
         this.loginUrl = properties.getProperty(LOGIN_URL);
         this.listDelimiter = properties.getProperty(LIST_DELIMITER);
-        this.dateParser = DateTimeFormat.forPattern(properties.getProperty(DATE_FORMAT));
+        this.dateParser = getDateTimeFormatter(properties);
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
         this.pageSize = Integer.parseInt(properties.getProperty(PAGE_SIZE));
 
         String frontLoadedEntitiesProperty = properties.getProperty(FRONT_LOADED_ENTITIES);
         if (!frontLoadedEntitiesProperty.isEmpty()) {
             this.frontLoadedEntities.addAll(Arrays.asList(frontLoadedEntitiesProperty.split(",")));
+        }
+    }
+
+    private DateTimeFormatter getDateTimeFormatter(Properties properties) {
+        try {
+            return DateTimeFormat.forPattern(properties.getProperty(DATE_FORMAT));
+        } catch(IllegalArgumentException e) {
+            return null;
         }
     }
 
