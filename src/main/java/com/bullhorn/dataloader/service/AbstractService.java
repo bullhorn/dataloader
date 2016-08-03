@@ -1,12 +1,6 @@
 package com.bullhorn.dataloader.service;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
@@ -20,6 +14,12 @@ import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Base class for all command line actions.

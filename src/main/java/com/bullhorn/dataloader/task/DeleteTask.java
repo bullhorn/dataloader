@@ -1,12 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -14,19 +7,18 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.association.AssociationField;
-import com.bullhornsdk.data.model.entity.association.EntityAssociations;
-import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.LinkedHashMap;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
-public class DeleteTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
+public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(DeleteTask.class);
-    private Map<String, AssociationField> associationMap = new HashMap<>();
-    private B entity;
     private Integer entityID;
 
     public DeleteTask(Command command,
@@ -58,7 +50,8 @@ public class DeleteTask< A extends AssociationEntity, E extends EntityAssociatio
     }
 
     private <D extends DeleteEntity> Result handle(){
-        bullhornData.deleteEntity((Class<D>) entityClass, Integer.parseInt(dataMap.get("id")));
+        entityID = Integer.parseInt(dataMap.get("id"));
+        bullhornData.deleteEntity((Class<D>) entityClass, entityID);
         return Result.Delete(entityID);
     }
 
