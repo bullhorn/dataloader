@@ -1,41 +1,37 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.meta.Field;
-import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
-import com.bullhornsdk.data.model.enums.MetaParameter;
-import com.csvreader.CsvReader;
+import java.io.File;
+import java.text.SimpleDateFormat;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
-import java.util.Arrays;
-
-import static org.mockito.Mockito.when;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
+import com.bullhorn.dataloader.service.csv.JsonRow;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 public class TemplateServiceTest {
 
 	private PrintUtil printUtil;
 	private TemplateService templateService;
-	private BullhornData bullhornData;
+	private BullhornAPI bullhornAPIMock;
 
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
 		templateService = Mockito.spy(new TemplateService(printUtil));
-		bullhornData = Mockito.mock(BullhornData.class);
+		bullhornAPIMock = Mockito.mock(BullhornAPI.class);
 
-		StandardMetaData<Candidate> metaData = new StandardMetaData<>();
-		metaData.setEntity("Candidate");
-		Field field = new Field();
-		field.setName("fieldName");
-		field.setDataType("String");
-		metaData.setFields(Arrays.asList(field));
-		when(bullhornData.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
+		// mock out AbstractService Methods that call class outside of this test scope
+		Mockito.doReturn(bullhornAPIMock).when(templateService).createSession();
+
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).getExecutorService(Mockito.any());
 
 		// track this call
 		Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
@@ -46,10 +42,13 @@ public class TemplateServiceTest {
 		final String entity = "Candidate";
         final String fieldName = "fieldName";
         final String dataType = "String";
-		final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
 
-		String entityName = templateService.validateArguments(testArgs);
-		templateService.createTemplate(entityName, bullhornData);
+		final MetaMap metaMap = new MetaMap(new SimpleDateFormat(), ",");
+		metaMap.setFieldNameToDataType(fieldName, dataType);
+		Mockito.doReturn(metaMap).when(bullhornAPIMock).getRootMetaDataTypes(entity);
+
+		final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
+		templateService.run(testArgs);
 
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
 		final String fileName = entity + "Example.csv";
@@ -57,10 +56,10 @@ public class TemplateServiceTest {
 
 		Assert.assertTrue(outputFile.isFile());
 
-		final CsvReader csvReader = new CsvReader(fileName);
-		csvReader.readHeaders();
-		csvReader.readRecord();
-		Assert.assertEquals(dataType, csvReader.getValues()[0]);
+		final CsvFileReader csvFileReader = new CsvFileReader(fileName, metaMap);
+		final JsonRow actualJson = csvFileReader.next();
+
+		Assert.assertEquals(dataType, actualJson.getValues()[0]);
 
 		outputFile.delete();
 	}
@@ -79,6 +78,7 @@ public class TemplateServiceTest {
 	@Test
 	public void testIsValidArgumentsMissingArgument() throws Exception {
 		final String[] testArgs = {Command.TEMPLATE.getMethodName()};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).createSession();
 
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
@@ -90,6 +90,7 @@ public class TemplateServiceTest {
 	public void testIsValidArgumentsTooManyArgments() throws Exception {
 		final String entityName = "Candidate.csv";
 		final String[] testArgs = {Command.TEMPLATE.getMethodName(), entityName, "tooMany"};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).createSession();
 
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
@@ -101,6 +102,7 @@ public class TemplateServiceTest {
 	public void testIsValidArgumentsBadEntity() throws Exception {
 		final String filePath = "filePath";
 		final String[] testArgs = {Command.TEMPLATE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).createSession();
 
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
@@ -112,6 +114,7 @@ public class TemplateServiceTest {
 	public void testIsValidArgumentsEmptyFile() throws Exception {
 		final String filePath = "";
 		final String[] testArgs = {Command.TEMPLATE.getMethodName(), filePath};
+		Mockito.doThrow(new RuntimeException("should not be called")).when(templateService).createSession();
 
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 		

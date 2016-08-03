@@ -71,7 +71,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Insert(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));
@@ -98,7 +98,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1));

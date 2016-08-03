@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import java.io.IOException;
 
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.service.executor.EntityAttachmentsConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
@@ -28,7 +28,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 
 		try {
 			printUtil.printAndLog("Deleting " + entityName + " attachments from: " + filePath + "...");
-			ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE_ATTACHMENTS, entityName, filePath);
+			EntityAttachmentsConcurrencyService concurrencyService = createEntityAttachmentConcurrencyService(Command.DELETE_ATTACHMENTS, entityName, filePath);
 			timer.start();
 			concurrencyService.runDeleteAttachmentsProcess();
 			printUtil.printAndLog("Finished deleting " + entityName + " attachments in " + timer.getDurationStringHMS());

@@ -1,15 +1,8 @@
 package com.bullhorn.dataloader.util;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,6 +11,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
@@ -53,7 +53,7 @@ public class PropertyFileUtil {
     private Map<String, List<String>> entityExistFieldsMap = Maps.newHashMap();
     private Set<String> frontLoadedEntities = Sets.newHashSet();
     private String listDelimiter;
-    private DateTimeFormatter dateParser;
+    private SimpleDateFormat dateParser;
     private Integer numThreads;
     private Integer pageSize;
     private Integer cacheSize;
@@ -69,18 +69,13 @@ public class PropertyFileUtil {
             fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
         }
 
-        Properties properties = getProperties(fileName);
-
-        processProperties(properties);
-        logProperties(fileName, properties);
-    }
-
-    private Properties getProperties(String fileName) throws IOException {
         FileInputStream fileInputStream = new FileInputStream(fileName);
         Properties properties = new Properties();
         properties.load(fileInputStream);
         fileInputStream.close();
-        return properties;
+
+        processProperties(properties);
+        logProperties(fileName, properties);
     }
 
     /**
@@ -99,21 +94,13 @@ public class PropertyFileUtil {
         this.clientSecret = properties.getProperty(CLIENT_SECRET);
         this.loginUrl = properties.getProperty(LOGIN_URL);
         this.listDelimiter = properties.getProperty(LIST_DELIMITER);
-        this.dateParser = getDateTimeFormatter(properties);
+        this.dateParser = new SimpleDateFormat(properties.getProperty(DATE_FORMAT));
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
         this.pageSize = Integer.parseInt(properties.getProperty(PAGE_SIZE));
 
         String frontLoadedEntitiesProperty = properties.getProperty(FRONT_LOADED_ENTITIES);
         if (!frontLoadedEntitiesProperty.isEmpty()) {
             this.frontLoadedEntities.addAll(Arrays.asList(frontLoadedEntitiesProperty.split(",")));
-        }
-    }
-
-    private DateTimeFormatter getDateTimeFormatter(Properties properties) {
-        try {
-            return DateTimeFormat.forPattern(properties.getProperty(DATE_FORMAT));
-        } catch(IllegalArgumentException e) {
-            return null;
         }
     }
 
@@ -198,7 +185,7 @@ public class PropertyFileUtil {
         return listDelimiter;
     }
 
-    public DateTimeFormatter getDateParser() {
+    public SimpleDateFormat getDateParser() {
         return dateParser;
     }
 
