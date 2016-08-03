@@ -30,6 +30,8 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
@@ -66,8 +68,12 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.actionTotals = actionTotals;
     }
 
-    public <S extends SearchEntity> void getAndSetBullhornID() throws Exception {
-        String query = externalID + ":" + dataMap.get(externalID);
+    public <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
+        List<String> propertiesWithValues = Lists.newArrayList();
+        for (String property : properties) {
+            propertiesWithValues.add(property + ":" + dataMap.get(property));
+        }
+        String query = Joiner.on(" AND ").join(propertiesWithValues);
         List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
         if (!searchList.isEmpty()){
             bullhornParentId = searchList.get(0).getId();

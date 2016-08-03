@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.task;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -14,11 +15,14 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
+import com.google.common.collect.Lists;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
+
+    public static final String ATTACHMENT = "Attachment";
 
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
@@ -44,15 +48,23 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private Result handle() throws Exception {
-        getAndSetBullhornID();
+        List<String> getEntityExistFields = Lists.newArrayList();
+        if ((propertyFileUtil.getEntityExistFields(entityClass.getSimpleName() + ATTACHMENT)).isPresent()) {
+            getEntityExistFields = (propertyFileUtil.getEntityExistFields(entityClass.getSimpleName() + ATTACHMENT)).get();
+        }
+        else {
+            // default field if none configured
+            getEntityExistFields.add(externalID);
+        }
+        getAndSetBullhornID(getEntityExistFields);
         addParentEntityIDtoDataMap();
         FileWrapper fileWrapper = attachFile();
         return Result.Insert(fileWrapper.getId());
     }
 
     private <F extends FileEntity> FileWrapper attachFile() {
-        File attachementFile = new File(dataMap.get(relativeFilePath));
-        return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachementFile, dataMap.get(externalID), ParamFactory.fileParams(), false);
+        File attachmentFile = new File(dataMap.get(relativeFilePath));
+        return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, attachmentFile.getName(), ParamFactory.fileParams(), false);
     }
 
 }
