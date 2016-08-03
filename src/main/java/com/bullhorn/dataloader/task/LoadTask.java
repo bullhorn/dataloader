@@ -30,6 +30,7 @@ import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -116,23 +117,47 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     private void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
+            checkForRestSdkErrorMessages(response);
             entityID = response.getChangedEntityId();
         } else {
-            bullhornData.updateEntity((UpdateEntity) entity);
+            CrudResponse response = bullhornData.updateEntity((UpdateEntity) entity);
+            checkForRestSdkErrorMessages(response);
+        }
+    }
+
+    private void checkForRestSdkErrorMessages(CrudResponse response) {
+        if (!response.getMessages().isEmpty() && response.getChangedEntityId()==null){
+            StringBuilder sb = new StringBuilder();
+            for (Message message : response.getMessages()){
+                sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
+                sb.append("\n");
+            }
+            throw new RestApiException("Error occurred when inserting new record:\n" + sb.toString());
         }
     }
 
     private void handleData() throws InvocationTargetException, IllegalAccessException {
         for (String field : dataMap.keySet()){
-            if (field.contains(".")) {
-                handleAssociations(field);
-            } else {
-                populateFieldOnEntity(field);
+            if (validField(field)) {
+                if (field.contains(".")) {
+                    handleAssociations(field);
+                } else {
+                    populateFieldOnEntity(field);
+                }
             }
         }
         for (String addressField : addressMap.keySet()){
             methodMap.get(addressField.toLowerCase()).invoke(entity,addressMap.get(addressField));
         }
+    }
+
+    private boolean validField(String field) {
+        if (!isNewEntity) {
+            if (!Candidate.class.equals(entity)) {
+                return field != "username";
+            }
+        }
+        return true;
     }
 
     private void populateFieldOnEntity(String field) {
