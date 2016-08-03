@@ -1,8 +1,15 @@
 package com.bullhorn.dataloader.util;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,13 +18,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
@@ -53,7 +53,7 @@ public class PropertyFileUtil {
     private Map<String, List<String>> entityExistFieldsMap = Maps.newHashMap();
     private Set<String> frontLoadedEntities = Sets.newHashSet();
     private String listDelimiter;
-    private SimpleDateFormat dateParser;
+    private DateTimeFormatter dateParser;
     private Integer numThreads;
     private Integer pageSize;
     private Integer cacheSize;
@@ -99,7 +99,7 @@ public class PropertyFileUtil {
         this.clientSecret = properties.getProperty(CLIENT_SECRET);
         this.loginUrl = properties.getProperty(LOGIN_URL);
         this.listDelimiter = properties.getProperty(LIST_DELIMITER);
-        this.dateParser = new SimpleDateFormat(properties.getProperty(DATE_FORMAT));
+        this.dateParser = DateTimeFormat.forPattern(properties.getProperty(DATE_FORMAT));
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
         this.pageSize = Integer.parseInt(properties.getProperty(PAGE_SIZE));
 
@@ -190,7 +190,7 @@ public class PropertyFileUtil {
         return listDelimiter;
     }
 
-    public SimpleDateFormat getDateParser() {
+    public DateTimeFormatter getDateParser() {
         return dateParser;
     }
 

@@ -15,7 +15,6 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
@@ -146,7 +145,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return valueMap;
     }
 
-    protected static final Object convertStringToClass(Method method, String value) throws ParseException {
+    protected final Object convertStringToClass(Method method, String value) throws ParseException {
         if (StringUtils.isEmpty(value)){
             return null;
         }
@@ -161,7 +160,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         } else if (Boolean.class.equals(convertToClass)) {
             return Boolean.getBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
-            DateTimeFormatter formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             return formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
             DecimalFormat decimalFormat = new DecimalFormat();
