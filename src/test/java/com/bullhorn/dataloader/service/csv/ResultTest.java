@@ -5,7 +5,7 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bullhorn.dataloader.service.api.EntityInstance;
+import com.bullhorn.dataloader.util.Timer;
 import com.google.common.collect.Sets;
 
 public class ResultTest {
@@ -99,9 +99,9 @@ public class ResultTest {
     @Test
     public void testEquals_type() {
         final Result result = Result.Insert(99);
-        final EntityInstance entityInstance = new EntityInstance("99", "Candidate");
+        final Timer timer = new Timer();
 
-        Assert.assertNotEquals(result, entityInstance);
+        Assert.assertNotEquals(result, timer);
     }
 
     @Test

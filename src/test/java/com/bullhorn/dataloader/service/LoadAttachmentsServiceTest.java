@@ -1,38 +1,32 @@
 package com.bullhorn.dataloader.service;
 
-import java.io.File;
-
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.service.api.BullhornAPI;
-import com.bullhorn.dataloader.service.executor.EntityAttachmentsConcurrencyService;
-import com.bullhorn.dataloader.util.PrintUtil;
+import java.io.File;
 
 public class LoadAttachmentsServiceTest {
 
 	private PrintUtil printUtil;
 	private LoadAttachmentsService loadAttachmentsService;
-	private EntityAttachmentsConcurrencyService entityAttachmentsConcurrencyServiceMock;
-	private BullhornAPI bullhornAPIMock;
+	private ConcurrencyService concurrencyServiceMock;
 
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
 		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtil));
-		bullhornAPIMock = Mockito.mock(BullhornAPI.class);
 
 		// mock out AbstractService Methods that call class outside of this test scope
-		entityAttachmentsConcurrencyServiceMock = Mockito.mock(EntityAttachmentsConcurrencyService.class);
-		Mockito.doReturn(entityAttachmentsConcurrencyServiceMock).when(loadAttachmentsService).createEntityAttachmentConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-		Mockito.doNothing().when(entityAttachmentsConcurrencyServiceMock).runLoadAttachmentsProcess();
+		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
+		Mockito.doReturn(concurrencyServiceMock).when(loadAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doNothing().when(concurrencyServiceMock).runLoadAttachmentsProcess();
 
 		// mock out AbstractService Methods that call class outside of this test scope
-		Mockito.doReturn(bullhornAPIMock).when(loadAttachmentsService).createSession();
 
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createEntityConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).getExecutorService(Mockito.any());
 
 		// track this call
@@ -46,7 +40,7 @@ public class LoadAttachmentsServiceTest {
 
 		loadAttachmentsService.run(testArgs);
 
-		Mockito.verify(entityAttachmentsConcurrencyServiceMock, Mockito.times(1)).runLoadAttachmentsProcess();
+		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadAttachmentsProcess();
 		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
@@ -54,7 +48,6 @@ public class LoadAttachmentsServiceTest {
 	public void testIsValidArguments() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
 		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
@@ -66,7 +59,6 @@ public class LoadAttachmentsServiceTest {
 	public void testIsValidArguments_BadEntity() throws Exception {
 		final String filePath = getFilePath("Invalid_Candidate_File.csv");
 		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
@@ -77,7 +69,6 @@ public class LoadAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_MissingArgument() throws Exception {
 		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName()};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
@@ -89,7 +80,6 @@ public class LoadAttachmentsServiceTest {
 	public void testIsValidArguments_TooManyArgments() throws Exception {
 		final String filePath = "Candidate.csv";
 		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
@@ -101,7 +91,6 @@ public class LoadAttachmentsServiceTest {
 	public void testIsValidArguments_InvalidFile() throws Exception {
 		final String filePath = "filePath";
 		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
@@ -113,7 +102,6 @@ public class LoadAttachmentsServiceTest {
 	public void testIsValidArguments_EmptyFile() throws Exception {
 		final String filePath = "";
 		final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
-		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).createSession();
 
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 

@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import java.io.IOException;
 
-import com.bullhorn.dataloader.service.executor.EntityAttachmentsConcurrencyService;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
@@ -28,7 +28,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 
 		try {
 			printUtil.printAndLog("Loading " + entityName + " attachments from: " + filePath + "...");
-            EntityAttachmentsConcurrencyService concurrencyService = createEntityAttachmentConcurrencyService(Command.LOAD_ATTACHMENTS, entityName, filePath);
+            ConcurrencyService concurrencyService = createConcurrencyService(Command.LOAD_ATTACHMENTS, entityName, filePath);
             timer.start();
             concurrencyService.runLoadAttachmentsProcess();
 			printUtil.printAndLog("Finished loading " + entityName + " attachments in " + timer.getDurationStringHMS());
