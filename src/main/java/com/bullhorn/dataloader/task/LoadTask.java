@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -203,10 +204,12 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
         B toOneEntity;
-        if (toOneEntityClass.isInstance(SearchEntity.class)){
-            toOneEntity = searchForEntity(fieldName, dataMap.get(field), toOneEntityClass).get(0);
+        String getMethodName = "get"+fieldName;
+        Class fieldType = Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
+        if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
+            toOneEntity = searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         } else {
-            toOneEntity = queryForEntity(fieldName, dataMap.get(field), toOneEntityClass).get(0);
+            toOneEntity = queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         }
         return toOneEntity;
     }
