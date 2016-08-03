@@ -25,6 +25,8 @@ import com.google.common.collect.Sets;
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
 
+    public static final String ATTACHMENT = "Attachment";
+
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
                               Class<B> entity,
