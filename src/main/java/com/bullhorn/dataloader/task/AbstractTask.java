@@ -82,7 +82,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected void writeToResultCSV(Result result) {
-        printUtil.log("Processing row: " + rowNumber);
         int attempts = 0;
         while (attempts < 3) {
             try {
@@ -127,8 +126,8 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected <S extends SearchEntity> List<B> searchForEntity() {
-        Map<String, String> valueMap = getValueMap();
-        String query = valueMap.keySet().stream().map(n -> n + ":" + dataMap.get(n)).collect(Collectors.joining(" AND "));
+        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+        String query = entityExistFieldsMap.keySet().stream().map(n -> n + ":" + entityExistFieldsMap.get(n)).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
@@ -137,7 +136,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
-    protected Map<String, String> getValueMap() {
+    protected Map<String, String> getEntityExistFieldsMap() {
         Map<String, String> valueMap = new HashMap<>();
         List<String> entityExistFieldList = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName()).get();
         for (String entityExistField : entityExistFieldList){
