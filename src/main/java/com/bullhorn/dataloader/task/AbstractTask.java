@@ -1,22 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
-import com.bullhorn.dataloader.service.Command;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
-import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
-import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -30,6 +13,24 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
+import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
 
@@ -116,7 +117,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected Result handleFailure(Exception e) {
-        printUtil.printAndLog(e.toString());
+        printUtil.printAndLog("ERROR: " + e.toString());
         return Result.Failure(e.toString());
     }
 
