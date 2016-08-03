@@ -86,11 +86,7 @@ public abstract class AbstractService {
 
         final BullhornData bullhornData = getBullhornData();
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
-        final CsvReader csvReader = new CsvReader(filePath);
-        csvReader.readHeaders();
-        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()){
-            throw new IllegalStateException("Provided CSV file contains duplicate headers");
-        }
+        final CsvReader csvReader = getCsvReader(filePath);
         final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
@@ -154,4 +150,13 @@ public abstract class AbstractService {
 		}
 		return null;
 	}
+
+    private CsvReader getCsvReader(String filePath) throws IOException {
+        final CsvReader csvReader = new CsvReader(filePath);
+        csvReader.readHeaders();
+        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()){
+            throw new IllegalStateException("Provided CSV file contains duplicate headers");
+        }
+        return csvReader;
+    }
 }
