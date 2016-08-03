@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -17,7 +19,6 @@ import com.google.common.collect.Sets;
 public class TemplateUtil<B extends BullhornEntity> {
 
     private final Set<String> compositeTypes = Sets.newHashSet("Address");
-    private MetaData<B> metaData;
     private BullhornData bullhornData;
 
     public TemplateUtil(BullhornData bullhornData) {
@@ -25,13 +26,18 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     public void writeExampleEntityCsv(String entity) throws IOException {
-        metaData = bullhornData.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
-        Set<Field> fieldSet = new HashSet<>(metaData.getFields());
+        MetaData<B> metaData = bullhornData.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
+        Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
+        Set<Field> associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
+        for (Field field : associationFields){
+            field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
+            metaFieldSet.addAll(field.getAssociatedEntity().getFields());
+        }
 
         ArrayList<String> headers = new ArrayList<>();
         ArrayList<String> dataTypes = new ArrayList<>();
-        for (Field field : fieldSet) {
-            if (!isCompositeType(field.getDataType())) {
+        for (Field field : metaFieldSet) {
+            if (!isCompositeType(field.getDataType()) && !hasId(metaFieldSet, field.getName())) {
                 headers.add(field.getName());
                 dataTypes.add(field.getDataType());
             }
@@ -42,6 +48,10 @@ public class TemplateUtil<B extends BullhornEntity> {
         csvWriter.writeRecord(dataTypes.toArray(new String[0]));
         csvWriter.flush();
         csvWriter.close();
+    }
+
+    private boolean hasId(Set<Field> metaFieldSet, String column) {
+        return metaFieldSet.stream().map(n -> n.getName()).anyMatch(n -> n.equalsIgnoreCase(column + ".id"));
     }
 
     private boolean isCompositeType(String datetype) {
