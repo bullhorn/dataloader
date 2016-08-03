@@ -17,7 +17,9 @@ import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -155,8 +157,21 @@ public abstract class AbstractService {
         final CsvReader csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
         if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()){
-            throw new IllegalStateException("Provided CSV file contains duplicate headers");
+            StringBuilder sb = getDuplicates(csvReader);
+            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + sb.toString());
         }
         return csvReader;
+    }
+
+    private StringBuilder getDuplicates(CsvReader csvReader) throws IOException {
+        List<String> nonDupe = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        for (String header : csvReader.getHeaders()){
+            if (nonDupe.contains(header)){
+                sb.append("\t" + header + "\n");
+            }
+            nonDupe.add(header);
+        }
+        return sb;
     }
 }
