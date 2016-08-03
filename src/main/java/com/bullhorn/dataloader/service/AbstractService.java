@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,6 +19,7 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
+import com.google.common.collect.Sets;
 
 /**
  * Base class for all command line actions.
@@ -86,6 +88,9 @@ public abstract class AbstractService {
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
         final CsvReader csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
+        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()){
+            throw new IllegalStateException("Provided CSV file contains duplicate headers");
+        }
         final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
