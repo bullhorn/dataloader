@@ -26,7 +26,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileApiResponse;
 
 public class DeleteAttachmentTaskTest {
@@ -64,7 +63,7 @@ public class DeleteAttachmentTaskTest {
     public void deleteAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Delete(0);
-        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         final StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
         fileApiResponse.setFileId(0);
         when(bullhornData.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
@@ -81,7 +80,7 @@ public class DeleteAttachmentTaskTest {
     public void deleteAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
-        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, "Candidate", dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(bullhornData.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
         task.run();

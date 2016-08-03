@@ -1,9 +1,24 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import org.apache.commons.lang3.text.WordUtils;
 
 import com.bullhorn.dataloader.meta.Entity;
+import com.bullhorn.dataloader.meta.MetaMap;
+import com.bullhorn.dataloader.service.api.BullhornAPI;
+import com.bullhorn.dataloader.service.api.BullhornApiAssociator;
+import com.bullhorn.dataloader.service.api.BullhornApiUpdater;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.EntityAttachmentsConcurrencyService;
+import com.bullhorn.dataloader.service.executor.EntityConcurrencyService;
+import com.bullhorn.dataloader.service.query.EntityCache;
+import com.bullhorn.dataloader.service.query.EntityQuery;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -13,15 +28,8 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
-import com.google.common.collect.Sets;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 
 /**
  * Base class for all command line actions.
@@ -42,16 +50,12 @@ public abstract class AbstractService {
     	timer = new Timer();
     }
 
-    public PropertyFileUtil getPropertyFileUtil() {
-        return propertyFileUtil;
-    }
-
-    protected BullhornData getBullhornData() throws Exception {
-        BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(getPropertyFileUtil()));
+    private BullhornData getBullhornData(PropertyFileUtil propertyFileUtil) throws Exception {
+        BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(propertyFileUtil));
         return bullhornData;
     }
 
-    protected BullhornRestCredentials getBullhornRestCredentials(PropertyFileUtil propertyFileUtil) throws Exception {
+    private BullhornRestCredentials getBullhornRestCredentials(PropertyFileUtil propertyFileUtil) throws Exception {
         BullhornRestCredentials bullhornRestCredentials = new BullhornRestCredentials();
         bullhornRestCredentials.setPassword(propertyFileUtil.getPassword());
         bullhornRestCredentials.setRestAuthorizeUrl(propertyFileUtil.getAuthorizeUrl());
@@ -62,6 +66,10 @@ public abstract class AbstractService {
         bullhornRestCredentials.setUsername(propertyFileUtil.getUsername());
         bullhornRestCredentials.setRestSessionMinutesToLive("60");
         return bullhornRestCredentials;
+    }
+
+    private PropertyFileUtil getPropertyFileUtil() {
+        return propertyFileUtil;
     }
 
     /**
@@ -75,24 +83,75 @@ public abstract class AbstractService {
     }
 
     /**
-     * Create thread pool for processing entityClass attachment changes
+     * Create BullhornAPI instance and open a session
+     *
+     * @return BullhornAPI instance
+     * @throws Exception if error reading in properties or error creating session
+     */
+    protected BullhornAPI createSession() throws Exception {
+        final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
+        final BullhornAPI bhApi = new BullhornAPI(propertyFileUtil);
+        bhApi.createSession();
+        return bhApi;
+    }
+
+    /**
+     * Create thread pool for processing entity changes
      *
      * @param command - command line action to perform
-     * @param entityName - entityClass name
-     * @param filePath - CSV file with attachment data
-     * @return ConcurrencyService thread pool service
-     * @throws Exception if error when opening session, loading entityClass data, or reading CSV
+     * @param entity - entity name
+     * @param filePath - CSV file with entity data
+     * @return EntityConcurrencyService thread pool service
+     * @throws Exception if error when opening session, loading entity data, or reading CSV
      */
-    protected ConcurrencyService createConcurrencyService(Command command, String entityName, String filePath) throws Exception {
+    protected EntityConcurrencyService createEntityConcurrencyService(Command command, String entity, String filePath) throws Exception {
+        final BullhornAPI bhApi = createSession();
+        final BullhornApiUpdater bhApiUpdater = new BullhornApiUpdater(bhApi);
+        final BullhornApiAssociator bhApiAssociator = new BullhornApiAssociator(bhApi);
+        final LoadingCache<EntityQuery, Result> associationCache = CacheBuilder.newBuilder()
+                .maximumSize(bhApi.getPropertyFileUtil().getCacheSize())
+                .build(new EntityCache(bhApiUpdater));
+
+        bhApi.frontLoad();
+        MetaMap metaMap = bhApi.getRootMetaDataTypes(entity);
+        final CsvFileReader csvFileReader = new CsvFileReader(filePath, metaMap);
+        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
+
+        final ExecutorService executorService = getExecutorService(getPropertyFileUtil());
+        final EntityConcurrencyService entityConcurrencyService = new EntityConcurrencyService(
+                WordUtils.capitalize(entity),
+                csvFileReader,
+                csvFileWriter,
+                bhApi,
+                bhApiAssociator,
+                executorService,
+                associationCache,
+                bhApi.getPropertyFileUtil()
+        );
+
+        return entityConcurrencyService;
+    }
+
+    /**
+     * Create thread pool for processing entity attachment changes
+     *
+     * @param command - command line action to perform
+     * @param entityName - entity name
+     * @param filePath - CSV file with attachment data
+     * @return EntityAttachmentsConcurrencyService thread pool service
+     * @throws Exception if error when opening session, loading entity data, or reading CSV
+     */
+    protected EntityAttachmentsConcurrencyService createEntityAttachmentConcurrencyService(Command command, String entityName, String filePath) throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
 
-        final BullhornData bullhornData = getBullhornData();
+        final BullhornData bullhornData = getBullhornData(propertyFileUtil);
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
-        final CsvReader csvReader = getCsvReader(filePath);
+        final CsvReader csvReader = new CsvReader(filePath);
+        csvReader.readHeaders();
         final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        ConcurrencyService concurrencyService = new ConcurrencyService(
+        EntityAttachmentsConcurrencyService entityAttachmentsConcurrencyService = new EntityAttachmentsConcurrencyService(
         		command,
                 entityName,
                 csvReader,
@@ -104,7 +163,7 @@ public abstract class AbstractService {
                 actionTotals
         );
 
-        return concurrencyService;
+        return entityAttachmentsConcurrencyService;
     }
 
     /**
@@ -152,26 +211,4 @@ public abstract class AbstractService {
 		}
 		return null;
 	}
-
-    private CsvReader getCsvReader(String filePath) throws IOException {
-        final CsvReader csvReader = new CsvReader(filePath);
-        csvReader.readHeaders();
-        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()){
-            StringBuilder sb = getDuplicates(csvReader);
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + sb.toString());
-        }
-        return csvReader;
-    }
-
-    private StringBuilder getDuplicates(CsvReader csvReader) throws IOException {
-        List<String> nonDupe = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        for (String header : csvReader.getHeaders()){
-            if (nonDupe.contains(header)){
-                sb.append("\t" + header + "\n");
-            }
-            nonDupe.add(header);
-        }
-        return sb;
-    }
 }

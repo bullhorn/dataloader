@@ -1,14 +1,15 @@
 package com.bullhorn.dataloader.util;
 
-import com.google.common.collect.Sets;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.collect.Sets;
 
 public class PropertyFileUtilTest {
 
@@ -25,7 +26,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(propertyFileUtil.getTokenUrl(), "https://auth.bullhornstaffing.com/oauth/token");
         Assert.assertEquals(propertyFileUtil.getLoginUrl(), "https://rest.bullhornstaffing.com/rest-services/login");
         Assert.assertEquals(propertyFileUtil.getListDelimiter(), ";");
-        Assert.assertEquals(propertyFileUtil.getDateParser(), DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"));
+        Assert.assertEquals(propertyFileUtil.getDateParser(), new SimpleDateFormat("MM/dd/yyyy"));
         Assert.assertEquals(propertyFileUtil.getNumThreads(), new Integer(10));
         Assert.assertEquals(propertyFileUtil.getCacheSize(), new Integer(10000));
         Assert.assertEquals(propertyFileUtil.getPageSize(), new Integer(500));

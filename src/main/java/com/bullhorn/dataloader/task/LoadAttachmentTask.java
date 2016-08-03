@@ -21,38 +21,46 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
 
     public LoadAttachmentTask(Command command,
-                              Integer rowNumber,
-                              Class<B> entity,
+                              String entityName,
                               LinkedHashMap<String, String> dataMap,
                               CsvFileWriter csvWriter,
                               PropertyFileUtil propertyFileUtil,
                               BullhornData bullhornData,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(command, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, entityName, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
+    /**
+     * Run method on this runnable object called by the thread manager.
+     */
     @Override
     public void run() {
         Result result;
         try {
-            result = handle();
+            result = handleAttachment();
         } catch(Exception e){
-            result = handleFailure(e);
+            result = handleAttachmentFailure(e);
         }
         writeToResultCSV(result);
     }
 
-    private Result handle() throws Exception {
+    private Result handleAttachment() throws Exception {
+        getAndSetBullhornEntityInfo();
         getAndSetBullhornID();
         addParentEntityIDtoDataMap();
         FileWrapper fileWrapper = attachFile();
         return Result.Insert(fileWrapper.getId());
     }
 
+    private Result handleAttachmentFailure(Exception e) {
+        printUtil.printAndLog(e.toString());
+        return Result.Failure(e.toString());
+    }
+
     private <F extends FileEntity> FileWrapper attachFile() {
         File attachementFile = new File(dataMap.get(relativeFilePath));
-        return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachementFile, dataMap.get(externalID), ParamFactory.fileParams(), false);
+        return bullhornData.addFile((Class<F>) entity, bullhornParentId, attachementFile, dataMap.get(externalID), ParamFactory.fileParams(), false);
     }
 
 }
