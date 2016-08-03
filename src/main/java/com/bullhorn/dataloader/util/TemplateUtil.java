@@ -26,28 +26,45 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     public void writeExampleEntityCsv(String entity) throws IOException {
-        MetaData<B> metaData = bullhornData.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
-        Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
-        Set<Field> associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
-        for (Field field : associationFields){
-            field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
-            metaFieldSet.addAll(field.getAssociatedEntity().getFields());
-        }
+        Set<Field> metaFieldSet = getMetaFieldSet(entity);
 
         ArrayList<String> headers = new ArrayList<>();
         ArrayList<String> dataTypes = new ArrayList<>();
+        populateDataTypes(metaFieldSet, headers, dataTypes);
+
+        writeToCsv(entity, headers, dataTypes);
+    }
+
+    private Set<Field> getMetaFieldSet(String entity) {
+        MetaData<B> metaData = bullhornData.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
+        Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
+        Set<Field> associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
+        addAssociatedFields(metaFieldSet, associationFields);
+        return metaFieldSet;
+    }
+
+    private void writeToCsv(String entity, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException {
+        CsvWriter csvWriter = new CsvWriter(entity + "Example.csv");
+        csvWriter.writeRecord(headers.toArray(new String[0]));
+        csvWriter.writeRecord(dataTypes.toArray(new String[0]));
+        csvWriter.flush();
+        csvWriter.close();
+    }
+
+    private void populateDataTypes(Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) {
         for (Field field : metaFieldSet) {
             if (!isCompositeType(field.getDataType()) && !hasId(metaFieldSet, field.getName())) {
                 headers.add(field.getName());
                 dataTypes.add(field.getDataType());
             }
         }
+    }
 
-        CsvWriter csvWriter = new CsvWriter(entity + "Example.csv");
-        csvWriter.writeRecord(headers.toArray(new String[0]));
-        csvWriter.writeRecord(dataTypes.toArray(new String[0]));
-        csvWriter.flush();
-        csvWriter.close();
+    private void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
+        for (Field field : associationFields){
+            field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
+            metaFieldSet.addAll(field.getAssociatedEntity().getFields());
+        }
     }
 
     private boolean hasId(Set<Field> metaFieldSet, String column) {
