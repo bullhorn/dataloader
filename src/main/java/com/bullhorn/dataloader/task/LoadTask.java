@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -156,9 +155,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private boolean validField(String field) {
         if (!isNewEntity) {
-            if (!Candidate.class.equals(entity)) {
-                return field != "username";
-            }
+            return !"username".equalsIgnoreCase(field);
         }
         return true;
     }
@@ -204,8 +201,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
         B toOneEntity;
-        String getMethodName = "get"+fieldName;
-        Class fieldType = Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
+        Class fieldType = getFieldType(toOneEntityClass, fieldName);
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
             toOneEntity = searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         } else {

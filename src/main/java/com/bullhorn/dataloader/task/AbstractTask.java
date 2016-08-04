@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -128,7 +129,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         if (Integer.class.equals(fieldType)) {
             return field + ":" + value;
         } else if (String.class.equals(fieldType)) {
-            return field + ":'" + value + "'";
+            return field + ":\"" + value + "\"";
         } else {
             return "";
         }
@@ -136,7 +137,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected <S extends SearchEntity> List<B> searchForEntity() {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
-        String query = entityExistFieldsMap.keySet().stream().map(n -> n + ":" + entityExistFieldsMap.get(n)).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
@@ -187,6 +188,11 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             return (BigDecimal) decimalFormat.parse(value);
         }
         return null;
+    }
+
+    protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
+        String getMethodName = "get"+fieldName;
+        return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
     }
 
 }
