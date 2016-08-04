@@ -1,21 +1,22 @@
 package com.bullhorn.dataloader.util;
 
-import com.google.common.collect.Sets;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.collect.Sets;
+
 public class PropertyFileUtilTest {
 
     @Test
     public void testGetters() throws IOException {
-        final String path = getFilePath("PropertyFileUtilTestUsername.properties");
+        final String path = getFilePath("dataloader.properties");
         final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(propertyFileUtil.getUsername(), "john.smith");
@@ -32,7 +33,7 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testExistsFields() throws IOException {
-        final String path = getFilePath("PropertyFileUtilTestUsername.properties");
+        final String path = getFilePath("dataloader.properties");
         final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("BusinessSector"),
@@ -51,7 +52,7 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testFrontLoadedEntities() throws IOException {
-        final String path = getFilePath("PropertyFileUtilTestUsername.properties");
+        final String path = getFilePath("dataloader.properties");
         final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Set<String> expected = Sets.newHashSet(new String[] {"BusinessSector", "Skill", "Category"});

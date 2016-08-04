@@ -10,8 +10,8 @@ import com.bullhorn.dataloader.util.PrintUtil;
  */
 public class DeleteService extends AbstractService implements Action {
 
-	public DeleteService(PrintUtil printUtil) throws IOException {
-		super(printUtil);
+	public DeleteService(PrintUtil printUtil, String propertyFilePath) throws IOException {
+		super(printUtil, propertyFilePath);
 	}
 
 	@Override

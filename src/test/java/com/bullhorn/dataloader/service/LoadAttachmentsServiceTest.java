@@ -1,13 +1,14 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
-import com.bullhorn.dataloader.util.PrintUtil;
+import java.io.File;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 public class LoadAttachmentsServiceTest {
 
@@ -18,7 +19,7 @@ public class LoadAttachmentsServiceTest {
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
-		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtil));
+		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtil, getFilePath("dataloader.properties")));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);

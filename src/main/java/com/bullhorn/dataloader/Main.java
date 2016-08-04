@@ -17,7 +17,8 @@ public class Main {
 
     public static void main(String[] args) {
         PrintUtil printUtil = new PrintUtil();
-        ActionBuilder actionBuilder = new ActionBuilder(printUtil);
+        String propertyFilePath = "dataloader.properties";
+        ActionBuilder actionBuilder = new ActionBuilder(printUtil, propertyFilePath);
         CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionBuilder);
         commandLineInterface.start(args);
     }
