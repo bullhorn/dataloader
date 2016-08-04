@@ -260,8 +260,9 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
-        if (existingAssociations.isEmpty()){
-            printUtil.printAndLog("Error occurred: " + associationName + " does not exist with " + fieldName + " of " + dataMap.get(field));
+        if (existingAssociations.size()!=valueSet.size()){
+            String missingAssociations = valueSet.stream().filter(n -> !existingAssociations.contains(n)).collect(Collectors.joining(" and "));
+            throw new RestApiException("Error occurred: " + associationName + " does not exist with " + fieldName + " of " + missingAssociations);
         }
         Method method = getGetMethod(associationField, fieldName);
 
