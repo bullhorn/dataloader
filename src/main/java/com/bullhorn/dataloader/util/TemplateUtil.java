@@ -1,12 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.meta.Field;
@@ -15,6 +8,12 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.csvreader.CsvWriter;
 import com.google.common.collect.Sets;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class TemplateUtil<B extends BullhornEntity> {
 
@@ -63,7 +62,20 @@ public class TemplateUtil<B extends BullhornEntity> {
     private void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
         for (Field field : associationFields){
             field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
+            addExternalIDWhenExists(field);
             metaFieldSet.addAll(field.getAssociatedEntity().getFields());
+        }
+    }
+
+    private void addExternalIDWhenExists(Field field) {
+        try {
+            if (BullhornEntityInfo.getTypeFromName(field.getOptionsType()).getType().getMethod("getExternalID") != null){
+                Field externalIdField = new Field();
+                externalIdField.setName(field.getName() + ".externalID");
+                externalIdField.setDataType("String");
+                field.getAssociatedEntity().getFields().add(externalIdField);
+            }
+        } catch (Exception e) {
         }
     }
 

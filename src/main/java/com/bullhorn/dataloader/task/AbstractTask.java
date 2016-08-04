@@ -1,23 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -31,6 +13,24 @@ import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
 
@@ -120,20 +120,40 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return Result.Failure(e.toString());
     }
 
-    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class<B> entityClass) {
-        String query = field + ":" + value;
+    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
+        String query = getQueryStatement(field, value, fieldType);
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+    }
+
+    private String getQueryStatement(String field, String value, Class fieldType) {
+        if (Integer.class.equals(fieldType)) {
+            return field + ":" + value;
+        } else if (String.class.equals(fieldType)) {
+            return field + ":\"" + value + "\"";
+        } else {
+            return "";
+        }
     }
 
     protected <S extends SearchEntity> List<B> searchForEntity() {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
-        String query = entityExistFieldsMap.keySet().stream().map(n -> n + ":" + entityExistFieldsMap.get(n)).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
-    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class<B> entityClass) {
-        String where = field + "='" + value + "'";
+    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
+        String where = getWhereStatment(field, value, fieldType);
         return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+    }
+
+    private String getWhereStatment(String field, String value, Class fieldType) {
+        if (Integer.class.equals(fieldType)) {
+            return  field + "=" + value;
+        } else if(String.class.equals(fieldType)) {
+            return field + "='" + value + "'";
+        } else {
+            return "";
+        }
     }
 
     protected Map<String, String> getEntityExistFieldsMap() {
@@ -168,6 +188,11 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             return (BigDecimal) decimalFormat.parse(value);
         }
         return null;
+    }
+
+    protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
+        String getMethodName = "get"+fieldName;
+        return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
     }
 
 }

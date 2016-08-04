@@ -155,9 +155,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private boolean validField(String field) {
         if (!isNewEntity) {
-            if (!Candidate.class.equals(entity)) {
-                return field != "username";
-            }
+            return !"username".equalsIgnoreCase(field);
         }
         return true;
     }
@@ -203,10 +201,11 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
         B toOneEntity;
-        if (toOneEntityClass.isInstance(SearchEntity.class)){
-            toOneEntity = searchForEntity(fieldName, dataMap.get(field), toOneEntityClass).get(0);
+        Class fieldType = getFieldType(toOneEntityClass, fieldName);
+        if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
+            toOneEntity = searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         } else {
-            toOneEntity = queryForEntity(fieldName, dataMap.get(field), toOneEntityClass).get(0);
+            toOneEntity = queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         }
         return toOneEntity;
     }
@@ -260,14 +259,26 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         String fieldName = field.substring(field.indexOf(".") + 1);
 
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
-        List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
-        if (existingAssociations.isEmpty()){
-            printUtil.printAndLog("Error occurred: " + associationName + " does not exist with " + fieldName + " of " + dataMap.get(field));
-        }
         Method method = getGetMethod(associationField, fieldName);
+        List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
+        if (existingAssociations.size()!=valueSet.size()){
+            Set<String> existingAssociationValues = getExistingAssociationValues(method, existingAssociations);
+            String missingAssociations = valueSet.stream().filter(n -> !existingAssociationValues.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
+            throw new RestApiException("Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+        }
 
         List<Integer> associationIdList = findIdsOfAssociations(valueSet, existingAssociations, method);
         return associationIdList;
+    }
+
+    private Set<String> getExistingAssociationValues(Method method, List<B> existingAssociations) {
+        return existingAssociations.stream().map(n -> {
+            try {
+                return method.invoke(n).toString();
+            } catch (Exception shouldNeverHappen) {
+                return null;
+            }
+        }).collect(Collectors.toSet());
     }
 
     private List<Integer> findIdsOfAssociations(Set<String> valueSet, List<B> existingAssociations, Method method) throws IllegalAccessException, InvocationTargetException {
