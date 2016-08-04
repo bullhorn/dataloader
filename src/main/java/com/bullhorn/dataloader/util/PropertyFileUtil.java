@@ -88,7 +88,7 @@ public class PropertyFileUtil {
      *
      * @param properties The raw contents of the properties file
      */
-    private void processProperties(Properties properties) {
+    protected void processProperties(Properties properties) {
         this.numThreads = Integer.valueOf(properties.getProperty(NUM_THREADS));
         this.cacheSize = Integer.valueOf(properties.getProperty(CACHE_SIZE));
         this.username = properties.getProperty(USERNAME);
