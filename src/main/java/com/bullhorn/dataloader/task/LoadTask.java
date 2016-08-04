@@ -259,15 +259,26 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         String fieldName = field.substring(field.indexOf(".") + 1);
 
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
+        Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
         if (existingAssociations.size()!=valueSet.size()){
-            String missingAssociations = valueSet.stream().filter(n -> !existingAssociations.contains(n)).collect(Collectors.joining(" and "));
-            throw new RestApiException("Error occurred: " + associationName + " does not exist with " + fieldName + " of " + missingAssociations);
+            Set<String> existingAssociationValues = getExistingAssociationValues(method, existingAssociations);
+            String missingAssociations = valueSet.stream().filter(n -> !existingAssociationValues.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
+            throw new RestApiException("Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
         }
-        Method method = getGetMethod(associationField, fieldName);
 
         List<Integer> associationIdList = findIdsOfAssociations(valueSet, existingAssociations, method);
         return associationIdList;
+    }
+
+    private Set<String> getExistingAssociationValues(Method method, List<B> existingAssociations) {
+        return existingAssociations.stream().map(n -> {
+            try {
+                return method.invoke(n).toString();
+            } catch (Exception shouldNeverHappen) {
+                return null;
+            }
+        }).collect(Collectors.toSet());
     }
 
     private List<Integer> findIdsOfAssociations(Set<String> valueSet, List<B> existingAssociations, Method method) throws IllegalAccessException, InvocationTargetException {
