@@ -66,17 +66,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.actionTotals = actionTotals;
     }
 
-    public <S extends SearchEntity> void getAndSetBullhornID() throws Exception {
-        String query = externalID + ":" + dataMap.get(externalID);
-        List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
-        if (!searchList.isEmpty()){
-            bullhornParentId = searchList.get(0).getId();
-        }
-        else {
-            throw new Exception("Parent Entity not found.");
-        }
-    }
-
     protected  void addParentEntityIDtoDataMap() {
         dataMap.put(TaskConsts.parentEntityID, bullhornParentId.toString());
     }
@@ -125,7 +114,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
-    private String getQueryStatement(String field, String value, Class fieldType) {
+    protected String getQueryStatement(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType)) {
             return field + ":" + value;
         } else if (String.class.equals(fieldType)) {

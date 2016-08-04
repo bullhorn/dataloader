@@ -1,16 +1,15 @@
 package com.bullhorn.dataloader.service.csv;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.apache.commons.io.FilenameUtils;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -19,6 +18,7 @@ public class CsvFileWriter {
 
     public static final String RESULTS_DIR = "results/";
     public static final String BULLHORN_ID_COLUMN = "id";
+    public static final String BULLHORN_ATTACHMENT_ID_COLUMN = "attachmentID";
     public static final String ACTION_COLUMN = "action";
     public static final String REASON_COLUMN = "reason";
     public static final String SUCCESS_CSV = "_success.csv";
@@ -66,12 +66,15 @@ public class CsvFileWriter {
     }
 
     protected void createCSVHeaders(String[] headers, Command command) throws IOException {
-            if (command.equals(Command.LOAD_ATTACHMENTS)) {
-                headers = ArrayUtil.append(TaskConsts.parentEntityID, headers);
-            }
+        if (command.equals(Command.LOAD_ATTACHMENTS)) {
+            headers = ArrayUtil.append(TaskConsts.parentEntityID, headers);
+            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ATTACHMENT_ID_COLUMN,
+                    ArrayUtil.prepend(ACTION_COLUMN, headers)));
+        } else {
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
                     ArrayUtil.prepend(ACTION_COLUMN, headers)));
-            failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+        }
+        failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
     }
 
     /**
