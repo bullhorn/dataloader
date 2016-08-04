@@ -19,7 +19,7 @@ public class DeleteServiceTest {
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
-		deleteService = Mockito.spy(new DeleteService(printUtil));
+		deleteService = Mockito.spy(new DeleteService(printUtil, getFilePath("dataloader.properties")));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);

@@ -19,7 +19,7 @@ public class LoadServiceTest {
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
-		loadService = Mockito.spy(new LoadService(printUtil));
+		loadService = Mockito.spy(new LoadService(printUtil, getFilePath("dataloader.properties")));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);

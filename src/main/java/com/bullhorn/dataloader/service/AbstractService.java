@@ -1,6 +1,14 @@
 package com.bullhorn.dataloader.service;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
@@ -15,14 +23,6 @@ import com.bullhornsdk.data.api.StandardBullhornData;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Base class for all command line actions.
  *
@@ -35,10 +35,10 @@ public abstract class AbstractService {
     final protected ValidationUtil validationUtil;
     final protected PropertyFileUtil propertyFileUtil;
 
-    public AbstractService(PrintUtil printUtil) throws IOException {
+    public AbstractService(PrintUtil printUtil, String propertyFilePath) throws IOException {
     	this.printUtil = printUtil;
     	validationUtil = new ValidationUtil(printUtil);
-        propertyFileUtil = new PropertyFileUtil("dataloader.properties");
+        propertyFileUtil = new PropertyFileUtil(propertyFilePath);
     	timer = new Timer();
     }
 

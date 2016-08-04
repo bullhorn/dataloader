@@ -1,5 +1,15 @@
 package com.bullhorn.dataloader.service;
 
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.util.Arrays;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
@@ -7,15 +17,6 @@ import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.csvreader.CsvReader;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.io.File;
-import java.util.Arrays;
-
-import static org.mockito.Mockito.when;
 
 public class TemplateServiceTest {
 
@@ -26,7 +27,7 @@ public class TemplateServiceTest {
 	@Before
 	public void setup() throws Exception {
 		printUtil = Mockito.mock(PrintUtil.class);
-		templateService = Mockito.spy(new TemplateService(printUtil));
+		templateService = Mockito.spy(new TemplateService(printUtil, getFilePath("dataloader.properties")));
 		bullhornData = Mockito.mock(BullhornData.class);
 
 		StandardMetaData<Candidate> metaData = new StandardMetaData<>();
@@ -117,5 +118,10 @@ public class TemplateServiceTest {
 		
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+	}
+
+	private String getFilePath(String filename) {
+		final ClassLoader classLoader = getClass().getClassLoader();
+		return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
 	}
 }

@@ -10,8 +10,8 @@ import com.bullhorn.dataloader.util.PrintUtil;
  */
 public class LoadService extends AbstractService implements Action {
 
-	public LoadService(PrintUtil printUtil) throws IOException {
-		super(printUtil);
+	public LoadService(PrintUtil printUtil, String propertyFilePath) throws IOException {
+		super(printUtil, propertyFilePath);
 	}
 
 	@Override
