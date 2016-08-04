@@ -10,49 +10,49 @@ import java.util.Set;
 public final class PropertyValidation {
 
 	public String validateUsername(String username) {
-		if(username.isEmpty()) {
+		if(username.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: username property must not be blank");
 		}
 		return username;
 	}
 
 	public String validatePassword(String password) {
-		if(password.isEmpty()) {
+		if(password.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: password property must not be blank");
 		}
 		return password;
 	}
 
 	public String validateClientId(String clientId) {
-		if(clientId.isEmpty()) {
+		if(clientId.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: clientId property must not be blank");
 		}
 		return clientId;
 	}
 
 	public String validateClientSecret(String clientSecret) {
-		if(clientSecret.isEmpty()) {
+		if(clientSecret.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: clientSecret property must not be blank");
 		}
 		return clientSecret;
 	}
 
 	public String validateAuthorizeUrl(String authorizeUrl) {
-		if(authorizeUrl.isEmpty()) {
+		if(authorizeUrl.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: authorizeUrl property must not be blank");
 		}
 		return authorizeUrl;
 	}
 
 	public String validateTokenUrl(String tokenUrl) {
-		if(tokenUrl.isEmpty()) {
+		if(tokenUrl.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: tokenUrl property must not be blank");
 		}
 		return tokenUrl;
 	}
 
 	public String validateLoginUrl(String loginUrl) {
-		if(loginUrl.isEmpty()) {
+		if(loginUrl.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: loginUrl property must not be blank");
 		}
 		return loginUrl;
@@ -61,7 +61,7 @@ public final class PropertyValidation {
 	public void validateFrontLoadedEntities(Set<String> frontLoadedEntities) {
 		final Set<String> entitiesFormatted = new HashSet<>();
 		for(Entity entity : Entity.values()) {
-			entitiesFormatted.add(entity.getEntityName().replaceAll("_", ""));
+			entitiesFormatted.add(entity.getEntityName().replaceAll("_", "").trim());
 		}
 
 		for(String frontLoadedEntity : frontLoadedEntities) {
@@ -73,14 +73,14 @@ public final class PropertyValidation {
 
 	public void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {
 		for(Map.Entry<String, List<String>> entity : entityExistFieldsMap.entrySet() ) {
-			if(entity.getValue().get(0).equals("")) {
+			if(entity.getValue().get(0).trim().equals("")) {
 				throw new IllegalArgumentException("DataLoader Properties Error: " + entity.getKey() + " property must not be blank");
 			}
 		}
 	}
 
 	public String validateListDelimiter(String listDelimiter) {
-		if(listDelimiter.isEmpty()) {
+		if(listDelimiter.trim().isEmpty()) {
 			throw new IllegalArgumentException("DataLoader Properties Error: listDelimiter property must not be blank");
 		}
 		return listDelimiter;
