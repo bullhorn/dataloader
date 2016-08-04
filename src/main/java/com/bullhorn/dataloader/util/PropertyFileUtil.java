@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -25,10 +26,10 @@ import java.util.Set;
 public class PropertyFileUtil {
 
     private static Logger log = LogManager.getLogger(PropertyFileUtil.class);
+    private static PropertyValidation propertyFileValidation = new PropertyValidation();
 
     // Names of properties used in the properties file
     public static final String AUTHORIZE_URL = "authorizeUrl";
-    public static final String CACHE_SIZE = "cacheSize";
     public static final String CLIENT_ID = "clientId";
     public static final String CLIENT_SECRET = "clientSecret";
     public static final String DATE_FORMAT = "dateFormat";
@@ -37,7 +38,6 @@ public class PropertyFileUtil {
     public static final String LIST_DELIMITER = "listDelimiter";
     public static final String LOGIN_URL = "loginUrl";
     public static final String NUM_THREADS = "numThreads";
-    public static final String PAGE_SIZE = "pageSize";
     public static final String PASSWORD = "password";
     public static final String TOKEN_URL = "tokenUrl";
     public static final String USERNAME = "username";
@@ -55,8 +55,6 @@ public class PropertyFileUtil {
     private String listDelimiter;
     private DateTimeFormatter dateParser;
     private Integer numThreads;
-    private Integer pageSize;
-    private Integer cacheSize;
 
     /**
      * Constructor that takes the filename of the property file and pulls out all of the values and logs them.
@@ -89,24 +87,25 @@ public class PropertyFileUtil {
      * @param properties The raw contents of the properties file
      */
     protected void processProperties(Properties properties) {
-        this.numThreads = Integer.valueOf(properties.getProperty(NUM_THREADS));
-        this.cacheSize = Integer.valueOf(properties.getProperty(CACHE_SIZE));
-        this.username = properties.getProperty(USERNAME);
-        this.password = properties.getProperty(PASSWORD);
-        this.authorizeUrl = properties.getProperty(AUTHORIZE_URL);
-        this.tokenUrl = properties.getProperty(TOKEN_URL);
-        this.clientId = properties.getProperty(CLIENT_ID);
-        this.clientSecret = properties.getProperty(CLIENT_SECRET);
-        this.loginUrl = properties.getProperty(LOGIN_URL);
-        this.listDelimiter = properties.getProperty(LIST_DELIMITER);
+        this.numThreads = propertyFileValidation.validateNumThreads(Integer.valueOf(properties.getProperty(NUM_THREADS)));
+        this.username = propertyFileValidation.validateUsername(properties.getProperty(USERNAME));
+        this.password = propertyFileValidation.validatePassword(properties.getProperty(PASSWORD));
+        this.authorizeUrl = propertyFileValidation.validateAuthorizeUrl(properties.getProperty(AUTHORIZE_URL));
+        this.tokenUrl = propertyFileValidation.validateTokenUrl(properties.getProperty(TOKEN_URL));
+        this.clientId = propertyFileValidation.validateClientId(properties.getProperty(CLIENT_ID));
+        this.clientSecret = propertyFileValidation.validateClientSecret(properties.getProperty(CLIENT_SECRET));
+        this.loginUrl = propertyFileValidation.validateLoginUrl(properties.getProperty(LOGIN_URL));
+        this.listDelimiter = propertyFileValidation.validateListDelimiter(properties.getProperty(LIST_DELIMITER));
         this.dateParser = getDateTimeFormatter(properties);
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
-        this.pageSize = Integer.parseInt(properties.getProperty(PAGE_SIZE));
+
+        propertyFileValidation.validateEntityExistFields(entityExistFieldsMap);
 
         String frontLoadedEntitiesProperty = properties.getProperty(FRONT_LOADED_ENTITIES);
         if (!frontLoadedEntitiesProperty.isEmpty()) {
             this.frontLoadedEntities.addAll(Arrays.asList(frontLoadedEntitiesProperty.split(",")));
         }
+        propertyFileValidation.validateFrontLoadedEntities(frontLoadedEntities);
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
@@ -206,14 +205,6 @@ public class PropertyFileUtil {
         return numThreads;
     }
 
-    public Integer getPageSize() {
-        return pageSize;
-    }
-
-    public Integer getCacheSize() {
-        return cacheSize;
-    }
-
     /**
      * Logs the contents of the properties files, but only a very select set of properties to keep user login
      * information safe.
@@ -243,8 +234,6 @@ public class PropertyFileUtil {
 
         log.info("# Section 5");
         logPropertyIfExists(properties, NUM_THREADS);
-        logPropertyIfExists(properties, PAGE_SIZE);
-        logPropertyIfExists(properties, CACHE_SIZE);
     }
 
     private void logPropertiesEndingWith(Properties properties, String endingText) {
