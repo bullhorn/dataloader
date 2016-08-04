@@ -1,9 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.List;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -19,6 +15,10 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
@@ -58,17 +58,20 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
-        List<String> propertiesWithValues = Lists.newArrayList();
-        for (String property : properties) {
-            propertiesWithValues.add(property + ":" + dataMap.get(property));
-        }
-        String query = Joiner.on(" AND ").join(propertiesWithValues);
-        List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
-        if (!searchList.isEmpty()){
-            bullhornParentId = searchList.get(0).getId();
-        }
-        else {
-            throw new Exception("Parent Entity not found.");
+        if (properties.contains("id")){
+            bullhornParentId = Integer.parseInt(dataMap.get("id"));
+        } else {
+            List<String> propertiesWithValues = Lists.newArrayList();
+            for (String property : properties) {
+                propertiesWithValues.add(getQueryStatement(property, dataMap.get(property), getFieldType(entityClass, property)));
+            }
+            String query = Joiner.on(" AND ").join(propertiesWithValues);
+            List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+            if (!searchList.isEmpty()) {
+                bullhornParentId = searchList.get(0).getId();
+            } else {
+                throw new Exception("Parent Entity not found.");
+            }
         }
     }
 

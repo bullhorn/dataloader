@@ -114,7 +114,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
-    private String getQueryStatement(String field, String value, Class fieldType) {
+    protected String getQueryStatement(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType)) {
             return field + ":" + value;
         } else if (String.class.equals(fieldType)) {
