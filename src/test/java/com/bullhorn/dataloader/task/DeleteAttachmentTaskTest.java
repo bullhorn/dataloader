@@ -1,23 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.concurrent.ExecutionException;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -28,6 +10,23 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileApiResponse;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.concurrent.ExecutionException;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeleteAttachmentTaskTest {
 
@@ -53,7 +52,7 @@ public class DeleteAttachmentTaskTest {
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("id", "1");
+        dataMap.put("attachmentID", "1");
         dataMap.put("externalID","1");
         dataMap.put("relativeFilePath","testResume/Test Resume.doc");
         dataMap.put("isResume","0");
