@@ -13,16 +13,17 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
+import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
-
-    public static final String ATTACHMENT = "Attachment";
 
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
@@ -48,18 +49,25 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private Result handle() throws Exception {
-        List<String> getEntityExistFields = Lists.newArrayList();
-        if ((propertyFileUtil.getEntityExistFields(entityClass.getSimpleName() + ATTACHMENT)).isPresent()) {
-            getEntityExistFields = (propertyFileUtil.getEntityExistFields(entityClass.getSimpleName() + ATTACHMENT)).get();
-        }
-        else {
-            // default field if none configured
-            getEntityExistFields.add(externalID);
-        }
-        getAndSetBullhornID(getEntityExistFields);
+        getAndSetBullhornID((propertyFileUtil.getEntityExistFields(entityClass.getSimpleName())).get());
         addParentEntityIDtoDataMap();
         FileWrapper fileWrapper = attachFile();
         return Result.Insert(fileWrapper.getId());
+    }
+
+    private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
+        List<String> propertiesWithValues = Lists.newArrayList();
+        for (String property : properties) {
+            propertiesWithValues.add(property + ":" + dataMap.get(property));
+        }
+        String query = Joiner.on(" AND ").join(propertiesWithValues);
+        List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        if (!searchList.isEmpty()){
+            bullhornParentId = searchList.get(0).getId();
+        }
+        else {
+            throw new Exception("Parent Entity not found.");
+        }
     }
 
     private <F extends FileEntity> FileWrapper attachFile() {
