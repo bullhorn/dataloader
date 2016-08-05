@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.util.validation;
 
-import com.bullhorn.dataloader.meta.Entity;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.bullhorn.dataloader.meta.Entity;
 
 public final class PropertyValidation {
 
@@ -86,7 +86,7 @@ public final class PropertyValidation {
 				entity.getValue().set(entity.getValue().indexOf(value), trimmed);
 			}
 			if(entity.getValue().get(0).equals("")) {
-				throw new IllegalArgumentException("DataLoader Properties Error: " + entity.getKey() + " property must not be blank");
+				throw new IllegalArgumentException("DataLoader Properties Error: " + entity.getKey() + "ExistField property must not be blank");
 			}
 		}
 	}
