@@ -1,14 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +10,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
@@ -86,7 +87,7 @@ public class PropertyFileUtil {
      *
      * @param properties The raw contents of the properties file
      */
-    protected void processProperties(Properties properties) {
+    private void processProperties(Properties properties) {
         this.numThreads = propertyFileValidation.validateNumThreads(Integer.valueOf(properties.getProperty(NUM_THREADS)));
         this.username = propertyFileValidation.validateUsername(properties.getProperty(USERNAME));
         this.password = propertyFileValidation.validatePassword(properties.getProperty(PASSWORD));
