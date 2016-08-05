@@ -11,12 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Assert;
@@ -32,7 +30,6 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtilTest;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
@@ -41,12 +38,11 @@ import com.bullhornsdk.data.model.response.file.FileMeta;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
 import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
-import com.google.common.collect.ImmutableMap;
 
 public class LoadAttachmentTaskTest {
 
-    private PropertyFileUtil propertyFileUtil;
-    private PropertyFileUtil propertyFileUtil2;
+    private PropertyFileUtil candidateIdProperties;
+    private PropertyFileUtil candidateExternalIdProperties;
     private CsvFileWriter csvFileWriter;
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private LinkedHashMap<String, String> dataMap;
@@ -66,21 +62,12 @@ public class LoadAttachmentTaskTest {
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
-        // make sure candidateExistField is set properly for these tests
-        String path = getFilePath("PropertyFileUtilTest.properties");
-        FileInputStream fileInputStream = new FileInputStream(path);
-        Properties properties = new Properties();
-        properties.load(fileInputStream);
-        fileInputStream.close();
-        properties.setProperty("candidateExistField","id");
-        propertyFileUtil = new LoadAttachmentPropertyFileUtil(path, properties);
+        // Load in properties files for testing candidateExistField=id and candidateExistField=ExternalID
+        final String CandidateIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateID.properties");
+        candidateIdProperties = new PropertyFileUtil(CandidateIdPropertiesFile);
 
-        fileInputStream = new FileInputStream(path);
-        properties = new Properties();
-        properties.load(fileInputStream);
-        fileInputStream.close();
-        properties.setProperty("candidateExistField","externalID");
-        propertyFileUtil2 = new LoadAttachmentPropertyFileUtil(path, properties);
+        final String CandidateExternalIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateExternalID.properties");
+        candidateExternalIdProperties = new PropertyFileUtil(CandidateExternalIdPropertiesFile);
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id","1001");
@@ -97,7 +84,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1001", "testResume/Test Resume.doc", "0", "1001"};
         final Result expectedResult = Result.Insert(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, candidateIdProperties, bullhornData, printUtil, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -125,7 +112,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1001", "testResume/Test Resume.doc", "0", "1001"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, candidateIdProperties, bullhornData, printUtil, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -153,7 +140,7 @@ public class LoadAttachmentTaskTest {
         final String[] expectedValues = {"2011Ext", "testResume/Test Resume2.doc", "1", "1001"};
         final Result expectedResult = Result.Insert(0);
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, csvFileWriter, propertyFileUtil2, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -179,17 +166,5 @@ public class LoadAttachmentTaskTest {
     private String getFilePath(String filename) {
         final ClassLoader classLoader = getClass().getClassLoader();
         return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
-    }
-
-
-    private class LoadAttachmentPropertyFileUtil extends PropertyFileUtil {
-        public LoadAttachmentPropertyFileUtil(String fileName, Properties properties) throws IOException {
-            super(fileName);
-            this.processProperties(properties);
-        }
-
-        public LoadAttachmentPropertyFileUtil(String fileName) throws IOException {
-            super(fileName);
-        }
     }
 }

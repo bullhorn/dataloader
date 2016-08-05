@@ -1,20 +1,22 @@
 package com.bullhorn.dataloader.util;
 
-import com.google.common.collect.Sets;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.google.common.collect.Sets;
+
 public class PropertyFileUtilTest {
 
     @Test
-    public void testGetters() throws Exception {
-        final String path = getFilePath("PropertyFileUtilTest.properties");
+    public void testGetters() throws IOException {
+        final String path = getFilePath("dataloader.properties");
         final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(propertyFileUtil.getUsername(), "john.smith");
@@ -27,13 +29,11 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(propertyFileUtil.getListDelimiter(), ";");
         Assert.assertEquals(propertyFileUtil.getDateParser(), DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"));
         Assert.assertEquals(propertyFileUtil.getNumThreads(), new Integer(10));
-        Assert.assertEquals(propertyFileUtil.getCacheSize(), new Integer(10000));
-        Assert.assertEquals(propertyFileUtil.getPageSize(), new Integer(500));
     }
 
     @Test
-    public void testExistsFields() throws Exception {
-        final String path = getFilePath("PropertyFileUtilTest.properties");
+    public void testExistsFields() throws IOException {
+        final String path = getFilePath("dataloader.properties");
         final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("BusinessSector"),
@@ -51,8 +51,8 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testFrontLoadedEntities() throws Exception {
-        final String path = getFilePath("PropertyFileUtilTest.properties");
+    public void testFrontLoadedEntities() throws IOException {
+        final String path = getFilePath("dataloader.properties");
         final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
 
         Set<String> expected = Sets.newHashSet(new String[] {"BusinessSector", "Skill", "Category"});
@@ -61,14 +61,6 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("BusinessSector"), true);
         Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("businessSector"), false);
         Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("BOGUS"), false);
-    }
-
-    @Test
-    public void testFrontLoadedEntities_Empty() throws Exception {
-        final String path = getFilePath("PropertyFileUtilTest_Empty.properties");
-        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
-
-        Assert.assertEquals(0, propertyFileUtil.getFrontLoadedEntities().size());
     }
 
     private String getFilePath(String filename) {

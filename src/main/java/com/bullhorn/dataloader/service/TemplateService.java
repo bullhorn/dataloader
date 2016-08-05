@@ -1,18 +1,18 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhornsdk.data.api.BullhornData;
-
-import java.io.IOException;
 
 /**
  * Create example template implementation
  */
 public class TemplateService extends AbstractService implements Action {
 
-	public TemplateService (PrintUtil printUtil) throws IOException {
-		super(printUtil);
+	public TemplateService (PrintUtil printUtil, String propertyFilePath) throws IOException {
+		super(printUtil, propertyFilePath);
 	}
 
 	@Override

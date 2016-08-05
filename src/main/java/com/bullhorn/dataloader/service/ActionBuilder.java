@@ -10,9 +10,11 @@ import com.bullhorn.dataloader.util.PrintUtil;
 public class ActionBuilder {
 
     private PrintUtil printUtil;
+    private String propertyFilePath;
 
-    public ActionBuilder(PrintUtil printUtil) {
+    public ActionBuilder(PrintUtil printUtil, String propertyFilePath) {
         this.printUtil = printUtil;
+        this.propertyFilePath = propertyFilePath;
     }
 
     /**
@@ -23,15 +25,15 @@ public class ActionBuilder {
     public Action getAction(Command command) throws IOException {
         Action action = null;
         if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil);
+            action = new TemplateService(printUtil, propertyFilePath);
         } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil);
+            action = new LoadService(printUtil, propertyFilePath);
         } else if (command.equals(Command.DELETE)) {
-            action = new DeleteService(printUtil);
+            action = new DeleteService(printUtil, propertyFilePath);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            action = new LoadAttachmentsService(printUtil);
+            action = new LoadAttachmentsService(printUtil, propertyFilePath);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil);
+            action = new DeleteAttachmentsService(printUtil, propertyFilePath);
         }
         return action;
     }
