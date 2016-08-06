@@ -9,17 +9,23 @@ import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 public class LoadAttachmentsServiceTest {
 
-	private PrintUtil printUtil;
+	private PrintUtil printUtilMock;
+	private PropertyFileUtil propertyFileUtilMock;
+	private ValidationUtil validationUtil;
 	private LoadAttachmentsService loadAttachmentsService;
 	private ConcurrencyService concurrencyServiceMock;
 
 	@Before
 	public void setup() throws Exception {
-		printUtil = Mockito.mock(PrintUtil.class);
-		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtil, getFilePath("dataloader.properties")));
+		printUtilMock = Mockito.mock(PrintUtil.class);
+		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+		validationUtil = new ValidationUtil(printUtilMock);
+		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
@@ -31,7 +37,7 @@ public class LoadAttachmentsServiceTest {
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).getExecutorService(Mockito.any());
 
 		// track this call
-		Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
+		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -42,7 +48,7 @@ public class LoadAttachmentsServiceTest {
 		loadAttachmentsService.run(testArgs);
 
 		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadAttachmentsProcess();
-		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -53,7 +59,7 @@ public class LoadAttachmentsServiceTest {
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertTrue(actualResult);
-		Mockito.verify(printUtil, Mockito.never()).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -64,7 +70,7 @@ public class LoadAttachmentsServiceTest {
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -74,7 +80,7 @@ public class LoadAttachmentsServiceTest {
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -85,7 +91,7 @@ public class LoadAttachmentsServiceTest {
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -96,7 +102,7 @@ public class LoadAttachmentsServiceTest {
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -107,7 +113,7 @@ public class LoadAttachmentsServiceTest {
 		final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
 	private String getFilePath(String filename) {

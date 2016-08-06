@@ -35,10 +35,12 @@ public abstract class AbstractService {
     final protected ValidationUtil validationUtil;
     final protected PropertyFileUtil propertyFileUtil;
 
-    public AbstractService(PrintUtil printUtil, String propertyFilePath) throws IOException {
+    public AbstractService(PrintUtil printUtil,
+                           PropertyFileUtil propertyFileUtil,
+                           ValidationUtil validationUtil) throws IOException {
     	this.printUtil = printUtil;
-    	validationUtil = new ValidationUtil(printUtil);
-        propertyFileUtil = new PropertyFileUtil(propertyFilePath);
+    	this.validationUtil = validationUtil;
+        this.propertyFileUtil = propertyFileUtil;
     	timer = new Timer();
     }
 

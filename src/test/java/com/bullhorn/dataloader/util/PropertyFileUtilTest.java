@@ -8,16 +8,28 @@ import java.util.Set;
 
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.google.common.collect.Sets;
 
 public class PropertyFileUtilTest {
 
+    private PropertyValidation propertyValidationMock;
+    private PrintUtil printUtilMock;
+
+    @Before
+    public void setup() {
+        propertyValidationMock = new PropertyValidation(); // TODO: Mock out validator
+        printUtilMock = Mockito.mock(PrintUtil.class);
+    }
+
     @Test
     public void testGetters() throws IOException {
         final String path = getFilePath("dataloader.properties");
-        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, propertyValidationMock, printUtilMock);
 
         Assert.assertEquals(propertyFileUtil.getUsername(), "john.smith");
         Assert.assertEquals(propertyFileUtil.getPassword(), "password123");
@@ -34,7 +46,7 @@ public class PropertyFileUtilTest {
     @Test
     public void testExistsFields() throws IOException {
         final String path = getFilePath("dataloader.properties");
-        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, propertyValidationMock, printUtilMock);
 
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("BusinessSector"),
                 Optional.ofNullable(Arrays.asList(new String[] {"name"})));
@@ -53,7 +65,7 @@ public class PropertyFileUtilTest {
     @Test
     public void testFrontLoadedEntities() throws IOException {
         final String path = getFilePath("dataloader.properties");
-        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+        final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, propertyValidationMock, printUtilMock);
 
         Set<String> expected = Sets.newHashSet(new String[] {"BusinessSector", "Skill", "Category"});
         Assert.assertEquals(propertyFileUtil.getFrontLoadedEntities(), expected);
