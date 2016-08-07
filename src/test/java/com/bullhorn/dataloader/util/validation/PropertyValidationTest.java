@@ -79,4 +79,9 @@ public class PropertyValidationTest {
 	public void testEmptyNumThreads() throws IOException {
 		propertyValidation.validateNumThreads(Integer.valueOf(""));
 	}
+
+	@Test(expected=IllegalArgumentException.class)
+	public void testOutOfBoundsNumThreads() throws IOException {
+		propertyValidation.validateNumThreads(0);
+	}
 }
