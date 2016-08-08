@@ -1,5 +1,21 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -32,19 +48,6 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
@@ -86,9 +89,20 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     private Result handle() throws Exception {
         createEntityObject();
         handleData();
+        insertAttachmentToDescription();
         insertOrUpdateEntity();
         createNewAssociations();
         return createResult();
+    }
+
+    private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
+        if (methodMap.containsKey("description")){
+            File convertedAttachment = new File("convertedAttachments/" + entityClass.getName() +"/" + dataMap.get("externalID") + ".html");
+            if (convertedAttachment.exists()) {
+                String description = FileUtils.readFileToString(convertedAttachment);
+                methodMap.get("description").invoke(entity, description);
+            }
+        }
     }
 
     private Result createResult() {
@@ -255,7 +269,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        String associationName = field.substring(0,field.indexOf("."));
+        String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
 
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
