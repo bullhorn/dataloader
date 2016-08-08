@@ -1,0 +1,2 @@
+"title","salary","skills.name","startDate","description","isOpen","employmentType","address.city","address.state","address.zip","clientContact.id","clientCorporation.id","externalID"
+"Test DL Job","123456.78","Java","2016-06-15 12:00:00.000","This is a test job description.","0","Contract","Clayton","Missouri","62045","20376","1330","4505"
