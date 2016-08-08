@@ -13,8 +13,10 @@ import static org.mockito.Mockito.when;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Assert;
@@ -41,33 +43,34 @@ import com.bullhornsdk.data.model.response.list.ListWrapper;
 
 public class LoadAttachmentTaskTest {
 
-    private PropertyFileUtil candidateIdProperties;
-    private PropertyFileUtil candidateExternalIdProperties;
+    private PrintUtil printUtilMock;
     private CsvFileWriter csvFileWriter;
+    private BullhornData bullhornData;
+    private ActionTotals actionTotals;
+    private PropertyFileUtil propertyFileUtilMock_CandidateID;
+    private PropertyFileUtil propertyFileUtilMock_CandidateExternalID;
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private LinkedHashMap<String, String> dataMap;
     private LinkedHashMap<String, String> dataMap2;
-    private BullhornData bullhornData;
-    private PrintUtil printUtil;
-    private ActionTotals actionTotals;
     private LoadAttachmentTask task;
 
     @Before
     public void setUp() throws Exception {
+        printUtilMock = Mockito.mock(PrintUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornData = Mockito.mock(BullhornData.class);
         actionTotals = Mockito.mock(ActionTotals.class);
-        printUtil = Mockito.mock(PrintUtil.class);
+        propertyFileUtilMock_CandidateID = Mockito.mock(PropertyFileUtil.class);
+        propertyFileUtilMock_CandidateExternalID = Mockito.mock(PropertyFileUtil.class);
+
+        List<String> idExistField = Arrays.asList(new String [] {"id"});
+        Mockito.doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Candidate");
+
+        List<String> externalIdExistField = Arrays.asList(new String [] {"externalID"});
+        Mockito.doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
-
-        // Load in properties files for testing candidateExistField=id and candidateExistField=ExternalID
-        final String CandidateIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateID.properties");
-        candidateIdProperties = new PropertyFileUtil(CandidateIdPropertiesFile);
-
-        final String CandidateExternalIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateExternalID.properties");
-        candidateExternalIdProperties = new PropertyFileUtil(CandidateExternalIdPropertiesFile);
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id","1001");
@@ -84,7 +87,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1001", "testResume/Test Resume.doc", "0", "1001"};
         final Result expectedResult = Result.Insert(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, candidateIdProperties, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -112,7 +115,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1001", "testResume/Test Resume.doc", "0", "1001"};
         final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, candidateIdProperties, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -140,7 +143,7 @@ public class LoadAttachmentTaskTest {
         final String[] expectedValues = {"2011Ext", "testResume/Test Resume2.doc", "1", "1001"};
         final Result expectedResult = Result.Insert(0);
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));

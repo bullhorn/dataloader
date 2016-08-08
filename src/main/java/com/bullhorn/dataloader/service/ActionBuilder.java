@@ -3,18 +3,24 @@ package com.bullhorn.dataloader.service;
 import java.io.IOException;
 
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 /**
  * Given a command, this class builds the action that is required to execute that command.
  */
 public class ActionBuilder {
 
-    private PrintUtil printUtil;
-    private String propertyFilePath;
+    final private PrintUtil printUtil;
+    final private ValidationUtil validationUtil;
+    final private PropertyFileUtil propertyFileUtil;
 
-    public ActionBuilder(PrintUtil printUtil, String propertyFilePath) {
+    public ActionBuilder(PrintUtil printUtil,
+                         PropertyFileUtil propertyFileUtil,
+                         ValidationUtil validationUtil) {
         this.printUtil = printUtil;
-        this.propertyFilePath = propertyFilePath;
+        this.validationUtil = validationUtil;
+        this.propertyFileUtil = propertyFileUtil;
     }
 
     /**
@@ -25,15 +31,15 @@ public class ActionBuilder {
     public Action getAction(Command command) throws IOException {
         Action action = null;
         if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil, propertyFilePath);
+            action = new TemplateService(printUtil, propertyFileUtil, validationUtil);
         } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil, propertyFilePath);
+            action = new LoadService(printUtil, propertyFileUtil, validationUtil);
         } else if (command.equals(Command.DELETE)) {
-            action = new DeleteService(printUtil, propertyFilePath);
+            action = new DeleteService(printUtil, propertyFileUtil, validationUtil);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            action = new LoadAttachmentsService(printUtil, propertyFilePath);
+            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil, propertyFilePath);
+            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil);
         }
         return action;
     }

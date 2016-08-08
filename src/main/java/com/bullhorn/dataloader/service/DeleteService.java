@@ -4,14 +4,18 @@ import java.io.IOException;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 /**
  * Delete service implementation
  */
 public class DeleteService extends AbstractService implements Action {
 
-	public DeleteService(PrintUtil printUtil, String propertyFilePath) throws IOException {
-		super(printUtil, propertyFilePath);
+	public DeleteService(PrintUtil printUtil,
+						 PropertyFileUtil propertyFileUtil,
+						 ValidationUtil validationUtil) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil);
 	}
 
 	@Override

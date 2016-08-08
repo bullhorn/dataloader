@@ -11,8 +11,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -25,9 +23,6 @@ import com.google.common.collect.Sets;
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
  */
 public class PropertyFileUtil {
-
-    private static Logger log = LogManager.getLogger(PropertyFileUtil.class);
-    private static PropertyValidation propertyFileValidation = new PropertyValidation();
 
     // Names of properties used in the properties file
     public static final String AUTHORIZE_URL = "authorizeUrl";
@@ -42,6 +37,9 @@ public class PropertyFileUtil {
     public static final String PASSWORD = "password";
     public static final String TOKEN_URL = "tokenUrl";
     public static final String USERNAME = "username";
+
+    final private PropertyValidation propertyValidation;
+    final private PrintUtil printUtil;
 
     // Property values from the property file, saved in a more convenient format
     private String username;
@@ -62,7 +60,12 @@ public class PropertyFileUtil {
      *
      * @param fileName The property file to load and log
      */
-    public PropertyFileUtil (String fileName) throws IOException {
+    public PropertyFileUtil (String fileName,
+                             PropertyValidation propertyValidation,
+                             PrintUtil printUtil) throws IOException {
+        this.propertyValidation = propertyValidation;
+        this.printUtil = printUtil;
+
         // If the users has specified a -Dpropertyfile command line parameter, use that fileName instead
         if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
             fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
@@ -88,25 +91,25 @@ public class PropertyFileUtil {
      * @param properties The raw contents of the properties file
      */
     private void processProperties(Properties properties) {
-        this.numThreads = propertyFileValidation.validateNumThreads(Integer.valueOf(properties.getProperty(NUM_THREADS)));
-        this.username = propertyFileValidation.validateUsername(properties.getProperty(USERNAME));
-        this.password = propertyFileValidation.validatePassword(properties.getProperty(PASSWORD));
-        this.authorizeUrl = propertyFileValidation.validateAuthorizeUrl(properties.getProperty(AUTHORIZE_URL));
-        this.tokenUrl = propertyFileValidation.validateTokenUrl(properties.getProperty(TOKEN_URL));
-        this.clientId = propertyFileValidation.validateClientId(properties.getProperty(CLIENT_ID));
-        this.clientSecret = propertyFileValidation.validateClientSecret(properties.getProperty(CLIENT_SECRET));
-        this.loginUrl = propertyFileValidation.validateLoginUrl(properties.getProperty(LOGIN_URL));
-        this.listDelimiter = propertyFileValidation.validateListDelimiter(properties.getProperty(LIST_DELIMITER));
+        this.numThreads = propertyValidation.validateNumThreads(Integer.valueOf(properties.getProperty(NUM_THREADS)));
+        this.username = propertyValidation.validateUsername(properties.getProperty(USERNAME));
+        this.password = propertyValidation.validatePassword(properties.getProperty(PASSWORD));
+        this.authorizeUrl = propertyValidation.validateAuthorizeUrl(properties.getProperty(AUTHORIZE_URL));
+        this.tokenUrl = propertyValidation.validateTokenUrl(properties.getProperty(TOKEN_URL));
+        this.clientId = propertyValidation.validateClientId(properties.getProperty(CLIENT_ID));
+        this.clientSecret = propertyValidation.validateClientSecret(properties.getProperty(CLIENT_SECRET));
+        this.loginUrl = propertyValidation.validateLoginUrl(properties.getProperty(LOGIN_URL));
+        this.listDelimiter = propertyValidation.validateListDelimiter(properties.getProperty(LIST_DELIMITER));
         this.dateParser = getDateTimeFormatter(properties);
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
 
-        propertyFileValidation.validateEntityExistFields(entityExistFieldsMap);
+        propertyValidation.validateEntityExistFields(entityExistFieldsMap);
 
         String frontLoadedEntitiesProperty = properties.getProperty(FRONT_LOADED_ENTITIES);
         if (!frontLoadedEntitiesProperty.isEmpty()) {
             this.frontLoadedEntities.addAll(Arrays.asList(frontLoadedEntitiesProperty.split(",")));
         }
-        propertyFileValidation.validateFrontLoadedEntities(frontLoadedEntities);
+        propertyValidation.validateFrontLoadedEntities(frontLoadedEntities);
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
@@ -218,22 +221,22 @@ public class PropertyFileUtil {
      * @param properties The properties object
      */
     private void logProperties(String fileName, Properties properties) {
-        log.info("Using properties file: " + fileName);
+        printUtil.log("Using properties file: " + fileName);
 
-        log.info("# Section 2");
+        printUtil.log("# Section 2");
         logPropertyIfExists(properties, AUTHORIZE_URL);
         logPropertyIfExists(properties, TOKEN_URL);
         logPropertyIfExists(properties, LOGIN_URL);
 
-        log.info("# Section 3");
+        printUtil.log("# Section 3");
         logPropertiesEndingWith(properties, EXIST_FIELD);
         logPropertyIfExists(properties, FRONT_LOADED_ENTITIES);
 
-        log.info("# Section 4");
+        printUtil.log("# Section 4");
         logPropertyIfExists(properties, LIST_DELIMITER);
         logPropertyIfExists(properties, DATE_FORMAT);
 
-        log.info("# Section 5");
+        printUtil.log("# Section 5");
         logPropertyIfExists(properties, NUM_THREADS);
     }
 
@@ -249,7 +252,7 @@ public class PropertyFileUtil {
 
     private void logPropertyIfExists(Properties properties, String property) {
         if (properties.containsKey(property)) {
-            log.info("   " + property + "=" + properties.getProperty(property));
+            printUtil.log("   " + property + "=" + properties.getProperty(property));
         }
     }
 }

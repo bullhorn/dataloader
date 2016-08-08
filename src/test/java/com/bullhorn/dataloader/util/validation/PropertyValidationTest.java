@@ -1,82 +1,87 @@
 package com.bullhorn.dataloader.util.validation;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
-
-import com.bullhorn.dataloader.util.PropertyFileUtil;
 
 public class PropertyValidationTest {
 
+	private PropertyValidation propertyValidation;
+
+	@Before
+	public void setup() {
+		propertyValidation = new PropertyValidation();
+	}
+
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyUserName() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyUsername.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateUsername("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyPassword() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyPassword.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validatePassword("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyClientId() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyClientId.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateClientId("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyClientSecret() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyClientSecret.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateClientSecret("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyAuthorizeUrl() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyAuthorizeUrl.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateAuthorizeUrl("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyTokenUrl() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyTokenUrl.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateTokenUrl("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyLoginUrl() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyLoginUrl.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateLoginUrl("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testFrontLoadedEntities_MispelledEntity() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyFrontLoadedEntities.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		Set<String> frontLoadedEntities = new HashSet<>();
+		frontLoadedEntities.add("Candidate");
+		frontLoadedEntities.add("Bogus");
+		propertyValidation.validateFrontLoadedEntities(frontLoadedEntities);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyEntityExistFields() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyEntityExistFields.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		Map<String, List<String>> entityExistFieldsMap = new HashMap<>();
+		entityExistFieldsMap.put("Candidate", Arrays.asList(""));
+		propertyValidation.validateEntityExistFields(entityExistFieldsMap);
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyListDelimiter() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyListDelimiter.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateListDelimiter("");
 	}
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testEmptyNumThreads() throws IOException {
-		final String path = getFilePath("propertyValidationTest/PropertyValidationTest_EmptyNumThreads.properties");
-		final PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path);
+		propertyValidation.validateNumThreads(Integer.valueOf(""));
 	}
 
-	private String getFilePath(String filename) {
-		final ClassLoader classLoader = getClass().getClassLoader();
-		return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
+	@Test(expected=IllegalArgumentException.class)
+	public void testOutOfBoundsNumThreads() throws IOException {
+		propertyValidation.validateNumThreads(0);
 	}
 }

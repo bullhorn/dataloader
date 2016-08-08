@@ -7,7 +7,7 @@ import java.util.Set;
 
 import com.bullhorn.dataloader.meta.Entity;
 
-public final class PropertyValidation {
+public class PropertyValidation {
 
 	public String validateUsername(String username) {
 		String trimmedUsername = username.trim();

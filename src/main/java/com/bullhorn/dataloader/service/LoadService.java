@@ -4,14 +4,18 @@ import java.io.IOException;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 /**
  * Load (Insert/Update) service implementation
  */
 public class LoadService extends AbstractService implements Action {
 
-	public LoadService(PrintUtil printUtil, String propertyFilePath) throws IOException {
-		super(printUtil, propertyFilePath);
+	public LoadService(PrintUtil printUtil,
+					   PropertyFileUtil propertyFileUtil,
+					   ValidationUtil validationUtil) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil);
 	}
 
 	@Override

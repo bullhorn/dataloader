@@ -3,7 +3,9 @@ package com.bullhorn.dataloader.service;
 import java.io.IOException;
 
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
 
 /**
@@ -11,8 +13,10 @@ import com.bullhornsdk.data.api.BullhornData;
  */
 public class TemplateService extends AbstractService implements Action {
 
-	public TemplateService (PrintUtil printUtil, String propertyFilePath) throws IOException {
-		super(printUtil, propertyFilePath);
+	public TemplateService (PrintUtil printUtil,
+							PropertyFileUtil propertyFileUtil,
+							ValidationUtil validationUtil) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil);
 	}
 
 	@Override

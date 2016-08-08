@@ -1,9 +1,14 @@
 package com.bullhorn.dataloader;
 
+import java.io.IOException;
+
 import com.bullhorn.dataloader.service.ActionBuilder;
 import com.bullhorn.dataloader.service.CommandLineInterface;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 public class Main {
 
@@ -16,10 +21,17 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        PrintUtil printUtil = new PrintUtil();
-        String propertyFilePath = "dataloader.properties";
-        ActionBuilder actionBuilder = new ActionBuilder(printUtil, propertyFilePath);
-        CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionBuilder);
-        commandLineInterface.start(args);
+        try {
+            PrintUtil printUtil = new PrintUtil();
+            PropertyValidation propertyValidation = new PropertyValidation();
+            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", propertyValidation, printUtil);
+            ValidationUtil validationUtil = new ValidationUtil(printUtil);
+            ActionBuilder actionBuilder = new ActionBuilder(printUtil, propertyFileUtil, validationUtil);
+
+            CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionBuilder);
+            commandLineInterface.start(args);
+        } catch (IOException e) {
+            System.out.println(e);
+        }
     }
 }

@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.meta.Field;
@@ -20,14 +22,18 @@ import com.csvreader.CsvReader;
 
 public class TemplateServiceTest {
 
-	private PrintUtil printUtil;
+	private PrintUtil printUtilMock;
+	private PropertyFileUtil propertyFileUtilMock;
+	private ValidationUtil validationUtil;
 	private TemplateService templateService;
 	private BullhornData bullhornData;
 
 	@Before
 	public void setup() throws Exception {
-		printUtil = Mockito.mock(PrintUtil.class);
-		templateService = Mockito.spy(new TemplateService(printUtil, getFilePath("dataloader.properties")));
+		printUtilMock = Mockito.mock(PrintUtil.class);
+		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+		validationUtil = new ValidationUtil(printUtilMock);
+		templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil));
 		bullhornData = Mockito.mock(BullhornData.class);
 
 		StandardMetaData<Candidate> metaData = new StandardMetaData<>();
@@ -39,7 +45,7 @@ public class TemplateServiceTest {
 		when(bullhornData.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
 
 		// track this call
-		Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
+		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -52,7 +58,7 @@ public class TemplateServiceTest {
 		String entityName = templateService.validateArguments(testArgs);
 		templateService.createTemplate(entityName, bullhornData);
 
-		Mockito.verify(printUtil, Mockito.times(2)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
 		final String fileName = entity + "Example.csv";
 		final File outputFile = new File(fileName);
 
@@ -74,7 +80,7 @@ public class TemplateServiceTest {
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
 		Assert.assertTrue(actualResult);
-		Mockito.verify(printUtil, Mockito.never()).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -84,7 +90,7 @@ public class TemplateServiceTest {
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -95,7 +101,7 @@ public class TemplateServiceTest {
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -106,7 +112,7 @@ public class TemplateServiceTest {
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
@@ -117,11 +123,6 @@ public class TemplateServiceTest {
 		final boolean actualResult = templateService.isValidArguments(testArgs);
 		
 		Assert.assertFalse(actualResult);
-		Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Mockito.anyString());
-	}
-
-	private String getFilePath(String filename) {
-		final ClassLoader classLoader = getClass().getClassLoader();
-		return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 }
