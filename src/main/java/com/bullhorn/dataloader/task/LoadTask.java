@@ -55,7 +55,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     private Map<String, Integer> countryNameToIdMap;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
-    private B entity;
+    protected B entity;
     private Integer entityID;
     private boolean isNewEntity = true;
 
@@ -95,14 +95,19 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return createResult();
     }
 
-    private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
+    protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
         if (methodMap.containsKey("description")){
-            File convertedAttachment = new File("convertedAttachments/" + entityClass.getName() +"/" + dataMap.get("externalID") + ".html");
+            String attachmentFilePath = getAttachmentFilePath(entityClass.getSimpleName(), dataMap.get("externalID"));
+            File convertedAttachment = new File(attachmentFilePath);
             if (convertedAttachment.exists()) {
                 String description = FileUtils.readFileToString(convertedAttachment);
                 methodMap.get("description").invoke(entity, description);
             }
         }
+    }
+
+    protected String getAttachmentFilePath(String entityName, String externalID) {
+        return "convertedAttachments/" + entityName + "/" + externalID + ".html";
     }
 
     private Result createResult() {
