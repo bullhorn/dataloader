@@ -70,7 +70,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected  void addParentEntityIDtoDataMap() {
-        dataMap.put(TaskConsts.parentEntityID, bullhornParentId.toString());
+        dataMap.put(TaskConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
     protected void writeToResultCSV(Result result) {

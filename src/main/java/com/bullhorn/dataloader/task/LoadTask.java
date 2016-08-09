@@ -1,5 +1,22 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -32,21 +49,6 @@ import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
@@ -95,13 +97,29 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
-        if (methodMap.containsKey("description")){
+        String descriptionMethod = getDescriptionMethod();
+        if (!"".equals(descriptionMethod)){
             String attachmentFilePath = getAttachmentFilePath(entityClass.getSimpleName(), dataMap.get("externalID"));
             File convertedAttachment = new File(attachmentFilePath);
             if (convertedAttachment.exists()) {
                 String description = FileUtils.readFileToString(convertedAttachment);
-                methodMap.get("description").invoke(entity, description);
+                methodMap.get(descriptionMethod).invoke(entity, description);
             }
+        }
+    }
+
+    protected String getDescriptionMethod() {
+        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(TaskConsts.DESCRIPTION)).collect(Collectors.toList());
+        if (descriptionMethods.size() > 0) {
+            if (descriptionMethods.indexOf(TaskConsts.DESCRIPTION) > -1) {
+                return TaskConsts.DESCRIPTION;
+            }
+            else {
+                return descriptionMethods.get(0);
+            }
+        }
+        else {
+            return "";
         }
     }
 

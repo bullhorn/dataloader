@@ -1,15 +1,16 @@
 package com.bullhorn.dataloader.service.csv;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+import org.apache.commons.io.FilenameUtils;
+
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
-import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -67,7 +68,7 @@ public class CsvFileWriter {
 
     protected void createCSVHeaders(String[] headers, Command command) throws IOException {
         if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            headers = ArrayUtil.append(TaskConsts.parentEntityID, headers);
+            headers = ArrayUtil.append(TaskConsts.PARENT_ENTITY_ID, headers);
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ATTACHMENT_ID_COLUMN,
                     ArrayUtil.prepend(ACTION_COLUMN, headers)));
         } else {
