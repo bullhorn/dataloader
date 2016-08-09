@@ -25,6 +25,7 @@ import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
@@ -117,7 +118,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private void createEntityObject() throws Exception {
-        List<B> existingEntityList = searchForEntity();
+        List<B> existingEntityList = findEntityList();
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found " +
@@ -206,14 +207,16 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
-        B toOneEntity;
         Class fieldType = getFieldType(toOneEntityClass, fieldName);
+        return findEntity(field, fieldName, toOneEntityClass, fieldType);
+    }
+
+    private B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
-            toOneEntity = searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
+            return searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         } else {
-            toOneEntity = queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
+            return queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         }
-        return toOneEntity;
     }
 
     private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
@@ -298,9 +301,10 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return associationIdList;
     }
 
-    private List<B> getExistingAssociations(String field, AssociationField associationField, Set<String> valueSet) {
-        String where = getWhereStatement(valueSet, field);
-        return bullhornData.query(associationField.getAssociationType(), where, null, ParamFactory.queryParams()).getData();
+    private <Q extends QueryEntity> List<B> getExistingAssociations(String field, AssociationField associationField, Set<String> valueSet) {
+        Class<B> associationClass = associationField.getAssociationType();
+        String where = getWhereStatement(valueSet, field, associationClass);
+        return (List<B>) bullhornData.query((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
     }
 
     private Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
@@ -312,9 +316,9 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private String getWhereStatement(Set<String> valueSet, String field) {
+    private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> fieldName + " = '" + n + "'").collect(Collectors.joining(" OR "));
+        return valueSet.stream().map(n -> getWhereStatment(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
     }
 
     private List<AssociationField<A, B>> getAssociationFields() {
