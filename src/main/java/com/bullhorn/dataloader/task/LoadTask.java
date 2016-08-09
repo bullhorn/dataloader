@@ -1,21 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -46,8 +30,22 @@ import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
-import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
@@ -81,7 +79,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         try {
             result = handle();
         } catch(Exception e){
-            result = handleFailure(e);
+            result = handleFailure(e, entityID);
         }
         writeToResultCSV(result);
     }
@@ -143,17 +141,6 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         } else {
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
-        }
-    }
-
-    private void checkForRestSdkErrorMessages(CrudResponse response) {
-        if (!response.getMessages().isEmpty() && response.getChangedEntityId()==null){
-            StringBuilder sb = new StringBuilder();
-            for (Message message : response.getMessages()){
-                sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
-                sb.append("\n");
-            }
-            throw new RestApiException("Error occurred when inserting new record:\n" + sb.toString());
         }
     }
 

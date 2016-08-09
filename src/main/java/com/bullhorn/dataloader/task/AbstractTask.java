@@ -27,10 +27,13 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
@@ -107,7 +110,15 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected Result handleFailure(Exception e) {
         printUtil.printAndLog(e);
-        return Result.Failure(e.toString());
+        return Result.Failure(e);
+    }
+
+    protected Result handleFailure(Exception e, Integer entityID) {
+        printUtil.printAndLog(e);
+        if (entityID!=null){
+            return Result.Failure(e, entityID);
+        }
+        return Result.Failure(e);
     }
 
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
@@ -183,6 +194,17 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
         String getMethodName = "get"+fieldName;
         return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
+    }
+
+    protected void checkForRestSdkErrorMessages(CrudResponse response) {
+        if (!response.getMessages().isEmpty() && response.getChangedEntityId()==null){
+            StringBuilder sb = new StringBuilder();
+            for (Message message : response.getMessages()){
+                sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
+                sb.append("\n");
+            }
+            throw new RestApiException("Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
+        }
     }
 
 }

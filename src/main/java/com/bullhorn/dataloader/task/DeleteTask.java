@@ -9,6 +9,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -44,14 +45,15 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
         try {
             result = handle();
         } catch(Exception e){
-            result = handleFailure(e);
+            result = handleFailure(e, entityID);
         }
         writeToResultCSV(result);
     }
 
     private <D extends DeleteEntity> Result handle(){
         entityID = Integer.parseInt(dataMap.get("id"));
-        bullhornData.deleteEntity((Class<D>) entityClass, entityID);
+        CrudResponse response = bullhornData.deleteEntity((Class<D>) entityClass, entityID);
+        checkForRestSdkErrorMessages(response);
         return Result.Delete(entityID);
     }
 
