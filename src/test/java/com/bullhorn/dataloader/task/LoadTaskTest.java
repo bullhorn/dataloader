@@ -1,29 +1,9 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.service.Command;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
-import com.bullhornsdk.data.model.entity.core.standard.Skill;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.response.crud.CreateResponse;
-import com.bullhornsdk.data.model.response.crud.UpdateResponse;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
-import com.bullhornsdk.data.model.response.list.StandardListWrapper;
-import com.csvreader.CsvReader;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +13,33 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
+import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.Skill;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.response.crud.CreateResponse;
+import com.bullhornsdk.data.model.response.crud.UpdateResponse;
+import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
+import com.bullhornsdk.data.model.response.list.ListWrapper;
+import com.bullhornsdk.data.model.response.list.StandardListWrapper;
+import com.csvreader.CsvReader;
 
 public class LoadTaskTest {
 
@@ -53,6 +56,7 @@ public class LoadTaskTest {
     private LoadTask task;
     private PropertyFileUtil candidateIdProperties;
     private PropertyFileUtil candidateExternalIdProperties;
+    private ConcurrencyService service;
 
     @Before
     public void setUp() throws Exception {
@@ -70,7 +74,7 @@ public class LoadTaskTest {
         final String CandidateExternalIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateExternalID.properties");
         candidateExternalIdProperties = new PropertyFileUtil(CandidateExternalIdPropertiesFile);
 
-        final ConcurrencyService service = new ConcurrencyService(Command.LOAD_ATTACHMENTS, "Candidate", csvReader, csvFileWriter, executorService, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
+        service = new ConcurrencyService(Command.LOAD_ATTACHMENTS, "Candidate", csvReader, csvFileWriter, executorService, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
         methodMap = service.createMethodMap(Candidate.class);
         countryNameToIdMap = new LinkedHashMap<String, Integer>();
         countryNameToIdMap.put("United States", 1);
@@ -86,7 +90,7 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void insertAttachmentToDescriptionTest() throws Exception {
+    public void insertAttachmentToDescriptionCandidateTest() throws Exception {
         Candidate candidate = new Candidate();
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals));
         task.entity = candidate;
@@ -98,6 +102,20 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void insertAttachmentToDescriptionClientCorporationTest() throws Exception {
+        ClientCorporation corporation = new ClientCorporation();
+        methodMap = service.createMethodMap(ClientCorporation.class);
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientCorporation.class, dataMap, methodMap, countryNameToIdMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals));
+        task.entity = corporation;
+        when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+
+        task.insertAttachmentToDescription();
+
+        //client corp uses companyDescription field instead of description
+        Assert.assertNotNull(corporation.getCompanyDescription());
+    }
+
+    @Test
     public void getAttachmentFilePathTest() {
         String entityName = "Candidate";
         String externalID = "123";
@@ -105,6 +123,40 @@ public class LoadTaskTest {
         task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
 
         String actual = task.getAttachmentFilePath(entityName, externalID);
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void getDescriptionMethodWithDescriptionMethodInMapTest() {
+        String expected = "description";
+        task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
+
+        String actual = task.getDescriptionMethod();
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void getDescriptionMethodWithDescriptionSubstringMethodInMapTest() {
+        //client corp uses companyDescription field instead of description
+        String expected = "companydescription";
+        methodMap = service.createMethodMap(ClientCorporation.class);
+        task = new LoadTask(Command.LOAD, 1, ClientCorporation.class, dataMap, methodMap, countryNameToIdMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
+
+        String actual = task.getDescriptionMethod();
+
+        Assert.assertEquals(actual, expected);
+    }
+
+    @Test
+    public void getDescriptionMethodWithNoDescriptionMethodInMapTest() {
+        //placement does not have a description field
+        String expected = "";
+        methodMap = service.createMethodMap(Placement.class);
+        task = new LoadTask(Command.LOAD, 1, ClientCorporation.class, dataMap, methodMap, countryNameToIdMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
+
+        String actual = task.getDescriptionMethod();
 
         Assert.assertEquals(actual, expected);
     }

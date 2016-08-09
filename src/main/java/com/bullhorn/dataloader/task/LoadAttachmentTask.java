@@ -1,5 +1,10 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -15,10 +20,6 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
-import java.io.File;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
@@ -76,7 +77,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private <F extends FileEntity> FileWrapper attachFile() {
-        File attachmentFile = new File(dataMap.get(relativeFilePath));
+        File attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
         return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, attachmentFile.getName(), ParamFactory.fileParams(), false);
     }
 
