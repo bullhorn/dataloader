@@ -50,7 +50,7 @@ public class CommandLineInterface {
 
         	action.run(args);
         } catch (Exception e) {
-            printUtil.printAndLog(e.toString());
+            printUtil.printAndLog(e);
         }
     }
 }
