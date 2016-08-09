@@ -9,15 +9,23 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.csvreader.CsvReader;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 
 public class ConvertAttachmentTaskTest {
 
@@ -54,11 +62,25 @@ public class ConvertAttachmentTaskTest {
 
     @Test
     public void convertAttachmentToHtmlTest() throws Exception {
-        Candidate candidate = new Candidate();
         task = Mockito.spy(new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals));
 
         String result = task.convertAttachmentToHtml();
 
+        Assert.assertNotNull(result);
+    }
+
+    @Test
+    public void run_Success() throws IOException {
+        Result expectedResult = Result.Convert();
+        task = Mockito.spy(new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotals));
+        doNothing().when(task).writeHtmlToFile(anyString());
+
+
+        task.run();
+        verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());
+
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
 

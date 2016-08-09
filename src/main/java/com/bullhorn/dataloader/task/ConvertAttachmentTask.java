@@ -57,18 +57,26 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         return Result.Convert();
     }
 
-    private void writeHtmlToFile(String convertedHTML) throws IOException {
+    protected void writeHtmlToFile(String convertedHTML) throws IOException {
+        File convertedAttachmentFile = getFile();
+        write(convertedHTML, convertedAttachmentFile);
+    }
+
+    protected File getFile() {
         String convertedAttachmentPath = getConvertedAttachmentPath();
         File convertedAttachmentFile = new File(convertedAttachmentPath);
         convertedAttachmentFile.getParentFile().mkdirs();
+        return convertedAttachmentFile;
+    }
 
+    protected void write(String convertedHTML, File convertedAttachmentFile) throws IOException {
         FileWriter fw = new FileWriter(convertedAttachmentFile.getAbsoluteFile());
         BufferedWriter bw = new BufferedWriter(fw);
         bw.write(convertedHTML);
         bw.close();
     }
 
-    private String getConvertedAttachmentPath() {
+    protected String getConvertedAttachmentPath() {
         return "convertedAttachments/" + entityClass.getSimpleName() + "/" + dataMap.get("externalID") + ".html";
     }
 
