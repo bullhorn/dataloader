@@ -18,7 +18,8 @@ public class Result {
         NOT_SET,
         INSERT,
         UPDATE,
-        DELETE
+        DELETE,
+        CONVERT
     }
 
     /**
@@ -49,6 +50,15 @@ public class Result {
      */
     public static Result Delete(Integer bullhornId) {
         return new Result(Status.SUCCESS, Action.DELETE, bullhornId, "");
+    }
+
+    /**
+     * Convert convenience constructor
+     *
+     * @return The new Result object
+     */
+    public static Result Convert() {
+        return new Result(Status.SUCCESS, Action.CONVERT, -1, "");
     }
 
     /**

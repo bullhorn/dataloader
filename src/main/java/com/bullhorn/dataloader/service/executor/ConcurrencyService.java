@@ -1,17 +1,8 @@
 package com.bullhorn.dataloader.service.executor;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
@@ -27,6 +18,16 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -64,6 +65,18 @@ public class ConcurrencyService<B extends BullhornEntity> {
         this.actionTotals = actionTotals;
     }
 
+    public void runConvertAttachmentsProcess() throws IOException, InterruptedException {
+        Class<B> entity = getAndSetBullhornEntityInfo();
+        while (csvReader.readRecord()) {
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
+            ConvertAttachmentTask task = new ConvertAttachmentTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            executorService.execute(task);
+        }
+        executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
+    }
+
     public void runLoadProcess() throws IOException, InterruptedException {
         Class<B> entity = getAndSetBullhornEntityInfo();
         Map<String, Method> methodMap = createMethodMap(entity);
@@ -71,10 +84,46 @@ public class ConcurrencyService<B extends BullhornEntity> {
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
             LoadTask loadTask = new LoadTask(method, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-            executorService.execute(loadTask );
+            executorService.execute(loadTask);
         }
         executorService.shutdown();
         while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
+    }
+
+    public void runDeleteProcess() throws IOException, InterruptedException {
+        Class<B> entity = getAndSetBullhornEntityInfo();
+        while (csvReader.readRecord()) {
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
+            DeleteTask task = new DeleteTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            executorService.execute(task);
+        }
+        executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
+    }
+
+    public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
+        Class<B> entity = getAndSetBullhornEntityInfo();
+        while (csvReader.readRecord()) {
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
+            LoadAttachmentTask task = new LoadAttachmentTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            executorService.execute(task);
+        }
+        executorService.shutdown();
+        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        printUtil.printActionTotals(actionTotals);
+    }
+
+    public void runDeleteAttachmentsProcess() throws IOException, InterruptedException {
+        Class<B> entity = getAndSetBullhornEntityInfo();
+        while (csvReader.readRecord()) {
+            LinkedHashMap<String, String> dataMap = getCsvDataMap();
+            DeleteAttachmentTask task = new DeleteAttachmentTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            executorService.execute(task);
+        }
+        executorService.shutdown();
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(actionTotals);
     }
 
@@ -86,42 +135,6 @@ public class ConcurrencyService<B extends BullhornEntity> {
             return countryNameToIdMap;
         }
         return null;
-    }
-
-    public void runDeleteProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
-        while (csvReader.readRecord()) {
-            LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteTask deleteTask = new DeleteTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-            executorService.execute(deleteTask );
-        }
-        executorService.shutdown();
-        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
-        printUtil.printActionTotals(actionTotals);
-    }
-
-    public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
-        while (csvReader.readRecord()) {
-            LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            LoadAttachmentTask loadAttachmentTask = new LoadAttachmentTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-            executorService.execute(loadAttachmentTask );
-        }
-        executorService.shutdown();
-        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
-        printUtil.printActionTotals(actionTotals);
-    }
-
-    public void runDeleteAttachmentsProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
-        while (csvReader.readRecord()) {
-            LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteAttachmentTask deleteAttachmentTask = new DeleteAttachmentTask(method, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-            executorService.execute(deleteAttachmentTask);
-        }
-        executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
-        printUtil.printActionTotals(actionTotals);
     }
 
     public Map<String, Method> createMethodMap(Class<B> entity) {

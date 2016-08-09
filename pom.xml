@@ -16,6 +16,7 @@
         <coveralls-version>4.2.0</coveralls-version>
         <jacoco-version>0.7.7.201606060606</jacoco-version>
         <sdk-rest-version>1.1.13</sdk-rest-version>
+        <apache-tika-version>1.13</apache-tika-version>
         <java.version>1.8</java.version>
         <javacsv.version>2.0</javacsv.version>
         <junit.version>4.12</junit.version>
@@ -36,6 +37,12 @@
             <groupId>com.bullhorn</groupId>
             <artifactId>sdk-rest</artifactId>
             <version>${sdk-rest-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers</artifactId>
+            <version>${apache-tika-version}</version>
         </dependency>
 
         <dependency>
