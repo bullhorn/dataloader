@@ -14,6 +14,7 @@
 
     <properties>
         <coveralls-version>4.2.0</coveralls-version>
+        <jacoco-version>0.7.7.201606060606</jacoco-version>
         <sdk-rest-version>1.1.13</sdk-rest-version>
         <java.version>1.8</java.version>
         <javacsv.version>2.0</javacsv.version>
@@ -156,6 +157,19 @@
                 <configuration>
                     <repoToken>${env.COVERALLS_REPO_TOKEN}</repoToken>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco-version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
