@@ -27,6 +27,7 @@ import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
@@ -56,6 +57,7 @@ public class LoadTaskTest {
     private LoadTask task;
     private PropertyFileUtil candidateIdProperties;
     private PropertyFileUtil candidateExternalIdProperties;
+    private PropertyValidation propertyValidation;
     private ConcurrencyService service;
 
     @Before
@@ -66,13 +68,14 @@ public class LoadTaskTest {
         bullhornData = Mockito.mock(BullhornData.class);
         actionTotals = Mockito.mock(ActionTotals.class);
         printUtil = Mockito.mock(PrintUtil.class);
+        propertyValidation = new PropertyValidation();
 
         // Load in properties files for testing candidateExistField=id and candidateExistField=ExternalID
-        final String CandidateIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateID.properties");
-        candidateIdProperties = new PropertyFileUtil(CandidateIdPropertiesFile);
+        final String CandidateIdPropertiesFile = getFilePath("loadTaskTest/LoadTaskTest_CandidateID.properties");
+        candidateIdProperties = new PropertyFileUtil(CandidateIdPropertiesFile, propertyValidation, printUtil);
 
-        final String CandidateExternalIdPropertiesFile = getFilePath("loadAttachmentTaskTest/LoadAttachmentTaskTest_CandidateExternalID.properties");
-        candidateExternalIdProperties = new PropertyFileUtil(CandidateExternalIdPropertiesFile);
+        final String CandidateExternalIdPropertiesFile = getFilePath("loadTaskTest/LoadTaskTest_CandidateExternalID.properties");
+        candidateExternalIdProperties = new PropertyFileUtil(CandidateExternalIdPropertiesFile, propertyValidation, printUtil);
 
         service = new ConcurrencyService(Command.LOAD_ATTACHMENTS, "Candidate", csvReader, csvFileWriter, executorService, candidateExternalIdProperties, bullhornData, printUtil, actionTotals);
         methodMap = service.createMethodMap(Candidate.class);
