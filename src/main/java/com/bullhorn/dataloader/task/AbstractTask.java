@@ -135,10 +135,24 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    protected <S extends SearchEntity> List<B> searchForEntity() {
+    protected List<B> findEntityList() {
+        if (SearchEntity.class.isAssignableFrom(entityClass)){
+            return searchForEntity();
+        } else {
+            return queryForEntity();
+        }
+    }
+
+    private <S extends SearchEntity> List<B> searchForEntity() {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
         String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+    }
+
+    private <Q extends QueryEntity> List<B> queryForEntity() {
+        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatment(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
@@ -146,7 +160,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
-    private String getWhereStatment(String field, String value, Class fieldType) {
+    protected String getWhereStatment(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType)) {
             return  field + "=" + value;
         } else if(String.class.equals(fieldType)) {
