@@ -270,7 +270,7 @@ public class CommandLineInterfaceTest {
         Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
 
         Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.any());
+        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
     }
 
     @Test
@@ -295,7 +295,7 @@ public class CommandLineInterfaceTest {
         Mockito.verify(templateServiceMock, Mockito.never()).run(Mockito.any());
 
         Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.any());
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
 
 }

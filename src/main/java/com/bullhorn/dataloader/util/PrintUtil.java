@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -58,7 +61,17 @@ public class PrintUtil {
      */
     public void printAndLog(String line) {
         System.out.println(line);
-        log(line);
+        log.info(line);
+    }
+
+    /**
+     * Prints an error to the console and logs the error with stacktrace to the logfile
+     */
+    public void printAndLog(Exception e) {
+        System.out.println("ERROR: " + e.toString());
+        StringWriter stackTrace = new StringWriter();
+        e.printStackTrace(new PrintWriter(stackTrace));
+        log.error(stackTrace.toString());
     }
 
     /**

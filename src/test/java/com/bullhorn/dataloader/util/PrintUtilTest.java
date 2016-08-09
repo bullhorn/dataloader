@@ -1,9 +1,6 @@
 package com.bullhorn.dataloader.util;
 
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 import java.io.PrintStream;
 
@@ -22,7 +19,7 @@ public class PrintUtilTest {
 
         printUtil.printUsage();
 
-        verify(out).println(contains(usage));
+        Mockito.verify(out).println(Mockito.contains(usage));
     }
 
     @Test
@@ -33,9 +30,9 @@ public class PrintUtilTest {
 
         printUtil.printEntityError(entity, warning);
 
-        verify(printUtil, times(6)).printAndLog(anyString());
-        verify(printUtil, times(1)).printAndLog("ERROR: " + warning + " entity: \"" + entity + "\"");
-        verify(printUtil, times(1)).printAndLog("       The entity is " + warning + " in REST and cannot be changed by DataLoader.\"");
+        Mockito.verify(printUtil, Mockito.times(6)).printAndLog(Mockito.anyString());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("ERROR: " + warning + " entity: \"" + entity + "\"");
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("       The entity is " + warning + " in REST and cannot be changed by DataLoader.\"");
     }
 
     @Test
@@ -45,8 +42,8 @@ public class PrintUtilTest {
 
         printUtil.printUnknownEntityError(entity);
 
-        verify(printUtil, times(6)).printAndLog(anyString());
-        verify(printUtil, times(1)).printAndLog("ERROR: Unknown entity: \"" + entity + "\"");
+        Mockito.verify(printUtil, Mockito.times(6)).printAndLog(anyString());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("ERROR: Unknown entity: \"" + entity + "\"");
     }
 
     @Test
@@ -57,24 +54,50 @@ public class PrintUtilTest {
 
         printUtil.printActionTotals(totals);
 
-        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
-        verify(printUtil, times(1)).printAndLog("Total records inserted: " + totals.getTotalInsert());
-        verify(printUtil, times(1)).printAndLog("Total records updated: " + totals.getTotalUpdate());
-        verify(printUtil, times(1)).printAndLog("Total records deleted: " + totals.getTotalDelete());
-        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getTotalError());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records inserted: " + totals.getTotalInsert());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records updated: " + totals.getTotalUpdate());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records deleted: " + totals.getTotalDelete());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getTotalError());
     }
 
     @Test
-    public void testPrintAndLog() {
+    public void testPrintAndLogString() {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         final PrintStream out = Mockito.mock(PrintStream.class);
-        final String string = "Testing Print and Log";
+        final String expected = "Testing Print and Log";
         System.setOut(out);
         out.flush();
 
-        printUtil.printAndLog(string);
+        printUtil.printAndLog(expected);
 
-        verify(out).println(contains(string));
+        Mockito.verify(out).println(Mockito.contains(expected));
+    }
+
+    @Test
+    public void testPrintAndLogException() {
+        final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
+        final Exception e = new Exception("Test Exception");
+        final PrintStream out = Mockito.mock(PrintStream.class);
+        final String expected = "ERROR: java.lang.Exception: Test Exception";
+        System.setOut(out);
+        out.flush();
+
+        printUtil.printAndLog(e);
+
+        Mockito.verify(out).println(Mockito.contains(expected));
+    }
+
+    @Test
+    public void testLog() {
+        final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
+        final PrintStream out = Mockito.mock(PrintStream.class);
+        System.setOut(out);
+        out.flush();
+
+        printUtil.log("Test Log");
+
+        Mockito.verify(out, Mockito.never()).println(Mockito.anyString());
     }
 }
