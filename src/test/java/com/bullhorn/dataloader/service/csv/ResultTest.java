@@ -1,12 +1,11 @@
 package com.bullhorn.dataloader.service.csv;
 
-import java.util.Set;
-
+import com.bullhorn.dataloader.util.Timer;
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.bullhorn.dataloader.util.Timer;
-import com.google.common.collect.Sets;
+import java.util.Set;
 
 public class ResultTest {
 
@@ -58,13 +57,13 @@ public class ResultTest {
 
     @Test
     public void testFailure() {
-        final Result result = Result.Failure("Message 1");
+        final Result result = Result.Failure(new Exception("Message 1"));
 
         Assert.assertEquals(result.isSuccess(), false);
         Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
         Assert.assertEquals(result.getAction(), Result.Action.NOT_SET);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
-        Assert.assertEquals(result.getFailureText(), "Message 1");
+        Assert.assertEquals(result.getFailureText(), "java.lang.Exception: Message 1");
     }
 
     @Test
@@ -108,7 +107,7 @@ public class ResultTest {
     public void testEquals_status() {
         final Result result1 = Result.Insert(99);
         final Result result2 = Result.Insert(99);
-        final Result different = Result.Failure("");
+        final Result different = Result.Failure(new Exception());
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -136,9 +135,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_failureText() {
-        final Result result1 = Result.Failure("Message 1");
-        final Result result2 = Result.Failure("Message 1");
-        final Result different = Result.Failure("Message 2");
+        final Result result1 = Result.Failure(new Exception("Message 1"));
+        final Result result2 = Result.Failure(new Exception("Message 1"));
+        final Result different = Result.Failure(new Exception("Message 2"));
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -148,8 +147,8 @@ public class ResultTest {
     public void testHashCode_status() {
         final Set<Result> results = Sets.newHashSet();
         results.add(Result.Insert(99));
-        results.add(Result.Failure(""));
-        results.add(Result.Failure(""));
+        results.add(Result.Failure(new Exception("")));
+        results.add(Result.Failure(new Exception("")));
 
         Assert.assertEquals(2, results.size());
     }
@@ -178,9 +177,9 @@ public class ResultTest {
     @Test
     public void testHashCode_failureMessage() {
         final Set<Result> results = Sets.newHashSet();
-        results.add(Result.Failure("Message 1"));
-        results.add(Result.Failure("Message 1"));
-        results.add(Result.Failure("Message 2"));
+        results.add(Result.Failure(new Exception("Message 1")));
+        results.add(Result.Failure(new Exception("Message 1")));
+        results.add(Result.Failure(new Exception("Message 2")));
 
         Assert.assertEquals(2, results.size());
     }
