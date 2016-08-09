@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.task;
 
+import java.util.LinkedHashMap;
+
+import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -10,8 +13,6 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.response.file.FileApiResponse;
-
-import java.util.LinkedHashMap;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
@@ -50,7 +51,7 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
     }
 
     private <F extends FileEntity> FileApiResponse deleteFile() {
-        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(parentEntityID)), Integer.valueOf(dataMap.get(ATTACHMENT_ID)));
+        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(TaskConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(TaskConsts.ATTACHMENT_ID)));
     }
 
 }

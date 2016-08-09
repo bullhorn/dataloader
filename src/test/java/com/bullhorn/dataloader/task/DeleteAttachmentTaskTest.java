@@ -79,7 +79,7 @@ public class DeleteAttachmentTaskTest {
     @Test
     public void deleteAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
-        final Result expectedResult = Result.Failure(new RestApiException("Test").toString());
+        final Result expectedResult = Result.Failure(new RestApiException("Test"));
         task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(bullhornData.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 

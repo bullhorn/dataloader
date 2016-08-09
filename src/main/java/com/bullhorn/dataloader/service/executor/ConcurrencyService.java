@@ -1,5 +1,15 @@
 package com.bullhorn.dataloader.service.executor;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -17,16 +27,6 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -124,7 +124,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         printUtil.printActionTotals(actionTotals);
     }
 
-    protected Map<String, Method> createMethodMap(Class<B> entity) {
+    public Map<String, Method> createMethodMap(Class<B> entity) {
         Map<String, Method> methodMap = new HashMap();
         for (Method method : Arrays.asList(entity.getMethods())){
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {

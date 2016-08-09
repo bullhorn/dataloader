@@ -27,10 +27,13 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
@@ -68,7 +71,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected  void addParentEntityIDtoDataMap() {
-        dataMap.put(TaskConsts.parentEntityID, bullhornParentId.toString());
+        dataMap.put(TaskConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
     protected void writeToResultCSV(Result result) {
@@ -107,7 +110,15 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected Result handleFailure(Exception e) {
         printUtil.printAndLog(e);
-        return Result.Failure(e.toString());
+        return Result.Failure(e);
+    }
+
+    protected Result handleFailure(Exception e, Integer entityID) {
+        printUtil.printAndLog(e);
+        if (entityID!=null){
+            return Result.Failure(e, entityID);
+        }
+        return Result.Failure(e);
     }
 
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
@@ -125,10 +136,24 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    protected <S extends SearchEntity> List<B> searchForEntity() {
+    protected List<B> findEntityList() {
+        if (SearchEntity.class.isAssignableFrom(entityClass)){
+            return searchForEntity();
+        } else {
+            return queryForEntity();
+        }
+    }
+
+    private <S extends SearchEntity> List<B> searchForEntity() {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
         String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+    }
+
+    private <Q extends QueryEntity> List<B> queryForEntity() {
+        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatment(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
@@ -136,7 +161,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
-    private String getWhereStatment(String field, String value, Class fieldType) {
+    protected String getWhereStatment(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType)) {
             return  field + "=" + value;
         } else if(String.class.equals(fieldType)) {
@@ -183,6 +208,17 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
         String getMethodName = "get"+fieldName;
         return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
+    }
+
+    protected void checkForRestSdkErrorMessages(CrudResponse response) {
+        if (!response.getMessages().isEmpty() && response.getChangedEntityId()==null){
+            StringBuilder sb = new StringBuilder();
+            for (Message message : response.getMessages()){
+                sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
+                sb.append("\n");
+            }
+            throw new RestApiException("Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
+        }
     }
 
 }

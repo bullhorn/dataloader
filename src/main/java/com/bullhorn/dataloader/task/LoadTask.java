@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,9 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -39,12 +42,12 @@ import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
-import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
@@ -53,7 +56,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     private Map<String, Integer> countryNameToIdMap;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
-    private B entity;
+    protected B entity;
     private Integer entityID;
     private boolean isNewEntity = true;
 
@@ -79,7 +82,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         try {
             result = handle();
         } catch(Exception e){
-            result = handleFailure(e);
+            result = handleFailure(e, entityID);
         }
         writeToResultCSV(result);
     }
@@ -87,9 +90,41 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     private Result handle() throws Exception {
         createEntityObject();
         handleData();
+        insertAttachmentToDescription();
         insertOrUpdateEntity();
         createNewAssociations();
         return createResult();
+    }
+
+    protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
+        String descriptionMethod = getDescriptionMethod();
+        if (!"".equals(descriptionMethod)){
+            String attachmentFilePath = getAttachmentFilePath(entityClass.getSimpleName(), dataMap.get("externalID"));
+            File convertedAttachment = new File(attachmentFilePath);
+            if (convertedAttachment.exists()) {
+                String description = FileUtils.readFileToString(convertedAttachment);
+                methodMap.get(descriptionMethod).invoke(entity, description);
+            }
+        }
+    }
+
+    protected String getDescriptionMethod() {
+        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(TaskConsts.DESCRIPTION)).collect(Collectors.toList());
+        if (descriptionMethods.size() > 0) {
+            if (descriptionMethods.indexOf(TaskConsts.DESCRIPTION) > -1) {
+                return TaskConsts.DESCRIPTION;
+            }
+            else {
+                return descriptionMethods.get(0);
+            }
+        }
+        else {
+            return "";
+        }
+    }
+
+    protected String getAttachmentFilePath(String entityName, String externalID) {
+        return "convertedAttachments/" + entityName + "/" + externalID + ".html";
     }
 
     private Result createResult() {
@@ -101,7 +136,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private void createEntityObject() throws Exception {
-        List<B> existingEntityList = searchForEntity();
+        List<B> existingEntityList = findEntityList();
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found " +
@@ -125,17 +160,6 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         } else {
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
-        }
-    }
-
-    private void checkForRestSdkErrorMessages(CrudResponse response) {
-        if (!response.getMessages().isEmpty() && response.getChangedEntityId()==null){
-            StringBuilder sb = new StringBuilder();
-            for (Message message : response.getMessages()){
-                sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
-                sb.append("\n");
-            }
-            throw new RestApiException("Error occurred when inserting new record:\n" + sb.toString());
         }
     }
 
@@ -201,14 +225,16 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
-        B toOneEntity;
         Class fieldType = getFieldType(toOneEntityClass, fieldName);
+        return findEntity(field, fieldName, toOneEntityClass, fieldType);
+    }
+
+    private B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
-            toOneEntity = searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
+            return searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         } else {
-            toOneEntity = queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
+            return queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         }
-        return toOneEntity;
     }
 
     private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
@@ -256,7 +282,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        String associationName = field.substring(0,field.indexOf("."));
+        String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
 
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
@@ -293,9 +319,10 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return associationIdList;
     }
 
-    private List<B> getExistingAssociations(String field, AssociationField associationField, Set<String> valueSet) {
-        String where = getWhereStatement(valueSet, field);
-        return bullhornData.query(associationField.getAssociationType(), where, null, ParamFactory.queryParams()).getData();
+    private <Q extends QueryEntity> List<B> getExistingAssociations(String field, AssociationField associationField, Set<String> valueSet) {
+        Class<B> associationClass = associationField.getAssociationType();
+        String where = getWhereStatement(valueSet, field, associationClass);
+        return (List<B>) bullhornData.query((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
     }
 
     private Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
@@ -307,9 +334,9 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private String getWhereStatement(Set<String> valueSet, String field) {
+    private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> fieldName + " = '" + n + "'").collect(Collectors.joining(" OR "));
+        return valueSet.stream().map(n -> getWhereStatment(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
     }
 
     private List<AssociationField<A, B>> getAssociationFields() {

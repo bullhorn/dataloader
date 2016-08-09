@@ -54,11 +54,22 @@ public class Result {
     /**
      * Failure convenience constructor
      *
-     * @param failureText The error text for this failure result
+     * @param exception The exception for this failure result
      * @return The new Result object
      */
-    public static Result Failure(String failureText) {
-        return new Result(Status.FAILURE, Action.NOT_SET, -1, failureText);
+    public static Result Failure(Exception exception) {
+        return new Result(Status.FAILURE, Action.NOT_SET, -1, exception.toString());
+    }
+
+    /**
+     * Failure convenience constructor
+     *
+     * @param exception The exception for this failure result
+     * @param bullhornID The id of the Bullhorn entity
+     * @return The new Result object
+     */
+    public static Result Failure(Exception exception, Integer bullhornID) {
+        return new Result(Status.FAILURE, Action.NOT_SET, bullhornID, exception.toString());
     }
 
     private Status status = Status.NOT_SET;
