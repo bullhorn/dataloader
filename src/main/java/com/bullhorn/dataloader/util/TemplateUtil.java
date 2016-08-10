@@ -55,21 +55,15 @@ public class TemplateUtil<B extends BullhornEntity> {
 
     private void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) {
         for (Field field : metaFieldSet) {
-            try{
-
-                if (!isCompositeType(field) && !hasId(metaFieldSet, field.getName())) {
+            if (!isCompositeType(field) && !hasId(metaFieldSet, field.getName())) {
                 headers.add(field.getName());
                 dataTypes.add(field.getDataType());
-            } else if (!hasId(metaFieldSet, field.getName())){
+            } else if (isCompositeType(field) && !hasId(metaFieldSet, field.getName())) {
                 List<Method> compositeMethodList = getCompositeMethodList(entity, field);
                 compositeMethodList.stream().forEach(n -> headers.add(getCompositeHeaderName(n, field)));
                 compositeMethodList.stream().forEach(n -> dataTypes.add(n.getReturnType().getSimpleName()));
             }
         }
-            catch(Exception e) {
-                System.out.println(e);
-            }}
-
     }
 
     private String getCompositeHeaderName(Method method, Field field) {
