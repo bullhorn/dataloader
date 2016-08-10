@@ -34,7 +34,7 @@ public class LoadService extends AbstractService implements Action {
 		SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath);
 		for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
 			String entityName = entityFileEntry.getKey().getEntityName();
-			if (validationUtil.isLoadableEntity(entityName)) {
+			if (validationUtil.isLoadableEntity(entityName, false)) {
 				for (String fileName : entityFileEntry.getValue()) {
 					try {
 						printUtil.printAndLog("Loading " + entityName + " records from: " + fileName + "...");
@@ -59,11 +59,7 @@ public class LoadService extends AbstractService implements Action {
 		String filePath = args[1];
 		File file = new File(filePath);
 		if (file.isDirectory()) {
-			String[] files = file.list();
-			if (files.length == 0) {
-				printUtil.printAndLog("ERROR: Directory: " + filePath + " is empty.");
-				return false;
-			} else if (getValidCsvFilesFromPath(filePath).isEmpty()) {
+			if (getValidCsvFilesFromPath(filePath).isEmpty()) {
                 printUtil.printAndLog("ERROR: Could not find any valid CSV files (with entity name) to load from directory: " + filePath);
 				return false;
 			}

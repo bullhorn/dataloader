@@ -45,7 +45,7 @@ public class LoadServiceTest {
 	}
 	
 	@Test
-	public void testRun() throws Exception {
+	public void testRun_file() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -54,9 +54,26 @@ public class LoadServiceTest {
 		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
 		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
-	
+
 	@Test
-	public void testIsValidArguments() throws Exception {
+	public void testRun_directory() throws Exception {
+		final String filePath = getFilePath("loadFromDirectory");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		loadService.run(testArgs);
+
+		Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
+		Mockito.verify(printUtilMock, Mockito.times(8)).printAndLog(Mockito.anyString());
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testRun_invalidThrowsException() throws Exception {
+		final String[] testArgs = {Command.LOAD.getMethodName()};
+		loadService.run(testArgs);
+	}
+
+	@Test
+	public void testIsValidArguments_File() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -129,6 +146,28 @@ public class LoadServiceTest {
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("Certification", "read only");
+	}
+
+	@Test
+	public void testIsValidArguments_Directory() throws Exception {
+		final String filePath = getFilePath("loadFromDirectory");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		final boolean actualResult = loadService.isValidArguments(testArgs);
+
+		Assert.assertTrue(actualResult);
+		Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+	}
+
+	@Test
+	public void testIsValidArguments_noCsvFiles() throws Exception {
+		final String filePath = getFilePath("loadFromDirectory/badDirectory");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		final boolean actualResult = loadService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
 	}
 
 	@Test

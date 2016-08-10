@@ -126,7 +126,7 @@ public abstract class AbstractService {
         if (file.isDirectory()) {
             for (String fileName : file.list()) {
                 String absoluteFilePath = file.getAbsolutePath() + File.separator + fileName;
-                if (validationUtil.isValidCsvFile(absoluteFilePath)) {
+                if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
                     Entity entity = extractEntityFromFileName(fileName);
                     if (entity != null) {
                         if (!entityToFileListMap.containsKey(entity)) {
@@ -138,7 +138,7 @@ public abstract class AbstractService {
                 }
             }
         } else {
-            if (validationUtil.isValidCsvFile(filePath)) {
+            if (validationUtil.isValidCsvFile(filePath, false)) {
                 Entity entity = extractEntityFromFileName(filePath);
                 if (entity != null) {
                     entityToFileListMap.put(entity, Arrays.asList(filePath));
