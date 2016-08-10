@@ -54,7 +54,7 @@ public class ConvertAttachmentTaskTest {
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id","1");
-        dataMap.put("relativeFilePath","src\\test\\resources\\testResume\\Test Resume.doc");
+        dataMap.put("relativeFilePath","src\\test\\resources\\testResume\\TestResume.doc");
         dataMap.put("isResume","0");
 
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
