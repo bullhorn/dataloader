@@ -56,7 +56,18 @@ public class LoadServiceTest {
 	}
 
 	@Test
-	public void testRun_directory() throws Exception {
+	public void testRun_directoryOneFile() throws Exception {
+		final String filePath = getFilePath("loadFromDirectory/ClientContact");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		loadService.run(testArgs);
+
+		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
+		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+	}
+
+	@Test
+	public void testRun_directoryFourFiles() throws Exception {
 		final String filePath = getFilePath("loadFromDirectory");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -161,7 +172,18 @@ public class LoadServiceTest {
 
 	@Test
 	public void testIsValidArguments_noCsvFiles() throws Exception {
-		final String filePath = getFilePath("loadFromDirectory/badDirectory");
+		final String filePath = getFilePath("testResume");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		final boolean actualResult = loadService.isValidArguments(testArgs);
+
+		Assert.assertFalse(actualResult);
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+	}
+
+	@Test
+	public void testIsValidArguments_noLoadableCsvFiles() throws Exception {
+		final String filePath = getFilePath("loadFromDirectory/businessSector");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
 		final boolean actualResult = loadService.isValidArguments(testArgs);
