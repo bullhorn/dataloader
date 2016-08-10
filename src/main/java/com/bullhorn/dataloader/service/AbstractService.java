@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -110,6 +112,45 @@ public abstract class AbstractService {
     }
 
     /**
+     * Given a file or directory, this method will determine all valid CSV files that can be used by DataLoader and
+     * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
+     * argument, this lits will be either empty or contain exactly one matching entity to filename.
+     *
+     * @param filePath any file or directory
+     * @return a Map of entity enums to lists of valid files.
+     */
+    protected SortedMap<Entity, List<String>> getValidCsvFilesFromPath(String filePath) {
+        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(Entity.loadOrderComparator);
+
+        File file = new File(filePath);
+        if (file.isDirectory()) {
+            for (String fileName : file.list()) {
+                String absoluteFilePath = file.getAbsolutePath() + File.separator + fileName;
+                if (validationUtil.isValidCsvFile(absoluteFilePath)) {
+                    Entity entity = extractEntityFromFileName(fileName);
+                    if (entity != null) {
+                        if (!entityToFileListMap.containsKey(entity)) {
+                            entityToFileListMap.put(entity, new ArrayList<>());
+                        }
+                        List<String> files = entityToFileListMap.get(entity);
+                        files.add(absoluteFilePath);
+                    }
+                }
+            }
+        } else {
+            if (validationUtil.isValidCsvFile(filePath)) {
+                Entity entity = extractEntityFromFileName(filePath);
+                if (entity != null) {
+                    entityToFileListMap.put(entity, Arrays.asList(filePath));
+                }
+            }
+        }
+
+        return entityToFileListMap;
+    }
+
+
+    /**
      * Extractions entity name from a file path.
      *
      * The file name must start with the name of the entity
@@ -117,28 +158,47 @@ public abstract class AbstractService {
      * @param fileName path from which to extract entity name
      * @return the SDK-Rest name of the entity, or null if not found
      */
-	protected String extractEntityNameFromFileName(String fileName) {
-		File file = new File(fileName);
+    protected String extractEntityNameFromFileName(String fileName) {
+        Entity bestMatch = null;
+        bestMatch = extractEntityFromFileName(fileName);
 
-		String upperCaseFileName = file.getName().toUpperCase();
-		Entity bestMatch = null;
-		for (Entity entity: Entity.values()) {
-			if (upperCaseFileName.startsWith(entity.getUpperCase())) {
-				if (bestMatch == null) {
-					bestMatch = entity;
-				} else if (bestMatch.getEntityName().length() < entity.getEntityName().length()) {
-					// longer name is better
-					bestMatch = entity;
-				}
-			}
-		}
+        if (bestMatch == null) {
+            return null;
+        } else {
+            return bestMatch.getEntityName();
+        }
+    }
 
-		if (bestMatch == null) {
-			return null;
-		} else {
-			return bestMatch.getEntityName();
-		}
-	}
+    /**
+     * Extractions entity type from a file path.
+     *
+     * The file name must start with the name of the entity
+     *
+     * @param fileName path from which to extract entity name
+     * @return the SDK-Rest entity, or null if not found
+     */
+    protected Entity extractEntityFromFileName(String fileName) {
+        File file = new File(fileName);
+
+        String upperCaseFileName = file.getName().toUpperCase();
+        Entity bestMatch = null;
+        for (Entity entity: Entity.values()) {
+            if (upperCaseFileName.startsWith(entity.getUpperCase())) {
+                if (bestMatch == null) {
+                    bestMatch = entity;
+                } else if (bestMatch.getEntityName().length() < entity.getEntityName().length()) {
+                    // longer name is better
+                    bestMatch = entity;
+                }
+            }
+        }
+
+        if (bestMatch == null) {
+            return null;
+        } else {
+            return bestMatch;
+        }
+    }
 
 	/**
 	 * Return properly capitalize SDK-REST entity name from a string with any capitalization
