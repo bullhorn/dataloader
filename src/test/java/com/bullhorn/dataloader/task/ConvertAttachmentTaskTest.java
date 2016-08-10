@@ -16,6 +16,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -54,7 +55,7 @@ public class ConvertAttachmentTaskTest {
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id","1");
-        dataMap.put("relativeFilePath","src\\test\\resources\\testResume\\TestResume.doc");
+        dataMap.put("relativeFilePath",getFilePath("testResume/testResume.doc"));
         dataMap.put("isResume","0");
 
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
@@ -83,7 +84,9 @@ public class ConvertAttachmentTaskTest {
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
-
-
+    private String getFilePath(String filename) {
+        final ClassLoader classLoader = getClass().getClassLoader();
+        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
+    }
 
 }

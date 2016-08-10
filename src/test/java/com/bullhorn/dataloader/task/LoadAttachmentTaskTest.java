@@ -53,7 +53,7 @@ public class LoadAttachmentTaskTest {
     private LinkedHashMap<String, String> dataMap2;
     private LoadAttachmentTask task;
 
-    private String relativeFilePath = "src\\test\\resources\\testResume\\TestResume.doc";
+    private String relativeFilePath = getFilePath("testResume/TestResume.doc");
 
     @Before
     public void setUp() throws Exception {
