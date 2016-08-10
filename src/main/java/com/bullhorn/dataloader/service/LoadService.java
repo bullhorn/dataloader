@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
@@ -30,7 +29,6 @@ public class LoadService extends AbstractService implements Action {
 			throw new IllegalStateException("invalid command line arguments");
 		}
 
-		// Creating list of all files in the specified directory
 		String filePath = args[1];
 		SortedMap<Entity, List<String>> entityToFileListMap = getLoadableCsvFilesFromPath(filePath);
 		for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
@@ -80,23 +78,4 @@ public class LoadService extends AbstractService implements Action {
 
 		return true;
 	}
-
-    /**
-     * Returns the list of loadable csv files
-     * @param filePath The given file or directory
-     * @return the subset of getValidCsvFilesFromPath that are loadable
-     */
-	private SortedMap<Entity, List<String>> getLoadableCsvFilesFromPath(String filePath) {
-        SortedMap<Entity, List<String>> loadableEntityToFileListMap = new TreeMap<>();
-
-        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath);
-        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            String entityName = entityFileEntry.getKey().getEntityName();
-            if (validationUtil.isLoadableEntity(entityName, false)) {
-                loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
-            }
-        }
-
-        return loadableEntityToFileListMap;
-    }
 }

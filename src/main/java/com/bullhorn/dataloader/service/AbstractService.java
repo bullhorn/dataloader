@@ -5,7 +5,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -117,10 +119,11 @@ public abstract class AbstractService {
      * argument, this lits will be either empty or contain exactly one matching entity to filename.
      *
      * @param filePath any file or directory
+     * @param comparator
      * @return a Map of entity enums to lists of valid files.
      */
-    protected SortedMap<Entity, List<String>> getValidCsvFilesFromPath(String filePath) {
-        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(Entity.loadOrderComparator);
+    protected SortedMap<Entity, List<String>> getValidCsvFilesFromPath(String filePath, Comparator<Entity> comparator) {
+        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         File file = new File(filePath);
         if (file.isDirectory()) {
@@ -149,6 +152,45 @@ public abstract class AbstractService {
         return entityToFileListMap;
     }
 
+    /**
+     * Returns the list of loadable csv files in load order
+     *
+     * @param filePath The given file or directory
+     * @return the subset of getValidCsvFilesFromPath that are loadable
+     */
+    protected SortedMap<Entity, List<String>> getLoadableCsvFilesFromPath(String filePath) {
+        SortedMap<Entity, List<String>> loadableEntityToFileListMap = new TreeMap<>(Entity.loadOrderComparator);
+
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath, Entity.loadOrderComparator);
+        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+            String entityName = entityFileEntry.getKey().getEntityName();
+            if (validationUtil.isLoadableEntity(entityName, false)) {
+                loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
+            }
+        }
+
+        return loadableEntityToFileListMap;
+    }
+
+    /**
+     * Returns the list of deletable csv files in delete order
+     *
+     * @param filePath The given file or directory
+     * @return the subset of getValidCsvFilesFromPath that are deletable
+     */
+    protected SortedMap<Entity, List<String>> getDeletableCsvFilesFromPath(String filePath) {
+        SortedMap<Entity, List<String>> deletableEntityToFileListMap = new TreeMap<>(Entity.deleteOrderComparator);
+
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath, Entity.deleteOrderComparator);
+        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+            String entityName = entityFileEntry.getKey().getEntityName();
+            if (validationUtil.isDeletableEntity(entityName, false)) {
+                deletableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
+            }
+        }
+
+        return deletableEntityToFileListMap;
+    }
 
     /**
      * Extractions entity name from a file path.
@@ -200,7 +242,7 @@ public abstract class AbstractService {
         }
     }
 
-	/**
+    /**
 	 * Return properly capitalize SDK-REST entity name from a string with any capitalization
 	 *
 	 * @param string a string of the entity name
