@@ -71,9 +71,9 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private List<Method> getCompositeMethodList(String entity, Field field) {
-        Class compositeClass = getGetMethod(BullhornEntityInfo.getTypeFromName(entity).getType(), field.getName());
+        Class compositeClass = getGetMethod(BullhornEntityInfo.getTypeFromName(entity).getType(), field.getType());
         List<Method> methodList = new ArrayList<>();
-        for (Method method : Arrays.asList(compositeClass.getMethods())){
+        for (Method method : Arrays.asList(compositeClass.getMethods())) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))
                     && !"getAdditionalProperties".equalsIgnoreCase(method.getName())
                     && !"getClass".equalsIgnoreCase(method.getName())) {
@@ -113,10 +113,6 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private boolean isCompositeType(Field field) {
-        if (field.getDataType() != null) {
-            String dataType = field.getDataType().toLowerCase();
-            return compositeTypes.stream().anyMatch(n -> dataType.contains(n));
-        }
-        return true;
+        return "COMPOSITE".equalsIgnoreCase(field.getType());
     }
 }
