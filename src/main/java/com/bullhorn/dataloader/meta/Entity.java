@@ -91,4 +91,13 @@ public enum Entity {
             return firstEntity.getLoadOrder() - secondEntity.getLoadOrder();
         }
     };
+
+    /**
+     * Comparator for sorting Entity objects in a sorted collection in reverse of the load.
+     */
+    final static public Comparator<Entity> deleteOrderComparator = new Comparator<Entity>() {
+        @Override public int compare(Entity firstEntity, Entity secondEntity) {
+            return secondEntity.getLoadOrder() - firstEntity.getLoadOrder();
+        }
+    };
 }

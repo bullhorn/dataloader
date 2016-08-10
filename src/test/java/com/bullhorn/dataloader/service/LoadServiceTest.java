@@ -199,14 +199,14 @@ public class LoadServiceTest {
 		final SortedMap<Entity, List<String>> expectedMap = new TreeMap<>(Entity.loadOrderComparator);
 		expectedMap.put(Entity.CANDIDATE, Arrays.asList(file.getAbsolutePath()));
 
-		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath(filePath);
+		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath(filePath, Entity.loadOrderComparator);
 
 		Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
 		Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
 	}
 
 	@Test
-	public void testGetValidCsvFilesFromPath_directory() throws Exception {
+	public void testGetLoadableCsvFilesFromPath() throws Exception {
 		final String filePath = getFilePath("loadFromDirectory");
 		final SortedMap<Entity, List<String>> expectedMap = new TreeMap<>(Entity.loadOrderComparator);
 
@@ -219,7 +219,7 @@ public class LoadServiceTest {
 		expectedMap.put(Entity.CANDIDATE, Arrays.asList(candidateFile.getAbsolutePath()));
 		expectedMap.put(Entity.CANDIDATE_WORK_HISTORY, Arrays.asList(candidateWorkHistoryFile.getAbsolutePath()));
 
-		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath(filePath);
+		final SortedMap<Entity, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(filePath);
 
 		Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
 		Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
@@ -227,6 +227,7 @@ public class LoadServiceTest {
 		Assert.assertEquals(actualMap.values().toArray()[2], expectedMap.values().toArray()[2]);
 
 		Set<Map.Entry<Entity, List<String>>> sortedSet = actualMap.entrySet();
+		Assert.assertEquals(3, sortedSet.size());
 		Iterator<Map.Entry<Entity, List<String>>> iter = sortedSet.iterator();
 		Assert.assertEquals(iter.next().getKey(), Entity.CLIENT_CORPORATION);
 		Assert.assertEquals(iter.next().getKey(), Entity.CANDIDATE);
@@ -234,20 +235,20 @@ public class LoadServiceTest {
 	}
 
 	@Test
-	public void testGetValidCsvFilesFromPath_badFile() throws Exception {
-		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath("bad_file.csv");
+	public void testGetLoadableCsvFilesFromPath_badFile() throws Exception {
+		final SortedMap<Entity, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath("bad_file.csv");
 		Assert.assertTrue(actualMap.isEmpty());
 	}
 
 	@Test
-	public void testGetValidCsvFilesFromPath_badDirectory() throws Exception {
-		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath("bad_directory/");
+	public void testGetLoadableCsvFilesFromPath_badDirectory() throws Exception {
+		final SortedMap<Entity, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath("bad_directory/");
 		Assert.assertTrue(actualMap.isEmpty());
 	}
 
 	@Test
-	public void testGetValidCsvFilesFromPath_emptyDirectory() throws Exception {
-		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath(getFilePath("testResume"));
+	public void testGetLoadableCsvFilesFromPath_emptyDirectory() throws Exception {
+		final SortedMap<Entity, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(getFilePath("testResume"));
 		Assert.assertTrue(actualMap.isEmpty());
 	}
 
