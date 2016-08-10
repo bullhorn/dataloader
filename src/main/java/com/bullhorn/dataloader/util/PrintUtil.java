@@ -18,7 +18,9 @@ public class PrintUtil {
         System.out.println("");
         System.out.println("Usage: <action> <parameter>");
         System.out.println("                Load: dataloader load path/to/<EntityName>.csv");
+        System.out.println("                      dataloader load path/to/directory");
         System.out.println("              Delete: dataloader delete path/to/<EntityName>.csv");
+        System.out.println("                      dataloader delete path/to/directory");
         System.out.println("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
         System.out.println("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
         System.out.println("     Create Template: dataloader template <EntityName>");

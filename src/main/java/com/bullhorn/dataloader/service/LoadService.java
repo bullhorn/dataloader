@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
@@ -31,22 +32,20 @@ public class LoadService extends AbstractService implements Action {
 
 		// Creating list of all files in the specified directory
 		String filePath = args[1];
-		SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath);
+		SortedMap<Entity, List<String>> entityToFileListMap = getLoadableCsvFilesFromPath(filePath);
 		for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
 			String entityName = entityFileEntry.getKey().getEntityName();
-			if (validationUtil.isLoadableEntity(entityName, false)) {
-				for (String fileName : entityFileEntry.getValue()) {
-					try {
-						printUtil.printAndLog("Loading " + entityName + " records from: " + fileName + "...");
-						ConcurrencyService concurrencyService = createConcurrencyService(Command.LOAD, entityName, fileName);
-						timer.start();
-						concurrencyService.runLoadProcess();
-						printUtil.printAndLog("Finished loading " + entityName + " records in " + timer.getDurationStringHMS());
-					} catch (Exception e) {
-						printUtil.printAndLog("FAILED to load: " + entityName + " records - " + e.getMessage());
-					}
-				}
-			}
+            for (String fileName : entityFileEntry.getValue()) {
+                try {
+                    printUtil.printAndLog("Loading " + entityName + " records from: " + fileName + "...");
+                    ConcurrencyService concurrencyService = createConcurrencyService(Command.LOAD, entityName, fileName);
+                    timer.start();
+                    concurrencyService.runLoadProcess();
+                    printUtil.printAndLog("Finished loading " + entityName + " records in " + timer.getDurationStringHMS());
+                } catch (Exception e) {
+                    printUtil.printAndLog("FAILED to load: " + entityName + " records - " + e.getMessage());
+                }
+            }
 		}
 	}
 
@@ -59,7 +58,7 @@ public class LoadService extends AbstractService implements Action {
 		String filePath = args[1];
 		File file = new File(filePath);
 		if (file.isDirectory()) {
-			if (getValidCsvFilesFromPath(filePath).isEmpty()) {
+			if (getLoadableCsvFilesFromPath(filePath).isEmpty()) {
                 printUtil.printAndLog("ERROR: Could not find any valid CSV files (with entity name) to load from directory: " + filePath);
 				return false;
 			}
@@ -81,4 +80,23 @@ public class LoadService extends AbstractService implements Action {
 
 		return true;
 	}
+
+    /**
+     * Returns the list of loadable csv files
+     * @param filePath The given file or directory
+     * @return the subset of getValidCsvFilesFromPath that are loadable
+     */
+	private SortedMap<Entity, List<String>> getLoadableCsvFilesFromPath(String filePath) {
+        SortedMap<Entity, List<String>> loadableEntityToFileListMap = new TreeMap<>();
+
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath);
+        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+            String entityName = entityFileEntry.getKey().getEntityName();
+            if (validationUtil.isLoadableEntity(entityName, false)) {
+                loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
+            }
+        }
+
+        return loadableEntityToFileListMap;
+    }
 }

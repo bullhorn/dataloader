@@ -64,6 +64,12 @@ dataloader load /path/to/<EntityName>.csv
 
 Update if record is present, Insert otherwise. requires a column for each data field to load. These column names must match the names in entity template. The provided CSV file must start with the name of the entity.
 
+```
+dataloader load /path/to/directory
+```
+
+Performs load for every valid CSV file in the given directory. The order that entities are loaded in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity.
+
 ## Delete
 
 ```
@@ -71,6 +77,12 @@ dataloader delete /path/to/<EntityName>.csv
 ```
 
 The provided CSV file only requires an `id` column. This column will contain the Bullhorn internal IDs of the records to delete. The provided CSV file must start with the name of the entity.
+
+```
+dataloader delete /path/to/directory
+```
+
+Performs delete for every valid CSV file in the given directory. The order that entities are deleted in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity.
 
 ## Load Attachments
 
