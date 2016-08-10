@@ -9,13 +9,13 @@ import java.io.IOException;
 /**
  * Given a command, this class builds the action that is required to execute that command.
  */
-public class ActionBuilder {
+public class ActionFactory {
 
     final private PrintUtil printUtil;
     final private ValidationUtil validationUtil;
     final private PropertyFileUtil propertyFileUtil;
 
-    public ActionBuilder(PrintUtil printUtil,
+    public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ValidationUtil validationUtil) {
         this.printUtil = printUtil;

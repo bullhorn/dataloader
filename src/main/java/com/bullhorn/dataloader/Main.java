@@ -2,7 +2,7 @@ package com.bullhorn.dataloader;
 
 import java.io.IOException;
 
-import com.bullhorn.dataloader.service.ActionBuilder;
+import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.service.CommandLineInterface;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -26,9 +26,9 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            ActionBuilder actionBuilder = new ActionBuilder(printUtil, propertyFileUtil, validationUtil);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil);
 
-            CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionBuilder);
+            CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
             commandLineInterface.start(args);
         } catch (IOException e) {
             System.out.println(e);
