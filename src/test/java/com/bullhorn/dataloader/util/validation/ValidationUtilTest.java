@@ -24,28 +24,55 @@ public class ValidationUtilTest {
     @Test
     public void testIsValidCsvFile() {
         String path = getFilePath("Candidate_Valid_File.csv");
-        validationUtil.isValidCsvFile(path);
+        Boolean actualResult = validationUtil.isValidCsvFile(path);
+        Assert.assertTrue(actualResult);
         Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
     }
 
     @Test
     public void testIsValidCsvFile_badFile() {
-        validationUtil.isValidCsvFile("bogus/file/path.csv");
+        Boolean actualResult = validationUtil.isValidCsvFile("bogus/file/path.csv");
+        Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("ERROR: Cannot access: bogus/file/path.csv");
+    }
+
+    @Test
+    public void testIsValidCsvFile_badFile_noPrint() {
+        Boolean actualResult = validationUtil.isValidCsvFile("bogus/file/path.csv", false);
+        Assert.assertFalse(actualResult);
+        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
     }
 
     @Test
     public void testIsValidCsvFile_directory() {
         String path = getFilePath(".");
-        validationUtil.isValidCsvFile(path);
+        Boolean actualResult = validationUtil.isValidCsvFile(path);
+        Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("ERROR: Expected a file, but a directory was provided.");
+    }
+
+    @Test
+    public void testIsValidCsvFile_directory_noPrint() {
+        String path = getFilePath(".");
+        Boolean actualResult = validationUtil.isValidCsvFile(path, false);
+        Assert.assertFalse(actualResult);
+        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
     }
 
     @Test
     public void testIsValidCsvFile_nonCsvFile() {
         String path = getFilePath("dataloader.properties");
-        validationUtil.isValidCsvFile(path);
+        Boolean actualResult = validationUtil.isValidCsvFile(path);
+        Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+    }
+
+    @Test
+    public void testIsValidCsvFile_nonCsvFile_noPrint() {
+        String path = getFilePath("dataloader.properties");
+        Boolean actualResult = validationUtil.isValidCsvFile(path, false);
+        Assert.assertFalse(actualResult);
+        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
     }
 
     @Test
@@ -64,10 +91,24 @@ public class ValidationUtilTest {
     }
 
     @Test
+    public void testIsLoadableEntity_readOnly_noPrint() {
+        Assert.assertFalse(validationUtil.isLoadableEntity("BusinessSector", false));
+        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
+    }
+
+    @Test
     public void testIsLoadableEntity_badEntity() {
         Assert.assertFalse(validationUtil.isLoadableEntity("BusinessSectors"));
         Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printUnknownEntityError(Mockito.anyString());
+    }
+
+    @Test
+    public void testIsLoadableEntity_badEntity_noPrint() {
+        Assert.assertFalse(validationUtil.isLoadableEntity("BusinessSectors", false));
+        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
     }
 
     @Test
@@ -86,10 +127,24 @@ public class ValidationUtilTest {
     }
 
     @Test
+    public void testIsDeletableEntity_notDeletable_noPrint() {
+        Assert.assertFalse(validationUtil.isDeletableEntity("BusinessSector", false));
+        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
+    }
+
+    @Test
     public void testIsDeletableEntity_badEntity() {
         Assert.assertFalse(validationUtil.isDeletableEntity("BusinessSectors"));
         Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printUnknownEntityError(Mockito.anyString());
+    }
+
+    @Test
+    public void testIsDeletableEntity_badEntity_noPrint() {
+        Assert.assertFalse(validationUtil.isDeletableEntity("BusinessSectors", false));
+        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
     }
 
     private String getFilePath(String filename) {
