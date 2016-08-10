@@ -1,11 +1,12 @@
 package com.bullhorn.dataloader.util;
 
-import static org.mockito.Matchers.anyString;
+import com.bullhorn.dataloader.service.Command;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.PrintStream;
 
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.mockito.Matchers.anyString;
 
 public class PrintUtilTest {
 
@@ -52,13 +53,27 @@ public class PrintUtilTest {
         ActionTotals totals = new ActionTotals();
         final Integer total = totals.getTotalDelete() + totals.getTotalError() + totals.getTotalInsert() + totals.getTotalUpdate();
 
-        printUtil.printActionTotals(totals);
+        printUtil.printActionTotals(Command.LOAD, totals);
 
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records inserted: " + totals.getTotalInsert());
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records updated: " + totals.getTotalUpdate());
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records deleted: " + totals.getTotalDelete());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getTotalError());
+    }
+
+    @Test
+    public void testPrintActionTotals_CONVERT_ATTACHMENTS() {
+        final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+        final Integer total = totals.getTotalDelete() + totals.getTotalError() + totals.getTotalInsert() + totals.getTotalUpdate();
+
+        printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
+
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records converted: " + totals.getTotalConvert());
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getTotalError());
     }
 

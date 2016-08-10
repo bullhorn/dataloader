@@ -1,21 +1,21 @@
 package com.bullhorn.dataloader.service;
 
-import java.io.IOException;
-
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
+import java.io.IOException;
+
 /**
  * Given a command, this class builds the action that is required to execute that command.
  */
-public class ActionBuilder {
+public class ActionFactory {
 
     final private PrintUtil printUtil;
     final private ValidationUtil validationUtil;
     final private PropertyFileUtil propertyFileUtil;
 
-    public ActionBuilder(PrintUtil printUtil,
+    public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ValidationUtil validationUtil) {
         this.printUtil = printUtil;
@@ -32,6 +32,8 @@ public class ActionBuilder {
         Action action = null;
         if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil, propertyFileUtil, validationUtil);
+        } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
+            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil);
         } else if (command.equals(Command.LOAD)) {
             action = new LoadService(printUtil, propertyFileUtil, validationUtil);
         } else if (command.equals(Command.DELETE)) {

@@ -5,11 +5,11 @@ import com.bullhorn.dataloader.util.PrintUtil;
 public class CommandLineInterface {
 
     PrintUtil printUtil;
-    ActionBuilder actionBuilder;
+    ActionFactory actionFactory;
 
-    public CommandLineInterface(PrintUtil printUtil, ActionBuilder actionBuilder) {
+    public CommandLineInterface(PrintUtil printUtil, ActionFactory actionFactory) {
 		this.printUtil = printUtil;
-        this.actionBuilder = actionBuilder;
+        this.actionFactory = actionFactory;
     }
 
     /**
@@ -42,7 +42,7 @@ public class CommandLineInterface {
         		return;
         	}
 
-            Action action = actionBuilder.getAction(command);
+            Action action = actionFactory.getAction(command);
         	if (!action.isValidArguments(args)) {
         		printUtil.printUsage();
         		return;

@@ -1,16 +1,15 @@
 package com.bullhorn.dataloader.service.csv;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-
-import org.apache.commons.io.FilenameUtils;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
+import org.apache.commons.io.FilenameUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -71,9 +70,11 @@ public class CsvFileWriter {
             headers = ArrayUtil.append(TaskConsts.PARENT_ENTITY_ID, headers);
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ATTACHMENT_ID_COLUMN,
                     ArrayUtil.prepend(ACTION_COLUMN, headers)));
+        } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
+            successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
         } else {
-            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
-                    ArrayUtil.prepend(ACTION_COLUMN, headers)));
+                successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
+                        ArrayUtil.prepend(ACTION_COLUMN, headers)));
         }
         failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
     }
@@ -88,8 +89,12 @@ public class CsvFileWriter {
      */
     public synchronized void writeRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {
-            successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
-                    ArrayUtil.prepend(result.getAction().toString(), data)));
+            if (result.getBullhornId() > -1) {
+                successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
+                        ArrayUtil.prepend(result.getAction().toString(), data)));
+            } else {
+                successCsv.writeRecord(ArrayUtil.prepend(result.getAction().toString(), data));
+            }
             successCsv.flush();
         } else {
             failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), data));

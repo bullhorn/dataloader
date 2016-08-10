@@ -9,7 +9,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
 public class CommandLineInterfaceTest {
 
     private CommandLineInterface commandLineInterface;
-    private ActionBuilder actionBuilderMock;
+    private ActionFactory actionFactoryMock;
     private PrintUtil printUtilMock;
     private LoadService loadServiceMock;
     private DeleteService deleteServiceMock;
@@ -20,8 +20,8 @@ public class CommandLineInterfaceTest {
     @Before
     public void setUp() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
-        actionBuilderMock = Mockito.mock(ActionBuilder.class);
-        commandLineInterface = new CommandLineInterface(printUtilMock, actionBuilderMock);
+        actionFactoryMock = Mockito.mock(ActionFactory.class);
+        commandLineInterface = new CommandLineInterface(printUtilMock, actionFactoryMock);
 
         loadServiceMock = Mockito.mock(LoadService.class);
         deleteServiceMock = Mockito.mock(DeleteService.class);
@@ -29,11 +29,11 @@ public class CommandLineInterfaceTest {
         deleteAttachmentsServiceMock = Mockito.mock(DeleteAttachmentsService.class);
         templateServiceMock = Mockito.mock(TemplateService.class);
 
-        Mockito.doReturn(loadServiceMock).when(actionBuilderMock).getAction(Command.LOAD);
-        Mockito.doReturn(deleteServiceMock).when(actionBuilderMock).getAction(Command.DELETE);
-        Mockito.doReturn(loadAttachmentsServiceMock).when(actionBuilderMock).getAction(Command.LOAD_ATTACHMENTS);
-        Mockito.doReturn(deleteAttachmentsServiceMock).when(actionBuilderMock).getAction(Command.DELETE_ATTACHMENTS);
-        Mockito.doReturn(templateServiceMock).when(actionBuilderMock).getAction(Command.TEMPLATE);
+        Mockito.doReturn(loadServiceMock).when(actionFactoryMock).getAction(Command.LOAD);
+        Mockito.doReturn(deleteServiceMock).when(actionFactoryMock).getAction(Command.DELETE);
+        Mockito.doReturn(loadAttachmentsServiceMock).when(actionFactoryMock).getAction(Command.LOAD_ATTACHMENTS);
+        Mockito.doReturn(deleteAttachmentsServiceMock).when(actionFactoryMock).getAction(Command.DELETE_ATTACHMENTS);
+        Mockito.doReturn(templateServiceMock).when(actionFactoryMock).getAction(Command.TEMPLATE);
 
         // track this call
         Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
