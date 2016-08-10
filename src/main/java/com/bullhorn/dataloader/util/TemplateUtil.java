@@ -71,7 +71,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private List<Method> getCompositeMethodList(String entity, Field field) {
-        Class compositeClass = getGetMethod(BullhornEntityInfo.getTypeFromName(entity).getType(), field.getType());
+        Class compositeClass = getGetMethod(BullhornEntityInfo.getTypeFromName(entity).getType(), field.getName());
         List<Method> methodList = new ArrayList<>();
         for (Method method : Arrays.asList(compositeClass.getMethods())) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))
