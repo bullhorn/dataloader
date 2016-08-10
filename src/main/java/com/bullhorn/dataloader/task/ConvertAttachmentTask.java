@@ -15,10 +15,9 @@ import org.apache.tika.sax.ToXMLContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
@@ -27,6 +26,8 @@ import java.util.LinkedHashMap;
  * Responsible for converting a single row from a CSV input file.
  */
 public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+
+    private String relativeFilePath;
 
     public ConvertAttachmentTask(Command command,
                                  Integer rowNumber,
@@ -70,10 +71,11 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
     }
 
     protected void write(String convertedHTML, File convertedAttachmentFile) throws IOException {
-        FileWriter fw = new FileWriter(convertedAttachmentFile.getAbsoluteFile());
-        BufferedWriter bw = new BufferedWriter(fw);
-        bw.write(convertedHTML);
-        bw.close();
+        FileOutputStream fop = new FileOutputStream(convertedAttachmentFile.getAbsoluteFile());
+        byte[] convertedHTMLInBytes = convertedHTML.getBytes();
+        fop.write(convertedHTMLInBytes);
+        fop.flush();
+        fop.close();
     }
 
     protected String getConvertedAttachmentPath() {

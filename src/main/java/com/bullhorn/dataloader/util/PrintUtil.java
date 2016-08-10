@@ -1,10 +1,11 @@
 package com.bullhorn.dataloader.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
+import com.bullhorn.dataloader.service.Command;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Methods that provide feedback to the user on the command line.
@@ -45,14 +46,18 @@ public class PrintUtil {
         printAndLog("");
     }
 
-    public void printActionTotals(ActionTotals result) {
-        final Integer totalRecords = result.getTotalError() + result.getTotalInsert() + result.getTotalUpdate() + result.getTotalDelete();
+    public void printActionTotals(Command command, ActionTotals result) {
+        final Integer totalRecords = result.getTotalError() + result.getTotalInsert() + result.getTotalUpdate() + result.getTotalDelete() + result.getTotalConvert();
 
         printAndLog("Results of DataLoader run");
         printAndLog("Total records processed: " + totalRecords);
-        printAndLog("Total records inserted: " + result.getTotalInsert());
-        printAndLog("Total records updated: " + result.getTotalUpdate());
-        printAndLog("Total records deleted: " + result.getTotalDelete());
+        if (command.equals(Command.CONVERT_ATTACHMENTS)){
+            printAndLog("Total records converted: " + result.getTotalConvert());
+        } else {
+            printAndLog("Total records inserted: " + result.getTotalInsert());
+            printAndLog("Total records updated: " + result.getTotalUpdate());
+            printAndLog("Total records deleted: " + result.getTotalDelete());
+        }
         printAndLog("Total records failed: " + result.getTotalError());
     }
 
