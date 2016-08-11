@@ -1,2 +1,2 @@
-title,type,clientContact.firstName,clientContact.lastName,description,status,assignedUsers.firstName,assignedUsers.lastName
-Bullhorn Test Opportunity,Contract,Bullhorn,TestClientContact,This is a test Opportunity description.,Active,Jack,White
+title,type,clientCorporation.name,description,status,clientContact.name,reportToClientContact.name,lead.name
+BH41368-F Opportunity,Contact,BH41368-F Company,This is a test Opportunity description.,Active,Contact BH41368F,Contact BH41368F,Lead BH41368F

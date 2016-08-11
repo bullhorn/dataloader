@@ -1,2 +1,2 @@
-firstName,lastName,name,clientCorporation.name,categories.name,address.address1,address.city,address.state,address.zip,address.countryName
-Bullhorn,TestClientContact,Bullhorn TestClientContact,Bullhorn Example Company,Test Category,100 Summer Street,Boston,Massachusetts,2110,United States
+firstName,lastName,name,clientCorporation.name,linkedPerson.name,referredByPerson.name,reportToPerson.name
+Contact,BH41368F,Contact BH41368F,BH41368-F Company,Contact BH41368A,Lead BH41368F,TestClient Contact99
