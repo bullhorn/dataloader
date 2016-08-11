@@ -1,7 +1,5 @@
 package com.bullhorn.dataloader;
 
-import java.io.IOException;
-
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.service.CommandLineInterface;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -21,8 +19,9 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        PrintUtil printUtil = new PrintUtil();
+
         try {
-            PrintUtil printUtil = new PrintUtil();
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
@@ -30,8 +29,8 @@ public class Main {
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
             commandLineInterface.start(args);
-        } catch (IOException e) {
-            System.out.println(e);
+        } catch (Exception e) {
+            printUtil.printAndLog(e);
         }
     }
 }

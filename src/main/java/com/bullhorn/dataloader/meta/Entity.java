@@ -71,4 +71,19 @@ public enum Entity {
 	public String getUpperCase() {
 		return upperCase;
 	}
+
+	/**
+	 * Returns the entity that matches the given string, or null otherwise
+	 *
+	 * @param entityName Any entity name
+	 * @return the entity if it exists, null otherwise
+	 */
+	public static Entity fromString(String entityName) {
+		for (Entity entity : Entity.values()) {
+			if (entity.getEntityName().equalsIgnoreCase(entityName)) {
+				return entity;
+			}
+		}
+		return null;
+	}
 }

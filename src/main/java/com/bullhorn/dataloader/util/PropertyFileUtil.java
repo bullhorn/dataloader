@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.lang.WordUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -142,7 +143,7 @@ public class PropertyFileUtil {
         for (String property : properties.stringPropertyNames()) {
             if (property.endsWith(EXIST_FIELD)) {
                 String entityName = property.split(EXIST_FIELD)[0];
-                String upperCaseEntityName = entityName.substring(0, 1).toUpperCase() + entityName.substring(1);
+                String upperCaseEntityName = WordUtils.capitalize(entityName);
                 entityExistFields.put(upperCaseEntityName, Arrays.asList(properties.getProperty(property).split(",")));
             }
         }

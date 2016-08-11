@@ -1,2 +1,2 @@
-firstName,lastName,name,status,email,phone,primarySkills.name,comments,educationDegree,employeeType,businessSectors.Name
-Bullhorn,TestCandidate,Bullhorn TestCandidate,New Lead,test.candidate@example.com,123-456-7890,Java;Javascript;Angular,This is a Candidate comment.,Masters,W4,Staffing;Development
+firstName,lastName,name,linkedPerson.name,referredByPerson.name
+Candidate,BH41368F,Candidate BH41368F,Contact BH41368F,Lead BH41368F

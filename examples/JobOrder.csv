@@ -1,2 +1,2 @@
-title,salary,skills.name,startDate,description,isOpen,employmentType,address.city,address.state,address.zip,clientContact.id,clientCorporation.id,businessSectors.name
-Example Job,123456.78,Java;Javascript;Angular,06/15/2016,This is a test job description.,TRUE,Contract,Clayton,Missouri,63105,5468575,142719,Architect
+title,employmentType,clientCorporation.name,clientContact.name,reportToClientContact.name
+BH41368-G Job,Contract,BH41368-F Company,Contact BH41368F,Contact BH41368F

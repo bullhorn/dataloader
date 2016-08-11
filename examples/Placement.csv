@@ -1,2 +1,2 @@
-jobOrder.title,candidate.firstName,candidate.lastName,dateBegin,payRate
-Example Job,Bullhorn,TestCandidate,1465862400,12345.67
+customText1,jobOrder.title,candidate.name,employmentType,dateBegin,payRate,billingClientContact.name,statementClientContact.name,vendorClientCorporation.name,approvingClientContact.name,backupApprovingClientContact.name
+extID-P1,BH41368-F Job,Candidate BH41368F,Contract,08/15/2016,12345.67,Contact BH41368F,Contact BH41368F,BH41368-F Company,Contact BH41368F,Contact BH41368F
