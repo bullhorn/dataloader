@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.Set;
 
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
@@ -13,7 +12,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.bullhorn.dataloader.util.validation.PropertyValidation;
-import com.google.common.collect.Sets;
 
 public class PropertyFileUtilTest {
 
@@ -58,16 +56,6 @@ public class PropertyFileUtilTest {
         Assert.assertFalse(propertyFileUtil.getEntityExistFields("businessSector").isPresent());
         Assert.assertFalse(propertyFileUtil.getEntityExistFields("CandidateName").isPresent());
         Assert.assertFalse(propertyFileUtil.getEntityExistFields("BOGUS").isPresent());
-    }
-
-    @Test
-    public void testFrontLoadedEntities() throws IOException {
-        Set<String> expected = Sets.newHashSet(new String[] {"BusinessSector", "Skill", "Category"});
-        Assert.assertEquals(propertyFileUtil.getFrontLoadedEntities(), expected);
-
-        Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("BusinessSector"), true);
-        Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("businessSector"), false);
-        Assert.assertEquals(propertyFileUtil.shouldFrontLoadEntity("BOGUS"), false);
     }
 
     private String getFilePath(String filename) {

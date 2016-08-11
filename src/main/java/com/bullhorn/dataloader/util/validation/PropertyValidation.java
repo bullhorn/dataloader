@@ -1,9 +1,7 @@
 package com.bullhorn.dataloader.util.validation;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.WordUtils;
 
@@ -65,20 +63,6 @@ public class PropertyValidation {
             throw new IllegalArgumentException("DataLoader Properties Error: loginUrl property must not be blank");
         }
         return loginUrl;
-    }
-
-    public void validateFrontLoadedEntities(Set<String> frontLoadedEntities) {
-        final Set<String> entitiesFormatted = new HashSet<>();
-        for (Entity entity : Entity.values()) {
-            entitiesFormatted.add(entity.getEntityName().trim().replaceAll("_", ""));
-        }
-
-        for (String frontLoadedEntity : frontLoadedEntities) {
-            String trimmedFrontLoadedEntity = frontLoadedEntity.trim();
-            if (!entitiesFormatted.contains(trimmedFrontLoadedEntity)) {
-                throw new IllegalArgumentException("DataLoader Properties Error: frontLoadedEntities property contains invalid entity name: " + frontLoadedEntity);
-            }
-        }
     }
 
     public void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {

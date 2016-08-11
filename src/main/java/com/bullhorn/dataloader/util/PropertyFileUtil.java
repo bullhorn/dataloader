@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-import java.util.Set;
 
 import org.apache.commons.lang.WordUtils;
 import org.joda.time.format.DateTimeFormat;
@@ -18,7 +17,6 @@ import org.joda.time.format.DateTimeFormatter;
 import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 /**
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
@@ -31,7 +29,6 @@ public class PropertyFileUtil {
     public static final String CLIENT_SECRET = "clientSecret";
     public static final String DATE_FORMAT = "dateFormat";
     public static final String EXIST_FIELD = "ExistField";
-    public static final String FRONT_LOADED_ENTITIES = "frontLoadedEntities";
     public static final String LIST_DELIMITER = "listDelimiter";
     public static final String LOGIN_URL = "loginUrl";
     public static final String NUM_THREADS = "numThreads";
@@ -51,7 +48,6 @@ public class PropertyFileUtil {
     private String tokenUrl;
     private String loginUrl;
     private Map<String, List<String>> entityExistFieldsMap = Maps.newHashMap();
-    private Set<String> frontLoadedEntities = Sets.newHashSet();
     private String listDelimiter;
     private DateTimeFormatter dateParser;
     private Integer numThreads;
@@ -105,12 +101,6 @@ public class PropertyFileUtil {
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
 
         propertyValidation.validateEntityExistFields(entityExistFieldsMap);
-
-        String frontLoadedEntitiesProperty = properties.getProperty(FRONT_LOADED_ENTITIES);
-        if (!frontLoadedEntitiesProperty.isEmpty()) {
-            this.frontLoadedEntities.addAll(Arrays.asList(frontLoadedEntitiesProperty.split(",")));
-        }
-        propertyValidation.validateFrontLoadedEntities(frontLoadedEntities);
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
@@ -149,25 +139,6 @@ public class PropertyFileUtil {
         }
 
         return entityExistFields;
-    }
-
-    /**
-     * Return the names of all entities to front load
-     *
-     * @return The set of entity names
-     */
-    public Set<String> getFrontLoadedEntities() {
-        return frontLoadedEntities;
-    }
-
-    /**
-     * Returns true if the entity is marked as being front loaded
-     *
-     * @param entity Name of entity
-     * @return True if listed in the property file as an entity to front load
-     */
-    public boolean shouldFrontLoadEntity(String entity) {
-        return frontLoadedEntities.contains(entity);
     }
 
     public String getUsername() {
@@ -231,7 +202,6 @@ public class PropertyFileUtil {
 
         printUtil.log("# Section 3");
         logPropertiesEndingWith(properties, EXIST_FIELD);
-        logPropertyIfExists(properties, FRONT_LOADED_ENTITIES);
 
         printUtil.log("# Section 4");
         logPropertyIfExists(properties, LIST_DELIMITER);
