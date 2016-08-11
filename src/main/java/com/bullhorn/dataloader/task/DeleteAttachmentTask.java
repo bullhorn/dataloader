@@ -12,7 +12,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
-import com.bullhornsdk.data.model.response.file.FileApiResponse;
+import com.bullhornsdk.data.model.file.FileApiResponse;
 
 /**
  * Responsible for deleting a single row from a CSV input file.

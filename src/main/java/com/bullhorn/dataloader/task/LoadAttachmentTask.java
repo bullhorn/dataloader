@@ -1,8 +1,16 @@
 package com.bullhorn.dataloader.task;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
@@ -12,11 +20,14 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
+import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
+import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -26,7 +37,11 @@ import com.google.common.collect.Sets;
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
 
-    public static final String ATTACHMENT = "Attachment";
+    public static final String ATTACHMENT_EXTERNAL_ID_COLUMN = "attachmentExternalID";
+
+    private FileMeta fileMeta;
+    private File attachmentFile;
+    private boolean isNewEntity = true;
 
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
@@ -54,7 +69,9 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     private Result handle() throws Exception {
         getAndSetBullhornID((propertyFileUtil.getEntityExistFields(entityClass.getSimpleName())).get());
         addParentEntityIDtoDataMap();
-        FileWrapper fileWrapper = attachFile();
+        createFileMeta();
+        populateFileMeta();
+        FileWrapper fileWrapper = addOrUpdateFile();
         return Result.Insert(fileWrapper.getId());
     }
 
@@ -76,9 +93,89 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         }
     }
 
-    private <F extends FileEntity> FileWrapper attachFile() {
-        File attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
-        return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, attachmentFile.getName(), ParamFactory.fileParams(), false);
+    private <F extends FileEntity> void createFileMeta() {
+        attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+        fileMeta = new StandardFileMeta();
+
+        List<FileMeta> allFileMetas = bullhornData.getFileMetaData((Class<F>) entityClass, bullhornParentId);
+
+        for (FileMeta curFileMeta : allFileMetas) {
+            if (curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(ATTACHMENT_EXTERNAL_ID_COLUMN))) {
+                try {
+                    isNewEntity = false;
+                    fileMeta = curFileMeta;
+
+                    byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(TaskConsts.RELATIVE_FILE_PATH)));
+                    fileMeta.setFileContent(new String(encoded, Charset.defaultCharset()));
+
+                    break;
+                }
+                catch (IOException ioe) {
+                    // if setting fileContent fails, do insert instead
+                    return;
+                }
+            }
+        }
+    }
+
+    private void populateFileMeta() {
+        Map<String, Method> methodMap = createMethodMap();
+
+        // set values from FileParams
+        Map<String, String> paramsMap = ParamFactory.fileParams().getParameterMap();
+        for (String field : paramsMap.keySet()){
+            populateFieldOnEntity(field, paramsMap.get(field), methodMap);
+        }
+
+        // set values from csv file
+        for (String field : dataMap.keySet()){
+            if(TaskConsts.ID.equalsIgnoreCase(field)   // id is for the parent entity
+                || TaskConsts.EXTERNAL_ID.equalsIgnoreCase(field) // externalId from datamap is for the parent entity
+                    ) {
+                continue;
+            }
+
+            if (ATTACHMENT_EXTERNAL_ID_COLUMN.equalsIgnoreCase(field)) {
+                populateFieldOnEntity(TaskConsts.EXTERNAL_ID, dataMap.get(field), methodMap);
+            }
+            else {
+                populateFieldOnEntity(field, dataMap.get(field), methodMap);
+            }
+        }
+
+        // external id cannot be null
+        if (fileMeta.getExternalID() == null) {
+            fileMeta.setExternalID(attachmentFile.getName());
+        }
+    }
+
+    private <F extends FileEntity> FileWrapper addOrUpdateFile() {
+        if (isNewEntity)
+            return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, fileMeta, false);
+        else
+            return bullhornData.updateFile((Class<F>) entityClass, bullhornParentId, fileMeta);
+    }
+
+    private void populateFieldOnEntity(String field, String value, Map<String, Method> methodMap) {
+        try {
+            Method method = methodMap.get(field.toLowerCase());
+            if (method != null && value != null && !"".equalsIgnoreCase(value)){
+                method.invoke(fileMeta, convertStringToClass(method, value));
+            }
+        } catch (Exception e) {
+            printUtil.printAndLog("Error populating " + field);
+            printUtil.printAndLog(e.toString());
+        }
+    }
+
+    private Map<String, Method> createMethodMap() {
+        Map<String, Method> methodMap = new HashMap();
+        for (Method method : Arrays.asList(StandardFileMeta.class.getMethods())){
+            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
+                methodMap.put(method.getName().substring(3).toLowerCase(), method);
+            }
+        }
+        return methodMap;
     }
 
 }

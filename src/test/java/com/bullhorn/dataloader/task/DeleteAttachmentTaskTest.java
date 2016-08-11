@@ -9,7 +9,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.response.file.standard.StandardFileApiResponse;
+import com.bullhornsdk.data.model.file.standard.StandardFileApiResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
