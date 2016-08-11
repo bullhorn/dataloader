@@ -222,12 +222,13 @@ public abstract class AbstractService {
      *
      * @param filePath The user provided directory where these files came from
      * @param entityToFileListMap The list of files that will be loaded
+     * @return true if the user has responded with yes, false if no
      */
-    protected void promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
+    protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
         if (entityToFileListMap.size() > 1 ||
                 (!entityToFileListMap.isEmpty() &&
                         entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
-            printUtil.printAndLog("Ready to load the following CSV files from the " + filePath + " directory in the following order:");
+            printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");
 
             Integer count = 1;
             for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
@@ -238,10 +239,20 @@ public abstract class AbstractService {
                 }
             }
 
-            System.out.println("Press ENTER to continue");
+            System.out.println("Do you want to continue? [Y/N]");
             Scanner scanner = new Scanner(inputStream);
-            scanner.nextLine(); // doesn't matter what the user types, as long as it results in a new line from the enter key
+            Boolean yesOrNoResponse = false;
+            while (!yesOrNoResponse) {
+                String input = scanner.nextLine();
+                if (input.startsWith("y") || input.startsWith("Y")) {
+                    yesOrNoResponse = true;
+                } else if (input.startsWith("n") || input.startsWith("N")) {
+                    return false;
+                }
+            };
         }
+
+        return true;
     }
 
     /**

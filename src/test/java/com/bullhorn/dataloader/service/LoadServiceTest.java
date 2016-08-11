@@ -36,7 +36,7 @@ public class LoadServiceTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
-		inputStreamFake = IOUtils.toInputStream("text to simulate user entry", "UTF-8");
+        inputStreamFake = IOUtils.toInputStream("", "UTF-8");
 		loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
 
 		// mock out AbstractService Methods that call class outside of this test scope
@@ -69,7 +69,13 @@ public class LoadServiceTest {
 
 	@Test
 	public void testRun_directory_twoFilesSameEntity() throws Exception {
-		final String filePath = getFilePath("loadFromDirectory/opportunity");
+        inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
+        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
+        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
+
+        final String filePath = getFilePath("loadFromDirectory/opportunity");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
 		loadService.run(testArgs);
@@ -81,6 +87,12 @@ public class LoadServiceTest {
 
 	@Test
 	public void testRun_directory_fourFiles() throws Exception {
+        inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
+        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
+        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
+
 		final String filePath = getFilePath("loadFromDirectory");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -89,6 +101,23 @@ public class LoadServiceTest {
 		Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
 		Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
 		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
+	}
+
+	@Test
+	public void testRun_directory_fourFilesContinueNo() throws Exception {
+        inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
+        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
+        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
+
+		final String filePath = getFilePath("loadFromDirectory");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		loadService.run(testArgs);
+
+		Mockito.verify(concurrencyServiceMock, Mockito.never()).runLoadProcess();
+		Mockito.verify(printUtilMock, Mockito.times(5)).printAndLog(Mockito.anyString());
 	}
 
 	@Test(expected=IllegalStateException.class)
