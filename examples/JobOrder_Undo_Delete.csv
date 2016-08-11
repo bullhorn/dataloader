@@ -1,0 +1,2 @@
+title,salary,startDate,description,isOpen,employmentType,address.city,address.state,address.zip,clientContact.externalID,clientCorporation.externalID,isDeleted
+Example Job,123456.78,06/15/2016,This is a test job description.,1,Contract,Clayton,Missouri,63105,1678941,64978,0

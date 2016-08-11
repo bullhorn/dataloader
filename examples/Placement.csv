@@ -1,2 +1,2 @@
-jobOrder.title,candidate.firstName,candidate.lastName,dateBegin,payRate
-Example Job,Bullhorn,TestCandidate,1465862400,12345.67
+jobOrder.title,jobOrder.externalID,candidate.firstName,candidate.lastName,candidate.externalID,dateBegin,payRate,comments,employmentType
+Example Job,1234567,Bullhorn,TestCandidate,1289467,10/10/2016,12345.67,Example Placement,Direct Hire
