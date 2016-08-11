@@ -51,7 +51,6 @@ public class TemplateServiceTest {
 	@Test
 	public void testRun() throws Exception {
 		final String entity = "Candidate";
-        final String fieldName = "fieldName";
         final String dataType = "String";
 		final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
 
