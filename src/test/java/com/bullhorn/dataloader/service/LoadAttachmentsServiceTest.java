@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import java.io.File;
+import java.io.InputStream;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,6 +18,7 @@ public class LoadAttachmentsServiceTest {
 	private PrintUtil printUtilMock;
 	private PropertyFileUtil propertyFileUtilMock;
 	private ValidationUtil validationUtil;
+	private InputStream inputStreamMock;
 	private LoadAttachmentsService loadAttachmentsService;
 	private ConcurrencyService concurrencyServiceMock;
 
@@ -25,7 +27,8 @@ public class LoadAttachmentsServiceTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
-		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil));
+		inputStreamMock = Mockito.mock(InputStream.class);
+		loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
@@ -33,11 +36,7 @@ public class LoadAttachmentsServiceTest {
 		Mockito.doNothing().when(concurrencyServiceMock).runLoadAttachmentsProcess();
 
 		// mock out AbstractService Methods that call class outside of this test scope
-
 		Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).getExecutorService(Mockito.any());
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test

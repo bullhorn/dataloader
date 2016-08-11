@@ -34,10 +34,6 @@ public class CommandLineInterfaceTest {
         Mockito.doReturn(loadAttachmentsServiceMock).when(actionFactoryMock).getAction(Command.LOAD_ATTACHMENTS);
         Mockito.doReturn(deleteAttachmentsServiceMock).when(actionFactoryMock).getAction(Command.DELETE_ATTACHMENTS);
         Mockito.doReturn(templateServiceMock).when(actionFactoryMock).getAction(Command.TEMPLATE);
-
-        // track this call
-        Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
-        Mockito.doNothing().when(printUtilMock).printUsage();
     }
 
     @Test

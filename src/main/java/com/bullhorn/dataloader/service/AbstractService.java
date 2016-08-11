@@ -3,9 +3,15 @@ package com.bullhorn.dataloader.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -32,15 +38,18 @@ public abstract class AbstractService {
 
     final protected Timer timer;
     final protected PrintUtil printUtil;
-    final protected ValidationUtil validationUtil;
     final protected PropertyFileUtil propertyFileUtil;
+    final protected ValidationUtil validationUtil;
+    final protected InputStream inputStream;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
-                           ValidationUtil validationUtil) throws IOException {
+                           ValidationUtil validationUtil,
+                           InputStream inputStream) throws IOException {
     	this.printUtil = printUtil;
-    	this.validationUtil = validationUtil;
         this.propertyFileUtil = propertyFileUtil;
+        this.validationUtil = validationUtil;
+        this.inputStream = inputStream;
     	timer = new Timer();
     }
 
@@ -110,6 +119,132 @@ public abstract class AbstractService {
     }
 
     /**
+     * Given a file or directory, this method will determine all valid CSV files that can be used by DataLoader and
+     * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
+     * argument, this lits will be either empty or contain exactly one matching entity to filename.
+     *
+     * @param filePath any file or directory
+     * @param comparator specifies how the sorted list should be sorted
+     * @return a Map of entity enums to lists of valid files.
+     */
+    protected SortedMap<Entity, List<String>> getValidCsvFiles(String filePath, Comparator<Entity> comparator) {
+        File file = new File(filePath);
+        if (file.isDirectory()) {
+            return getValidCsvFilesFromDirectory(file, comparator);
+        } else {
+            return getValidCsvFilesFromFilePath(filePath, comparator);
+        }
+    }
+
+    /**
+     * Given a directory, this method searches the directory for all valid CSV files and returns the map
+     */
+    private SortedMap<Entity, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<Entity> comparator) {
+        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
+
+        for (String fileName : directory.list()) {
+            String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
+            if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
+                Entity entity = extractEntityFromFileName(fileName);
+                if (entity != null) {
+                    if (!entityToFileListMap.containsKey(entity)) {
+                        entityToFileListMap.put(entity, new ArrayList<>());
+                    }
+                    List<String> files = entityToFileListMap.get(entity);
+                    files.add(absoluteFilePath);
+                }
+            }
+        }
+
+        return entityToFileListMap;
+    }
+
+    /**
+     * Given an individual file path, this method constructs the entity to file map and returns it.
+     */
+    private SortedMap<Entity, List<String>> getValidCsvFilesFromFilePath(String filePath, Comparator<Entity> comparator) {
+        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
+
+        if (validationUtil.isValidCsvFile(filePath, false)) {
+            Entity entity = extractEntityFromFileName(filePath);
+            if (entity != null) {
+                entityToFileListMap.put(entity, Arrays.asList(filePath));
+            }
+        }
+
+        return entityToFileListMap;
+    }
+
+    /**
+     * Returns the list of loadable csv files in load order
+     *
+     * @param filePath The given file or directory
+     * @return the subset of getValidCsvFiles that are loadable
+     */
+    protected SortedMap<Entity, List<String>> getLoadableCsvFilesFromPath(String filePath) {
+        SortedMap<Entity, List<String>> loadableEntityToFileListMap = new TreeMap<>(Entity.loadOrderComparator);
+
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFiles(filePath, Entity.loadOrderComparator);
+        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+            String entityName = entityFileEntry.getKey().getEntityName();
+            if (validationUtil.isLoadableEntity(entityName, false)) {
+                loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
+            }
+        }
+
+        return loadableEntityToFileListMap;
+    }
+
+    /**
+     * Returns the list of deletable csv files in delete order
+     *
+     * @param filePath The given file or directory
+     * @return the subset of getValidCsvFiles that are deletable
+     */
+    protected SortedMap<Entity, List<String>> getDeletableCsvFilesFromPath(String filePath) {
+        SortedMap<Entity, List<String>> deletableEntityToFileListMap = new TreeMap<>(Entity.deleteOrderComparator);
+
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFiles(filePath, Entity.deleteOrderComparator);
+        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+            String entityName = entityFileEntry.getKey().getEntityName();
+            if (validationUtil.isDeletableEntity(entityName, false)) {
+                deletableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
+            }
+        }
+
+        return deletableEntityToFileListMap;
+    }
+
+    /**
+     * When loading from directory, give the user a chance to hit ENTER or CTRL+C once they see all the files about
+     * to be processed. Handles the case where there are multiple entities with multiple files or one entity with
+     * multiple files.
+     *
+     * @param filePath The user provided directory where these files came from
+     * @param entityToFileListMap The list of files that will be loaded
+     */
+    protected void promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
+        if (entityToFileListMap.size() > 1 ||
+                (!entityToFileListMap.isEmpty() &&
+                        entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
+            printUtil.printAndLog("Ready to load the following CSV files from the " + filePath + " directory in the following order:");
+
+            Integer count = 1;
+            for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+                String entityName = entityFileEntry.getKey().getEntityName();
+                for (String fileName : entityFileEntry.getValue()) {
+                    File file = new File(fileName);
+                    printUtil.printAndLog("   " + count++ + ". " + entityName + " records from " + file.getName());
+                }
+            }
+
+            System.out.println("Press ENTER to continue");
+            Scanner scanner = new Scanner(inputStream);
+            scanner.nextLine(); // doesn't matter what the user types, as long as it results in a new line from the enter key
+        }
+    }
+
+    /**
      * Extractions entity name from a file path.
      *
      * The file name must start with the name of the entity
@@ -117,30 +252,49 @@ public abstract class AbstractService {
      * @param fileName path from which to extract entity name
      * @return the SDK-Rest name of the entity, or null if not found
      */
-	protected String extractEntityNameFromFileName(String fileName) {
-		File file = new File(fileName);
+    protected String extractEntityNameFromFileName(String fileName) {
+        Entity bestMatch = null;
+        bestMatch = extractEntityFromFileName(fileName);
 
-		String upperCaseFileName = file.getName().toUpperCase();
-		Entity bestMatch = null;
-		for (Entity entity: Entity.values()) {
-			if (upperCaseFileName.startsWith(entity.getUpperCase())) {
-				if (bestMatch == null) {
-					bestMatch = entity;
-				} else if (bestMatch.getEntityName().length() < entity.getEntityName().length()) {
-					// longer name is better
-					bestMatch = entity;
-				}
-			}
-		}
+        if (bestMatch == null) {
+            return null;
+        } else {
+            return bestMatch.getEntityName();
+        }
+    }
 
-		if (bestMatch == null) {
-			return null;
-		} else {
-			return bestMatch.getEntityName();
-		}
-	}
+    /**
+     * Extractions entity type from a file path.
+     *
+     * The file name must start with the name of the entity
+     *
+     * @param fileName path from which to extract entity name
+     * @return the SDK-Rest entity, or null if not found
+     */
+    protected Entity extractEntityFromFileName(String fileName) {
+        File file = new File(fileName);
 
-	/**
+        String upperCaseFileName = file.getName().toUpperCase();
+        Entity bestMatch = null;
+        for (Entity entity: Entity.values()) {
+            if (upperCaseFileName.startsWith(entity.getUpperCase())) {
+                if (bestMatch == null) {
+                    bestMatch = entity;
+                } else if (bestMatch.getEntityName().length() < entity.getEntityName().length()) {
+                    // longer name is better
+                    bestMatch = entity;
+                }
+            }
+        }
+
+        if (bestMatch == null) {
+            return null;
+        } else {
+            return bestMatch;
+        }
+    }
+
+    /**
 	 * Return properly capitalize SDK-REST entity name from a string with any capitalization
 	 *
 	 * @param string a string of the entity name

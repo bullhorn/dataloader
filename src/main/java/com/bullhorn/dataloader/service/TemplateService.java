@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -13,10 +14,10 @@ import com.bullhornsdk.data.api.BullhornData;
  */
 public class TemplateService extends AbstractService implements Action {
 
-	public TemplateService (PrintUtil printUtil,
-							PropertyFileUtil propertyFileUtil,
-							ValidationUtil validationUtil) throws IOException {
-		super(printUtil, propertyFileUtil, validationUtil);
+	public TemplateService(PrintUtil printUtil,
+						   PropertyFileUtil propertyFileUtil,
+						   ValidationUtil validationUtil, InputStream inputStream) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil, inputStream);
 	}
 
 	@Override

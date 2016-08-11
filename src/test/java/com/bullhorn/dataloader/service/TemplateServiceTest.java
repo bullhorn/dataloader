@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.service;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -25,6 +26,7 @@ public class TemplateServiceTest {
 	private PrintUtil printUtilMock;
 	private PropertyFileUtil propertyFileUtilMock;
 	private ValidationUtil validationUtil;
+	private InputStream inputStreamMock;
 	private TemplateService templateService;
 	private BullhornData bullhornData;
 
@@ -33,7 +35,8 @@ public class TemplateServiceTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
-		templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil));
+		inputStreamMock = Mockito.mock(InputStream.class);
+		templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
 		bullhornData = Mockito.mock(BullhornData.class);
 
 		StandardMetaData<Candidate> metaData = new StandardMetaData<>();
@@ -43,15 +46,11 @@ public class TemplateServiceTest {
 		field.setDataType("String");
 		metaData.setFields(Arrays.asList(field));
 		when(bullhornData.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test
 	public void testRun() throws Exception {
 		final String entity = "Candidate";
-        final String fieldName = "fieldName";
         final String dataType = "String";
 		final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
 
