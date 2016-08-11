@@ -26,7 +26,8 @@ public class TemplateService extends AbstractService implements Action {
 			String entityName = validateArguments(args);
 			createTemplate(entityName, getBullhornData());
 		} catch (Exception e) {
-			printUtil.printAndLog("Failed to create REST session - " + e.toString());
+			printUtil.printAndLog("Failed to create REST session.");
+			printUtil.printAndLog(e);
 		}
 	}
 
@@ -38,7 +39,8 @@ public class TemplateService extends AbstractService implements Action {
             templateUtil.writeExampleEntityCsv(entityName);
             printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
         } catch (Exception e) {
-            printUtil.printAndLog("Failed to create template for " + entityName + " - " + e.toString());
+            printUtil.printAndLog("Failed to create template for " + entityName);
+            printUtil.printAndLog(e);
         }
 	}
 

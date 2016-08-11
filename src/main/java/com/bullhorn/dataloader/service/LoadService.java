@@ -44,7 +44,8 @@ public class LoadService extends AbstractService implements Action {
                     concurrencyService.runLoadProcess();
                     printUtil.printAndLog("Finished loading " + entityName + " records in " + timer.getDurationStringHMS());
                 } catch (Exception e) {
-                    printUtil.printAndLog("FAILED to load: " + entityName + " records - " + e.getMessage());
+                    printUtil.printAndLog("FAILED to load: " + entityName + " records");
+                    printUtil.printAndLog(e);
                 }
             }
 		}

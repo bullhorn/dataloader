@@ -238,7 +238,7 @@ public abstract class AbstractService {
                 }
             }
 
-            System.out.println("Press ENTER to continue");
+            printUtil.print("Press ENTER to continue");
             Scanner scanner = new Scanner(inputStream);
             scanner.nextLine(); // doesn't matter what the user types, as long as it results in a new line from the enter key
         }
