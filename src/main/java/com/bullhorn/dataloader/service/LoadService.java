@@ -33,20 +33,21 @@ public class LoadService extends AbstractService implements Action {
 
 		String filePath = args[1];
 		SortedMap<Entity, List<String>> entityToFileListMap = getLoadableCsvFilesFromPath(filePath);
-        promptUserForMultipleFiles(filePath, entityToFileListMap);
-		for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-			String entityName = entityFileEntry.getKey().getEntityName();
-            for (String fileName : entityFileEntry.getValue()) {
-                try {
-                    printUtil.printAndLog("Loading " + entityName + " records from: " + fileName + "...");
-                    ConcurrencyService concurrencyService = createConcurrencyService(Command.LOAD, entityName, fileName);
-                    timer.start();
-                    concurrencyService.runLoadProcess();
-                    printUtil.printAndLog("Finished loading " + entityName + " records in " + timer.getDurationStringHMS());
-                } catch (Exception e) {
-                    printUtil.printAndLog("FAILED to load: " + entityName + " records - " + e.getMessage());
-                }
-            }
+		if (promptUserForMultipleFiles(filePath, entityToFileListMap)) {
+			for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+				String entityName = entityFileEntry.getKey().getEntityName();
+				for (String fileName : entityFileEntry.getValue()) {
+					try {
+						printUtil.printAndLog("Loading " + entityName + " records from: " + fileName + "...");
+						ConcurrencyService concurrencyService = createConcurrencyService(Command.LOAD, entityName, fileName);
+						timer.start();
+						concurrencyService.runLoadProcess();
+						printUtil.printAndLog("Finished loading " + entityName + " records in " + timer.getDurationStringHMS());
+					} catch (Exception e) {
+						printUtil.printAndLog("FAILED to load: " + entityName + " records - " + e.getMessage());
+					}
+				}
+			}
 		}
 	}
 

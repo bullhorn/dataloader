@@ -34,7 +34,7 @@ public class DeleteServiceTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
-        inputStreamFake = IOUtils.toInputStream("text to simulate user entry", "UTF-8");
+        inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
 		deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
 
 		// mock out AbstractService Methods that call class outside of this test scope

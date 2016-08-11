@@ -32,18 +32,19 @@ public class DeleteService extends AbstractService implements Action {
 
 		String filePath = args[1];
 		SortedMap<Entity, List<String>> entityToFileListMap = getDeletableCsvFilesFromPath(filePath);
-		promptUserForMultipleFiles(filePath, entityToFileListMap);
-		for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-			String entityName = entityFileEntry.getKey().getEntityName();
-			for (String fileName : entityFileEntry.getValue()) {
-				try {
-					printUtil.printAndLog("Deleting " + entityName + " records from: " + fileName + "...");
-					ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE, entityName, fileName);
-					timer.start();
-					concurrencyService.runDeleteProcess();
-					printUtil.printAndLog("Finished deleting " + entityName + " records in " + timer.getDurationStringHMS());
-				} catch (Exception e) {
-					printUtil.printAndLog("FAILED to delete " + entityName + " records - " + e.getMessage());
+		if (promptUserForMultipleFiles(filePath, entityToFileListMap)) {
+			for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+				String entityName = entityFileEntry.getKey().getEntityName();
+				for (String fileName : entityFileEntry.getValue()) {
+					try {
+						printUtil.printAndLog("Deleting " + entityName + " records from: " + fileName + "...");
+						ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE, entityName, fileName);
+						timer.start();
+						concurrencyService.runDeleteProcess();
+						printUtil.printAndLog("Finished deleting " + entityName + " records in " + timer.getDurationStringHMS());
+					} catch (Exception e) {
+						printUtil.printAndLog("FAILED to delete " + entityName + " records - " + e.getMessage());
+					}
 				}
 			}
 		}
