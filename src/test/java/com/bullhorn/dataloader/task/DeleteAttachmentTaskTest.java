@@ -9,7 +9,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.file.standard.StandardFileApiResponse;
+import com.bullhornsdk.data.model.response.file.standard.StandardFileApiResponse;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,8 +52,8 @@ public class DeleteAttachmentTaskTest {
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("attachmentID", "1");
-        dataMap.put("externalID","1");
+        dataMap.put("id", "1");
+        dataMap.put("Candidate.externalID","1");
         dataMap.put("relativeFilePath","testResume/Test Resume.doc");
         dataMap.put("isResume","0");
         dataMap.put("parentEntityID", "1");

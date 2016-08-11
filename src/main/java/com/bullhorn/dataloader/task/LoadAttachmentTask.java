@@ -1,16 +1,23 @@
 package com.bullhorn.dataloader.task;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
@@ -37,22 +44,23 @@ import com.google.common.collect.Sets;
  */
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
 
-    public static final String ATTACHMENT_EXTERNAL_ID_COLUMN = "attachmentExternalID";
-
     private FileMeta fileMeta;
     private File attachmentFile;
     private boolean isNewEntity = true;
+    private Map<String, Method> methodMap;
 
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
                               Class<B> entity,
                               LinkedHashMap<String, String> dataMap,
+                              Map<String, Method> methodMap,
                               CsvFileWriter csvWriter,
                               PropertyFileUtil propertyFileUtil,
                               BullhornData bullhornData,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
         super(command, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        this.methodMap = methodMap;
     }
 
     @Override
@@ -71,17 +79,18 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         addParentEntityIDtoDataMap();
         createFileMeta();
         populateFileMeta();
-        FileWrapper fileWrapper = addOrUpdateFile();
-        return Result.Insert(fileWrapper.getId());
+        Result result = addOrUpdateFile();
+        return result;
     }
 
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
-        if (properties.contains("id")){
-            bullhornParentId = Integer.parseInt(dataMap.get("id"));
+        if (properties.contains(getEntityAssociatedPropertyName(TaskConsts.ID))){
+            bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(TaskConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
-                propertiesWithValues.add(getQueryStatement(property, dataMap.get(property), getFieldType(entityClass, property)));
+                String propertyValue = dataMap.get(getEntityAssociatedPropertyName(property));
+                propertiesWithValues.add(getQueryStatement(property, propertyValue, getFieldType(entityClass, property)));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
             List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
@@ -93,6 +102,10 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         }
     }
 
+    private String getEntityAssociatedPropertyName(String property) {
+        return entityClass.getSimpleName() + "." + property;
+    }
+
     private <F extends FileEntity> void createFileMeta() {
         attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
         fileMeta = new StandardFileMeta();
@@ -100,13 +113,15 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         List<FileMeta> allFileMetas = bullhornData.getFileMetaData((Class<F>) entityClass, bullhornParentId);
 
         for (FileMeta curFileMeta : allFileMetas) {
-            if (curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(ATTACHMENT_EXTERNAL_ID_COLUMN))) {
+            if (curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(TaskConsts.EXTERNAL_ID))) {
                 try {
                     isNewEntity = false;
                     fileMeta = curFileMeta;
 
+                    // fileContent is required for an update
                     byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(TaskConsts.RELATIVE_FILE_PATH)));
-                    fileMeta.setFileContent(new String(encoded, Charset.defaultCharset()));
+                    String fileStr  = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
+                    fileMeta.setFileContent(fileStr);
 
                     break;
                 }
@@ -119,28 +134,15 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private void populateFileMeta() {
-        Map<String, Method> methodMap = createMethodMap();
-
         // set values from FileParams
         Map<String, String> paramsMap = ParamFactory.fileParams().getParameterMap();
         for (String field : paramsMap.keySet()){
-            populateFieldOnEntity(field, paramsMap.get(field), methodMap);
+            populateFieldOnEntity(field, paramsMap.get(field), fileMeta, methodMap);
         }
 
         // set values from csv file
         for (String field : dataMap.keySet()){
-            if(TaskConsts.ID.equalsIgnoreCase(field)   // id is for the parent entity
-                || TaskConsts.EXTERNAL_ID.equalsIgnoreCase(field) // externalId from datamap is for the parent entity
-                    ) {
-                continue;
-            }
-
-            if (ATTACHMENT_EXTERNAL_ID_COLUMN.equalsIgnoreCase(field)) {
-                populateFieldOnEntity(TaskConsts.EXTERNAL_ID, dataMap.get(field), methodMap);
-            }
-            else {
-                populateFieldOnEntity(field, dataMap.get(field), methodMap);
-            }
+            populateFieldOnEntity(field, dataMap.get(field), fileMeta, methodMap);
         }
 
         // external id cannot be null
@@ -149,33 +151,15 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         }
     }
 
-    private <F extends FileEntity> FileWrapper addOrUpdateFile() {
-        if (isNewEntity)
-            return bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, fileMeta, false);
-        else
-            return bullhornData.updateFile((Class<F>) entityClass, bullhornParentId, fileMeta);
-    }
-
-    private void populateFieldOnEntity(String field, String value, Map<String, Method> methodMap) {
-        try {
-            Method method = methodMap.get(field.toLowerCase());
-            if (method != null && value != null && !"".equalsIgnoreCase(value)){
-                method.invoke(fileMeta, convertStringToClass(method, value));
-            }
-        } catch (Exception e) {
-            printUtil.printAndLog("Error populating " + field);
-            printUtil.printAndLog(e.toString());
+    private  <F extends FileEntity> Result addOrUpdateFile() {
+        if (isNewEntity) {
+            FileWrapper fileWrapper =  bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, fileMeta, false);
+            return Result.Insert(fileWrapper.getId());
         }
-    }
-
-    private Map<String, Method> createMethodMap() {
-        Map<String, Method> methodMap = new HashMap();
-        for (Method method : Arrays.asList(StandardFileMeta.class.getMethods())){
-            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                methodMap.put(method.getName().substring(3).toLowerCase(), method);
-            }
+        else {
+            FileWrapper fileWrapper = bullhornData.updateFile((Class<F>) entityClass, bullhornParentId, fileMeta);
+            return Result.Update(fileWrapper.getId());
         }
-        return methodMap;
     }
 
 }
