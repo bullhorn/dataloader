@@ -124,33 +124,51 @@ public abstract class AbstractService {
      * argument, this lits will be either empty or contain exactly one matching entity to filename.
      *
      * @param filePath any file or directory
-     * @param comparator
+     * @param comparator specifies how the sorted list should be sorted
      * @return a Map of entity enums to lists of valid files.
      */
-    protected SortedMap<Entity, List<String>> getValidCsvFilesFromPath(String filePath, Comparator<Entity> comparator) {
-        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
-
+    protected SortedMap<Entity, List<String>> getValidCsvFiles(String filePath, Comparator<Entity> comparator) {
         File file = new File(filePath);
         if (file.isDirectory()) {
-            for (String fileName : file.list()) {
-                String absoluteFilePath = file.getAbsolutePath() + File.separator + fileName;
-                if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
-                    Entity entity = extractEntityFromFileName(fileName);
-                    if (entity != null) {
-                        if (!entityToFileListMap.containsKey(entity)) {
-                            entityToFileListMap.put(entity, new ArrayList<>());
-                        }
-                        List<String> files = entityToFileListMap.get(entity);
-                        files.add(absoluteFilePath);
+            return getValidCsvFilesFromDirectory(file, comparator);
+        } else {
+            return getValidCsvFilesFromFilePath(filePath, comparator);
+        }
+    }
+
+    /**
+     * Given a directory, this method searches the directory for all valid CSV files and returns the map
+     */
+    private SortedMap<Entity, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<Entity> comparator) {
+        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
+
+        for (String fileName : directory.list()) {
+            String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
+            if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
+                Entity entity = extractEntityFromFileName(fileName);
+                if (entity != null) {
+                    if (!entityToFileListMap.containsKey(entity)) {
+                        entityToFileListMap.put(entity, new ArrayList<>());
                     }
+                    List<String> files = entityToFileListMap.get(entity);
+                    files.add(absoluteFilePath);
                 }
             }
-        } else {
-            if (validationUtil.isValidCsvFile(filePath, false)) {
-                Entity entity = extractEntityFromFileName(filePath);
-                if (entity != null) {
-                    entityToFileListMap.put(entity, Arrays.asList(filePath));
-                }
+        }
+
+        return entityToFileListMap;
+    }
+
+    /**
+     * Given an individual file path, this method constructs the entity to file map and returns it.
+     */
+    private SortedMap<Entity, List<String>> getValidCsvFilesFromFilePath(String filePath, Comparator<Entity> comparator) {
+        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
+
+        if (validationUtil.isValidCsvFile(filePath, false)) {
+            Entity entity = extractEntityFromFileName(filePath);
+            if (entity != null) {
+                entityToFileListMap.put(entity, Arrays.asList(filePath));
             }
         }
 
@@ -161,12 +179,12 @@ public abstract class AbstractService {
      * Returns the list of loadable csv files in load order
      *
      * @param filePath The given file or directory
-     * @return the subset of getValidCsvFilesFromPath that are loadable
+     * @return the subset of getValidCsvFiles that are loadable
      */
     protected SortedMap<Entity, List<String>> getLoadableCsvFilesFromPath(String filePath) {
         SortedMap<Entity, List<String>> loadableEntityToFileListMap = new TreeMap<>(Entity.loadOrderComparator);
 
-        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath, Entity.loadOrderComparator);
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFiles(filePath, Entity.loadOrderComparator);
         for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
             String entityName = entityFileEntry.getKey().getEntityName();
             if (validationUtil.isLoadableEntity(entityName, false)) {
@@ -181,12 +199,12 @@ public abstract class AbstractService {
      * Returns the list of deletable csv files in delete order
      *
      * @param filePath The given file or directory
-     * @return the subset of getValidCsvFilesFromPath that are deletable
+     * @return the subset of getValidCsvFiles that are deletable
      */
     protected SortedMap<Entity, List<String>> getDeletableCsvFilesFromPath(String filePath) {
         SortedMap<Entity, List<String>> deletableEntityToFileListMap = new TreeMap<>(Entity.deleteOrderComparator);
 
-        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFilesFromPath(filePath, Entity.deleteOrderComparator);
+        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFiles(filePath, Entity.deleteOrderComparator);
         for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
             String entityName = entityFileEntry.getKey().getEntityName();
             if (validationUtil.isDeletableEntity(entityName, false)) {
@@ -199,13 +217,16 @@ public abstract class AbstractService {
 
     /**
      * When loading from directory, give the user a chance to hit ENTER or CTRL+C once they see all the files about
-     * to be processed
+     * to be processed. Handles the case where there are multiple entities with multiple files or one entity with
+     * multiple files.
      *
      * @param filePath The user provided directory where these files came from
      * @param entityToFileListMap The list of files that will be loaded
      */
     protected void promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
-        if (entityToFileListMap.size() > 1) {
+        if (entityToFileListMap.size() > 1 ||
+                (!entityToFileListMap.isEmpty() &&
+                        entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to load the following CSV files from the " + filePath + " directory in the following order:");
 
             Integer count = 1;

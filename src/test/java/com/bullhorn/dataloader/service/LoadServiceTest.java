@@ -68,7 +68,19 @@ public class LoadServiceTest {
 	}
 
 	@Test
-	public void testRun_directoryFourFiles() throws Exception {
+	public void testRun_directory_twoFilesSameEntity() throws Exception {
+		final String filePath = getFilePath("loadFromDirectory/opportunity");
+		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+
+		loadService.run(testArgs);
+
+		Mockito.verify(concurrencyServiceMock, Mockito.times(2)).runLoadProcess();
+		Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
+	}
+
+	@Test
+	public void testRun_directory_fourFiles() throws Exception {
 		final String filePath = getFilePath("loadFromDirectory");
 		final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -76,6 +88,7 @@ public class LoadServiceTest {
 
 		Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
 		Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
 	}
 
 	@Test(expected=IllegalStateException.class)
@@ -200,7 +213,7 @@ public class LoadServiceTest {
 		final SortedMap<Entity, List<String>> expectedMap = new TreeMap<>(Entity.loadOrderComparator);
 		expectedMap.put(Entity.CANDIDATE, Arrays.asList(file.getAbsolutePath()));
 
-		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFilesFromPath(filePath, Entity.loadOrderComparator);
+		final SortedMap<Entity, List<String>> actualMap = loadService.getValidCsvFiles(filePath, Entity.loadOrderComparator);
 
 		Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
 		Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
