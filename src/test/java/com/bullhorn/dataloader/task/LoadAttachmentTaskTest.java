@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.beust.jcommander.internal.Lists;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -9,7 +10,9 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.file.FileMeta;
+import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
 import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
@@ -93,6 +96,8 @@ public class LoadAttachmentTaskTest {
         dataMap2.put("Candidate.externalID","2011Ext");
         dataMap2.put("relativeFilePath",relativeFilePath);
         dataMap2.put("isResume","1");
+        dataMap2.put("externalID","extFileId1");
+        dataMap2.put("name","new filename");
     }
 
     @Test
@@ -151,7 +156,7 @@ public class LoadAttachmentTaskTest {
 
     @Test
     public void existPropertyConfiguredCorrectlyTest() throws Exception {
-        final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "1001"};
+        final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Insert(0);
 
         task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
@@ -168,6 +173,43 @@ public class LoadAttachmentTaskTest {
 
         when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
         when(bullhornData.addFile(anyObject(), anyInt(), any(File.class), any(FileMeta.class), anyBoolean())).thenReturn(fileWrapper);
+
+        task.run();
+        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+
+        final Result actualResult = resultArgumentCaptor.getValue();
+
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+    }
+
+    @Test
+    public void updateAttachmentSuccessTest() throws Exception {
+        final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
+        final Result expectedResult = Result.Update(0);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
+
+
+        FileMeta file1 = new StandardFileMeta();
+        file1.setName("original name");
+        file1.setId(222);
+        file1.setExternalID("extFileId1");
+        List<FileMeta> fileList = Lists.newArrayList();
+        fileList.add(file1);
+
+        final List<Candidate> candidates = new ArrayList<>();
+        candidates.add(new Candidate(1001));
+
+        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        listWrapper.setData(candidates);
+
+        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
+        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+
+        when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.updateFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
+        when(bullhornData.getFileMetaData(anyObject(), anyInt())).thenReturn(fileList);
+
 
         task.run();
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
