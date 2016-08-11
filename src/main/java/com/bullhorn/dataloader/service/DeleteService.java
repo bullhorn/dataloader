@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -18,9 +19,9 @@ import com.bullhorn.dataloader.util.validation.ValidationUtil;
 public class DeleteService extends AbstractService implements Action {
 
 	public DeleteService(PrintUtil printUtil,
-						 PropertyFileUtil propertyFileUtil,
-						 ValidationUtil validationUtil) throws IOException {
-		super(printUtil, propertyFileUtil, validationUtil);
+                         PropertyFileUtil propertyFileUtil,
+                         ValidationUtil validationUtil, InputStream inputStream) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil, inputStream);
 	}
 
 	@Override
@@ -31,6 +32,7 @@ public class DeleteService extends AbstractService implements Action {
 
 		String filePath = args[1];
 		SortedMap<Entity, List<String>> entityToFileListMap = getDeletableCsvFilesFromPath(filePath);
+		promptUserForMultipleFiles(filePath, entityToFileListMap);
 		for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
 			String entityName = entityFileEntry.getKey().getEntityName();
 			for (String fileName : entityFileEntry.getValue()) {

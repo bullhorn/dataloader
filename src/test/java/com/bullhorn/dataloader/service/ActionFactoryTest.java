@@ -1,19 +1,23 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import java.io.InputStream;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
+
 public class ActionFactoryTest {
 
 	private PrintUtil printUtilMock;
 	private PropertyFileUtil propertyFileUtilMock;
 	private ValidationUtil validationUtilMock;
+	private InputStream inputStreamMock;
 	private ActionFactory actionFactory;
 
 	@Before
@@ -21,8 +25,9 @@ public class ActionFactoryTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtilMock = Mockito.mock(ValidationUtil.class);
+		inputStreamMock = Mockito.mock(InputStream.class);
 
-		actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock);
+		actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, inputStreamMock);
 
 		// track this call
 		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());

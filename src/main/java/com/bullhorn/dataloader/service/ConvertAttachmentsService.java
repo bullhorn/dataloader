@@ -1,11 +1,12 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-
-import java.io.IOException;
 
 /**
  * Handles loading attachments
@@ -14,8 +15,8 @@ public class ConvertAttachmentsService extends AbstractService implements Action
 
 	public ConvertAttachmentsService(PrintUtil printUtil,
 									 PropertyFileUtil propertyFileUtil,
-									 ValidationUtil validationUtil) throws IOException {
-		super(printUtil, propertyFileUtil, validationUtil);
+									 ValidationUtil validationUtil, InputStream inputStream) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil, inputStream);
 	}
 
 	@Override
@@ -35,9 +36,9 @@ public class ConvertAttachmentsService extends AbstractService implements Action
             ConcurrencyService concurrencyService = createConcurrencyService(Command.CONVERT_ATTACHMENTS, entityName, filePath);
             timer.start();
             concurrencyService.runConvertAttachmentsProcess();
-			printUtil.printAndLog("Finished loading " + entityName + " attachments in " + timer.getDurationStringHMS());
+			printUtil.printAndLog("Finished converting " + entityName + " attachments in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
-			printUtil.printAndLog("FAILED to load " + entityName + " attachments - " + e.getMessage());
+			printUtil.printAndLog("FAILED to convert " + entityName + " attachments - " + e.getMessage());
 		}
 	}
 

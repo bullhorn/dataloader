@@ -13,13 +13,13 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
-public class DeleteAttachmentsServiceTest {
+public class ConvertAttachmentsServiceTest {
 
 	private PrintUtil printUtilMock;
 	private PropertyFileUtil propertyFileUtilMock;
 	private ValidationUtil validationUtil;
 	private InputStream inputStreamMock;
-	private DeleteAttachmentsService deleteAttachmentsService;
+	private ConvertAttachmentsService convertAttachmentsService;
 	private ConcurrencyService concurrencyServiceMock;
 
 	@Before
@@ -28,12 +28,15 @@ public class DeleteAttachmentsServiceTest {
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
 		inputStreamMock = Mockito.mock(InputStream.class);
-		deleteAttachmentsService = Mockito.spy(new DeleteAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
+		convertAttachmentsService = Mockito.spy(new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-		Mockito.doReturn(concurrencyServiceMock).when(deleteAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
-		Mockito.doNothing().when(concurrencyServiceMock).runDeleteAttachmentsProcess();
+		Mockito.doReturn(concurrencyServiceMock).when(convertAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+		Mockito.doNothing().when(concurrencyServiceMock).runConvertAttachmentsProcess();
+
+		// mock out AbstractService Methods that call class outside of this test scope
+		Mockito.doThrow(new RuntimeException("should not be called")).when(convertAttachmentsService).getExecutorService(Mockito.any());
 
 		// track this call
 		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
@@ -42,20 +45,20 @@ public class DeleteAttachmentsServiceTest {
 	@Test
 	public void testRun() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
-		deleteAttachmentsService.run(testArgs);
+		convertAttachmentsService.run(testArgs);
 
-		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runDeleteAttachmentsProcess();
+		Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runConvertAttachmentsProcess();
 		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
 	}
 
 	@Test
 	public void testIsValidArguments() throws Exception {
 		final String filePath = getFilePath("Candidate_Valid_File.csv");
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
-		final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+		final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertTrue(actualResult);
 		Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
@@ -64,9 +67,9 @@ public class DeleteAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_BadEntity() throws Exception {
 		final String filePath = getFilePath("Invalid_Candidate_File.csv");
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
-		final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+		final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
@@ -74,9 +77,9 @@ public class DeleteAttachmentsServiceTest {
 
 	@Test
 	public void testIsValidArguments_MissingArgument() throws Exception {
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName()};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName()};
 
-		final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+		final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
@@ -85,9 +88,9 @@ public class DeleteAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_TooManyArgments() throws Exception {
 		final String filePath = "Candidate.csv";
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 
-		final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+		final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
@@ -96,9 +99,9 @@ public class DeleteAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_InvalidFile() throws Exception {
 		final String filePath = "filePath";
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
-		final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+		final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
@@ -107,9 +110,9 @@ public class DeleteAttachmentsServiceTest {
 	@Test
 	public void testIsValidArguments_EmptyFile() throws Exception {
 		final String filePath = "";
-		final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+		final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
-		final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+		final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
 
 		Assert.assertFalse(actualResult);
 		Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());

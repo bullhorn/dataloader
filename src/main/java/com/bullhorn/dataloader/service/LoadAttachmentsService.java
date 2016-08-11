@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -14,8 +15,9 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 
 	public LoadAttachmentsService(PrintUtil printUtil,
 								  PropertyFileUtil propertyFileUtil,
-								  ValidationUtil validationUtil) throws IOException {
-		super(printUtil, propertyFileUtil, validationUtil);
+								  ValidationUtil validationUtil,
+								  InputStream inputStream) throws IOException {
+		super(printUtil, propertyFileUtil, validationUtil, inputStream);
 	}
 
 	@Override

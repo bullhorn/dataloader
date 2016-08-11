@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.service;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 
 import org.junit.Assert;
@@ -25,6 +26,7 @@ public class TemplateServiceTest {
 	private PrintUtil printUtilMock;
 	private PropertyFileUtil propertyFileUtilMock;
 	private ValidationUtil validationUtil;
+	private InputStream inputStreamMock;
 	private TemplateService templateService;
 	private BullhornData bullhornData;
 
@@ -33,7 +35,8 @@ public class TemplateServiceTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
-		templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil));
+		inputStreamMock = Mockito.mock(InputStream.class);
+		templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
 		bullhornData = Mockito.mock(BullhornData.class);
 
 		StandardMetaData<Candidate> metaData = new StandardMetaData<>();

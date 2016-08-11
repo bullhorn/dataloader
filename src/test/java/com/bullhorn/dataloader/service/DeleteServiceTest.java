@@ -1,12 +1,14 @@
 package com.bullhorn.dataloader.service;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,6 +25,7 @@ public class DeleteServiceTest {
 	private PrintUtil printUtilMock;
 	private PropertyFileUtil propertyFileUtilMock;
 	private ValidationUtil validationUtil;
+    private InputStream inputStreamFake;
 	private ConcurrencyService concurrencyServiceMock;
 	private DeleteService deleteService;
 
@@ -31,7 +34,8 @@ public class DeleteServiceTest {
 		printUtilMock = Mockito.mock(PrintUtil.class);
 		propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
 		validationUtil = new ValidationUtil(printUtilMock);
-		deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil));
+        inputStreamFake = IOUtils.toInputStream("text to simulate user entry", "UTF-8");
+		deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
@@ -72,7 +76,7 @@ public class DeleteServiceTest {
 		deleteService.run(testArgs);
 
 		Mockito.verify(concurrencyServiceMock, Mockito.times(2)).runDeleteProcess();
-		Mockito.verify(printUtilMock, Mockito.times(4)).printAndLog(Mockito.anyString());
+		Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
 	}
 
 	@Test(expected=IllegalStateException.class)

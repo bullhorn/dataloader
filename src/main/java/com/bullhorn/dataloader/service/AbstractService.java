@@ -3,11 +3,13 @@ package com.bullhorn.dataloader.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
@@ -36,15 +38,18 @@ public abstract class AbstractService {
 
     final protected Timer timer;
     final protected PrintUtil printUtil;
-    final protected ValidationUtil validationUtil;
     final protected PropertyFileUtil propertyFileUtil;
+    final protected ValidationUtil validationUtil;
+    final protected InputStream inputStream;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
-                           ValidationUtil validationUtil) throws IOException {
+                           ValidationUtil validationUtil,
+                           InputStream inputStream) throws IOException {
     	this.printUtil = printUtil;
-    	this.validationUtil = validationUtil;
         this.propertyFileUtil = propertyFileUtil;
+        this.validationUtil = validationUtil;
+        this.inputStream = inputStream;
     	timer = new Timer();
     }
 
@@ -190,6 +195,32 @@ public abstract class AbstractService {
         }
 
         return deletableEntityToFileListMap;
+    }
+
+    /**
+     * When loading from directory, give the user a chance to hit ENTER or CTRL+C once they see all the files about
+     * to be processed
+     *
+     * @param filePath The user provided directory where these files came from
+     * @param entityToFileListMap The list of files that will be loaded
+     */
+    protected void promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
+        if (entityToFileListMap.size() > 1) {
+            printUtil.printAndLog("Ready to load the following CSV files from the " + filePath + " directory in the following order:");
+
+            Integer count = 1;
+            for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+                String entityName = entityFileEntry.getKey().getEntityName();
+                for (String fileName : entityFileEntry.getValue()) {
+                    File file = new File(fileName);
+                    printUtil.printAndLog("   " + count++ + ". " + entityName + " records from " + file.getName());
+                }
+            }
+
+            System.out.println("Press ENTER to continue");
+            Scanner scanner = new Scanner(inputStream);
+            scanner.nextLine(); // doesn't matter what the user types, as long as it results in a new line from the enter key
+        }
     }
 
     /**
