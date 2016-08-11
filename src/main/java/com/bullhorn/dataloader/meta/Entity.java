@@ -69,7 +69,8 @@ public enum Entity {
 	}
 
 	/**
-	 * @return the entity name usable in the Bullhorn's SDK-REST
+	 * @return the order in which this entity should be loaded relative to other entities, to avoid
+	 * referencing issues.
 	 */
 	public Integer getLoadOrder() {
 		return this.loadOrder;
