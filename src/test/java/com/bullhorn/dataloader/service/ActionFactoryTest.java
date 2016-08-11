@@ -28,9 +28,6 @@ public class ActionFactoryTest {
 		inputStreamMock = Mockito.mock(InputStream.class);
 
 		actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, inputStreamMock);
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 	
 	@Test

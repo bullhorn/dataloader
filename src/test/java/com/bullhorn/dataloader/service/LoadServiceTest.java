@@ -43,9 +43,6 @@ public class LoadServiceTest {
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
 		Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 	
 	@Test

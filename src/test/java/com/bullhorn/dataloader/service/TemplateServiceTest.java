@@ -46,9 +46,6 @@ public class TemplateServiceTest {
 		field.setDataType("String");
 		metaData.setFields(Arrays.asList(field));
 		when(bullhornData.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test

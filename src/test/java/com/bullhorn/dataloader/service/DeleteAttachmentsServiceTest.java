@@ -34,9 +34,6 @@ public class DeleteAttachmentsServiceTest {
 		concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
 		Mockito.doReturn(concurrencyServiceMock).when(deleteAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
 		Mockito.doNothing().when(concurrencyServiceMock).runDeleteAttachmentsProcess();
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test

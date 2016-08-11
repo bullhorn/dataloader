@@ -37,9 +37,6 @@ public class ConvertAttachmentsServiceTest {
 
 		// mock out AbstractService Methods that call class outside of this test scope
 		Mockito.doThrow(new RuntimeException("should not be called")).when(convertAttachmentsService).getExecutorService(Mockito.any());
-
-		// track this call
-		Mockito.doNothing().when(printUtilMock).printAndLog(Mockito.anyString());
 	}
 
 	@Test
