@@ -38,7 +38,8 @@ public class ConvertAttachmentsService extends AbstractService implements Action
             concurrencyService.runConvertAttachmentsProcess();
 			printUtil.printAndLog("Finished converting " + entityName + " attachments in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
-			printUtil.printAndLog("FAILED to convert " + entityName + " attachments - " + e.getMessage());
+			printUtil.printAndLog("FAILED to convert " + entityName + " attachments");
+			printUtil.printAndLog(e);
 		}
 	}
 

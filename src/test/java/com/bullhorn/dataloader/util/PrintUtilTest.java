@@ -1,12 +1,13 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.service.Command;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.mockito.Matchers.anyString;
 
 import java.io.PrintStream;
 
-import static org.mockito.Matchers.anyString;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import com.bullhorn.dataloader.service.Command;
 
 public class PrintUtilTest {
 
@@ -52,6 +53,7 @@ public class PrintUtilTest {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
         final Integer total = totals.getTotalDelete() + totals.getTotalError() + totals.getTotalInsert() + totals.getTotalUpdate();
+        Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
 
         printUtil.printActionTotals(Command.LOAD, totals);
 
@@ -68,6 +70,7 @@ public class PrintUtilTest {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
         final Integer total = totals.getTotalDelete() + totals.getTotalError() + totals.getTotalInsert() + totals.getTotalUpdate();
+        Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
 
         printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
 
@@ -94,14 +97,13 @@ public class PrintUtilTest {
     public void testPrintAndLogException() {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         final Exception e = new Exception("Test Exception");
-        final PrintStream out = Mockito.mock(PrintStream.class);
-        final String expected = "ERROR: java.lang.Exception: Test Exception";
-        System.setOut(out);
-        out.flush();
+        Mockito.doNothing().when(printUtil).print(Mockito.anyString());
+        Mockito.doNothing().when(printUtil).log(Mockito.any(), Mockito.anyString());
 
         printUtil.printAndLog(e);
 
-        Mockito.verify(out).println(Mockito.contains(expected));
+        final String expected = "ERROR: java.lang.Exception: Test Exception";
+        Mockito.verify(printUtil, Mockito.times(1)).print(Mockito.contains(expected));
     }
 
     @Test

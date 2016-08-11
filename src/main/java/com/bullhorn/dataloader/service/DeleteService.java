@@ -43,7 +43,8 @@ public class DeleteService extends AbstractService implements Action {
 						concurrencyService.runDeleteProcess();
 						printUtil.printAndLog("Finished deleting " + entityName + " records in " + timer.getDurationStringHMS());
 					} catch (Exception e) {
-						printUtil.printAndLog("FAILED to delete " + entityName + " records - " + e.getMessage());
+                        printUtil.printAndLog("FAILED to delete " + entityName + " records");
+                        printUtil.printAndLog(e);
 					}
 				}
 			}

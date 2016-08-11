@@ -239,7 +239,7 @@ public abstract class AbstractService {
                 }
             }
 
-            System.out.println("Do you want to continue? [Y/N]");
+            printUtil.print("Do you want to continue? [Y/N]");
             Scanner scanner = new Scanner(inputStream);
             Boolean yesOrNoResponse = false;
             while (!yesOrNoResponse) {
