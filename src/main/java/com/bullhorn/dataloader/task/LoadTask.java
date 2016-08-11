@@ -185,16 +185,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private void populateFieldOnEntity(String field) {
-        try {
-            String value = dataMap.get(field);
-            Method method = methodMap.get(field.toLowerCase());
-            if (method != null && value != null && !"".equalsIgnoreCase(value)){
-                method.invoke(entity, convertStringToClass(method, value));
-            }
-        } catch (Exception e) {
-            printUtil.printAndLog("Error populating " + field);
-            printUtil.printAndLog(e);
-        }
+        populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
     private void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {

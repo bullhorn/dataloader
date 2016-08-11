@@ -222,4 +222,15 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) {
+        try {
+            Method method = methodMap.get(field.toLowerCase());
+            if (method != null && value != null && !"".equalsIgnoreCase(value)){
+                method.invoke(entity, convertStringToClass(method, value));
+            }
+        } catch (Exception e) {
+            printUtil.printAndLog("Error populating " + field);
+            printUtil.printAndLog(e);
+        }
+    }
 }
