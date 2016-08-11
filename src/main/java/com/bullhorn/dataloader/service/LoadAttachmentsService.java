@@ -39,7 +39,8 @@ public class LoadAttachmentsService extends AbstractService implements Action {
             concurrencyService.runLoadAttachmentsProcess();
 			printUtil.printAndLog("Finished loading " + entityName + " attachments in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
-			printUtil.printAndLog("FAILED to load " + entityName + " attachments - " + e.getMessage());
+			printUtil.printAndLog("FAILED to load " + entityName + " attachments");
+			printUtil.printAndLog(e);
 		}
 	}
 

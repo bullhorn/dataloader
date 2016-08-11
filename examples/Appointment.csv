@@ -1,0 +1,2 @@
+appointmentUUID,subject,communicationMethod,dateBegin,dateEnd,description,jobOrder.title,candidateReference.name,clientContactReference.name,lead.name,opportunity.title,owner.name,guests.name
+9a3985e3-eb13-4405-96f2-e8fbf2779244,BH41368 test appointment,Phone,09/1/2016 14:00,09/01/2016 14:30,Test appointment,BH41365 Job,Candidate BH41368F,Contact BH41368F,Lead BH41368F,BH41368-F Opportunity,Rich Bills,Lead BH41368A

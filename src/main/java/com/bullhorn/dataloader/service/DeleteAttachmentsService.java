@@ -39,7 +39,8 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 			concurrencyService.runDeleteAttachmentsProcess();
 			printUtil.printAndLog("Finished deleting " + entityName + " attachments in " + timer.getDurationStringHMS());
 		} catch (Exception e) {
-			printUtil.printAndLog("FAILED to delete " + entityName + " attachments - " + e.getMessage());
+			printUtil.printAndLog("FAILED to delete " + entityName + " attachments");
+			printUtil.printAndLog(e);
 		}
 	}
 

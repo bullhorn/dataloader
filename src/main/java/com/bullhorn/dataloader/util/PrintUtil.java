@@ -1,11 +1,13 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.service.Command;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import com.bullhorn.dataloader.service.Command;
 
 /**
  * Methods that provide feedback to the user on the command line.
@@ -15,19 +17,19 @@ public class PrintUtil {
     private Logger log = LogManager.getLogger(PrintUtil.class);
 
     public void printUsage() {
-        System.out.println("");
-        System.out.println("Usage: <action> <parameter>");
-        System.out.println("                Load: dataloader load path/to/<EntityName>.csv");
-        System.out.println("                      dataloader load path/to/directory");
-        System.out.println("              Delete: dataloader delete path/to/<EntityName>.csv");
-        System.out.println("                      dataloader delete path/to/directory");
-        System.out.println("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
-        System.out.println("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
-        System.out.println("     Create Template: dataloader template <EntityName>");
-        System.out.println("");
-        System.out.println("where <EntityName> is one of the supported entities listed at:");
-        System.out.println("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
-        System.out.println("");
+        print("");
+        print("Usage: <action> <parameter>");
+        print("                Load: dataloader load path/to/<EntityName>.csv");
+        print("                      dataloader load path/to/directory");
+        print("              Delete: dataloader delete path/to/<EntityName>.csv");
+        print("                      dataloader delete path/to/directory");
+        print("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
+        print("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
+        print("     Create Template: dataloader template <EntityName>");
+        print("");
+        print("where <EntityName> is one of the supported entities listed at:");
+        print("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
+        print("");
     }
 
     public void printEntityError(String entityName, String warningText) {
@@ -67,24 +69,38 @@ public class PrintUtil {
      * Prints to the console and logs to the logfile
      */
     public void printAndLog(String line) {
-        System.out.println(line);
-        log.info(line);
+        print(line);
+        log(line);
     }
 
     /**
      * Prints an error to the console and logs the error with stacktrace to the logfile
      */
     public void printAndLog(Exception e) {
-        System.out.println("ERROR: " + e.toString());
+        print("ERROR: " + e.toString());
         StringWriter stackTrace = new StringWriter();
         e.printStackTrace(new PrintWriter(stackTrace));
-        log.error(stackTrace.toString());
+        log(Level.ERROR, stackTrace.toString());
+    }
+
+    /**
+     * Prints to the command line
+     */
+    public void print(String line) {
+        System.out.println(line);
+    }
+
+    /**
+     * Default log that uses the INFO level
+     */
+    public void log(String line) {
+        log(Level.INFO, line);
     }
 
     /**
      * Logs to the logfile
      */
-    public void log(String line) {
-        log.info(line);
+    public void log(Level level, String line) {
+        log.log(level, line);
     }
 }
