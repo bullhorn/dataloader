@@ -232,6 +232,16 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    /**
+     * populates a field on an entity using reflection
+     *
+     * @param field field to populate
+     * @param value value to populate field with
+     * @param entity the entity to populate
+     * @param methodMap map of set methods on entity
+     *
+     * @return a FileWrapper with the file information
+     */
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) {
         try {
             Method method = methodMap.get(field.toLowerCase());

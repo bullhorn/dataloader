@@ -83,6 +83,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         return result;
     }
 
+    // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(TaskConsts.ID))){
             bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(TaskConsts.ID)));

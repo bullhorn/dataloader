@@ -16,7 +16,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.file.FileMeta;
-import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
@@ -107,7 +106,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
         Class<B> entity = getAndSetBullhornEntityInfo();
-        Map<String, Method> methodMap = createMethodMap(StandardFileMeta.class);
+        Map<String, Method> methodMap = createMethodMap(FileMeta.class);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
             LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entity, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
