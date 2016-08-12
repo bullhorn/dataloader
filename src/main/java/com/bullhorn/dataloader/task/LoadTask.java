@@ -1,22 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -50,6 +33,22 @@ import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
@@ -58,7 +57,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
     protected B entity;
-    private Integer entityID;
+    protected Integer entityID;
     private boolean isNewEntity = true;
 
     public LoadTask(Command command,
@@ -88,7 +87,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         writeToResultCSV(result);
     }
 
-    private Result handle() throws Exception {
+    protected Result handle() throws Exception {
         createEntityObject();
         handleData();
         insertAttachmentToDescription();
@@ -229,7 +228,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return findEntity(field, fieldName, toOneEntityClass, fieldType);
     }
 
-    private B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
+    protected B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
             return searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
         } else {
@@ -272,12 +271,12 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    protected void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         for (Integer associationId : newAssociationIdList) {
             try {
                 bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
-            } catch(Exception e){
+            } catch(RestApiException e){
                 if (!e.getMessage().contains("an association between " + entityClass.getSimpleName() + " " + entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")){
                     throw e;
                 }
@@ -285,7 +284,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
 
@@ -329,7 +328,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return (List<B>) bullhornData.query((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
     }
 
-    private Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
+    protected Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
         String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
         try {
             return associationField.getAssociationType().getMethod(methodName);
@@ -343,7 +342,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return valueSet.stream().map(n -> getWhereStatment(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
     }
 
-    private List<AssociationField<A, B>> getAssociationFields() {
+    protected List<AssociationField<A, B>> getAssociationFields() {
         try {
             E entityAssociations = getEntityAssociations((Class<A>) entityClass);
             return entityAssociations.allAssociations();
