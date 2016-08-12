@@ -1,13 +1,14 @@
 package com.bullhorn.dataloader.util.validation;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
 
 public class PropertyValidationTest {
 
@@ -23,7 +24,7 @@ public class PropertyValidationTest {
 		entityExistFieldsMap.put("Appointment", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("BusinessSector", Arrays.asList("name"));
 		entityExistFieldsMap.put("CandidateEducation", Arrays.asList("externalID"));
-		entityExistFieldsMap.put("Candidate", Arrays.asList("id"));
+		entityExistFieldsMap.put("Candidate", Arrays.asList(" id "));
 		entityExistFieldsMap.put("CandidateReference", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("CandidateWorkHistory", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("Category", Arrays.asList("occupation"));
@@ -33,7 +34,7 @@ public class PropertyValidationTest {
 		entityExistFieldsMap.put("CorporateUser", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("CorporationDepartment", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("Country", Arrays.asList("externalID"));
-		entityExistFieldsMap.put("HousingComplex", Arrays.asList("externalID"));
+		entityExistFieldsMap.put("HousingComplex", Arrays.asList(""));
 		entityExistFieldsMap.put("JobOrder", Arrays.asList("title", "name"));
 		entityExistFieldsMap.put("JobSubmission", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("JobSubmissionHistory", Arrays.asList("externalID"));
@@ -50,7 +51,7 @@ public class PropertyValidationTest {
 		entityExistFieldsMap.put("State", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("Task", Arrays.asList("externalID"));
 		entityExistFieldsMap.put("Tearsheet", Arrays.asList("externalID"));
-		entityExistFieldsMap.put("TimeUnit", Arrays.asList("externalID"));
+		entityExistFieldsMap.put("TimeUnit", Arrays.asList(""));
 	}
 
 	@Test(expected=IllegalArgumentException.class)
@@ -88,15 +89,21 @@ public class PropertyValidationTest {
 		propertyValidation.validateLoginUrl("");
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
+	public void testEntityExistFields_TrimWhitespace() throws IOException {
+        Assert.assertEquals(" id ", entityExistFieldsMap.get("Candidate").get(0));
+		propertyValidation.validateEntityExistFields(entityExistFieldsMap);
+        Assert.assertEquals("id", entityExistFieldsMap.get("Candidate").get(0));
+	}
+
+	@Test
 	public void testEntityExistFields_Missing() throws IOException {
 		entityExistFieldsMap.remove("BusinessSector");
 		propertyValidation.validateEntityExistFields(entityExistFieldsMap);
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testEntityExistFields_Empty() throws IOException {
-		entityExistFieldsMap.remove("Candidate");
 		entityExistFieldsMap.put("Candidate", Arrays.asList(""));
 		propertyValidation.validateEntityExistFields(entityExistFieldsMap);
 	}
