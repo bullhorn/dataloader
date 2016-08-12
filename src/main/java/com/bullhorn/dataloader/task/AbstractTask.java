@@ -182,7 +182,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return valueMap;
     }
 
-    protected final Object convertStringToClass(Method method, String value) throws ParseException {
+    protected Object convertStringToClass(Method method, String value) throws ParseException {
         if (StringUtils.isEmpty(value)){
             return null;
         }
