@@ -208,11 +208,11 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
-        String getMethodName = "get" + fieldName;
         if (fieldName.indexOf(".") > -1){
             toOneEntityClass = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
             fieldName = fieldName.substring(fieldName.indexOf(".") + 1);
         }
+        String getMethodName = "get" + fieldName;
         List<Method> methods = Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
             throw new RestApiException("To-One Association field: '" + fieldName + "' does not exist on " + toOneEntityClass.getSimpleName());
