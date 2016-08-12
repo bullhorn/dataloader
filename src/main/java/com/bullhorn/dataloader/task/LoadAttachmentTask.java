@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.activation.MimetypesFileTypeMap;
+
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -33,6 +35,7 @@ import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.google.common.base.Joiner;
@@ -45,7 +48,6 @@ import com.google.common.collect.Sets;
 public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
 
     private FileMeta fileMeta;
-    private File attachmentFile;
     private boolean isNewEntity = true;
     private Map<String, Method> methodMap;
 
@@ -108,33 +110,41 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private <F extends FileEntity> void createFileMeta() {
-        attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
         fileMeta = new StandardFileMeta();
 
         List<FileMeta> allFileMetas = bullhornData.getFileMetaData((Class<F>) entityClass, bullhornParentId);
 
         for (FileMeta curFileMeta : allFileMetas) {
-            if (curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(TaskConsts.EXTERNAL_ID))) {
-                try {
-                    isNewEntity = false;
-                    fileMeta = curFileMeta;
-
-                    // fileContent is required for an update
-                    byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(TaskConsts.RELATIVE_FILE_PATH)));
-                    String fileStr  = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
-                    fileMeta.setFileContent(fileStr);
-
-                    break;
-                }
-                catch (IOException ioe) {
-                    // if setting fileContent fails, do insert instead
-                    return;
-                }
+            if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(TaskConsts.ID))
+                || curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(TaskConsts.EXTERNAL_ID))
+                   ) {
+                isNewEntity = false;
+                fileMeta = curFileMeta;
+                break;
             }
         }
     }
 
-    private void populateFileMeta() {
+    private <F extends FileEntity> void populateFileMeta() throws Exception {
+        File attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+
+        if (isNewEntity) {
+            try {
+                byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(TaskConsts.RELATIVE_FILE_PATH)));
+                String fileStr  = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
+                fileMeta.setFileContent(fileStr);
+                fileMeta.setName(attachmentFile.getName());
+            }
+            catch (IOException ioe) {
+                throw new Exception("Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+            }
+        }
+        else {
+            // for update, grab original fileContent because it is required for an update
+            FileContent fileContent = bullhornData.getFileContent((Class<F>) entityClass, bullhornParentId, fileMeta.getId());
+            fileMeta.setFileContent(fileContent.getFileContent());
+        }
+
         // set values from FileParams
         Map<String, String> paramsMap = ParamFactory.fileParams().getParameterMap();
         for (String field : paramsMap.keySet()){
@@ -152,9 +162,9 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         }
     }
 
-    private  <F extends FileEntity> Result addOrUpdateFile() {
+    private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
-            FileWrapper fileWrapper =  bullhornData.addFile((Class<F>) entityClass, bullhornParentId, attachmentFile, fileMeta, false);
+            FileWrapper fileWrapper =  bullhornData.addFile((Class<F>) entityClass, bullhornParentId, fileMeta);
             return Result.Insert(fileWrapper.getId());
         }
         else {
