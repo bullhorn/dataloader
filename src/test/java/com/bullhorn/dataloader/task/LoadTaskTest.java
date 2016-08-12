@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.task;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -172,7 +173,7 @@ public class LoadTaskTest {
     @Test
     public void run_InsertSuccess() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        task = Mockito.spy(task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
@@ -186,12 +187,18 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
     }
 
     @Test
     public void run_UpdateSuccess() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        task = Mockito.spy(task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
@@ -205,6 +212,39 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
+    }
+
+    @Test
+    public void run_UpdateError() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("bogus.bogus", "this should fail!");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "java.lang.NullPointerException");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
     }
 
     private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
