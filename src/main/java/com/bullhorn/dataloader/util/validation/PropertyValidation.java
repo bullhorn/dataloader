@@ -1,11 +1,10 @@
 package com.bullhorn.dataloader.util.validation;
 
-import java.util.List;
-import java.util.Map;
-
+import com.bullhorn.dataloader.meta.Entity;
 import org.apache.commons.lang.WordUtils;
 
-import com.bullhorn.dataloader.meta.Entity;
+import java.util.List;
+import java.util.Map;
 
 public class PropertyValidation {
 
@@ -66,13 +65,6 @@ public class PropertyValidation {
     }
 
     public void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {
-        // Check that all entities have an exist field
-        for (Entity entity: Entity.values()) {
-            if (!entityExistFieldsMap.containsKey(entity.getEntityName())) {
-                throw new IllegalArgumentException("DataLoader Properties Error: missing property: " + WordUtils.uncapitalize(entity.getEntityName()) + "ExistField");
-            }
-        }
-
         for (Map.Entry<String, List<String>> entityEntry : entityExistFieldsMap.entrySet()) {
             // Clean up fields by trimming whitespace
             for (String value : entityEntry.getValue()) {
@@ -83,11 +75,6 @@ public class PropertyValidation {
             // Check that the exist field matches a real entity
             if (Entity.fromString(entityEntry.getKey()) == null) {
                 throw new IllegalArgumentException("DataLoader Properties Error: " + WordUtils.uncapitalize(entityEntry.getKey()) + "ExistField property does not match a supported entity - unrecognized entity: '" + entityEntry.getKey() + "'");
-            }
-
-            // Check that none are empty
-            if (entityEntry.getValue().get(0).equals("")) {
-                throw new IllegalArgumentException("DataLoader Properties Error: " + WordUtils.uncapitalize(entityEntry.getKey()) + "ExistField property must not be blank");
             }
         }
     }

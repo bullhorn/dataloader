@@ -27,12 +27,14 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -139,21 +141,25 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected List<B> findEntityList() {
-        if (SearchEntity.class.isAssignableFrom(entityClass)){
-            return searchForEntity();
-        } else {
-            return queryForEntity();
+        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+
+        if (!entityExistFieldsMap.isEmpty()) {
+            if (SearchEntity.class.isAssignableFrom(entityClass)){
+                return searchForEntity(entityExistFieldsMap);
+            } else {
+                return queryForEntity(entityExistFieldsMap);
+            }
         }
+
+        return new ArrayList<B>();
     }
 
-    private <S extends SearchEntity> List<B> searchForEntity() {
-        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
-    private <Q extends QueryEntity> List<B> queryForEntity() {
-        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatment(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
@@ -174,12 +180,16 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected Map<String, String> getEntityExistFieldsMap() {
-        Map<String, String> valueMap = new HashMap<>();
-        List<String> entityExistFieldList = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName()).get();
-        for (String entityExistField : entityExistFieldList){
-            valueMap.put(entityExistField, dataMap.get(entityExistField));
+        Map<String, String> entityExistFieldsMap = new HashMap<>();
+
+        Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName());
+        if (existFields.isPresent()) {
+            for (String existField : existFields.get()){
+                entityExistFieldsMap.put(existField, dataMap.get(existField));
+            }
         }
-        return valueMap;
+
+        return entityExistFieldsMap;
     }
 
     protected Object convertStringToClass(Method method, String value) throws ParseException {
