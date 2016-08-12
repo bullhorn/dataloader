@@ -10,6 +10,8 @@ public interface TaskConsts {
 
     static final String RELATIVE_FILE_PATH = "relativeFilePath";
 
+    static final String IS_RESUME = "isResume";
+
     static final String DESCRIPTION = "description";
 
 }

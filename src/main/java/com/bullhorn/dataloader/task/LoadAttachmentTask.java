@@ -153,7 +153,9 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
 
         // set values from csv file
         for (String field : dataMap.keySet()){
-            populateFieldOnEntity(field, dataMap.get(field), fileMeta, methodMap);
+            if (validField(field)) {
+                populateFieldOnEntity(field, dataMap.get(field), fileMeta, methodMap);
+            }
         }
 
         // external id cannot be null
@@ -171,6 +173,13 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
             FileWrapper fileWrapper = bullhornData.updateFile((Class<F>) entityClass, bullhornParentId, fileMeta);
             return Result.Update(fileWrapper.getId());
         }
+    }
+
+    private boolean validField(String field) {
+        return  !(field.contains(".")
+            || field.equals(PARENT_ENTITY_ID)
+            || field.equals(RELATIVE_FILE_PATH)
+            || field.equals(IS_RESUME));
     }
 
 }

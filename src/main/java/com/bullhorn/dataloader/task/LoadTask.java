@@ -186,15 +186,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
-        String value = dataMap.get(field);
-        Method method = methodMap.get(field.toLowerCase());
-        if (method == null) {
-            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
-        }
-
-        if (value != null && !"".equalsIgnoreCase(value)){
-            method.invoke(entity, convertStringToClass(method, value));
-        }
+        populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
     private void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {

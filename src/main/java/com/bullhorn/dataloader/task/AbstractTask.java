@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -242,21 +243,14 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
      *
      * @return a FileWrapper with the file information
      */
-    protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) {
-        boolean methodFound = false;
-        try {
-            Method method = methodMap.get(field.toLowerCase());
-            if (method != null && value != null && !"".equalsIgnoreCase(value)){
-                method.invoke(entity, convertStringToClass(method, value));
-                methodFound = true;
-            }
-        } catch (Exception e) {
-            printUtil.printAndLog("Error populating " + field);
-            printUtil.printAndLog(e);
+    protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
+        Method method = methodMap.get(field.toLowerCase());
+        if (method == null) {
+            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
-        if (!methodFound) { // log if method not found
-            printUtil.printAndLog("Method not found for " + field + " on entity " + entity.toString());
+        if (value != null && !"".equalsIgnoreCase(value)){
+            method.invoke(entity, convertStringToClass(method, value));
         }
     }
 }
