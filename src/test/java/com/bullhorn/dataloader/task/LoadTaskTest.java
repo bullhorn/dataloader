@@ -32,7 +32,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -340,19 +339,6 @@ public class LoadTaskTest {
         Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
     }
 
-    private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
-        ListWrapper<B> listWrapper = new StandardListWrapper<B>();
-        B entity = entityClass.newInstance();
-        entity.setId(1);
-        listWrapper.setData(Arrays.asList(entity));
-        return listWrapper;
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
-    }
-
     @Test
      public void getAssociationFieldsTestCatch(){
         List expectedResult = new ArrayList<>();
@@ -515,6 +501,14 @@ public class LoadTaskTest {
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
+    }
+
+    private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
+        ListWrapper<B> listWrapper = new StandardListWrapper<B>();
+        B entity = entityClass.newInstance();
+        entity.setId(1);
+        listWrapper.setData(Arrays.asList(entity));
+        return listWrapper;
     }
 
 }
