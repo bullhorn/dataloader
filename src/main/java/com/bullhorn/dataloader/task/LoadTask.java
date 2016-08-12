@@ -1,5 +1,22 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -33,21 +50,6 @@ import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
@@ -162,7 +164,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private void handleData() throws InvocationTargetException, IllegalAccessException {
+    private void handleData() throws InvocationTargetException, IllegalAccessException, ParseException {
         for (String field : dataMap.keySet()){
             if (validField(field)) {
                 if (field.contains(".")) {
@@ -184,16 +186,15 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return true;
     }
 
-    private void populateFieldOnEntity(String field) {
-        try {
-            String value = dataMap.get(field);
-            Method method = methodMap.get(field.toLowerCase());
-            if (method != null && value != null && !"".equalsIgnoreCase(value)){
-                method.invoke(entity, convertStringToClass(method, value));
-            }
-        } catch (Exception e) {
-            printUtil.printAndLog("Error populating " + field);
-            printUtil.printAndLog(e);
+    private void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
+        String value = dataMap.get(field);
+        Method method = methodMap.get(field.toLowerCase());
+        if (method == null) {
+            throw new IllegalArgumentException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+        }
+
+        if (value != null && !"".equalsIgnoreCase(value)){
+            method.invoke(entity, convertStringToClass(method, value));
         }
     }
 
@@ -204,16 +205,22 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException {
+    private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException {
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
+
         if (toOneEntityName.toLowerCase().contains("address")){
             handleAddress(toOneEntityName, field, fieldName);
         }
         else {
-            Class<B> toOneEntityClass = (Class<B>) methodMap.get(toOneEntityName.toLowerCase()).getParameterTypes()[0];
+            Method method = methodMap.get(toOneEntityName.toLowerCase());
+            if (method == null) {
+                throw new IllegalArgumentException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+            }
+
+            Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
             B toOneEntity = getToOneEntity(field, fieldName, toOneEntityClass);
-            methodMap.get(toOneEntityName.toLowerCase()).invoke(entity, toOneEntity);
+            method.invoke(entity, toOneEntity);
         }
     }
 
@@ -237,7 +244,12 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         if (fieldName.contains("country")) {
             methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
         } else {
-            methodMap.get(fieldName).invoke(addressMap.get(toOneEntityName), dataMap.get(field));
+            Method method = methodMap.get(fieldName);
+            if (method == null) {
+                throw new IllegalArgumentException("Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
+            }
+
+            method.invoke(addressMap.get(toOneEntityName), dataMap.get(field));
         }
     }
 
