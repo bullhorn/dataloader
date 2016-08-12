@@ -14,6 +14,7 @@ import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.response.file.FileContent;
+import com.bullhornsdk.data.model.response.file.standard.StandardFileContent;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
 import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
@@ -100,7 +101,7 @@ public class LoadAttachmentTaskTest {
         dataMap2.put("name","new filename");
     }
 
-    //@Test
+    @Test
     public void loadAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Insert(0);
@@ -127,7 +128,7 @@ public class LoadAttachmentTaskTest {
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
-    //@Test
+    @Test
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
@@ -154,7 +155,7 @@ public class LoadAttachmentTaskTest {
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
-    //@Test
+    @Test
     public void existPropertyConfiguredCorrectlyTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Insert(0);
@@ -182,7 +183,7 @@ public class LoadAttachmentTaskTest {
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
-    //@Test
+    @Test
     public void updateAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Update(0);
@@ -196,20 +197,22 @@ public class LoadAttachmentTaskTest {
         List<FileMeta> fileList = Lists.newArrayList();
         fileList.add(file1);
 
+        StandardFileContent mockedFileContent = new StandardFileContent();
+        mockedFileContent.setFileContent("thisisafilecontent");
+
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
 
         final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
         listWrapper.setData(candidates);
 
-        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
         final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
 
         when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
         when(bullhornData.updateFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
         when(bullhornData.getFileMetaData(anyObject(), anyInt())).thenReturn(fileList);
-
+        when(bullhornData.getFileContent(anyObject(), anyInt(), anyInt())).thenReturn(mockedFileContent);
 
         task.run();
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
