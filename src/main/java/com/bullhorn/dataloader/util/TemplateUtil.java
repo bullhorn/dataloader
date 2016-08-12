@@ -53,7 +53,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         csvWriter.close();
     }
 
-    private void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) {
+    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) {
         for (Field field : metaFieldSet) {
             if (!isCompositeType(field) && !hasId(metaFieldSet, field.getName())) {
                 headers.add(field.getName());
@@ -88,7 +88,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
     }
 
-    private void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
+    protected void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
         for (Field field : associationFields){
             field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
             addExternalIDWhenExists(field);
@@ -96,23 +96,26 @@ public class TemplateUtil<B extends BullhornEntity> {
         }
     }
 
-    private void addExternalIDWhenExists(Field field) {
+    protected void addExternalIDWhenExists(Field field) {
         try {
             if (BullhornEntityInfo.getTypeFromName(field.getOptionsType()).getType().getMethod("getExternalID") != null){
                 Field externalIdField = new Field();
                 externalIdField.setName(field.getName() + ".externalID");
                 externalIdField.setDataType("String");
-                field.getAssociatedEntity().getFields().add(externalIdField);
+                List<Field> newFieldList = new ArrayList<>();
+                newFieldList.add(externalIdField);
+                newFieldList.addAll(field.getAssociatedEntity().getFields());
+                field.getAssociatedEntity().setFields(newFieldList);
             }
-        } catch (Exception e) {
-        }
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalArgumentException e) {}
     }
 
-    private boolean hasId(Set<Field> metaFieldSet, String column) {
+    protected boolean hasId(Set<Field> metaFieldSet, String column) {
         return metaFieldSet.stream().map(n -> n.getName()).anyMatch(n -> n.equalsIgnoreCase(column + ".id"));
     }
 
-    private boolean isCompositeType(Field field) {
+    protected boolean isCompositeType(Field field) {
         return "COMPOSITE".equalsIgnoreCase(field.getType());
     }
 }
