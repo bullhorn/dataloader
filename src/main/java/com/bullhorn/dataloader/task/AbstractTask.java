@@ -233,14 +233,20 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
      * @return a FileWrapper with the file information
      */
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) {
+        boolean methodFound = false;
         try {
             Method method = methodMap.get(field.toLowerCase());
             if (method != null && value != null && !"".equalsIgnoreCase(value)){
                 method.invoke(entity, convertStringToClass(method, value));
+                methodFound = true;
             }
         } catch (Exception e) {
             printUtil.printAndLog("Error populating " + field);
             printUtil.printAndLog(e);
+        }
+
+        if (!methodFound) { // log if method not found
+            printUtil.printAndLog("Method not found for " + field + " on entity " + entity.toString());
         }
     }
 }
