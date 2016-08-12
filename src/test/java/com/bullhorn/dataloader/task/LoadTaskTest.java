@@ -224,7 +224,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "java.lang.IllegalArgumentException: Invalid field: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'bogus' does not exist on Candidate");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -251,7 +251,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAssociation() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus.id", "This should fail with meaningful error because bogus does not exist.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "java.lang.IllegalArgumentException: To-One Association: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: To-One Association: 'bogus' does not exist on Candidate");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -278,7 +278,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "java.lang.IllegalArgumentException: To-One Association field: 'bogus' does not exist on CorporateUser");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: To-One Association field: 'bogus' does not exist on CorporateUser");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -305,7 +305,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAddressAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "java.lang.IllegalArgumentException: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));

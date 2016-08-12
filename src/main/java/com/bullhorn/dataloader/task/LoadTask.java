@@ -190,7 +190,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         String value = dataMap.get(field);
         Method method = methodMap.get(field.toLowerCase());
         if (method == null) {
-            throw new IllegalArgumentException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
         if (value != null && !"".equalsIgnoreCase(value)){
@@ -205,7 +205,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         }
     }
 
-    private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException, IllegalArgumentException {
+    private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException, RestApiException {
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
 
@@ -215,7 +215,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         else {
             Method method = methodMap.get(toOneEntityName.toLowerCase());
             if (method == null) {
-                throw new IllegalArgumentException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+                throw new RestApiException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
             }
 
             Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
@@ -246,7 +246,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         } else {
             Method method = methodMap.get(fieldName);
             if (method == null) {
-                throw new IllegalArgumentException("Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
+                throw new RestApiException("Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
             }
 
             method.invoke(addressMap.get(toOneEntityName), dataMap.get(field));

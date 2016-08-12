@@ -212,7 +212,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
         List<Method> methods = Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
-            throw new IllegalArgumentException("To-One Association field: '" + fieldName + "' does not exist on " + toOneEntityClass.getSimpleName());
+            throw new RestApiException("To-One Association field: '" + fieldName + "' does not exist on " + toOneEntityClass.getSimpleName());
         }
 
         return methods.get(0).getReturnType();
