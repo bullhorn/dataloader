@@ -8,38 +8,68 @@ import org.junit.Test;
 
 public class ActionTotalsTest {
 
-    private ActionTotals actionTotals;
+    private ActionTotals actionTotals1;
+    private ActionTotals actionTotals2;
 
     @Before
     public void setup() throws IOException {
-        actionTotals = new ActionTotals();
+        actionTotals1 = new ActionTotals();
+        actionTotals2 = new ActionTotals();
     }
 
     @Test
-    public void testIncrementTotalInsert() {
-        Assert.assertEquals(actionTotals.getTotalInsert(), 0);
-        actionTotals.incrementTotalInsert();
-        Assert.assertEquals(actionTotals.getTotalInsert(), 1);
+    public void testIncrementTotalInsert1() {
+        Assert.assertEquals(actionTotals1.getTotalInsert(), 0);
+        actionTotals1.incrementTotalInsert();
+        Assert.assertEquals(actionTotals1.getTotalInsert(), 1);
     }
 
     @Test
-    public void testIncrementTotalUpdate() {
-        Assert.assertEquals(actionTotals.getTotalUpdate(), 0);
-        actionTotals.incrementTotalUpdate();
-        Assert.assertEquals(actionTotals.getTotalUpdate(), 1);
+    public void testIncrementTotalInsert2() {
+        Assert.assertEquals(actionTotals2.getTotalInsert(), 0);
+        actionTotals2.incrementTotalInsert();
+        Assert.assertEquals(actionTotals2.getTotalInsert(), 1);
     }
 
     @Test
-    public void testIncrementTotalError() {
-        Assert.assertEquals(actionTotals.getTotalError(), 0);
-        actionTotals.incrementTotalError();
-        Assert.assertEquals(actionTotals.getTotalError(), 1);
+    public void testIncrementTotalUpdate1() {
+        Assert.assertEquals(actionTotals1.getTotalUpdate(), 0);
+        actionTotals1.incrementTotalUpdate();
+        Assert.assertEquals(actionTotals1.getTotalUpdate(), 1);
     }
 
     @Test
-    public void testIncrementTotalDelete() {
-        Assert.assertEquals(actionTotals.getTotalDelete(), 0);
-        actionTotals.incrementTotalDelete();
-        Assert.assertEquals(actionTotals.getTotalDelete(), 1);
+    public void testIncrementTotalUpdate2() {
+        Assert.assertEquals(actionTotals2.getTotalUpdate(), 0);
+        actionTotals2.incrementTotalUpdate();
+        Assert.assertEquals(actionTotals2.getTotalUpdate(), 1);
+    }
+
+    @Test
+    public void testIncrementTotalError1() {
+        Assert.assertEquals(actionTotals1.getTotalError(), 0);
+        actionTotals1.incrementTotalError();
+        Assert.assertEquals(actionTotals1.getTotalError(), 1);
+    }
+
+    @Test
+    public void testIncrementTotalError2() {
+        Assert.assertEquals(actionTotals2.getTotalError(), 0);
+        actionTotals2.incrementTotalError();
+        Assert.assertEquals(actionTotals2.getTotalError(), 1);
+    }
+
+    @Test
+    public void testIncrementTotalDelete1() {
+        Assert.assertEquals(actionTotals1.getTotalDelete(), 0);
+        actionTotals1.incrementTotalDelete();
+        Assert.assertEquals(actionTotals1.getTotalDelete(), 1);
+    }
+
+    @Test
+    public void testIncrementTotalDelete2() {
+        Assert.assertEquals(actionTotals2.getTotalDelete(), 0);
+        actionTotals2.incrementTotalDelete();
+        Assert.assertEquals(actionTotals2.getTotalDelete(), 1);
     }
 }

@@ -7,11 +7,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActionTotals {
 
-	private static AtomicInteger totalUpdate = new AtomicInteger(0);
-	private static AtomicInteger totalInsert = new AtomicInteger(0);
-	private static AtomicInteger totalError = new AtomicInteger(0);
-	private static AtomicInteger totalConvert = new AtomicInteger(0);
-	private static AtomicInteger totalDelete = new AtomicInteger(0);
+	private AtomicInteger totalUpdate = new AtomicInteger(0);
+	private AtomicInteger totalInsert = new AtomicInteger(0);
+	private AtomicInteger totalError = new AtomicInteger(0);
+	private AtomicInteger totalConvert = new AtomicInteger(0);
+	private AtomicInteger totalDelete = new AtomicInteger(0);
 
 	public void incrementTotalInsert() {
 		totalInsert.incrementAndGet();

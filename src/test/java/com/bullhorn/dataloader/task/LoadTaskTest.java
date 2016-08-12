@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.task;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -85,6 +86,7 @@ public class LoadTaskTest {
         methodMap = concurrencyService.createMethodMap(Candidate.class);
         countryNameToIdMap = new LinkedHashMap<String, Integer>();
         countryNameToIdMap.put("United States", 1);
+
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("externalID", "11");
         dataMap.put("firstName", "Load");
@@ -104,8 +106,8 @@ public class LoadTaskTest {
         task.entity = candidate;
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
 
+        Assert.assertNull(candidate.getDescription());
         task.insertAttachmentToDescription();
-
         Assert.assertNotNull(candidate.getDescription());
     }
 
@@ -117,9 +119,9 @@ public class LoadTaskTest {
         task.entity = corporation;
         when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
 
+        // ClientCorporation uses companyDescription field instead of description
+        Assert.assertNull(corporation.getCompanyDescription());
         task.insertAttachmentToDescription();
-
-        //client corp uses companyDescription field instead of description
         Assert.assertNotNull(corporation.getCompanyDescription());
     }
 
@@ -172,7 +174,7 @@ public class LoadTaskTest {
     @Test
     public void run_InsertSuccess() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        task = Mockito.spy(task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
@@ -186,12 +188,18 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
     }
 
     @Test
     public void run_UpdateSuccess() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        task = Mockito.spy(task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
@@ -205,6 +213,120 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
+    }
+
+    @Test
+    public void run_invalidField() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'bogus' does not exist on Candidate");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+    }
+
+    @Test
+    public void run_invalidToOneAssociation() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("bogus.id", "This should fail with meaningful error because bogus does not exist.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: To-One Association: 'bogus' does not exist on Candidate");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+    }
+
+    @Test
+    public void run_invalidToOneAssociationField() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: To-One Association field: 'bogus' does not exist on CorporateUser");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+    }
+
+    @Test
+    public void run_invalidToOneAddressAssociationField() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
+        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
     }
 
     private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
