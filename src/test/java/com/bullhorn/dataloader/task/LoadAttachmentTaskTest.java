@@ -89,12 +89,12 @@ public class LoadAttachmentTaskTest {
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("Candidate.id","1001");
+        dataMap.put("candidate.id","1001");
         dataMap.put("relativeFilePath",relativeFilePath);
         dataMap.put("isResume","0");
 
         dataMap2 = new LinkedHashMap<String, String>();
-        dataMap2.put("Candidate.externalID","2011Ext");
+        dataMap2.put("candidate.externalID","2011Ext");
         dataMap2.put("relativeFilePath",relativeFilePath);
         dataMap2.put("isResume","1");
         dataMap2.put("externalID","extFileId1");
