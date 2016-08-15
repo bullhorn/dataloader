@@ -52,8 +52,8 @@ public class DeleteAttachmentTaskTest {
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("attachmentID", "1");
-        dataMap.put("externalID","1");
+        dataMap.put("id", "1");
+        dataMap.put("Candidate.externalID","1");
         dataMap.put("relativeFilePath","testResume/Test Resume.doc");
         dataMap.put("isResume","0");
         dataMap.put("parentEntityID", "1");

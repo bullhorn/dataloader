@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -242,4 +243,24 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    /**
+     * populates a field on an entity using reflection
+     *
+     * @param field field to populate
+     * @param value value to populate field with
+     * @param entity the entity to populate
+     * @param methodMap map of set methods on entity
+     *
+     * @return a FileWrapper with the file information
+     */
+    protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
+        Method method = methodMap.get(field.toLowerCase());
+        if (method == null) {
+            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+        }
+
+        if (value != null && !"".equalsIgnoreCase(value)){
+            method.invoke(entity, convertStringToClass(method, value));
+        }
+    }
 }

@@ -4,7 +4,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +28,9 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.file.FileMeta;
 import com.csvreader.CsvReader;
+import com.google.common.collect.Maps;
 
 public class ConcurrencyServiceTest {
 
@@ -69,7 +75,14 @@ public class ConcurrencyServiceTest {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
 
-        final LoadAttachmentTask<Candidate> expectedTask = new LoadAttachmentTask<Candidate>(Command.LOAD_ATTACHMENTS, 1, Candidate.class, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        Map<String, Method> methodMap = new HashMap();
+        for (Method method : Arrays.asList(FileMeta.class.getMethods())){
+            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
+                methodMap.put(method.getName().substring(3).toLowerCase(), method);
+            }
+        }
+
+        final LoadAttachmentTask<Candidate> expectedTask = new LoadAttachmentTask<Candidate>(Command.LOAD_ATTACHMENTS, 1, Candidate.class, expectedDataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadAttachmentsProcess();

@@ -15,6 +15,7 @@ import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
+import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
@@ -105,9 +106,10 @@ public class ConcurrencyService<B extends BullhornEntity> {
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
         Class<B> entity = getAndSetBullhornEntityInfo();
+        Map<String, Method> methodMap = createMethodMap(FileMeta.class);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entity, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -137,7 +139,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         return null;
     }
 
-    public Map<String, Method> createMethodMap(Class<B> entity) {
+    public Map<String, Method> createMethodMap(Class entity) {
         Map<String, Method> methodMap = new HashMap();
         for (Method method : Arrays.asList(entity.getMethods())){
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {

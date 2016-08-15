@@ -51,7 +51,7 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
     }
 
     private <F extends FileEntity> FileApiResponse deleteFile() {
-        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(TaskConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(TaskConsts.ATTACHMENT_ID)));
+        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(TaskConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(TaskConsts.ID)));
     }
 
 }
