@@ -250,8 +250,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
      * @param value value to populate field with
      * @param entity the entity to populate
      * @param methodMap map of set methods on entity
-     *
-     * @return a FileWrapper with the file information
      */
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
         Method method = methodMap.get(field.toLowerCase());
