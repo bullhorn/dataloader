@@ -559,6 +559,22 @@ public class LoadTaskTest {
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
     }
 
+    @Test(expected=RestApiException.class)
+    public void getWhereStatement_integer(){
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        String actual = task.getWhereStatment("id", "99", int.class);
+
+        Assert.assertEquals("id=99", actual);
+    }
+
+    @Test(expected=RestApiException.class)
+    public void getWhereStatement_unsupportedType(){
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        task.getWhereStatment("comments", "my comment", double.class);
+    }
+
     private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
         ListWrapper<B> listWrapper = new StandardListWrapper<B>();
         B entity = entityClass.newInstance();
