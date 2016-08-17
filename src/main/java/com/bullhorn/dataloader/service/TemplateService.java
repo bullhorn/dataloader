@@ -64,7 +64,7 @@ public class TemplateService extends AbstractService implements Action {
 
 		String entityName = extractEntityNameFromString(args[1]);
 		if (entityName == null) {
-			printUtil.printAndLog("Could not determine entity from file name: " + entityName);
+			printUtil.printAndLog("Template requested is not valid. " + args[1] + " is not a valid entity.");
 			return false;
 		}
 
