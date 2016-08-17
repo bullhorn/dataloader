@@ -172,11 +172,11 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected String getWhereStatment(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType)) {
-            return  field + "=" + value;
-        } else if(String.class.equals(fieldType)) {
+            return field + "=" + value;
+        } else if (String.class.equals(fieldType)) {
             return field + "='" + value + "'";
         } else {
-            return "";
+            throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
