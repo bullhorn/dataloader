@@ -94,7 +94,7 @@ public class DeleteTaskTest {
         message.setDetailMessage("Because failed");
         response.setMessages(Arrays.asList(message));
         when(bullhornData.deleteEntity(any(), anyInt())).thenReturn(response);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Error occurred when making DELETE REST call:\n" +
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making DELETE REST call:\n" +
                 "\tError occurred on field FailureField due to the following: Because failed\n");
 
         task.run();

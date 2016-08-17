@@ -1,26 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.activation.MimetypesFileTypeMap;
-
-import org.apache.commons.codec.binary.StringUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -29,18 +8,27 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.file.FileMeta;
+import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
-import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.apache.commons.codec.binary.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
@@ -100,7 +88,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {
-                throw new Exception("Parent Entity not found.");
+                throw new Exception("Row " + rowNumber + ": Parent Entity not found.");
             }
         }
     }
@@ -135,8 +123,8 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
             }
-            catch (IOException ioe) {
-                throw new Exception("Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+            catch (IOException e) {
+                throw new Exception("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
             }
         }
         else {

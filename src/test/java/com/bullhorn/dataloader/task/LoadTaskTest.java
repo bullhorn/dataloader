@@ -260,7 +260,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -287,7 +287,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAssociation() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus.id", "This should fail with meaningful error because bogus does not exist.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: To-One Association: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -314,7 +314,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: To-One Association field: 'bogus' does not exist on CorporateUser");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association field: 'bogus' does not exist on CorporateUser");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -341,7 +341,7 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAddressAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -403,7 +403,7 @@ public class LoadTaskTest {
         SkillListWrapper listWrapper = new SkillListWrapper();
         listWrapper.setData(primarySkills);
         when(bullhornDataMock.query(any(), any(), any(), any())).thenReturn(listWrapper);
-        String expectedExceptionMessage = "Error occurred: primarySkills does not exist with id of the following values:\n\t3";
+        String expectedExceptionMessage = "Row 1: Error occurred: primarySkills does not exist with id of the following values:\n\t3";
 
         String actualExceptionMessage = "";
         try {
@@ -444,7 +444,7 @@ public class LoadTaskTest {
 
     @Test
     public void run_createEntityObjectTestCatch() throws IOException {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
         List<Candidate> candidateList = new ArrayList<>();
@@ -513,7 +513,37 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void findEntityTestSearchCalled(){
+    public void findEntityTest_search(){
+        dataMap = new LinkedHashMap<>();
+        dataMap.put("clientCorporation.id", "1");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
+        List<Candidate> candidateList = new ArrayList<>();
+        candidateList.add(new Candidate(1));
+        candidateListWrapper.setData(candidateList);
+        when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(candidateListWrapper);
+
+        task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
+
+        verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
+    }
+
+    @Test(expected=RestApiException.class)
+    public void findEntityTest_searchReturnsEmptyList(){
+        dataMap = new LinkedHashMap<>();
+        dataMap.put("clientCorporation.id", "1");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
+        candidateListWrapper.setData(new ArrayList<>());
+        when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(candidateListWrapper);
+
+        task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
+    }
+
+    @Test(expected=RestApiException.class)
+    public void findEntityTest_duplicates(){
         dataMap = new LinkedHashMap<>();
         dataMap.put("clientCorporation.id", "1");
         CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
