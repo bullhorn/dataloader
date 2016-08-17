@@ -1,2 +1,0 @@
-name,address.state,address.city,address.address1,address.zip,address.countryID,owner.lastName,owner.id,owner.firstName,comments
-DLHCTEST,MA,Boston,100 summer,2115,1,Performance,4,DataReplicator,Testing DL HC
