@@ -226,7 +226,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         String getMethodName = "get" + fieldName;
         List<Method> methods = Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
-            throw new RestApiException("To-One Association field: '" + fieldName + "' does not exist on " + toOneEntityClass.getSimpleName());
+            throw new RestApiException("Row " + rowNumber + ": To-One Association field: '" + fieldName + "' does not exist on " + toOneEntityClass.getSimpleName());
         }
 
         return methods.get(0).getReturnType();
@@ -239,7 +239,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                 sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
                 sb.append("\n");
             }
-            throw new RestApiException("Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
+            throw new RestApiException("Row " + rowNumber + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
         }
     }
 
@@ -254,7 +254,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
         Method method = methodMap.get(field.toLowerCase());
         if (method == null) {
-            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
         if (value != null && !"".equalsIgnoreCase(value)){

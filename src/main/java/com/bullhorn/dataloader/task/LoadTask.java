@@ -139,7 +139,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         List<B> existingEntityList = findEntityList();
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
-                throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found " +
+                throw new RestApiException("Row " + rowNumber + ": Cannot Perform Update - Multiple Records Exist. Found " +
                         existingEntityList.size() + " " + entityClass.getSimpleName() +
                         " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
             } else {
@@ -206,7 +206,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         else {
             Method method = methodMap.get(toOneEntityName.toLowerCase());
             if (method == null) {
-                throw new RestApiException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+                throw new RestApiException("Row " + rowNumber + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
             }
 
             Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
@@ -221,11 +221,22 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     protected B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
-        if (SearchEntity.class.isAssignableFrom(toOneEntityClass)){
-            return searchForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
+        List<B> list;
+        String value = dataMap.get(field);
+
+        if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
+            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass);
         } else {
-            return queryForEntity(fieldName, dataMap.get(field), fieldType, toOneEntityClass).get(0);
+            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass);
         }
+
+        if (list == null || list.isEmpty()) {
+            throw new RestApiException("Row " + rowNumber + ": Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
+        } else if (list.size() > 1) {
+            throw new RestApiException("Row " + rowNumber + ": Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
+        }
+
+        return list.get(0);
     }
 
     private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
@@ -237,7 +248,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         } else {
             Method method = methodMap.get(fieldName);
             if (method == null) {
-                throw new RestApiException("Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
+                throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
             }
 
             method.invoke(addressMap.get(toOneEntityName), dataMap.get(field));
@@ -286,7 +297,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         if (existingAssociations.size()!=valueSet.size()){
             Set<String> existingAssociationValues = getExistingAssociationValues(method, existingAssociations);
             String missingAssociations = valueSet.stream().filter(n -> !existingAssociationValues.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
-            throw new RestApiException("Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+            throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
         }
 
         List<Integer> associationIdList = findIdsOfAssociations(valueSet, existingAssociations, method);
