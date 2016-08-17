@@ -20,6 +20,7 @@ import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
+import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
@@ -157,6 +158,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
             CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
             checkForRestSdkErrorMessages(response);
             entityID = response.getChangedEntityId();
+            entity.setId(entityID);
         } else {
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
@@ -267,7 +269,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        for (String associationName : associationMap.keySet()){
+        for (String associationName : associationMap.keySet()) {
             if (dataMap.get(associationName) != null && dataMap.get(associationName) != "") {
                 addAssociationToEntity(associationName, associationMap.get(associationName));
             }
@@ -278,13 +280,37 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         for (Integer associationId : newAssociationIdList) {
             try {
-                bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
-            } catch(RestApiException e){
-                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName() + " " + entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")){
+                if (entityClass == Note.class) {
+                    addAssociationToNote((Note) entity, associationField.getAssociationType(), associationId);
+                } else {
+                    bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
+                }
+            } catch (RestApiException e) {
+                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName() + " " + entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")) {
                     throw e;
                 }
             }
         }
+    }
+
+    protected void addAssociationToNote(Note note, Class type, Integer associationID) {
+        if (Candidate.class.equals(type) || ClientContact.class.equals(type) || Lead.class.equals(type)) {
+            addNoteEntity(note, "User", associationID);
+        } else if (JobOrder.class.equals(type)) {
+            addNoteEntity(note, "JobPosting", associationID);
+        } else if (Opportunity.class.equals(type)) {
+            addNoteEntity(note, "Opportunity", associationID);
+        } else if (Placement.class.equals(type)) {
+            addNoteEntity(note, "Placement", associationID);
+        }
+    }
+
+    protected void addNoteEntity(Note noteAdded, String targetEntityName, Integer targetEntityID) {
+        NoteEntity noteEntity = new NoteEntity();
+        noteEntity.setNote(noteAdded);
+        noteEntity.setTargetEntityID(targetEntityID);
+        noteEntity.setTargetEntityName(targetEntityName);
+        bullhornData.insertEntity(noteEntity);
     }
 
     protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -325,10 +351,20 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         return associationIdList;
     }
 
-    private <Q extends QueryEntity> List<B> getExistingAssociations(String field, AssociationField associationField, Set<String> valueSet) {
+    private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(String field, AssociationField
+        associationField, Set<String> valueSet) {
+        List<B> list;
         Class<B> associationClass = associationField.getAssociationType();
-        String where = getWhereStatement(valueSet, field, associationClass);
-        return (List<B>) bullhornData.query((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
+
+        if (SearchEntity.class.isAssignableFrom(associationClass)) {
+            String where = getQueryStatement(valueSet, field, associationClass);
+            list = (List<B>) bullhornData.search((Class<S>) associationClass, where, null, ParamFactory.searchParams()).getData();
+        } else {
+            String where = getWhereStatement(valueSet, field, associationClass);
+            list = (List<B>) bullhornData.query((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
+        }
+
+        return list;
     }
 
     protected Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
@@ -338,6 +374,11 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         } catch (NoSuchMethodException e) {
             throw e;
         }
+    }
+
+    private String getQueryStatement(Set<String> valueSet, String field, Class<B> associationClass) {
+        String fieldName = field.substring(field.indexOf(".") + 1, field.length());
+        return valueSet.stream().map(n -> getQueryStatement(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
     }
 
     private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
