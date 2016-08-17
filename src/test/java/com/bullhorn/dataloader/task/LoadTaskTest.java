@@ -575,6 +575,13 @@ public class LoadTaskTest {
         task.getWhereStatment("comments", "my comment", double.class);
     }
 
+    @Test(expected=RestApiException.class)
+    public void getQueryStatement_unsupportedType(){
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        task.getQueryStatement("comments", "my comment", double.class);
+    }
+
     private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
         ListWrapper<B> listWrapper = new StandardListWrapper<B>();
         B entity = entityClass.newInstance();

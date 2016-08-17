@@ -137,7 +137,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         } else if (String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
-            return "";
+            throw new RestApiException("Row " + rowNumber + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
