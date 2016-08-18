@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Given a command, this class builds the action that is required to execute that command.
@@ -34,7 +34,9 @@ public class ActionFactory {
      */
     public Action getAction(Command command) throws IOException {
         Action action = null;
-        if (command.equals(Command.TEMPLATE)) {
+        if (command.equals(Command.HELP)) {
+            action = new HelpService(printUtil, propertyFileUtil, validationUtil, inputStream);
+        } else if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil, propertyFileUtil, validationUtil, inputStream);
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, inputStream);
