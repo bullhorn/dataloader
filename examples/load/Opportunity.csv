@@ -1,0 +1,2 @@
+title,type,clientContact.externalID,description,status,clientCorporation.externalID,externalID
+Bullhorn Test Opportunity,TestClientContact,1,This is a test Opportunity description.,Active,20,1
