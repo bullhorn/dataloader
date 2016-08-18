@@ -5,6 +5,7 @@ package com.bullhorn.dataloader.service;
  */
 public enum Command {
 
+    HELP("help"),
     TEMPLATE("template"),
     CONVERT_ATTACHMENTS("convertAttachments"),
     LOAD("load"),
