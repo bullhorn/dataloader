@@ -117,13 +117,13 @@ public class LoadAttachmentsServiceTest {
 
     @Test
     public void testIsValidArguments_InvalidParentEntity() throws Exception {
-        final String filePath = "AppointmentAttachments.csv";
+        final String filePath = getFilePath("AppointmentAttachments.csv");
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
 
 	private String getFilePath(String filename) {
