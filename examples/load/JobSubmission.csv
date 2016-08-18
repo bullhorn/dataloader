@@ -1,2 +1,2 @@
 candidate.externalID,jobOrder.externalID,billRate,dateAdded,dateWebResponse,migrateGUID,payRate,salary,source,status,sendingUser.username
-1,1,100,1/1/2016 00:00:00.000,2/2/2016 00:00:00.000,e1bde0c6-1f86-4c47-bb3d-283cdca996d1,50,90000,Referral,Active,jsmith
+1234567,externalID,100,1/1/16 00:00,2/2/16 00:00,e1bde0c6-1f86-4c47-bb3d-283cdca996d1,50,90000,Referral,Active,tbills
