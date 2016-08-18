@@ -45,7 +45,6 @@ public abstract class AbstractService {
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
     final protected InputStream inputStream;
-    final protected BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
@@ -87,6 +86,7 @@ public abstract class AbstractService {
      * @return java.util.concurrent.ExecutorService
      */
     protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
+        final BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
         return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), 10, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 

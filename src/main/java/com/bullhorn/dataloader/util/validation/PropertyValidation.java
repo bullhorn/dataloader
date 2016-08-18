@@ -8,6 +8,8 @@ import java.util.Map;
 
 public class PropertyValidation {
 
+    private final int maxThreads = 10;
+
     public String validateUsername(String username) {
         String trimmedUsername = username.trim();
         if (trimmedUsername.isEmpty()) {
@@ -92,20 +94,9 @@ public class PropertyValidation {
             throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to 10");
         }
         if (numThreads == 0) {
-            numThreads = getOptimalThreads();
+            numThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
         }
-        return numThreads;
-    }
-
-    private int getOptimalThreads() {
-        final int maxThreads = 10;
-        final int optimalThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
-
-        // Caps number of threads to 10 if above calculation goes over.
-        if(optimalThreads > maxThreads) {
-            return maxThreads;
-        }
-        return optimalThreads;
+        return Math.min(numThreads, maxThreads);
     }
 
     public PropertyValidation() {
