@@ -1,2 +1,0 @@
-subject,dateEnd,location,jobOrder.title,communicationMethod,type,candidateReference.name,dateBegin,description
-This is a test appointment,2016-08-10,Office,Example Job,Phone,Meeting,Bullhorn TestCandidate,2016-08-10,Testing DataLoader appointments
