@@ -61,6 +61,11 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 			return false;
 		}
 
+        if (!isValidAttachmentEntity(entityName)) {
+            printUtil.printAndLog("deleteAttachments not available for " + entityName);
+            return false;
+        }
+
 		return true;
 	}
 }

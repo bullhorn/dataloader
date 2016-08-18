@@ -68,27 +68,10 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 		}
 
         if (!isValidAttachmentEntity(entityName)) {
-            printUtil.printAndLog("loadAttachments not available for " + entityName.toLowerCase());
+            printUtil.printAndLog("loadAttachments not available for " + entityName);
             return false;
         }
 
 		return true;
 	}
-
-    /**
-     * checks if entity can load attachments
-     *
-     */
-    protected boolean isValidAttachmentEntity(String entityName) {
-        if (entityName.equalsIgnoreCase(Candidate.class.getSimpleName())
-            || entityName.equalsIgnoreCase(ClientContact.class.getSimpleName())
-            || entityName.equalsIgnoreCase(ClientCorporation.class.getSimpleName())
-            || entityName.equalsIgnoreCase(JobOrder.class.getSimpleName())
-            || entityName.equalsIgnoreCase(Opportunity.class.getSimpleName())
-            || entityName.equalsIgnoreCase(Placement.class.getSimpleName())
-            ) {
-            return true;
-        }
-        else return false;
-    }
 }
