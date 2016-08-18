@@ -1,2 +1,2 @@
-externalID, status
-     12345,   FAIL
+firstName,lastName,name,status,email,phone,comments,educationDegree,employeeType,externalID
+Bullhorn,TestCandidate,Bullhorn TestCandidate,New Lead,test.candidate@example.com,123-456-7890,This is a Candidate comment.,Masters,W4,1289467
