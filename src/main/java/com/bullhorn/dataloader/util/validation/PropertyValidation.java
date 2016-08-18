@@ -88,10 +88,24 @@ public class PropertyValidation {
     }
 
     public Integer validateNumThreads(Integer numThreads) {
-        if (numThreads < 1 || numThreads > 20) {
-            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must in the range of 1 to 20");
+        if (numThreads < 0 || numThreads > 10) {
+            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to 10");
+        }
+        if (numThreads == 0) {
+            numThreads = getOptimalThreads();
         }
         return numThreads;
+    }
+
+    private int getOptimalThreads() {
+        final int maxThreads = 10;
+        final int optimalThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
+
+        // Caps number of threads to 10 if above calculation goes over.
+        if(optimalThreads > maxThreads) {
+            return maxThreads;
+        }
+        return optimalThreads;
     }
 
     public PropertyValidation() {

@@ -4,6 +4,7 @@ package com.bullhorn.dataloader.service;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,8 +13,11 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -41,6 +45,7 @@ public abstract class AbstractService {
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
     final protected InputStream inputStream;
+    final protected BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
@@ -82,7 +87,20 @@ public abstract class AbstractService {
      * @return java.util.concurrent.ExecutorService
      */
     protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
-        return Executors.newFixedThreadPool(propertyFileUtil.getNumThreads());
+        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), 10, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
+    }
+
+    /**
+     * Gets task pool size limit on basis of system memory
+     *
+     * @return task pool size limit
+     */
+    protected int getTaskPoolSize() {
+        long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
+        if(memorySize < 16456252) {
+            return 1000;
+        }
+        return 10000;
     }
 
     /**
