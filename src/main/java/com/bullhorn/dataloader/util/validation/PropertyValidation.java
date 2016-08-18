@@ -8,8 +8,6 @@ import java.util.Map;
 
 public class PropertyValidation {
 
-    private final int maxThreads = 10;
-
     public String validateUsername(String username) {
         String trimmedUsername = username.trim();
         if (trimmedUsername.isEmpty()) {
@@ -90,7 +88,9 @@ public class PropertyValidation {
     }
 
     public Integer validateNumThreads(Integer numThreads) {
-        if (numThreads < 0 || numThreads > 10) {
+        final int maxThreads = 10;
+
+        if (numThreads < 0 || numThreads > maxThreads) {
             throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to 10");
         }
         if (numThreads == 0) {
