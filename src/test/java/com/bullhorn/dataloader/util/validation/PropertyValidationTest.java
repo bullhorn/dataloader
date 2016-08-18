@@ -126,6 +126,12 @@ public class PropertyValidationTest {
 
 	@Test(expected=IllegalArgumentException.class)
 	public void testOutOfBoundsNumThreads() throws IOException {
-		propertyValidation.validateNumThreads(0);
+		propertyValidation.validateNumThreads(-1);
 	}
+
+    @Test
+    public void testNumThreadsEqualToZero() {
+        final Integer expectedNumOfThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
+        Assert.assertEquals(expectedNumOfThreads, propertyValidation.validateNumThreads(0));
+    }
 }
