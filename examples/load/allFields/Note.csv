@@ -1,2 +1,2 @@
-comments,candidates.name,jobOrders.title,leads.name,opportunities.title,personReference.name,commentingPerson.name
-bh41368-note-id-3,Candidate BH41368F,BH41368-F Job,Lead BH41368F,BH41368-F Opportunity,TestClient Contact99,Rich Bills
+personReference.username,comments,action,dateAdded,minutesSpent,migrateGUID,commentingPerson.username,candidates.externalID,clientContacts.externalID,leads.customText1,jobOrder.externalID,jobOrders.externalID,opportunities.externalID,placements.customText1
+jsmith,Example Note,Call 1,1/2/2016 11:22:33.444,20,a82b588e-9c48-4be4-977a-662f2825b2cc,jsmith,1;2,1,1,1,1,2,1

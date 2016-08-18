@@ -1,2 +1,2 @@
-              dateAdded,              email,                          migrateGUID, candidate.externalID, clientContact.externalID, clientCorporation.externalID, jobOrder.externalID, user.username
-02/09/2016 11:22:33.444, jsmith@example.com, 13e788e7-43e0-4767-8a07-800f0705b501,                    1,                        1,                            1,                   1,        rbills
+dateAdded,email,migrateGUID,candidate.externalID,clientContact.externalID,clientCorporation.externalID,jobOrder.externalID,user.username
+02/09/2016 11:22:33.444,jsmith@example.com,13e788e7-43e0-4767-8a07-800f0705b501,1,1,1,1,rbills
