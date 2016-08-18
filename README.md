@@ -21,9 +21,9 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 
  6. Open a command prompt in the `dataloader` folder
 
- 7. Generate a template for the entity you wish to load, which will contain all valid column names using the `template` keyword, for example: `> dataloader template Candidate`
+ 7. Get familiar with the available fields (column header names) from the example files in the `dataloader/examples` folder or use the `template` command to generate an example file containing all possible fields for the entity, for example: `> dataloader template Candidate`
 
- 8. Ensure that the column names in your source CSV exist in the template CSV
+ 8. Ensure that the column names in your source CSV exist in the example and/or template CSV files
 
  9. Run dataloader on the command line, for example: `> dataloader load data/Candidate.csv`
  
