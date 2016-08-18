@@ -93,7 +93,9 @@ public abstract class AbstractService {
      */
     protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
         final BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
-        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), 10, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
+        final int timeToLive = 10;
+
+        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), timeToLive, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     /**
@@ -102,8 +104,10 @@ public abstract class AbstractService {
      * @return task pool size limit
      */
     protected int getTaskPoolSize() {
-        long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
-        if(memorySize < 16456252) {
+        final long sixteenGigabyte = 16456252;
+        final long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
+
+        if(memorySize < sixteenGigabyte) {
             return 1000;
         }
         return 10000;
