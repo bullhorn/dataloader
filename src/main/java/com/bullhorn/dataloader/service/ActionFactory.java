@@ -35,7 +35,7 @@ public class ActionFactory {
     public Action getAction(Command command) throws IOException {
         Action action = null;
         if (command.equals(Command.HELP)) {
-            action = new HelpService(printUtil, propertyFileUtil, validationUtil, inputStream);
+            action = new HelpService(printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil, propertyFileUtil, validationUtil, inputStream);
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {

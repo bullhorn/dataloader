@@ -1,16 +1,15 @@
 package com.bullhorn.dataloader.service;
 
-import java.io.InputStream;
-
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import java.io.InputStream;
 
 public class ActionFactoryTest {
 
@@ -29,7 +28,16 @@ public class ActionFactoryTest {
 
 		actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, inputStreamMock);
 	}
-	
+
+    @Test
+    public void getAction_HELP() throws Exception {
+        Class expectedResult = HelpService.class;
+
+        Action actualResult = actionFactory.getAction(Command.HELP);
+
+        Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
+    }
+
 	@Test
 	public void getAction_TEMPLATE() throws Exception {
 		Class expectedResult = TemplateService.class;
