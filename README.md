@@ -59,13 +59,13 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 ## Load
 
 ```
-dataloader load /path/to/<EntityName>.csv
+dataloader load path/to/<EntityName>.csv
 ```
 
 Update if record is present, Insert otherwise. requires a column for each data field to load. These column names must match the names in entity template. The provided CSV file must start with the name of the entity.
 
 ```
-dataloader load /path/to/directory
+dataloader load path/to/directory
 ```
 
 Performs load for every valid CSV file in the given directory. The order that entities are loaded in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity.
@@ -73,13 +73,13 @@ Performs load for every valid CSV file in the given directory. The order that en
 ## Delete
 
 ```
-dataloader delete /path/to/<EntityName>.csv
+dataloader delete path/to/<EntityName>.csv
 ```
 
 The provided CSV file only requires an `id` column. This column will contain the Bullhorn internal IDs of the records to delete. The provided CSV file must start with the name of the entity.
 
 ```
-dataloader delete /path/to/directory
+dataloader delete path/to/directory
 ```
 
 Performs delete for every valid CSV file in the given directory. The order that entities are deleted in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity.
@@ -87,7 +87,7 @@ Performs delete for every valid CSV file in the given directory. The order that 
 ## Load Attachments
 
 ```
-dataloader loadAttachments /path/to/<EntityName>.csv
+dataloader loadAttachments path/to/<EntityName>.csv
 ```
 
 Attaches files to preexisting records. Attachment file paths are mapped with provided CSV file. Only attaches files for one entity at a time. The provided CSV file must start with the name of the entity.
@@ -95,7 +95,7 @@ Attaches files to preexisting records. Attachment file paths are mapped with pro
 ## Delete Attachments
 
 ```
-dataloader deleteAttachments </path/to/<EntityName>.csv
+dataloader deleteAttachments <path/to/<EntityName>.csv
 ```
 
 The provided CSV file requires an `id` column and a `parentEntityID` column. The `id` column will contain the Bullhorn internal IDs of the files to delete and the `parentEntityID` column will contain the Bullhorn internal IDs of the entity the file is attached to. The provided CSV file must start with the name of the entity.
