@@ -1,2 +1,2 @@
-appointment.id,attendee.name
-52,Bullhorn TestClientContact
+appointment.id,attendee.name,acceptanceStatus
+52,Bullhorn TestClientContact,1
