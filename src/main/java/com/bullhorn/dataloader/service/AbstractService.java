@@ -26,6 +26,12 @@ import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
@@ -319,6 +325,24 @@ public abstract class AbstractService {
 		}
 		return null;
 	}
+
+    /**
+     * checks if entity can load attachments
+     *
+     */
+    protected boolean isValidAttachmentEntity(String entityName) {
+        if (entityName.equalsIgnoreCase(Candidate.class.getSimpleName())
+            || entityName.equalsIgnoreCase(ClientContact.class.getSimpleName())
+            || entityName.equalsIgnoreCase(ClientCorporation.class.getSimpleName())
+            || entityName.equalsIgnoreCase(JobOrder.class.getSimpleName())
+            || entityName.equalsIgnoreCase(Opportunity.class.getSimpleName())
+            || entityName.equalsIgnoreCase(Placement.class.getSimpleName())
+            ) {
+            return true;
+        }
+
+        return false;
+    }
 
     private CsvReader getCsvReader(String filePath) throws IOException {
         final CsvReader csvReader = new CsvReader(filePath);

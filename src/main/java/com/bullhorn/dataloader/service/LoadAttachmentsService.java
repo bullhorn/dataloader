@@ -7,6 +7,12 @@ import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
 
 /**
  * Handles loading attachments
@@ -60,6 +66,11 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 			printUtil.printAndLog("Could not determine entity from file name: " + filePath);
 			return false;
 		}
+
+        if (!isValidAttachmentEntity(entityName)) {
+            printUtil.printAndLog("loadAttachments not available for " + entityName);
+            return false;
+        }
 
 		return true;
 	}
