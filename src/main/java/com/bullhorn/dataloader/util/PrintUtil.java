@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.util;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
+import com.bullhorn.dataloader.service.Command;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.bullhorn.dataloader.service.Command;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * Methods that provide feedback to the user on the command line.
@@ -23,6 +22,7 @@ public class PrintUtil {
         print("                      dataloader load path/to/directory");
         print("              Delete: dataloader delete path/to/<EntityName>.csv");
         print("                      dataloader delete path/to/directory");
+        print(" Convert Attachments: dataloader convertAttachments path/to/<EntityName>.csv");
         print("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
         print("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
         print("     Create Template: dataloader template <EntityName>");
