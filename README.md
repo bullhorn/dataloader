@@ -42,14 +42,7 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 
 ## Requirements
 
-*  Recommended Requirements: 
-``` 
-        16GB RAM
-```
-*  Minimum Requirements:
-```
-        8GB RAM
-```
+* 8GB RAM Minimum, 16GB RAM Recommended
 
 ## Configure
 
