@@ -1,2 +1,2 @@
-personReference.username,comments,action,dateAdded,minutesSpent,migrateGUID,commentingPerson.username,candidates.externalID,clientContacts.externalID,leads.customText1,jobOrder.externalID,jobOrders.externalID,opportunities.externalID,placements.customText1
-tbills,Example Note,Call 1,1/2/16 11:22,20,a82b588e-9c48-4be4-977a-662f2825b2cc,tbills,1234567,contact-1234567,custom text field 1,externalID,externalID,externalID,custom text field 1
+personReference.name,comments,action,dateAdded,minutesSpent,migrateGUID,commentingPerson.name,candidates.externalID,clientContacts.externalID,leads.customText1,jobOrder.externalID,jobOrders.externalID,opportunities.externalID,placements.customText1
+Manager CorporateUser,Example Note,Call 1,1/2/16 11:22,20,a82b588e-9c48-4be4-977a-662f2825b2cc,Recruiter CorporateUser,candidate-ext-1,clientContact-ext-1,lead-ext-1,jobOrder-ext-1,jobOrder-ext-1,opportunity-ext-1,placement-ext-1

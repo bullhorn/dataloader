@@ -1,2 +1,2 @@
-candidate.externalID,jobOrder.externalID,jobOrder.title,referenceClientContact.externalID
-1234567,externalID,Example Job,contact-1234567
+candidate.externalID,jobOrder.externalID,referenceClientContact.externalID
+candidate-ext-1,jobOrder-ext-1,clientContact-ext-1
