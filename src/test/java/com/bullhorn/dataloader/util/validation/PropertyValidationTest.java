@@ -133,10 +133,4 @@ public class PropertyValidationTest {
     public void testUpperBoundNumThreads() throws IOException {
         propertyValidation.validateNumThreads(11);
     }
-
-    @Test
-    public void testOptimalNumThreads() {
-        final Integer expectedNumThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
-        Assert.assertEquals(expectedNumThreads, propertyValidation.validateNumThreads(0));
-    }
 }
