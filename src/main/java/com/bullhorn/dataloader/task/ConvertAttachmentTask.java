@@ -86,7 +86,11 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
     }
 
     protected String getConvertedAttachmentPath() {
-        return "convertedAttachments/" + entityClass.getSimpleName() + "/" + dataMap.get(entityClass.getSimpleName().toLowerCase() + ".externalID") + ".html";
+        return "convertedAttachments/" + entityClass.getSimpleName() + "/" + getExternalId() + ".html";
+    }
+
+    private String getExternalId() {
+        return dataMap.get(entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1) + ".externalID");
     }
 
     public String convertAttachmentToHtml() throws IOException, SAXException, TikaException {
