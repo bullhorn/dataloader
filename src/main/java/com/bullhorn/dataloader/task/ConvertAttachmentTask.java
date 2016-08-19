@@ -90,7 +90,7 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
     }
 
     private String getExternalId() {
-        return dataMap.get(entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1) + ".externalID");
+        return dataMap.get(getCamelCasedClassToString() + ".externalID");
     }
 
     public String convertAttachmentToHtml() throws IOException, SAXException, TikaException {

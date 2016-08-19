@@ -251,4 +251,8 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             method.invoke(entity, convertStringToClass(method, value));
         }
     }
+
+    protected String getCamelCasedClassToString() {
+        return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
+    }
 }
