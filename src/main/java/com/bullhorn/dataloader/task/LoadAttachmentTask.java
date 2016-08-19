@@ -94,7 +94,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
     }
 
     private String getEntityAssociatedPropertyName(String property) {
-        return entityClass.getSimpleName().toLowerCase() + "." + property;
+        return getCamelCasedClassToString() + "." + property;
     }
 
     private <F extends FileEntity> void createFileMeta() {

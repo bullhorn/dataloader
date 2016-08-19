@@ -208,11 +208,12 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
@@ -234,11 +235,12 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
@@ -319,16 +321,17 @@ public class LoadTaskTest {
 
         Mockito.verify(bullhornDataMock, Mockito.times(8)).insertEntity(any());
 
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
     public void run_InsertError_Note_MissingRecords() throws IOException, InstantiationException, IllegalAccessException {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
         dataMap.clear();
         dataMap.put("candidates.id", "1;2");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Note.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
@@ -352,11 +355,12 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
@@ -378,17 +382,19 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, never()).incrementTotalError();
+
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
     public void run_invalidField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -405,17 +411,18 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
     public void run_invalidToOneAssociation() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus.id", "This should fail with meaningful error because bogus does not exist.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -432,17 +439,18 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
     public void run_invalidToOneAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association field: 'bogus' does not exist on CorporateUser");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association field: 'bogus' does not exist on CorporateUser");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -459,17 +467,18 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
     public void run_invalidToOneAddressAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
@@ -486,11 +495,12 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalInsert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalUpdate();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalConvert();
-        Mockito.verify(actionTotalsMock, Mockito.never()).incrementTotalDelete();
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementTotalError();
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 
     @Test
@@ -545,7 +555,7 @@ public class LoadTaskTest {
 
     @Test
     public void run_TestCatch() throws Exception {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "java.lang.NullPointerException");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         task.run();
@@ -557,7 +567,7 @@ public class LoadTaskTest {
 
     @Test
     public void run_populateFieldOnEntityTestCatch() throws NoSuchMethodException, ParseException, IOException, InvocationTargetException, IllegalAccessException {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "java.text.ParseException: failure");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.text.ParseException: failure");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         Method setExternalIdMethod = Candidate.class.getMethod("setExternalID", String.class);
         when(task.convertStringToClass(eq(setExternalIdMethod), eq("11"))).thenThrow(new ParseException("failure", 1));
@@ -572,7 +582,7 @@ public class LoadTaskTest {
 
     @Test
     public void run_createEntityObjectTestCatch() throws IOException {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
         List<Candidate> candidateList = new ArrayList<>();
@@ -708,6 +718,16 @@ public class LoadTaskTest {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         task.getQueryStatement("comments", "my comment", double.class);
+    }
+
+    @Test
+    public void updateRowProcessedCountsTest(){
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        task.rowProcessedCount.set(110);
+        task.updateRowProcessedCounts();
+
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("Processed: 111 records.");
     }
 
     private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {

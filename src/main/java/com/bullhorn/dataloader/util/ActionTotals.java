@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.service.csv.Result;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -7,49 +10,30 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActionTotals {
 
-	private AtomicInteger totalUpdate = new AtomicInteger(0);
-	private AtomicInteger totalInsert = new AtomicInteger(0);
-	private AtomicInteger totalError = new AtomicInteger(0);
-	private AtomicInteger totalConvert = new AtomicInteger(0);
-	private AtomicInteger totalDelete = new AtomicInteger(0);
+    private ConcurrentHashMap<Result.Action, AtomicInteger> concurrentHashMap = new ConcurrentHashMap();
 
-	public void incrementTotalInsert() {
-		totalInsert.incrementAndGet();
-	}
+    public ActionTotals() {
+        for (Result.Action action : Result.Action.values()){
+            if (!Result.Action.NOT_SET.equals(action)){
+                concurrentHashMap.put(action, new AtomicInteger(0));
+            }
+        }
+    }
 
-	public void incrementTotalUpdate() {
-		totalUpdate.incrementAndGet();
-	}
+    public int getAllActionsTotal(){
+        int allActionTotal = 0;
+        for (Result.Action action : concurrentHashMap.keySet()){
+            allActionTotal += concurrentHashMap.get(action).intValue();
+        }
+        return allActionTotal;
+    }
 
-	public void incrementTotalError() {
-		totalError.incrementAndGet();
-	}
+    public void incrementActionTotal(Result.Action action){
+        concurrentHashMap.get(action).incrementAndGet();
+    }
 
-	public void incrementTotalConvert() {
-		totalConvert.incrementAndGet();
-	}
+    public int getActionTotal(Result.Action action){
+        return concurrentHashMap.get(action).intValue();
+    }
 
-	public void incrementTotalDelete() {
-		totalDelete.incrementAndGet();
-	}
-
-	public int getTotalInsert() {
-		return totalInsert.intValue();
-	}
-
-	public int getTotalUpdate() {
-		return totalUpdate.intValue();
-	}
-
-	public int getTotalError() {
-		return totalError.intValue();
-	}
-
-	public int getTotalConvert() {
-		return totalConvert.intValue();
-	}
-
-	public int getTotalDelete() {
-		return totalDelete.intValue();
-	}
 }

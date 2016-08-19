@@ -74,7 +74,7 @@ public class DeleteTaskTest {
         dataMap = new LinkedHashMap<String, String>();
 
         task = new DeleteTask(Command.DELETE, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, -1, "java.lang.NumberFormatException: null");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NumberFormatException: null");
 
         task.run();
 
@@ -94,7 +94,7 @@ public class DeleteTaskTest {
         message.setDetailMessage("Because failed");
         response.setMessages(Arrays.asList(message));
         when(bullhornData.deleteEntity(any(), anyInt())).thenReturn(response);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.NOT_SET, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making DELETE REST call:\n" +
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making DELETE REST call:\n" +
                 "\tError occurred on field FailureField due to the following: Because failed\n");
 
         task.run();

@@ -27,8 +27,6 @@ import java.util.LinkedHashMap;
  */
 public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
 
-    private String relativeFilePath;
-
     public ConvertAttachmentTask(Command command,
                                  Integer rowNumber,
                                  Class<B> entity,
@@ -46,16 +44,25 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         Result result;
         try {
             result = handle();
-        } catch(Exception e){
+        } catch (Exception e) {
             result = handleFailure(e);
         }
         writeToResultCSV(result);
     }
 
+    private boolean isResume() {
+        String isResumeValue = dataMap.get("isResume");
+        return Boolean.valueOf(isResumeValue) || isResumeValue.equalsIgnoreCase("1") || isResumeValue.equalsIgnoreCase("Yes");
+    }
+
     private Result handle() throws Exception {
-        String convertedHTML = convertAttachmentToHtml();
-        writeHtmlToFile(convertedHTML);
-        return Result.Convert();
+        if (isResume()) {
+            String convertedHTML = convertAttachmentToHtml();
+            writeHtmlToFile(convertedHTML);
+            return Result.Convert();
+        } else {
+            return Result.Skip();
+        }
     }
 
     protected void writeHtmlToFile(String convertedHTML) throws IOException {
@@ -79,7 +86,11 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
     }
 
     protected String getConvertedAttachmentPath() {
-        return "convertedAttachments/" + entityClass.getSimpleName() + "/" + dataMap.get("externalID") + ".html";
+        return "convertedAttachments/" + entityClass.getSimpleName() + "/" + getExternalId() + ".html";
+    }
+
+    private String getExternalId() {
+        return dataMap.get(getCamelCasedClassToString() + ".externalID");
     }
 
     public String convertAttachmentToHtml() throws IOException, SAXException, TikaException {

@@ -19,7 +19,9 @@ public class Result {
         INSERT,
         UPDATE,
         DELETE,
-        CONVERT
+        CONVERT,
+        SKIP,
+        FAILURE
     }
 
     /**
@@ -62,13 +64,22 @@ public class Result {
     }
 
     /**
+     * Convert convenience constructor
+     *
+     * @return The new Result object
+     */
+    public static Result Skip() {
+        return new Result(Status.SUCCESS, Action.SKIP, -1, "");
+    }
+
+    /**
      * Failure convenience constructor
      *
      * @param exception The exception for this failure result
      * @return The new Result object
      */
     public static Result Failure(Exception exception) {
-        return new Result(Status.FAILURE, Action.NOT_SET, -1, exception.toString());
+        return new Result(Status.FAILURE, Action.FAILURE, -1, exception.toString());
     }
 
     /**
@@ -79,7 +90,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result Failure(Exception exception, Integer bullhornID) {
-        return new Result(Status.FAILURE, Action.NOT_SET, bullhornID, exception.toString());
+        return new Result(Status.FAILURE, Action.FAILURE, bullhornID, exception.toString());
     }
 
     private Status status = Status.NOT_SET;

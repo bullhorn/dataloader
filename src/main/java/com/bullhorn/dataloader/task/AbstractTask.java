@@ -51,7 +51,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected BullhornData bullhornData;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
-    private static AtomicInteger rowProcessedCount = new AtomicInteger(0);
+    protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     public AbstractTask(Command command,
                         Integer rowNumber,
@@ -92,7 +92,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    private void updateRowProcessedCounts() {
+    protected void updateRowProcessedCounts() {
         rowProcessedCount.incrementAndGet();
         if(rowProcessedCount.intValue() % 111 == 0) {
             printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
@@ -100,17 +100,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     private void updateActionTotals(Result result) {
-        if(result.getAction().equals(Result.Action.INSERT)) {
-            actionTotals.incrementTotalInsert();
-        } else if(result.getAction().equals(Result.Action.UPDATE)){
-            actionTotals.incrementTotalUpdate();
-        } else if(result.getAction().equals(Result.Action.DELETE)){
-            actionTotals.incrementTotalDelete();
-        } else if(result.getAction().equals(Result.Action.CONVERT)) {
-            actionTotals.incrementTotalConvert();
-        } else if(result.getStatus().equals(Result.Status.FAILURE)) {
-            actionTotals.incrementTotalError();
-        }
+        actionTotals.incrementActionTotal(result.getAction());
     }
 
     protected Result handleFailure(Exception e) {
@@ -260,5 +250,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         if (value != null && !"".equalsIgnoreCase(value)){
             method.invoke(entity, convertStringToClass(method, value));
         }
+    }
+
+    protected String getCamelCasedClassToString() {
+        return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
     }
 }

@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.service.csv.Result;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -50,19 +51,20 @@ public class PrintUtil {
         printAndLog("");
     }
 
-    public void printActionTotals(Command command, ActionTotals result) {
-        final Integer totalRecords = result.getTotalError() + result.getTotalInsert() + result.getTotalUpdate() + result.getTotalDelete() + result.getTotalConvert();
+    public void printActionTotals(Command command, ActionTotals actionTotals) {
+        final Integer totalRecords = actionTotals.getAllActionsTotal();
 
         printAndLog("Results of DataLoader run");
         printAndLog("Total records processed: " + totalRecords);
         if (command.equals(Command.CONVERT_ATTACHMENTS)){
-            printAndLog("Total records converted: " + result.getTotalConvert());
+            printAndLog("Total records converted: " + actionTotals.getActionTotal(Result.Action.CONVERT));
+            printAndLog("Total records skipped: " + actionTotals.getActionTotal(Result.Action.SKIP));
         } else {
-            printAndLog("Total records inserted: " + result.getTotalInsert());
-            printAndLog("Total records updated: " + result.getTotalUpdate());
-            printAndLog("Total records deleted: " + result.getTotalDelete());
+            printAndLog("Total records inserted: " + actionTotals.getActionTotal(Result.Action.INSERT));
+            printAndLog("Total records updated: " + actionTotals.getActionTotal(Result.Action.UPDATE));
+            printAndLog("Total records deleted: " + actionTotals.getActionTotal(Result.Action.DELETE));
         }
-        printAndLog("Total records failed: " + result.getTotalError());
+        printAndLog("Total records failed: " + actionTotals.getActionTotal(Result.Action.FAILURE));
     }
 
     /**
