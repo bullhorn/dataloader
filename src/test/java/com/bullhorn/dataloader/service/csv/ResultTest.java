@@ -61,7 +61,7 @@ public class ResultTest {
 
         Assert.assertEquals(result.isSuccess(), false);
         Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
-        Assert.assertEquals(result.getAction(), Result.Action.NOT_SET);
+        Assert.assertEquals(result.getAction(), Result.Action.FAILURE);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
         Assert.assertEquals(result.getFailureText(), "java.lang.Exception: Message 1");
     }

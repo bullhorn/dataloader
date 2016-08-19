@@ -1,13 +1,13 @@
 package com.bullhorn.dataloader.util;
 
-import static org.mockito.Matchers.anyString;
-
-import java.io.PrintStream;
-
+import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.service.csv.Result;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.service.Command;
+import java.io.PrintStream;
+
+import static org.mockito.Matchers.anyString;
 
 public class PrintUtilTest {
 
@@ -52,32 +52,33 @@ public class PrintUtilTest {
     public void testPrintActionTotals() {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
-        final Integer total = totals.getTotalDelete() + totals.getTotalError() + totals.getTotalInsert() + totals.getTotalUpdate();
+        final Integer total = 0;
         Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
 
         printUtil.printActionTotals(Command.LOAD, totals);
 
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records inserted: " + totals.getTotalInsert());
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records updated: " + totals.getTotalUpdate());
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records deleted: " + totals.getTotalDelete());
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getTotalError());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records inserted: " + totals.getActionTotal(Result.Action.INSERT));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records updated: " + totals.getActionTotal(Result.Action.UPDATE));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records deleted: " + totals.getActionTotal(Result.Action.DELETE));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
     }
 
     @Test
     public void testPrintActionTotals_CONVERT_ATTACHMENTS() {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
-        final Integer total = totals.getTotalDelete() + totals.getTotalError() + totals.getTotalInsert() + totals.getTotalUpdate();
+        final Integer total = 0;
         Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
 
         printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
 
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records converted: " + totals.getTotalConvert());
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getTotalError());
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records converted: " + totals.getActionTotal(Result.Action.CONVERT));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records skipped: " + totals.getActionTotal(Result.Action.SKIP));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
     }
 
     @Test
