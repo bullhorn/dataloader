@@ -125,7 +125,12 @@ public class PropertyValidationTest {
 	}
 
 	@Test(expected=IllegalArgumentException.class)
-	public void testOutOfBoundsNumThreads() throws IOException {
-		propertyValidation.validateNumThreads(0);
+	public void testLowerBoundNumThreads() throws IOException {
+		propertyValidation.validateNumThreads(-1);
 	}
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpperBoundNumThreads() throws IOException {
+        propertyValidation.validateNumThreads(11);
+    }
 }
