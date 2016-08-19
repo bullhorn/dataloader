@@ -4,9 +4,9 @@
 
 DataLoader provides a release binary which allows end users to use DataLoader without having to build from source using the JDK. We use the Maven Assembly plugin to package the DataLoader jar file along with the directory structure, README.md, LICENSE, and other supporting files into `target/dataloader.zip`.
 
- 1. Create release branch
+ 1. Create release branch: `release/vX.Y.Z`
   
-    1. Remove the `-SNAPSHOT` from the pom.xml `<version>x.y.z-SNAPSHOT</version>` tag
+    1. Remove the `-SNAPSHOT` from the pom.xml `<version>X.Y.Z-SNAPSHOT</version>` tag
     
  2. Create release package
 
