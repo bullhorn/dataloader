@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -115,6 +116,21 @@ public class ConvertAttachmentTaskTest {
         Mockito.verify(actionTotalMock, never()).incrementActionTotal(Result.Action.DELETE);
         Mockito.verify(actionTotalMock, never()).incrementActionTotal(Result.Action.FAILURE);
         Mockito.verify(actionTotalMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+    }
+
+    @Test
+    public void getConvertedAttachmentPathTest(){
+        dataMap = new LinkedHashMap<String, String>();
+        dataMap.put("clientContact.externalID","1");
+        dataMap.put("relativeFilePath",getFilePath("testResume/TestResume.doc"));
+        dataMap.put("isResume", "0");
+        String expectedResult = "convertedAttachments/ClientContact/1.html";
+
+        task = Mockito.spy(new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, ClientContact.class, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotalMock));
+
+        String actualResult = task.getConvertedAttachmentPath();
+
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     private String getFilePath(String filename) {
