@@ -117,3 +117,28 @@ Task->Task: Make REST Calls
 Note right of Task: Exit Thread
 Note right of ExecutorService: Repeat for All Tasks
 ```
+
+### Performance
+
+####Total Time to Load a CSV File
+Up until you reach the point of thread saturation in the client JVM, the total time it takes to load a CSV file can be described as:
+
+$$T_{total} = \dfrac{T_{row} * N_{row}}{N_{thread}} $$
+
+T<sub>total</sub> = total time to load all records in a CSV file
+T<sub>row</sub> = time to load an individual row
+N<sub>row</sub> = number of rows in a CSV file
+N<sub>thread</sub> = number of threads running on the client JVM
+
+#### Time to Load an individual row in a CSV File
+The total time it takes to load an individual row can be described as:
+
+Best Case (Lookup already exists):
+$$T_{row} = T_{call} * (N_{a} + 1)$$
+
+Worst Case (Lookup External to Internal ID each time):
+$$T_{row} = T_{call} * ((N_{a} * 2) + 1)$$
+
+T<sub>row</sub> = time to load an individual row
+T<sub>call</sub> = average time to send and receive a response for a REST call
+N<sub>a</sub> = number of columns in this row that are associated to another entity (will require a single rest call to associate)
