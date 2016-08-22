@@ -40,7 +40,7 @@ public class CsvFileWriter {
      *
      * @param command
      * @param filePath The full path to the Entity file to read in
-     * @param headers The headers read in from the input CSV file
+     * @param headers  The headers read in from the input CSV file
      */
     public CsvFileWriter(Command command, String filePath, String[] headers) throws IOException {
         String baseName = FilenameUtils.getBaseName(filePath);
@@ -68,12 +68,12 @@ public class CsvFileWriter {
         if (command.equals(Command.LOAD_ATTACHMENTS)) {
             headers = ArrayUtil.append(TaskConsts.PARENT_ENTITY_ID, headers);
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
-                    ArrayUtil.prepend(ACTION_COLUMN, headers)));
+                ArrayUtil.prepend(ACTION_COLUMN, headers)));
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
         } else {
             successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
-                    ArrayUtil.prepend(ACTION_COLUMN, headers)));
+                ArrayUtil.prepend(ACTION_COLUMN, headers)));
         }
         failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
     }
@@ -82,7 +82,7 @@ public class CsvFileWriter {
      * Given the input for a row record and the output from REST, this method will output the results of the operation
      * to the results files.
      *
-     * @param data The original CSV record
+     * @param data   The original CSV record
      * @param result The resulting status from REST
      * @throws IOException
      */
@@ -90,7 +90,7 @@ public class CsvFileWriter {
         if (result.isSuccess()) {
             if (result.getBullhornId() > -1) {
                 successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
-                        ArrayUtil.prepend(result.getAction().toString(), data)));
+                    ArrayUtil.prepend(result.getAction().toString(), data)));
             } else {
                 successCsv.writeRecord(ArrayUtil.prepend(result.getAction().toString(), data));
             }

@@ -1,24 +1,6 @@
 package com.bullhorn.dataloader.service;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import com.bullhorn.dataloader.meta.Entity;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
@@ -39,9 +21,27 @@ import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
 /**
  * Base class for all command line actions.
- *
+ * <p>
  * Contains common functionality.
  */
 public abstract class AbstractService {
@@ -56,11 +56,11 @@ public abstract class AbstractService {
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
                            InputStream inputStream) throws IOException {
-    	this.printUtil = printUtil;
+        this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
         this.inputStream = inputStream;
-    	timer = new Timer();
+        timer = new Timer();
     }
 
     public PropertyFileUtil getPropertyFileUtil() {
@@ -107,7 +107,7 @@ public abstract class AbstractService {
         final long sixteenGigabyte = 16456252;
         final long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
 
-        if(memorySize < sixteenGigabyte) {
+        if (memorySize < sixteenGigabyte) {
             return 1000;
         }
         return 10000;
@@ -116,9 +116,9 @@ public abstract class AbstractService {
     /**
      * Create thread pool for processing entityClass attachment changes
      *
-     * @param command - command line action to perform
+     * @param command    - command line action to perform
      * @param entityName - entityClass name
-     * @param filePath - CSV file with attachment data
+     * @param filePath   - CSV file with attachment data
      * @return ConcurrencyService thread pool service
      * @throws Exception if error when opening session, loading entityClass data, or reading CSV
      */
@@ -132,15 +132,15 @@ public abstract class AbstractService {
         ActionTotals actionTotals = new ActionTotals();
 
         ConcurrencyService concurrencyService = new ConcurrencyService(
-        		command,
-                entityName,
-                csvReader,
-                csvFileWriter,
-                executorService,
-                propertyFileUtil,
-                bullhornData,
-                printUtil,
-                actionTotals
+            command,
+            entityName,
+            csvReader,
+            csvFileWriter,
+            executorService,
+            propertyFileUtil,
+            bullhornData,
+            printUtil,
+            actionTotals
         );
 
         return concurrencyService;
@@ -151,7 +151,7 @@ public abstract class AbstractService {
      * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
      * argument, this lits will be either empty or contain exactly one matching entity to filename.
      *
-     * @param filePath any file or directory
+     * @param filePath   any file or directory
      * @param comparator specifies how the sorted list should be sorted
      * @return a Map of entity enums to lists of valid files.
      */
@@ -248,14 +248,14 @@ public abstract class AbstractService {
      * to be processed. Handles the case where there are multiple entities with multiple files or one entity with
      * multiple files.
      *
-     * @param filePath The user provided directory where these files came from
+     * @param filePath            The user provided directory where these files came from
      * @param entityToFileListMap The list of files that will be loaded
      * @return true if the user has responded with yes, false if no
      */
     protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
         if (entityToFileListMap.size() > 1 ||
-                (!entityToFileListMap.isEmpty() &&
-                        entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
+            (!entityToFileListMap.isEmpty() &&
+                entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");
 
             Integer count = 1;
@@ -277,7 +277,8 @@ public abstract class AbstractService {
                 } else if (input.startsWith("n") || input.startsWith("N")) {
                     return false;
                 }
-            };
+            }
+            ;
         }
 
         return true;
@@ -285,7 +286,7 @@ public abstract class AbstractService {
 
     /**
      * Extractions entity name from a file path.
-     *
+     * <p>
      * The file name must start with the name of the entity
      *
      * @param fileName path from which to extract entity name
@@ -304,7 +305,7 @@ public abstract class AbstractService {
 
     /**
      * Extractions entity type from a file path.
-     *
+     * <p>
      * The file name must start with the name of the entity
      *
      * @param fileName path from which to extract entity name
@@ -315,7 +316,7 @@ public abstract class AbstractService {
 
         String upperCaseFileName = file.getName().toUpperCase();
         Entity bestMatch = null;
-        for (Entity entity: Entity.values()) {
+        for (Entity entity : Entity.values()) {
             if (upperCaseFileName.startsWith(entity.getUpperCase())) {
                 if (bestMatch == null) {
                     bestMatch = entity;
@@ -334,23 +335,22 @@ public abstract class AbstractService {
     }
 
     /**
-	 * Return properly capitalize SDK-REST entity name from a string with any capitalization
-	 *
-	 * @param string a string of the entity name
-	 * @return SDK-REST entity name
-	 */
-	protected String extractEntityNameFromString(String string) {
-		for (Entity entity: Entity.values()) {
-			if (string.equalsIgnoreCase(entity.getEntityName())) {
-				return entity.getEntityName();
-			}
-		}
-		return null;
-	}
+     * Return properly capitalize SDK-REST entity name from a string with any capitalization
+     *
+     * @param string a string of the entity name
+     * @return SDK-REST entity name
+     */
+    protected String extractEntityNameFromString(String string) {
+        for (Entity entity : Entity.values()) {
+            if (string.equalsIgnoreCase(entity.getEntityName())) {
+                return entity.getEntityName();
+            }
+        }
+        return null;
+    }
 
     /**
      * checks if entity can load attachments
-     *
      */
     protected boolean isValidAttachmentEntity(String entityName) {
         if (entityName.equalsIgnoreCase(Candidate.class.getSimpleName())
@@ -369,7 +369,7 @@ public abstract class AbstractService {
     private CsvReader getCsvReader(String filePath) throws IOException {
         final CsvReader csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
-        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()){
+        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()) {
             StringBuilder sb = getDuplicates(csvReader);
             throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + sb.toString());
         }
@@ -379,8 +379,8 @@ public abstract class AbstractService {
     private StringBuilder getDuplicates(CsvReader csvReader) throws IOException {
         List<String> nonDupe = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
-        for (String header : csvReader.getHeaders()){
-            if (nonDupe.contains(header)){
+        for (String header : csvReader.getHeaders()) {
+            if (nonDupe.contains(header)) {
                 sb.append("\t" + header + "\n");
             }
             nonDupe.add(header);

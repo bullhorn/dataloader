@@ -19,7 +19,7 @@ public class ActionFactory {
 
     public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
-                         ValidationUtil validationUtil, 
+                         ValidationUtil validationUtil,
                          InputStream inputStream) {
         this.printUtil = printUtil;
         this.validationUtil = validationUtil;
@@ -29,6 +29,7 @@ public class ActionFactory {
 
     /**
      * Given a command enum, this returns the action that will accomplish that command.
+     *
      * @param command The user's command
      * @return The corresponding action
      */

@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
 
+    protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
     protected Command command;
     protected Integer rowNumber;
     protected Class<B> entityClass;
@@ -51,7 +52,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected BullhornData bullhornData;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
-    protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     public AbstractTask(Command command,
                         Integer rowNumber,
@@ -73,7 +73,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.actionTotals = actionTotals;
     }
 
-    protected  void addParentEntityIDtoDataMap() {
+    protected void addParentEntityIDtoDataMap() {
         dataMap.put(TaskConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
@@ -94,7 +94,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected void updateRowProcessedCounts() {
         rowProcessedCount.incrementAndGet();
-        if(rowProcessedCount.intValue() % 111 == 0) {
+        if (rowProcessedCount.intValue() % 111 == 0) {
             printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
         }
     }
@@ -110,7 +110,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected Result handleFailure(Exception e, Integer entityID) {
         printUtil.printAndLog(e);
-        if (entityID!=null){
+        if (entityID != null) {
             return Result.Failure(e, entityID);
         }
         return Result.Failure(e);
@@ -135,7 +135,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
 
         if (!entityExistFieldsMap.isEmpty()) {
-            if (SearchEntity.class.isAssignableFrom(entityClass)){
+            if (SearchEntity.class.isAssignableFrom(entityClass)) {
                 return searchForEntity(entityExistFieldsMap);
             } else {
                 return queryForEntity(entityExistFieldsMap);
@@ -175,7 +175,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
         Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName());
         if (existFields.isPresent()) {
-            for (String existField : existFields.get()){
+            for (String existField : existFields.get()) {
                 entityExistFieldsMap.put(existField, dataMap.get(existField));
             }
         }
@@ -184,7 +184,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected Object convertStringToClass(Method method, String value) throws ParseException {
-        if (StringUtils.isEmpty(value)){
+        if (StringUtils.isEmpty(value)) {
             return null;
         }
         Class convertToClass = method.getParameterTypes()[0];
@@ -209,7 +209,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
-        if (fieldName.indexOf(".") > -1){
+        if (fieldName.indexOf(".") > -1) {
             toOneEntityClass = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
             fieldName = fieldName.substring(fieldName.indexOf(".") + 1);
         }
@@ -223,9 +223,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
-        if (!response.getMessages().isEmpty() && response.getChangedEntityId()==null){
+        if (!response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
-            for (Message message : response.getMessages()){
+            for (Message message : response.getMessages()) {
                 sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
                 sb.append("\n");
             }
@@ -236,9 +236,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     /**
      * populates a field on an entity using reflection
      *
-     * @param field field to populate
-     * @param value value to populate field with
-     * @param entity the entity to populate
+     * @param field     field to populate
+     * @param value     value to populate field with
+     * @param entity    the entity to populate
      * @param methodMap map of set methods on entity
      */
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
@@ -247,7 +247,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
-        if (value != null && !"".equalsIgnoreCase(value)){
+        if (value != null && !"".equalsIgnoreCase(value)) {
             method.invoke(entity, convertStringToClass(method, value));
         }
     }

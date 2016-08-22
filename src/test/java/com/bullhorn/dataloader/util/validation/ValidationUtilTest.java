@@ -1,14 +1,13 @@
 package com.bullhorn.dataloader.util.validation;
 
-import java.io.File;
-import java.io.IOException;
-
+import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.util.PrintUtil;
+import java.io.File;
+import java.io.IOException;
 
 public class ValidationUtilTest {
 

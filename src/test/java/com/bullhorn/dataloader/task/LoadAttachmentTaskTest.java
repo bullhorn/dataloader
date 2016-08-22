@@ -10,7 +10,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.response.file.FileContent;
@@ -38,11 +37,9 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,32 +70,32 @@ public class LoadAttachmentTaskTest {
         propertyFileUtilMock_CandidateID = Mockito.mock(PropertyFileUtil.class);
         propertyFileUtilMock_CandidateExternalID = Mockito.mock(PropertyFileUtil.class);
 
-        for (Method method : Arrays.asList(FileMeta.class.getMethods())){
+        for (Method method : Arrays.asList(FileMeta.class.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 methodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
         }
 
-        List<String> idExistField = Arrays.asList(new String [] {"id"});
+        List<String> idExistField = Arrays.asList(new String[]{"id"});
         Mockito.doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Candidate");
 
-        List<String> externalIdExistField = Arrays.asList(new String [] {"externalID"});
+        List<String> externalIdExistField = Arrays.asList(new String[]{"externalID"});
         Mockito.doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("candidate.id","1001");
-        dataMap.put("relativeFilePath",relativeFilePath);
-        dataMap.put("isResume","0");
+        dataMap.put("candidate.id", "1001");
+        dataMap.put("relativeFilePath", relativeFilePath);
+        dataMap.put("isResume", "0");
 
         dataMap2 = new LinkedHashMap<String, String>();
-        dataMap2.put("candidate.externalID","2011Ext");
-        dataMap2.put("relativeFilePath",relativeFilePath);
-        dataMap2.put("isResume","1");
-        dataMap2.put("externalID","extFileId1");
-        dataMap2.put("name","new filename");
+        dataMap2.put("candidate.externalID", "2011Ext");
+        dataMap2.put("relativeFilePath", relativeFilePath);
+        dataMap2.put("isResume", "1");
+        dataMap2.put("externalID", "extFileId1");
+        dataMap2.put("name", "new filename");
     }
 
     @Test

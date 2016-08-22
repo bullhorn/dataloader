@@ -1,10 +1,9 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import com.bullhorn.dataloader.util.PrintUtil;
 
 public class CommandLineInterfaceTest {
 

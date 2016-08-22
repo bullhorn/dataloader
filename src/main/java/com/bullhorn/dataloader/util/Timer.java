@@ -31,23 +31,23 @@ public class Timer {
      */
     public String getDurationStringHMS() {
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(getDurationMillis()),
-                TimeUnit.MILLISECONDS.toMinutes(getDurationMillis()) % TimeUnit.HOURS.toMinutes(1),
-                TimeUnit.MILLISECONDS.toSeconds(getDurationMillis()) % TimeUnit.MINUTES.toSeconds(1));
+            TimeUnit.MILLISECONDS.toMinutes(getDurationMillis()) % TimeUnit.HOURS.toMinutes(1),
+            TimeUnit.MILLISECONDS.toSeconds(getDurationMillis()) % TimeUnit.MINUTES.toSeconds(1));
     }
-    
+
     /**
      * Returns a formatted string with the current duration
      *
      * @return The string that represents the duration in seconds.
      */
     public String getDurationStringSec() {
-        return String.format("%.1f", (double)(getDurationMillis()) / 1000) + " sec";
+        return String.format("%.1f", (double) (getDurationMillis()) / 1000) + " sec";
     }
 
     /**
      * Sets the start of the timer interval
      */
     public void start() {
-    	startTime = System.currentTimeMillis();
+        startTime = System.currentTimeMillis();
     }
 }

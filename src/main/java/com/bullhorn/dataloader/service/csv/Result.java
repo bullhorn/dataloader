@@ -8,20 +8,16 @@ package com.bullhorn.dataloader.service.csv;
  */
 public class Result {
 
-    public enum Status {
-        NOT_SET,
-        SUCCESS,
-        FAILURE
-    }
+    private Status status = Status.NOT_SET;
+    private Action action = Action.NOT_SET;
+    private Integer bullhornId = -1;
+    private String failureText = "";
 
-    public enum Action {
-        NOT_SET,
-        INSERT,
-        UPDATE,
-        DELETE,
-        CONVERT,
-        SKIP,
-        FAILURE
+    public Result(Status status, Action action, Integer bullhornId, String failureText) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+        this.failureText = failureText;
     }
 
     /**
@@ -85,24 +81,12 @@ public class Result {
     /**
      * Failure convenience constructor
      *
-     * @param exception The exception for this failure result
+     * @param exception  The exception for this failure result
      * @param bullhornID The id of the Bullhorn entity
      * @return The new Result object
      */
     public static Result Failure(Exception exception, Integer bullhornID) {
         return new Result(Status.FAILURE, Action.FAILURE, bullhornID, exception.toString());
-    }
-
-    private Status status = Status.NOT_SET;
-    private Action action = Action.NOT_SET;
-    private Integer bullhornId = -1;
-    private String failureText = "";
-
-    public Result(Status status, Action action, Integer bullhornId, String failureText) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-        this.failureText = failureText;
     }
 
     /**
@@ -164,9 +148,9 @@ public class Result {
         Result that = (Result) o;
 
         return (getStatus().equals(that.getStatus()) &&
-                getAction().equals(that.getAction()) &&
-                getBullhornId().equals(that.getBullhornId()) &&
-                getFailureText().equals(that.getFailureText()));
+            getAction().equals(that.getAction()) &&
+            getBullhornId().equals(that.getBullhornId()) &&
+            getFailureText().equals(that.getFailureText()));
     }
 
     @Override
@@ -181,10 +165,26 @@ public class Result {
     @Override
     public String toString() {
         return "Result{" +
-                "status=" + getStatus() +
-                ", action=" + getAction() +
-                ", bullhornId=" + getBullhornId() +
-                ", failureText='" + getFailureText() + "'" +
-                '}';
+            "status=" + getStatus() +
+            ", action=" + getAction() +
+            ", bullhornId=" + getBullhornId() +
+            ", failureText='" + getFailureText() + "'" +
+            '}';
+    }
+
+    public enum Status {
+        NOT_SET,
+        SUCCESS,
+        FAILURE
+    }
+
+    public enum Action {
+        NOT_SET,
+        INSERT,
+        UPDATE,
+        DELETE,
+        CONVERT,
+        SKIP,
+        FAILURE
     }
 }

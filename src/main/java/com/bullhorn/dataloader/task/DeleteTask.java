@@ -44,13 +44,13 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
         Result result;
         try {
             result = handle();
-        } catch(Exception e){
+        } catch (Exception e) {
             result = handleFailure(e, entityID);
         }
         writeToResultCSV(result);
     }
 
-    private <D extends DeleteEntity> Result handle(){
+    private <D extends DeleteEntity> Result handle() {
         entityID = Integer.parseInt(dataMap.get("id"));
         CrudResponse response = bullhornData.deleteEntity((Class<D>) entityClass, entityID);
         checkForRestSdkErrorMessages(response);

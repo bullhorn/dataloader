@@ -8,7 +8,7 @@ public class CommandLineInterface {
     ActionFactory actionFactory;
 
     public CommandLineInterface(PrintUtil printUtil, ActionFactory actionFactory) {
-		this.printUtil = printUtil;
+        this.printUtil = printUtil;
         this.actionFactory = actionFactory;
     }
 
@@ -21,34 +21,34 @@ public class CommandLineInterface {
         printUtil.log("Args: " + String.join(" ", args));
 
         try {
-        	if (args.length == 0) {
-        		printUtil.printAndLog("ERROR: Missing action");
-				printUtil.printUsage();
-				return;
-			}
+            if (args.length == 0) {
+                printUtil.printAndLog("ERROR: Missing action");
+                printUtil.printUsage();
+                return;
+            }
 
-        	// parse command from command line
-        	Command command = null;
-        	for (Command iter: Command.values()) {
-        		if (iter.getMethodName().equalsIgnoreCase(args[0])) {
-        			command = iter;
-        			break;
-        		}
-        	}
+            // parse command from command line
+            Command command = null;
+            for (Command iter : Command.values()) {
+                if (iter.getMethodName().equalsIgnoreCase(args[0])) {
+                    command = iter;
+                    break;
+                }
+            }
 
-        	if (command == null) {
+            if (command == null) {
                 printUtil.printAndLog("ERROR: Unrecognized action: " + args[0]);
-        		printUtil.printUsage();
-        		return;
-        	}
+                printUtil.printUsage();
+                return;
+            }
 
             Action action = actionFactory.getAction(command);
-        	if (!action.isValidArguments(args)) {
-        		printUtil.printUsage();
-        		return;
-        	}
+            if (!action.isValidArguments(args)) {
+                printUtil.printUsage();
+                return;
+            }
 
-        	action.run(args);
+            action.run(args);
         } catch (Exception e) {
             printUtil.printAndLog(e);
         }
