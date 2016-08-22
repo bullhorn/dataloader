@@ -62,7 +62,7 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 dataloader load path/to/<EntityName>.csv
 ```
 
-Update if record is present, Insert otherwise. requires a column for each data field to load. These column names must match the names in entity template. The provided CSV file must start with the name of the entity.
+Inserts or updates records. Requires a column for each data field to load. These column names must match the names in the entity template. The provided CSV file must start with the name of the entity. If the `<EntityName>ExistField` property in the `dataloader.properties` file is enabled, that field (column) will be used to determine if the record already exists. If a record with the `ExistField` value exists, that record will be updated, otherwise a new record will be inserted. If the `<EntityName>ExistField` property is disabled, a new record will always be created. ExistFields are disabled by default in the properties file.
 
 ```
 dataloader load path/to/directory
