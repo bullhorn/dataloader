@@ -1,2 +1,2 @@
 customText1,candidate.externalID,startDate,endDate,clientCorporation.externalID,jobOrder.externalID,placement.customText1
-CandidateWorkHistory-1234567,1234567,05/10/16 00:00,06/07/15 00:00,corporation-1234567,externalID,custom text field 1
+candidateWorkHistory-ext-1,candidate-ext-1,05/10/16 00:00,06/07/15 00:00,clientCorporation-ext-1,jobOrder-ext-1,placement-ext-1
