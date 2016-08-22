@@ -76,7 +76,7 @@ public class ValidationUtil {
      * Validates that an entity can be loaded, based on the entityName.
      */
     public boolean isLoadableEntity(String entityName, Boolean shouldPrint) {
-        if (EntityValidation.isLoadable(entityName)) {
+        if (EntityValidation.isLoadable(entityName) || EntityValidation.isCustomObject(entityName)) {
             return true;
         } else if (EntityValidation.isReadOnly(entityName)) {
             if (shouldPrint) {
@@ -100,7 +100,7 @@ public class ValidationUtil {
      * Validates that an entity can be deleted, based on the entityName.
      */
     public boolean isDeletableEntity(String entityName, Boolean shouldPrint) {
-        if (EntityValidation.isDeletable(entityName)) {
+        if (EntityValidation.isDeletable(entityName) || EntityValidation.isCustomObject(entityName)) {
             return true;
         } else if (EntityValidation.isNotDeletable(entityName) || EntityValidation.isReadOnly(entityName)) {
             if (shouldPrint) {
