@@ -56,7 +56,7 @@ public class PrintUtil {
 
         printAndLog("Results of DataLoader run");
         printAndLog("Total records processed: " + totalRecords);
-        if (command.equals(Command.CONVERT_ATTACHMENTS)){
+        if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             printAndLog("Total records converted: " + actionTotals.getActionTotal(Result.Action.CONVERT));
             printAndLog("Total records skipped: " + actionTotals.getActionTotal(Result.Action.SKIP));
         } else {

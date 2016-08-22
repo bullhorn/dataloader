@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
-public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<B> {
+public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     private FileMeta fileMeta;
     private boolean isNewEntity = true;
@@ -58,7 +58,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         Result result;
         try {
             result = handle();
-        } catch(Exception e){
+        } catch (Exception e) {
             result = handleFailure(e);
         }
         writeToResultCSV(result);
@@ -75,7 +75,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
-        if (properties.contains(getEntityAssociatedPropertyName(TaskConsts.ID))){
+        if (properties.contains(getEntityAssociatedPropertyName(TaskConsts.ID))) {
             bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(TaskConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
@@ -105,7 +105,7 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         for (FileMeta curFileMeta : allFileMetas) {
             if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(TaskConsts.ID))
                 || curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(TaskConsts.EXTERNAL_ID))
-                   ) {
+                ) {
                 isNewEntity = false;
                 fileMeta = curFileMeta;
                 break;
@@ -119,15 +119,13 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
         if (isNewEntity) {
             try {
                 byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(TaskConsts.RELATIVE_FILE_PATH)));
-                String fileStr  = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
+                String fileStr = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 throw new Exception("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
             }
-        }
-        else {
+        } else {
             // for update, grab original fileContent because it is required for an update
             FileContent fileContent = bullhornData.getFileContent((Class<F>) entityClass, bullhornParentId, fileMeta.getId());
             fileMeta.setFileContent(fileContent.getFileContent());
@@ -135,12 +133,12 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
 
         // set values from FileParams
         Map<String, String> paramsMap = ParamFactory.fileParams().getParameterMap();
-        for (String field : paramsMap.keySet()){
+        for (String field : paramsMap.keySet()) {
             populateFieldOnEntity(field, paramsMap.get(field), fileMeta, methodMap);
         }
 
         // set values from csv file
-        for (String field : dataMap.keySet()){
+        for (String field : dataMap.keySet()) {
             if (validField(field)) {
                 populateFieldOnEntity(field, dataMap.get(field), fileMeta, methodMap);
             }
@@ -154,17 +152,16 @@ public class LoadAttachmentTask <B extends BullhornEntity> extends AbstractTask<
 
     private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
-            FileWrapper fileWrapper =  bullhornData.addFile((Class<F>) entityClass, bullhornParentId, fileMeta);
+            FileWrapper fileWrapper = bullhornData.addFile((Class<F>) entityClass, bullhornParentId, fileMeta);
             return Result.Insert(fileWrapper.getId());
-        }
-        else {
+        } else {
             FileWrapper fileWrapper = bullhornData.updateFile((Class<F>) entityClass, bullhornParentId, fileMeta);
             return Result.Update(fileWrapper.getId());
         }
     }
 
     private boolean validField(String field) {
-        return  !(field.contains(".")
+        return !(field.contains(".")
             || field.equals(PARENT_ENTITY_ID)
             || field.equals(RELATIVE_FILE_PATH)
             || field.equals(IS_RESUME));

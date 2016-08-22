@@ -1,17 +1,16 @@
 package com.bullhorn.dataloader.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
 
 public class PropertyFileUtilTest {
 
@@ -45,13 +44,13 @@ public class PropertyFileUtilTest {
     @Test
     public void testExistsFields() throws IOException {
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("BusinessSector"),
-                Optional.ofNullable(Arrays.asList(new String[] {"name"})));
+            Optional.ofNullable(Arrays.asList(new String[]{"name"})));
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("Candidate"),
-                Optional.ofNullable(Arrays.asList(new String[] {"id"})));
+            Optional.ofNullable(Arrays.asList(new String[]{"id"})));
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("Category"),
-                Optional.ofNullable(Arrays.asList(new String[] {"occupation"})));
+            Optional.ofNullable(Arrays.asList(new String[]{"occupation"})));
         Assert.assertEquals(propertyFileUtil.getEntityExistFields("JobOrder"),
-                Optional.ofNullable(Arrays.asList(new String[] {"title", "name"})));
+            Optional.ofNullable(Arrays.asList(new String[]{"title", "name"})));
 
         Assert.assertFalse(propertyFileUtil.getEntityExistFields("businessSector").isPresent());
         Assert.assertFalse(propertyFileUtil.getEntityExistFields("CandidateName").isPresent());

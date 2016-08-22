@@ -1,10 +1,9 @@
 package com.bullhorn.dataloader.util.validation;
 
-import java.io.File;
-
+import com.bullhorn.dataloader.util.PrintUtil;
 import org.apache.commons.io.FilenameUtils;
 
-import com.bullhorn.dataloader.util.PrintUtil;
+import java.io.File;
 
 /**
  * Validation methods for validating user input on the command line.
@@ -20,7 +19,7 @@ public class ValidationUtil {
     /**
      * Validates the number of command line parameters
      *
-     * @param args The user's command line parameters
+     * @param args            The user's command line parameters
      * @param expectedNumArgs The expected number of arguments
      * @return true if there are the correct number of parameters returned
      */

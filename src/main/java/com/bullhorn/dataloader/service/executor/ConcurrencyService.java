@@ -74,7 +74,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
             executorService.execute(task);
         }
         executorService.shutdown();
-        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(command, actionTotals);
     }
 
@@ -88,7 +88,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
             executorService.execute(loadTask);
         }
         executorService.shutdown();
-        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(command, actionTotals);
     }
 
@@ -100,7 +100,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
             executorService.execute(task);
         }
         executorService.shutdown();
-        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(command, actionTotals);
     }
 
@@ -113,7 +113,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
             executorService.execute(task);
         }
         executorService.shutdown();
-        while(!executorService.awaitTermination(1, TimeUnit.MINUTES));
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(command, actionTotals);
     }
 
@@ -130,10 +130,10 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     private Map<String, Integer> createCountryNameToIdMap(Map<String, Method> methodMap) {
-        if (methodMap.containsKey("countryid")){
+        if (methodMap.containsKey("countryid")) {
             Map<String, Integer> countryNameToIdMap = new HashMap<>();
             List<Country> countryList = bullhornData.queryForAllRecords(Country.class, "id IS NOT null", Sets.newHashSet("id", "name"), ParamFactory.queryParams()).getData();
-            countryList.stream().forEach(n -> countryNameToIdMap.put(n.getName().trim(),n.getId()));
+            countryList.stream().forEach(n -> countryNameToIdMap.put(n.getName().trim(), n.getId()));
             return countryNameToIdMap;
         }
         return null;
@@ -141,7 +141,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
 
     public Map<String, Method> createMethodMap(Class entity) {
         Map<String, Method> methodMap = new HashMap();
-        for (Method method : Arrays.asList(entity.getMethods())){
+        for (Method method : Arrays.asList(entity.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 methodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
@@ -151,8 +151,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     private void addAddressMethodsIfNeeded(Map<String, Method> methodMap) {
-        if (methodMap.containsKey("address")){
-            for (Method method : Arrays.asList(Address.class.getMethods())){
+        if (methodMap.containsKey("address")) {
+            for (Method method : Arrays.asList(Address.class.getMethods())) {
                 if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                     methodMap.put(method.getName().substring(3).toLowerCase(), method);
                 }
@@ -165,7 +165,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
      */
     protected LinkedHashMap<String, String> getCsvDataMap() throws IOException {
         LinkedHashMap<String, String> dataMap = new LinkedHashMap<>();
-        for (int i = 0; i < csvReader.getHeaderCount(); i++){
+        for (int i = 0; i < csvReader.getHeaderCount(); i++) {
             dataMap.put(csvReader.getHeader(i), csvReader.getValues()[i]);
         }
         return dataMap;

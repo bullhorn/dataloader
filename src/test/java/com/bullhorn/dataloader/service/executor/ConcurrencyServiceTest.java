@@ -1,24 +1,5 @@
 package com.bullhorn.dataloader.service.executor;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -30,7 +11,24 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.csvreader.CsvReader;
-import com.google.common.collect.Maps;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ConcurrencyServiceTest {
 
@@ -40,7 +38,7 @@ public class ConcurrencyServiceTest {
     private BullhornData bullhornData;
     private ExecutorService executorService;
     @SuppressWarnings("rawtypes")
-	private ArgumentCaptor<LoadAttachmentTask> taskCaptor;
+    private ArgumentCaptor<LoadAttachmentTask> taskCaptor;
     private PrintUtil printUtil;
     private ActionTotals actionTotals;
 
@@ -60,15 +58,15 @@ public class ConcurrencyServiceTest {
     @Test
     public void EntityAttachmentConcurrencyServiceTestLoadAttachments() throws IOException, InterruptedException {
         final ConcurrencyService service = new ConcurrencyService(
-                Command.LOAD_ATTACHMENTS,
-                "Candidate",
-                csvReader,
-                csvFileWriter,
-                executorService,
-                propertyFileUtil,
-                bullhornData,
-                printUtil,
-                actionTotals);
+            Command.LOAD_ATTACHMENTS,
+            "Candidate",
+            csvReader,
+            csvFileWriter,
+            executorService,
+            propertyFileUtil,
+            bullhornData,
+            printUtil,
+            actionTotals);
 
         final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
@@ -76,7 +74,7 @@ public class ConcurrencyServiceTest {
         expectedDataMap.put("isResume", "0");
 
         Map<String, Method> methodMap = new HashMap();
-        for (Method method : Arrays.asList(FileMeta.class.getMethods())){
+        for (Method method : Arrays.asList(FileMeta.class.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 methodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
@@ -89,7 +87,7 @@ public class ConcurrencyServiceTest {
         verify(executorService).execute(taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
-		final LoadAttachmentTask<Candidate> actualTask = (LoadAttachmentTask<Candidate>)taskCaptor.getValue();
+        final LoadAttachmentTask<Candidate> actualTask = (LoadAttachmentTask<Candidate>) taskCaptor.getValue();
 
         Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
     }
@@ -100,15 +98,15 @@ public class ConcurrencyServiceTest {
         csvReader = new CsvReader("src/test/resources/CandidateAttachments_success.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
-                Command.DELETE_ATTACHMENTS,
-                "Candidate",
-                csvReader,
-                csvFileWriter,
-                executorService,
-                propertyFileUtil,
-                bullhornData,
-                printUtil,
-                actionTotals);
+            Command.DELETE_ATTACHMENTS,
+            "Candidate",
+            csvReader,
+            csvFileWriter,
+            executorService,
+            propertyFileUtil,
+            bullhornData,
+            printUtil,
+            actionTotals);
         final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
         expectedDataMap.put("action", "INSERT");

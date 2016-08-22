@@ -56,9 +56,9 @@ public class ConvertAttachmentTaskTest {
         printUtil = Mockito.mock(PrintUtil.class);
 
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("id","1");
-        dataMap.put("relativeFilePath",getFilePath("testResume/TestResume.doc"));
-        dataMap.put("isResume","1");
+        dataMap.put("id", "1");
+        dataMap.put("relativeFilePath", getFilePath("testResume/TestResume.doc"));
+        dataMap.put("isResume", "1");
 
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
     }
@@ -95,8 +95,8 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void run_Success_Skip() throws IOException {
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("id","1");
-        dataMap.put("relativeFilePath",getFilePath("testResume/TestResume.doc"));
+        dataMap.put("id", "1");
+        dataMap.put("relativeFilePath", getFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "0");
 
         Result expectedResult = Result.Skip();
@@ -119,10 +119,10 @@ public class ConvertAttachmentTaskTest {
     }
 
     @Test
-    public void getConvertedAttachmentPathTest(){
+    public void getConvertedAttachmentPathTest() {
         dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("clientContact.externalID","1");
-        dataMap.put("relativeFilePath",getFilePath("testResume/TestResume.doc"));
+        dataMap.put("clientContact.externalID", "1");
+        dataMap.put("relativeFilePath", getFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "0");
         String expectedResult = "convertedAttachments/ClientContact/1.html";
 

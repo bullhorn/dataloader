@@ -2,6 +2,9 @@ package com.bullhorn.dataloader.util;
 
 public class AssociationFilter {
 
+    private AssociationFilter() {
+    }
+
     public static boolean equalsIgnoreCase(String a, String b) {
         if (a == null && b == null) {
             return false;
@@ -30,8 +33,5 @@ public class AssociationFilter {
 
     public static boolean isInteger(String dataType) {
         return equalsIgnoreCase("integer", dataType);
-    }
-
-    private AssociationFilter() {
     }
 }

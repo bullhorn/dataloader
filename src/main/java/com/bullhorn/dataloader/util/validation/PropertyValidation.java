@@ -8,6 +8,9 @@ import java.util.Map;
 
 public class PropertyValidation {
 
+    public PropertyValidation() {
+    }
+
     public String validateUsername(String username) {
         String trimmedUsername = username.trim();
         if (trimmedUsername.isEmpty()) {
@@ -97,8 +100,5 @@ public class PropertyValidation {
             numThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
         }
         return Math.min(numThreads, maxThreads);
-    }
-
-    public PropertyValidation() {
     }
 }

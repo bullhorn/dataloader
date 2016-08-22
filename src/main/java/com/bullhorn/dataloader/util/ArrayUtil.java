@@ -2,6 +2,9 @@ package com.bullhorn.dataloader.util;
 
 public class ArrayUtil {
 
+    private ArrayUtil() {
+    }
+
     /**
      * Prepends an element to a String array
      *
@@ -19,7 +22,7 @@ public class ArrayUtil {
     /**
      * Appends an element to a String array
      *
-     * @param lastElement  The first element to add to the new array
+     * @param lastElement   The first element to add to the new array
      * @param originalArray The original array
      * @return A copy of the original array with a preceeding first element
      */
@@ -28,8 +31,5 @@ public class ArrayUtil {
         newArray[originalArray.length] = lastElement;
         System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
         return newArray;
-    }
-
-    private ArrayUtil() {
     }
 }

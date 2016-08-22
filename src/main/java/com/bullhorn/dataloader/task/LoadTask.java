@@ -51,14 +51,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LoadTask< A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
+public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
     private static final Logger log = LogManager.getLogger(LoadTask.class);
+    protected B entity;
+    protected Integer entityID;
     private Map<String, Method> methodMap;
     private Map<String, Integer> countryNameToIdMap;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
-    protected B entity;
-    protected Integer entityID;
     private boolean isNewEntity = true;
 
     public LoadTask(Command command,
@@ -82,7 +82,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         Result result;
         try {
             result = handle();
-        } catch(Exception e){
+        } catch (Exception e) {
             result = handleFailure(e, entityID);
         }
         writeToResultCSV(result);
@@ -99,7 +99,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
         String descriptionMethod = getDescriptionMethod();
-        if (!"".equals(descriptionMethod)){
+        if (!"".equals(descriptionMethod)) {
             String attachmentFilePath = getAttachmentFilePath(entityClass.getSimpleName(), dataMap.get("externalID"));
             File convertedAttachment = new File(attachmentFilePath);
             if (convertedAttachment.exists()) {
@@ -114,12 +114,10 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         if (descriptionMethods.size() > 0) {
             if (descriptionMethods.indexOf(TaskConsts.DESCRIPTION) > -1) {
                 return TaskConsts.DESCRIPTION;
-            }
-            else {
+            } else {
                 return descriptionMethods.get(0);
             }
-        }
-        else {
+        } else {
             return "";
         }
     }
@@ -141,8 +139,8 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
                 throw new RestApiException("Row " + rowNumber + ": Cannot Perform Update - Multiple Records Exist. Found " +
-                        existingEntityList.size() + " " + entityClass.getSimpleName() +
-                        " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
+                    existingEntityList.size() + " " + entityClass.getSimpleName() +
+                    " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
             } else {
                 isNewEntity = false;
                 entity = existingEntityList.get(0);
@@ -166,7 +164,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private void handleData() throws InvocationTargetException, IllegalAccessException, ParseException {
-        for (String field : dataMap.keySet()){
+        for (String field : dataMap.keySet()) {
             if (validField(field)) {
                 if (field.contains(".")) {
                     handleAssociations(field);
@@ -175,8 +173,8 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
                 }
             }
         }
-        for (String addressField : addressMap.keySet()){
-            methodMap.get(addressField.toLowerCase()).invoke(entity,addressMap.get(addressField));
+        for (String addressField : addressMap.keySet()) {
+            methodMap.get(addressField.toLowerCase()).invoke(entity, addressMap.get(addressField));
         }
     }
 
@@ -202,10 +200,9 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
 
-        if (toOneEntityName.toLowerCase().contains("address")){
+        if (toOneEntityName.toLowerCase().contains("address")) {
             handleAddress(toOneEntityName, field, fieldName);
-        }
-        else {
+        } else {
             Method method = methodMap.get(toOneEntityName.toLowerCase());
             if (method == null) {
                 throw new RestApiException("Row " + rowNumber + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
@@ -259,8 +256,8 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private boolean verifyIfOneToMany(String field) {
         List<AssociationField<A, B>> associationFieldList = getAssociationFields();
-        for (AssociationField associationField : associationFieldList){
-            if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0,field.indexOf(".")))) {
+        for (AssociationField associationField : associationFieldList) {
+            if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0, field.indexOf(".")))) {
                 associationMap.put(field, associationField);
                 return true;
             }
@@ -320,7 +317,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
         Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
-        if (existingAssociations.size()!=valueSet.size()){
+        if (existingAssociations.size() != valueSet.size()) {
             Set<String> existingAssociationValues = getExistingAssociationValues(method, existingAssociations);
             String missingAssociations = valueSet.stream().filter(n -> !existingAssociationValues.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
             throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
@@ -342,9 +339,9 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
 
     private List<Integer> findIdsOfAssociations(Set<String> valueSet, List<B> existingAssociations, Method method) throws IllegalAccessException, InvocationTargetException {
         List<Integer> associationIdList = new ArrayList<>();
-        for (B association : existingAssociations){
+        for (B association : existingAssociations) {
             String returnedValue = String.valueOf(method.invoke(association));
-            if (valueSet.contains(returnedValue)){
+            if (valueSet.contains(returnedValue)) {
                 associationIdList.add(association.getId());
             }
         }
@@ -396,7 +393,7 @@ public class LoadTask< A extends AssociationEntity, E extends EntityAssociations
     }
 
     private E getEntityAssociations(Class<A> entityClass) {
-        return (entityClass == Candidate.class? (E) AssociationFactory.candidateAssociations() :(entityClass == Category.class? (E) AssociationFactory.categoryAssociations() :(entityClass == ClientContact.class? (E) AssociationFactory.clientContactAssociations() :(entityClass == ClientCorporation.class? (E) AssociationFactory.clientCorporationAssociations() :(entityClass == CorporateUser.class? (E) AssociationFactory.corporateUserAssociations() :(entityClass == JobOrder.class? (E) AssociationFactory.jobOrderAssociations() :(entityClass == Note.class? (E) AssociationFactory.noteAssociations() :(entityClass == Placement.class? (E) AssociationFactory.placementAssociations() :(entityClass == Opportunity.class? (E) AssociationFactory.opportunityAssociations() :(entityClass == Lead.class? (E) AssociationFactory.leadAssociations() : entityClass == Tearsheet.class? (E) AssociationFactory.tearsheetAssociations() :null))))))))));
+        return (entityClass == Candidate.class ? (E) AssociationFactory.candidateAssociations() : (entityClass == Category.class ? (E) AssociationFactory.categoryAssociations() : (entityClass == ClientContact.class ? (E) AssociationFactory.clientContactAssociations() : (entityClass == ClientCorporation.class ? (E) AssociationFactory.clientCorporationAssociations() : (entityClass == CorporateUser.class ? (E) AssociationFactory.corporateUserAssociations() : (entityClass == JobOrder.class ? (E) AssociationFactory.jobOrderAssociations() : (entityClass == Note.class ? (E) AssociationFactory.noteAssociations() : (entityClass == Placement.class ? (E) AssociationFactory.placementAssociations() : (entityClass == Opportunity.class ? (E) AssociationFactory.opportunityAssociations() : (entityClass == Lead.class ? (E) AssociationFactory.leadAssociations() : entityClass == Tearsheet.class ? (E) AssociationFactory.tearsheetAssociations() : null))))))))));
     }
 
 }

@@ -10,23 +10,23 @@ import org.mockito.Mockito;
 
 public class HelpServiceTest {
 
-	private PrintUtil printUtilMock;
-	private HelpService helpService;
+    private PrintUtil printUtilMock;
+    private HelpService helpService;
 
-	@Before
-	public void setup() throws Exception {
-		printUtilMock = Mockito.mock(PrintUtil.class);
+    @Before
+    public void setup() throws Exception {
+        printUtilMock = Mockito.mock(PrintUtil.class);
         helpService = Mockito.spy(new HelpService(printUtilMock));
-	}
+    }
 
-	@Test
-	public void runTest() throws Exception {
-		final String[] testArgs = {Command.HELP.getMethodName()};
+    @Test
+    public void runTest() throws Exception {
+        final String[] testArgs = {Command.HELP.getMethodName()};
 
-		helpService.run(testArgs);
+        helpService.run(testArgs);
 
-		Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
-	}
+        Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
+    }
 
     @Test
     public void isValidArgumentsTest() throws Exception {

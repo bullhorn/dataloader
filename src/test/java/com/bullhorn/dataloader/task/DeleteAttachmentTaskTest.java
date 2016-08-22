@@ -53,9 +53,9 @@ public class DeleteAttachmentTaskTest {
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id", "1");
-        dataMap.put("Candidate.externalID","1");
-        dataMap.put("relativeFilePath","testResume/Test Resume.doc");
-        dataMap.put("isResume","0");
+        dataMap.put("Candidate.externalID", "1");
+        dataMap.put("relativeFilePath", "testResume/Test Resume.doc");
+        dataMap.put("isResume", "0");
         dataMap.put("parentEntityID", "1");
     }
 

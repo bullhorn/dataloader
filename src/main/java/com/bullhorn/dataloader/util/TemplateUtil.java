@@ -67,7 +67,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private String getCompositeHeaderName(Method method, Field field) {
-        return field.getName() + "." + method.getName().substring(3,4).toLowerCase() + method.getName().substring(4);
+        return field.getName() + "." + method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
     }
 
     private List<Method> getCompositeMethodList(String entity, Field field) {
@@ -75,8 +75,8 @@ public class TemplateUtil<B extends BullhornEntity> {
         List<Method> methodList = new ArrayList<>();
         for (Method method : Arrays.asList(compositeClass.getMethods())) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))
-                    && !"getAdditionalProperties".equalsIgnoreCase(method.getName())
-                    && !"getClass".equalsIgnoreCase(method.getName())) {
+                && !"getAdditionalProperties".equalsIgnoreCase(method.getName())
+                && !"getClass".equalsIgnoreCase(method.getName())) {
                 methodList.add(method);
             }
         }
@@ -84,12 +84,12 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     protected Class getGetMethod(Class<B> toOneEntityClass, String fieldName) {
-        String getMethodName = "get"+fieldName;
+        String getMethodName = "get" + fieldName;
         return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
     }
 
     protected void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
-        for (Field field : associationFields){
+        for (Field field : associationFields) {
             field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
             addExternalIDWhenExists(field);
             metaFieldSet.addAll(field.getAssociatedEntity().getFields());
@@ -98,7 +98,7 @@ public class TemplateUtil<B extends BullhornEntity> {
 
     protected void addExternalIDWhenExists(Field field) {
         try {
-            if (BullhornEntityInfo.getTypeFromName(field.getOptionsType()).getType().getMethod("getExternalID") != null){
+            if (BullhornEntityInfo.getTypeFromName(field.getOptionsType()).getType().getMethod("getExternalID") != null) {
                 Field externalIdField = new Field();
                 externalIdField.setName(field.getName() + ".externalID");
                 externalIdField.setDataType("String");
@@ -108,7 +108,8 @@ public class TemplateUtil<B extends BullhornEntity> {
                 field.getAssociatedEntity().setFields(newFieldList);
             }
         } catch (NoSuchMethodException e) {
-        } catch (IllegalArgumentException e) {}
+        } catch (IllegalArgumentException e) {
+        }
     }
 
     protected boolean hasId(Set<Field> metaFieldSet, String column) {

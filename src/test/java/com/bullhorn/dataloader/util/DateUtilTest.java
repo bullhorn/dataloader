@@ -7,11 +7,11 @@ import java.io.IOException;
 
 public class DateUtilTest {
 
-	@Test
-	public void testGetTimestamp() throws IOException {
-		final String originalTimestamp = DateUtil.getTimestamp();
-		final String newTimestamp = DateUtil.getTimestamp();
+    @Test
+    public void testGetTimestamp() throws IOException {
+        final String originalTimestamp = DateUtil.getTimestamp();
+        final String newTimestamp = DateUtil.getTimestamp();
 
-		Assert.assertEquals(originalTimestamp, newTimestamp);
-	}
+        Assert.assertEquals(originalTimestamp, newTimestamp);
+    }
 }

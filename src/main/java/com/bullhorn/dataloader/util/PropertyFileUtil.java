@@ -1,5 +1,12 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.util.validation.PropertyValidation;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import org.apache.commons.lang.WordUtils;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,14 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
-
-import org.apache.commons.lang.WordUtils;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 /**
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
@@ -57,9 +56,9 @@ public class PropertyFileUtil {
      *
      * @param fileName The property file to load and log
      */
-    public PropertyFileUtil (String fileName,
-                             PropertyValidation propertyValidation,
-                             PrintUtil printUtil) throws IOException {
+    public PropertyFileUtil(String fileName,
+                            PropertyValidation propertyValidation,
+                            PrintUtil printUtil) throws IOException {
         this.propertyValidation = propertyValidation;
         this.printUtil = printUtil;
 
@@ -106,7 +105,7 @@ public class PropertyFileUtil {
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
         try {
             return DateTimeFormat.forPattern(properties.getProperty(DATE_FORMAT));
-        } catch(IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }
@@ -184,12 +183,12 @@ public class PropertyFileUtil {
     /**
      * Logs the contents of the properties files, but only a very select set of properties to keep user login
      * information safe.
-     *
+     * <p>
      * NOTE: Though we could pull from the internally stored variables for these properties, it is actually
      * better to pull from the properties file using just the name, because then we don't have to convert back from a
      * set or map to the original string value.
      *
-     * @param fileName The name of the properties file
+     * @param fileName   The name of the properties file
      * @param properties The properties object
      */
     private void logProperties(String fileName, Properties properties) {
