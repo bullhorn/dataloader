@@ -62,7 +62,7 @@ This will generate the file: `<EntityName>Example.csv` in the current directory.
 dataloader load path/to/<EntityName>.csv
 ```
 
-Inserts or updates records. Requires a column for each data field to load. These column names must match the names in the entity template. The provided CSV file must start with the name of the entity. If the `<EntityName>ExistField` property in the `dataloader.properties` file is enabled, that field (column) will be used to determine if the record already exists. If a record with the `ExistField` value exists, that record will be updated, otherwise a new record will be inserted. If the `<EntityName>ExistField` property is disabled, a new record will always be created. ExistFields are disabled by default in the properties file.
+Inserts or updates records. Requires a column for each data field to load. These column names must match the names in the entity template. The provided CSV file must start with the name of the entity. If the `<EntityName>ExistField` property in the `dataloader.properties` file is enabled, that field (column) will be used to determine if the record already exists. If a record with the `ExistField` value exists, that record will be updated, otherwise a new record will be inserted. If the `<EntityName>ExistField` property is disabled, a new record will always be created. ExistFields are disabled by default in the properties file. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#load).
 
 ```
 dataloader load path/to/directory
@@ -82,7 +82,7 @@ The provided CSV file only requires an `id` column. This column will contain the
 dataloader delete path/to/directory
 ```
 
-Performs delete for every valid CSV file in the given directory. The order that entities are deleted in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity.
+Performs delete for every valid CSV file in the given directory. The order that entities are deleted in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#delete).
 
 ## Convert Attachments
 
@@ -90,7 +90,7 @@ Performs delete for every valid CSV file in the given directory. The order that 
 dataloader convertAttachments path/to/<EntityName>.csv
 ```
 
-Converts locally stored files (txt, doc/x, opend, odt, rtf, html or pdf) to html. Writes out converted attachments to: `convertedAttachments\<EntityName>\<ExternalID>` in the current working directory. ExternalID is the value of the `<entityName>.externalID` column in the CSV input file. This action is to be followed by the `loadAttachments` command, which will check the `convertedAttachments` folder that was created and load any converted attachments that match the `externalID` in the CSV input file. All converted attachments will be set as the description field for the entity. Currently supports Candidate, ClientContact, and ClientCorporation.
+Converts locally stored files (txt, doc/x, opend, odt, rtf, html or pdf) to html. Writes out converted attachments to: `convertedAttachments\<EntityName>\<ExternalID>` in the current working directory. ExternalID is the value of the `<entityName>.externalID` column in the CSV input file. This action is to be followed by the `loadAttachments` command, which will check the `convertedAttachments` folder that was created and load any converted attachments that match the `externalID` in the CSV input file. All converted attachments will be set as the description field for the entity. Currently supports Candidate, ClientContact, and ClientCorporation. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#convertattachments).
 
 ## Load Attachments
 
@@ -98,7 +98,7 @@ Converts locally stored files (txt, doc/x, opend, odt, rtf, html or pdf) to html
 dataloader loadAttachments path/to/<EntityName>.csv
 ```
 
-Attaches files to preexisting records. Attachment file paths are mapped with provided CSV file. Only attaches files for one entity at a time. The provided CSV file must start with the name of the entity.
+Attaches files to preexisting records. Attachment file paths are mapped with provided CSV file. Only attaches files for one entity at a time. The provided CSV file must start with the name of the entity. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#loadattachments).
 
 ## Delete Attachments
 
@@ -106,7 +106,7 @@ Attaches files to preexisting records. Attachment file paths are mapped with pro
 dataloader deleteAttachments <path/to/<EntityName>.csv
 ```
 
-The provided CSV file requires an `id` column and a `parentEntityID` column. The `id` column will contain the Bullhorn internal IDs of the files to delete and the `parentEntityID` column will contain the Bullhorn internal IDs of the entity the file is attached to. The provided CSV file must start with the name of the entity.
+The provided CSV file requires an `id` column and a `parentEntityID` column. The `id` column will contain the Bullhorn internal IDs of the files to delete and the `parentEntityID` column will contain the Bullhorn internal IDs of the entity the file is attached to. The provided CSV file must start with the name of the entity. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#deleteattachments).
 
 ## Console Output
 
