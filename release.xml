@@ -18,7 +18,7 @@ Creates a Release Package with our Release Binary (the dataloader jar file).  Fo
         <fileSet>
             <directory>examples</directory>
             <includes>
-                <include>*.csv</include>
+                <include>**/*</include>
             </includes>
         </fileSet>
         <fileSet>
