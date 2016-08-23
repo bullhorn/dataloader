@@ -148,13 +148,13 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_ReadOnlyEntity() throws Exception {
-        final String filePath = getFilePath("Certification.csv");
+        final String filePath = getFilePath("BusinessSector.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("Certification", "not deletable");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("BusinessSector", "not deletable");
     }
 
     @Test

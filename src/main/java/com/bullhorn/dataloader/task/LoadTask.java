@@ -55,11 +55,11 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     private static final Logger log = LogManager.getLogger(LoadTask.class);
     protected B entity;
     protected Integer entityID;
-    private Map<String, Method> methodMap;
+    protected Map<String, Method> methodMap;
     private Map<String, Integer> countryNameToIdMap;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
-    private boolean isNewEntity = true;
+    protected boolean isNewEntity = true;
 
     public LoadTask(Command command,
                     Integer rowNumber,
@@ -126,7 +126,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return "convertedAttachments/" + entityName + "/" + externalID + ".html";
     }
 
-    private Result createResult() {
+    protected Result createResult() {
         if (isNewEntity) {
             return Result.Insert(entityID);
         } else {
@@ -134,7 +134,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    private void createEntityObject() throws Exception {
+    protected void createEntityObject() throws Exception {
         List<B> existingEntityList = findEntityList();
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
@@ -151,7 +151,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    private void insertOrUpdateEntity() throws IOException {
+    protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
             checkForRestSdkErrorMessages(response);
@@ -163,7 +163,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    private void handleData() throws InvocationTargetException, IllegalAccessException, ParseException {
+    protected void handleData() throws InvocationTargetException, IllegalAccessException, ParseException {
         for (String field : dataMap.keySet()) {
             if (validField(field)) {
                 if (field.contains(".")) {
@@ -178,7 +178,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    private boolean validField(String field) {
+    protected boolean validField(String field) {
         if (!isNewEntity) {
             return !"username".equalsIgnoreCase(field);
         }
@@ -189,7 +189,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
-    private void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {
+    protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {
         boolean isOneToMany = verifyIfOneToMany(field);
         if (!isOneToMany) {
             handleOneToOne(field);
@@ -214,7 +214,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
+    protected B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
         Class fieldType = getFieldType(toOneEntityClass, fieldName);
         return findEntity(field, fieldName, toOneEntityClass, fieldType);
     }
@@ -224,18 +224,22 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         String value = dataMap.get(field);
 
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
-            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass);
+            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass, null);
         } else {
-            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass);
+            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass, null);
         }
 
+        validateListFromRestCall(field, list, value);
+
+        return list.get(0);
+    }
+
+    protected void validateListFromRestCall(String field, List<B> list, String value) {
         if (list == null || list.isEmpty()) {
             throw new RestApiException("Row " + rowNumber + ": Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
         } else if (list.size() > 1) {
             throw new RestApiException("Row " + rowNumber + ": Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
         }
-
-        return list.get(0);
     }
 
     private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
@@ -395,5 +399,4 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     private E getEntityAssociations(Class<A> entityClass) {
         return (entityClass == Candidate.class ? (E) AssociationFactory.candidateAssociations() : (entityClass == Category.class ? (E) AssociationFactory.categoryAssociations() : (entityClass == ClientContact.class ? (E) AssociationFactory.clientContactAssociations() : (entityClass == ClientCorporation.class ? (E) AssociationFactory.clientCorporationAssociations() : (entityClass == CorporateUser.class ? (E) AssociationFactory.corporateUserAssociations() : (entityClass == JobOrder.class ? (E) AssociationFactory.jobOrderAssociations() : (entityClass == Note.class ? (E) AssociationFactory.noteAssociations() : (entityClass == Placement.class ? (E) AssociationFactory.placementAssociations() : (entityClass == Opportunity.class ? (E) AssociationFactory.opportunityAssociations() : (entityClass == Lead.class ? (E) AssociationFactory.leadAssociations() : entityClass == Tearsheet.class ? (E) AssociationFactory.tearsheetAssociations() : null))))))))));
     }
-
 }

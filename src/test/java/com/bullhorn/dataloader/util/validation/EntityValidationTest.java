@@ -42,7 +42,6 @@ public class EntityValidationTest {
     @Test
     public void isNotDeletableEntityTest() throws IOException {
         Assert.assertTrue(EntityValidation.isNotDeletable("ClientCorporation"));
-        Assert.assertFalse(EntityValidation.isNotDeletable("Candidate"));
         Assert.assertFalse(EntityValidation.isNotDeletable("Sendout"));
     }
 
@@ -51,6 +50,5 @@ public class EntityValidationTest {
         Assert.assertTrue(EntityValidation.isReadOnly("Skill"));
         Assert.assertTrue(EntityValidation.isReadOnly("BusinessSector"));
         Assert.assertFalse(EntityValidation.isReadOnly("Candidate"));
-        Assert.assertFalse(EntityValidation.isReadOnly("BOGUS"));
     }
 }

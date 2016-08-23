@@ -2,14 +2,17 @@ package com.bullhorn.dataloader.service.executor;
 
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
+import com.bullhorn.dataloader.task.LoadCustomObjectTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -84,12 +87,20 @@ public class ConcurrencyService<B extends BullhornEntity> {
         Map<String, Integer> countryNameToIdMap = createCountryNameToIdMap(methodMap);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            LoadTask loadTask = new LoadTask(command, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-            executorService.execute(loadTask);
+            AbstractTask task = getCorrectLoadTask(entity, methodMap, countryNameToIdMap, dataMap);
+            executorService.execute(task);
         }
         executorService.shutdown();
         while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(command, actionTotals);
+    }
+
+    private AbstractTask getCorrectLoadTask(Class<B> entity, Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, LinkedHashMap<String, String> dataMap) {
+        if (EntityValidation.isCustomObject(entityName)){
+            return new LoadCustomObjectTask(command, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        } else {
+            return new LoadTask(command, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        }
     }
 
     public void runDeleteProcess() throws IOException, InterruptedException {
