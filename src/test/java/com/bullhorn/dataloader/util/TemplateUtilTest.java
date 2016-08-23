@@ -54,6 +54,12 @@ public class TemplateUtilTest {
         clientCorporationField.setAssociatedEntity(clientCorporationMetaData);
         clientCorporationField.setOptionsType("ClientCorporation");
 
+        Field appointment = new Field();
+        appointment.setName("appointment");
+        appointment.setType(null);
+        appointment.setDataType(null);
+
+        metaFieldSet.add(appointment);
         metaFieldSet.add(addressField);
         metaFieldSet.add(clientCorporationField);
     }
@@ -119,4 +125,20 @@ public class TemplateUtilTest {
         Assert.assertTrue(result);
     }
 
+    @Test(expected=NullPointerException.class)
+    public void testPopulateDataTypesIncorrectEntity(){
+        final String entity = "Cornidate";
+        templateUtil.populateDataTypes(entity, metaFieldSet, headers, dataTypes);
+    }
+
+    @Test
+    public void testIsNotCompositeType() {
+        final Field random = new Field();
+        Assert.assertTrue(!templateUtil.isCompositeType(random));
+    }
+
+    @Test
+    public void testDataTypeIsNull() {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+    }
 }
