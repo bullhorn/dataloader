@@ -12,10 +12,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Wrapper around the properties file that handles all interaction with properties throughout a session.
@@ -36,6 +38,7 @@ public class PropertyFileUtil {
     public static final String USERNAME = "username";
 
     final private PropertyValidation propertyValidation;
+    final private Properties systemProperties;
     final private PrintUtil printUtil;
 
     // Property values from the property file, saved in a more convenient format
@@ -57,14 +60,16 @@ public class PropertyFileUtil {
      * @param fileName The property file to load and log
      */
     public PropertyFileUtil(String fileName,
+                            Properties systemProperties,
                             PropertyValidation propertyValidation,
                             PrintUtil printUtil) throws IOException {
+        this.systemProperties = systemProperties;
         this.propertyValidation = propertyValidation;
         this.printUtil = printUtil;
 
         // If the users has specified a -Dpropertyfile command line parameter, use that fileName instead
-        if (null != System.getProperty(StringConsts.PROPERTYFILE_ARG)) {
-            fileName = System.getProperty(StringConsts.PROPERTYFILE_ARG);
+        if (null != systemProperties.getProperty(StringConsts.PROPERTYFILE_ARG)) {
+            fileName = systemProperties.getProperty(StringConsts.PROPERTYFILE_ARG);
         }
 
         Properties properties = getProperties(fileName);
@@ -87,24 +92,52 @@ public class PropertyFileUtil {
      * @param properties The raw contents of the properties file
      */
     private void processProperties(Properties properties) {
-        this.numThreads = propertyValidation.validateNumThreads(Integer.valueOf(properties.getProperty(NUM_THREADS)));
-        this.username = propertyValidation.validateUsername(properties.getProperty(USERNAME));
-        this.password = propertyValidation.validatePassword(properties.getProperty(PASSWORD));
-        this.authorizeUrl = propertyValidation.validateAuthorizeUrl(properties.getProperty(AUTHORIZE_URL));
-        this.tokenUrl = propertyValidation.validateTokenUrl(properties.getProperty(TOKEN_URL));
-        this.clientId = propertyValidation.validateClientId(properties.getProperty(CLIENT_ID));
-        this.clientSecret = propertyValidation.validateClientSecret(properties.getProperty(CLIENT_SECRET));
-        this.loginUrl = propertyValidation.validateLoginUrl(properties.getProperty(LOGIN_URL));
-        this.listDelimiter = propertyValidation.validateListDelimiter(properties.getProperty(LIST_DELIMITER));
+        this.numThreads = propertyValidation.validateNumThreads(Integer.valueOf(getProperty(NUM_THREADS, properties)));
+        this.username = propertyValidation.validateUsername(getProperty(USERNAME, properties));
+        this.password = propertyValidation.validatePassword(getProperty(PASSWORD, properties));
+        this.authorizeUrl = propertyValidation.validateAuthorizeUrl(getProperty(AUTHORIZE_URL, properties));
+        this.tokenUrl = propertyValidation.validateTokenUrl(getProperty(TOKEN_URL, properties));
+        this.clientId = propertyValidation.validateClientId(getProperty(CLIENT_ID, properties));
+        this.clientSecret = propertyValidation.validateClientSecret(getProperty(CLIENT_SECRET, properties));
+        this.loginUrl = propertyValidation.validateLoginUrl(getProperty(LOGIN_URL, properties));
+        this.listDelimiter = propertyValidation.validateListDelimiter(getProperty(LIST_DELIMITER, properties));
         this.dateParser = getDateTimeFormatter(properties);
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
 
         propertyValidation.validateEntityExistFields(entityExistFieldsMap);
     }
 
+    /**
+     * Gets the property from the given property file, but allows a system property with the same name to take
+     * precedence over the property file.
+     *
+     * @param key the name of the property
+     * @param properties the property file object
+     * @return the value of the property, or null if it does not exist
+     */
+    private String getProperty(String key, Properties properties) {
+        String value = systemProperties.getProperty(key);
+        if (value == null) {
+            value = properties.getProperty(key);
+        }
+        return value;
+    }
+
+    /**
+     * Returns the union of all system and property file properties
+     * @param properties property file properties
+     * @return all property keys
+     */
+    private Set<String> getPropertyNames(Properties properties) {
+        Set<String> allPropertyNames = new HashSet<>();
+        allPropertyNames.addAll(systemProperties.stringPropertyNames());
+        allPropertyNames.addAll(properties.stringPropertyNames());
+        return allPropertyNames;
+    }
+
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
         try {
-            return DateTimeFormat.forPattern(properties.getProperty(DATE_FORMAT));
+            return DateTimeFormat.forPattern(getProperty(DATE_FORMAT, properties));
         } catch (IllegalArgumentException e) {
             return null;
         }
@@ -129,11 +162,11 @@ public class PropertyFileUtil {
     private Map<String, List<String>> createEntityExistFieldsMap(Properties properties) {
         Map<String, List<String>> entityExistFields = Maps.newHashMap();
 
-        for (String property : properties.stringPropertyNames()) {
+        for (String property : getPropertyNames(properties)) {
             if (property.endsWith(EXIST_FIELD)) {
                 String entityName = property.split(EXIST_FIELD)[0];
                 String upperCaseEntityName = WordUtils.capitalize(entityName);
-                entityExistFields.put(upperCaseEntityName, Arrays.asList(properties.getProperty(property).split(",")));
+                entityExistFields.put(upperCaseEntityName, Arrays.asList(getProperty(property, properties).split(",")));
             }
         }
 
@@ -211,7 +244,7 @@ public class PropertyFileUtil {
     }
 
     private void logPropertiesEndingWith(Properties properties, String endingText) {
-        List<String> propertyNames = new ArrayList<String>(properties.stringPropertyNames());
+        List<String> propertyNames = new ArrayList<String>(getPropertyNames(properties));
         Collections.sort(propertyNames);
         for (String property : propertyNames) {
             if (property.endsWith(endingText)) {
@@ -222,7 +255,7 @@ public class PropertyFileUtil {
 
     private void logPropertyIfExists(Properties properties, String property) {
         if (properties.containsKey(property)) {
-            printUtil.log("   " + property + "=" + properties.getProperty(property));
+            printUtil.log("   " + property + "=" + getProperty(property, properties));
         }
     }
 }

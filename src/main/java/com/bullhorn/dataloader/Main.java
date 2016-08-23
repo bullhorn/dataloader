@@ -23,7 +23,7 @@ public class Main {
 
         try {
             PropertyValidation propertyValidation = new PropertyValidation();
-            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", propertyValidation, printUtil);
+            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getProperties(), propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, System.in);
 
