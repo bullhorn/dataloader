@@ -199,7 +199,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         } else if (Double.class.equals(convertToClass)) {
             return Double.parseDouble(value);
         } else if (Boolean.class.equals(convertToClass)) {
-            return Boolean.getBoolean(value);
+            return Boolean.parseBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             return formatter.parseDateTime(value);

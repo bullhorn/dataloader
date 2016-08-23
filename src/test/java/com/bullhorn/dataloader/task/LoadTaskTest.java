@@ -34,6 +34,9 @@ import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
 import com.bullhornsdk.data.model.response.list.SkillListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import com.csvreader.CsvReader;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +47,7 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -730,7 +734,60 @@ public class LoadTaskTest {
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("Processed: 111 records.");
     }
 
-    private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
+    @Test
+    public void convertStringToClassTest_Integer() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("id"), "1");
+
+        Assert.assertEquals(1, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_Double() throws ParseException, NoSuchMethodException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
+
+        Object convertedString = task.convertStringToClass(method, "1");
+
+        Assert.assertEquals(1.0, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_Boolean() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "true");
+
+        Assert.assertEquals(true, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_DateTime() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        DateTime now = DateTime.now();
+        String dateFormatString = "MM/dd/yyyy HH:mm:ss.SSS";
+        DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern(dateFormatString);
+        when(propertyFileUtilMock_CandidateExternalID.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("dateadded"), now.toString(dateTimeFormat));
+
+        Assert.assertEquals(now, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_BigDecimal() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "1");
+
+        Assert.assertEquals(BigDecimal.ONE, convertedString);
+    }
+
+    public void convertStringToClassTest_DoubleTestMethod(Double test){
+    }
+
+    public <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
         ListWrapper<B> listWrapper = new StandardListWrapper<B>();
         B entity = entityClass.newInstance();
         entity.setId(1);
