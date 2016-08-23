@@ -1,20 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.apache.commons.io.FileUtils;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
@@ -45,6 +30,20 @@ import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.FileUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     protected B entity;
@@ -189,7 +188,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
-    protected void handleAssociations(String field) throws Exception {
+    protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException, Exception {
         boolean isOneToMany = verifyIfOneToMany(field);
         if (!isOneToMany) {
             handleOneToOne(field);
@@ -321,7 +320,6 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
         Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
-
         if (existingAssociations.size() != valueSet.size()) {
             Set<String> existingAssociationSet = getExistingAssociationValues(method, existingAssociations);
 

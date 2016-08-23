@@ -186,7 +186,7 @@ public class LoadAttachmentTaskTest {
         final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
         PropertyFileUtil propertyFileUtilMock_Empty = Mockito.mock(PropertyFileUtil.class);
         Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornData, printUtilMock, actionTotals);
 
         task.run();
 
@@ -202,7 +202,7 @@ public class LoadAttachmentTaskTest {
         PropertyFileUtil propertyFileUtilMock_Incorrect = Mockito.mock(PropertyFileUtil.class);
         List<String> existFields = Arrays.asList(new String[]{"bogus"});
         Mockito.doReturn(Optional.ofNullable(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornData, printUtilMock, actionTotals);
 
         task.run();
 

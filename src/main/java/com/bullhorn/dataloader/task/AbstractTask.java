@@ -60,6 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable, TaskConsts {
+    static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
 
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
     protected Command command;
@@ -320,16 +321,32 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
     }
 
-    protected List<AssociationField<A, B>> getAssociationFields(Class<B> associationClass) {
+    protected static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getAssociationFields(Class<AssociationEntity> entityClass) {
         try {
-            E entityAssociations = getEntityAssociations((Class<A>) associationClass);
-            return entityAssociations.allAssociations();
+            if (entityClassToAssociationsMap.containsKey(entityClass)) {
+                return entityClassToAssociationsMap.get(entityClass);
+            } else {
+                EntityAssociations entityAssociations = getEntityAssociations((Class<AssociationEntity>) entityClass);
+                List<AssociationField<AssociationEntity, BullhornEntity>> associationFields = entityAssociations.allAssociations();
+                entityClassToAssociationsMap.put((Class<AssociationEntity>) entityClass, associationFields);
+                return associationFields;
+            }
         } catch (Exception e) {
             return new ArrayList<>();
         }
     }
 
-    private E getEntityAssociations(Class<A> entityClass) {
-        return (entityClass == Candidate.class ? (E) AssociationFactory.candidateAssociations() : (entityClass == Category.class ? (E) AssociationFactory.categoryAssociations() : (entityClass == ClientContact.class ? (E) AssociationFactory.clientContactAssociations() : (entityClass == ClientCorporation.class ? (E) AssociationFactory.clientCorporationAssociations() : (entityClass == CorporateUser.class ? (E) AssociationFactory.corporateUserAssociations() : (entityClass == JobOrder.class ? (E) AssociationFactory.jobOrderAssociations() : (entityClass == Note.class ? (E) AssociationFactory.noteAssociations() : (entityClass == Placement.class ? (E) AssociationFactory.placementAssociations() : (entityClass == Opportunity.class ? (E) AssociationFactory.opportunityAssociations() : (entityClass == Lead.class ? (E) AssociationFactory.leadAssociations() : entityClass == Tearsheet.class ? (E) AssociationFactory.tearsheetAssociations() : null))))))))));
+    private static synchronized EntityAssociations getEntityAssociations(Class entityClass) {
+        return (entityClass == Candidate.class ? AssociationFactory.candidateAssociations() :
+            (entityClass == Category.class ? AssociationFactory.categoryAssociations() :
+                (entityClass == ClientContact.class ? AssociationFactory.clientContactAssociations() :
+                    (entityClass == ClientCorporation.class ? AssociationFactory.clientCorporationAssociations() :
+                        (entityClass == CorporateUser.class ? AssociationFactory.corporateUserAssociations() :
+                            (entityClass == JobOrder.class ? AssociationFactory.jobOrderAssociations() :
+                                (entityClass == Note.class ? AssociationFactory.noteAssociations() :
+                                    (entityClass == Placement.class ? AssociationFactory.placementAssociations() :
+                                        (entityClass == Opportunity.class ? AssociationFactory.opportunityAssociations() :
+                                            (entityClass == Lead.class ? AssociationFactory.leadAssociations() :
+                                                entityClass == Tearsheet.class ? AssociationFactory.tearsheetAssociations() : null))))))))));
     }
 }

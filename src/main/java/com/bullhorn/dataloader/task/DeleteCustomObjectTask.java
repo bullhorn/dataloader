@@ -85,7 +85,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
 
     private AssociationField getAssociationField() {
         String associationName = getAssociationName();
-        List<AssociationField<A, B>> associationFieldList = getAssociationFields(parentEntityClass);
+        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = getAssociationFields((Class<AssociationEntity>) entityClass);
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(associationName)){
                 return associationField;

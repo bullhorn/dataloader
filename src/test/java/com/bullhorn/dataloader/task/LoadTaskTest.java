@@ -681,7 +681,7 @@ public class LoadTaskTest {
         skillList.add(skill2);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entityID = 1;
         String errorMessage = "";
 

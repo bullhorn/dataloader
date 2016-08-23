@@ -119,7 +119,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
-        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
         List<B> matchingCustomObjectList = (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
         return matchingCustomObjectList;
     }
@@ -190,7 +190,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         parentField = field;
         List<B> list;
         String value = dataMap.get(field);
-        Class fieldType = getFieldType(parentEntityClass, fieldName);
+        Class fieldType = getFieldType(parentEntityClass, field, fieldName);
 
         if (SearchEntity.class.isAssignableFrom(parentEntityClass)) {
             list = searchForEntity(fieldName, value, fieldType, parentEntityClass, Sets.newHashSet("id", "customObject" + instanceNumber + "s(*)"));
