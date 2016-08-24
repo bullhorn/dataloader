@@ -193,7 +193,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
-        expectedDataMap.put("isResume", "0");
+        expectedDataMap.put("isResume", "1");
 
         Map<String, Method> methodMap = new HashMap();
         for (Method method : Arrays.asList(FileMeta.class.getMethods())) {
