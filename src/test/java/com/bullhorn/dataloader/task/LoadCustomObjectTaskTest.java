@@ -9,6 +9,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
@@ -23,6 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -161,7 +163,6 @@ public class LoadCustomObjectTaskTest {
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
         when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
-        task.originalClass = ClientCorporationCustomObjectInstance2.class;
 
         //test
         task.getCustomObjectId();
@@ -170,6 +171,55 @@ public class LoadCustomObjectTaskTest {
         Assert.assertTrue(1 == task.entityID);
     }
 
+    @Test
+    public void noPermissionToInsertCustomObjectTest() throws IOException {
+        //setup
+        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        String cleanedExceptionMessage = "ClientCorporation Custom Object field customObject2s is not set up.";
+        Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
+
+        ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
+        customObjectListWrapper.setData(new ArrayList<>());
+        ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper2 = new ClientCorporationCustomObjectInstance2ListWrapper();
+        ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
+        clientCorporationCustomObjectInstance2.setId(1);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+
+        ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
+        listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
+        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")),any());
+
+        String noPermissionException = "{\n" +
+            "  \"errorMessage\" : \"error persisting an entity of type: Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\",\n" +
+            "  \"errors\" : [ ],\n" +
+            "  \"entityName\" : \"Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\"\n" +
+            "}";
+        Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornDataMock).updateEntity(any());
+
+        //test
+        task.run();
+
+        //verify
+        Mockito.verify(csvFileWriterMock, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void getParentEntityTest_Exception() throws InvocationTargetException, IllegalAccessException {
+        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        RestApiException expectedException = new RestApiException("Row 1: To-One Association: 'candidate' does not exist on ClientCorporationCustomObjectInstance2");
+        task.entity = new ClientCorporationCustomObjectInstance2();
+
+        RestApiException actualException = new RestApiException();
+        try {
+            task.getParentEntity("candidate.id");
+        } catch (RestApiException e){
+            actualException = e;
+        }
+
+        Assert.assertEquals(actualException.getMessage(), expectedException.getMessage());
+    }
 
 
 }

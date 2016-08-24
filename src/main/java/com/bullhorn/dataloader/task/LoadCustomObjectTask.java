@@ -12,9 +12,12 @@ import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
+import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -25,7 +28,6 @@ import java.util.Map;
 public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadTask {
     private B parentEntity;
     private Class<B> parentEntityClass;
-    protected Class<B> originalClass;
     private String instanceNumber;
 
     public LoadCustomObjectTask(Command command,
@@ -39,7 +41,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                                 BullhornData bullhornData,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(command, rowNumber, entityClass, dataMap, methodMap , countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityClass, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     @Override
@@ -62,9 +64,28 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         return createResult();
     }
 
+    @Override
+    protected void insertOrUpdateEntity() throws IOException {
+        try {
+            CrudResponse response = bullhornData.updateEntity((UpdateEntity) parentEntity);
+            checkForRestSdkErrorMessages(response);
+        } catch (RestApiException e){
+            checkIfCouldUpdateCustomObject(e);
+        }
+    }
+
+    private void checkIfCouldUpdateCustomObject(RestApiException e) {
+        String stringPriorToMessage = "error persisting an entity of type: Update Failed: You do not have permission for ";
+        if (e.getMessage().contains(stringPriorToMessage)){
+            int startIndex = e.getMessage().indexOf(stringPriorToMessage) + stringPriorToMessage.length();
+            int endIndex = e.getMessage().indexOf(".\"", startIndex);
+            String cleanedExceptionMessage = e.getMessage().substring(startIndex, endIndex) + " is not set up.";
+            throw new RestApiException(cleanedExceptionMessage);
+        }
+    }
+
     protected void getCustomObjectId() throws Exception {
         if (entityID == null){
-            entityClass = originalClass;
             createEntityObject();
             isNewEntity = true;
         }
@@ -80,9 +101,6 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         OneToMany oneToManyObject = getOneToMany(parentCustomObjectMethods);
         oneToManyObject = updateOneToManyObject(oneToManyObject);
         parentCustomObjectMethods.get("set").invoke(parentEntity, oneToManyObject);
-        entity = parentEntity;
-        originalClass = entityClass;
-        entityClass = parentEntityClass;
     }
 
     private OneToMany updateOneToManyObject(OneToMany oneToManyObject) {
