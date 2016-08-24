@@ -9,6 +9,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.customobject.CustomObjectInstance;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -99,7 +100,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         Integer newEntityId = -1;
         for (B customObject : (List<B>) oneToManyObject.getData()){
             Integer customObjectId = customObject.getId();
-            customObject.setId(null);
+            scrubCustomObject(customObject);
             if (customObject.equals(entity)){
                 if (newEntityId == -1) {
                     newEntityId = customObjectId;
@@ -113,6 +114,16 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         } else {
             entityID = newEntityId;
         }
+    }
+
+    private void scrubCustomObject(B customObject) {
+        if (entity.getId() == null) {
+            customObject.setId(null);
+        }
+        ((CustomObjectInstance) customObject).setDateAdded(null);
+        ((CustomObjectInstance) customObject).setDateLastModified(null);
+        ((CustomObjectInstance) entity).setDateAdded(null);
+        ((CustomObjectInstance) entity).setDateLastModified(null);
     }
 
     @Override
