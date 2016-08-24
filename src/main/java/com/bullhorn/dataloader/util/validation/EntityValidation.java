@@ -64,16 +64,6 @@ public class EntityValidation {
 	}
 
 	/**
-	 * Convenience method which returns true if an entity is part of the set of mutable but not deletable entities
-	 * in REST.
-	 *
-	 * @return True if can be inserted and updated but not deleted
-	 */
-	public static boolean isNotDeletable(String entityName) {
-		return !isDeletable(entityName);
-	}
-
-	/**
 	 * Convenience method which returns true if an entity is part of the set of read only entities in REST.
 	 *
 	 * @return True if read only

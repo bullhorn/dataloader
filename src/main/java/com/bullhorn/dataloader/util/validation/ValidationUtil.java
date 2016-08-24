@@ -102,7 +102,7 @@ public class ValidationUtil {
     public boolean isDeletableEntity(String entityName, Boolean shouldPrint) {
         if (EntityValidation.isDeletable(entityName) || EntityValidation.isCustomObject(entityName)) {
             return true;
-        } else if (EntityValidation.isNotDeletable(entityName) || EntityValidation.isReadOnly(entityName)) {
+        } else if (!EntityValidation.isDeletable(entityName) || EntityValidation.isReadOnly(entityName)) {
             if (shouldPrint) {
                 printUtil.printEntityError(entityName, "not deletable");
             }
