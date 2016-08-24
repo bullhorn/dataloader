@@ -223,7 +223,7 @@ public class LoadCustomObjectTaskTest {
     public void noPermissionToInsertCustomObjectTest() throws IOException {
         //setup
         task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
-        String cleanedExceptionMessage = "ClientCorporation Custom Object field customObject2s is not set up.";
+        String cleanedExceptionMessage = "ClientCorporation Custom Object 2 is not set up.";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();

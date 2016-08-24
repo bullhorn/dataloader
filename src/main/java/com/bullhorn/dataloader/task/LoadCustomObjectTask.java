@@ -80,8 +80,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         String stringPriorToMessage = "error persisting an entity of type: Update Failed: You do not have permission for ";
         if (e.getMessage().contains(stringPriorToMessage)){
             int startIndex = e.getMessage().indexOf(stringPriorToMessage) + stringPriorToMessage.length();
-            int endIndex = e.getMessage().indexOf(".\"", startIndex);
-            String cleanedExceptionMessage = e.getMessage().substring(startIndex, endIndex) + " is not set up.";
+            int endIndex = e.getMessage().indexOf("field customObject", startIndex);
+            String cleanedExceptionMessage = e.getMessage().substring(startIndex, endIndex) + instanceNumber + " is not set up.";
             throw new RestApiException(cleanedExceptionMessage);
         }
     }
