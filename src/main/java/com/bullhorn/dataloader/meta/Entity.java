@@ -88,7 +88,7 @@ public enum Entity {
     }
 
     /**
-     * @return true if this entity is modifiable by DataLoaser
+     * @return true if this entity is modifiable by DataLoader
      */
     public boolean isModifiable() {
         return this.modifiable;

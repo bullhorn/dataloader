@@ -22,13 +22,12 @@ public class TemplateUtil<B extends BullhornEntity> {
 
     private final Set<String> compositeTypes = Sets.newHashSet("address");
     private BullhornData bullhornData;
-    private HashSet<String> methodSet = new HashSet<>();
 
     public TemplateUtil(BullhornData bullhornData) {
         this.bullhornData = bullhornData;
     }
 
-    public void writeExampleEntityCsv(String entity) throws IOException {
+    public void writeExampleEntityCsv(String entity) throws IOException, ClassNotFoundException {
         Set<Field> metaFieldSet = getMetaFieldSet(entity);
 
         ArrayList<String> headers = new ArrayList<>();
@@ -54,19 +53,9 @@ public class TemplateUtil<B extends BullhornEntity> {
         csvWriter.close();
     }
 
-    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) {
-        try {
-            final ClassLoader classLoader = getClass().getClassLoader();
-            final Class entityClass = classLoader.loadClass("com.bullhornsdk.data.model.entity.core.standard." + entity);
+    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws ClassNotFoundException {
 
-            for (Method method : Arrays.asList(entityClass.getMethods())){
-                if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                    methodSet.add(method.getName().substring(3).toLowerCase());
-                }
-            }
-        } catch(ClassNotFoundException e) {
-            throw new NullPointerException("Unknown entity passed as argument");
-        }
+        final HashSet<String> methodSet = getEntityFields(entity);
 
         for (Field field : metaFieldSet) {
             if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
@@ -84,6 +73,19 @@ public class TemplateUtil<B extends BullhornEntity> {
                 }
             }
         }
+    }
+
+    private HashSet<String> getEntityFields(String entity) throws ClassNotFoundException {
+        final HashSet<String> methodSet = new HashSet<>();
+        final ClassLoader classLoader = getClass().getClassLoader();
+        final Class entityClass = classLoader.loadClass("com.bullhornsdk.data.model.entity.core.standard." + entity);
+
+        for (Method method : Arrays.asList(entityClass.getMethods())){
+            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
+                methodSet.add(method.getName().substring(3).toLowerCase());
+            }
+        }
+        return methodSet;
     }
 
     private String getCompositeHeaderName(Method method, Field field) {
