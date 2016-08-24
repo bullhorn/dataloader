@@ -29,6 +29,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     private B parentEntity;
     private Class<B> parentEntityClass;
     private String instanceNumber;
+    protected String parentField;
 
     public LoadCustomObjectTask(Command command,
                                 Integer rowNumber,
@@ -86,8 +87,31 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     protected void getCustomObjectId() throws Exception {
         if (entityID == null){
-            createEntityObject();
+            getParentEntity(parentField);
+            getNewCustomObjectIdFromParent();
             isNewEntity = true;
+        }
+    }
+
+    private void getNewCustomObjectIdFromParent() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Map<String,Method> parentCustomObjectMethods = getParentCustomObjectMethods();
+        OneToMany oneToManyObject = getOneToMany(parentCustomObjectMethods);
+        Integer newEntityId = -1;
+        for (B customObject : (List<B>) oneToManyObject.getData()){
+            Integer customObjectId = customObject.getId();
+            customObject.setId(null);
+            if (customObject.equals(entity)){
+                if (newEntityId == -1) {
+                    newEntityId = customObjectId;
+                } else {
+                    printUtil.printAndLog("Row " + rowNumber + ": Found duplicate customObject.");
+                }
+            }
+        }
+        if (newEntityId == -1) {
+            throw new RestApiException("Can't retrieve inserted custom object's id.");
+        } else {
+            entityID = newEntityId;
         }
     }
 
@@ -142,6 +166,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected B getCustomObjectParent(String field, String fieldName, Class<B> parentEntityClass) {
+        parentField = field;
         List<B> list;
         String value = (String) dataMap.get(field);
         Class fieldType = getFieldType(parentEntityClass, fieldName);
@@ -172,5 +197,6 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         parentEntityClass = (Class<B>) method.getParameterTypes()[0];
         parentEntity = (B) getCustomObjectParent(field, fieldName, parentEntityClass);
     }
+
 
 }

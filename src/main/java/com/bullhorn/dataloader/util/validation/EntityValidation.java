@@ -1,14 +1,11 @@
 package com.bullhorn.dataloader.util.validation;
 
-import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.customobject.CustomObjectInstance;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
 import com.bullhornsdk.data.model.entity.core.type.HardDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.SoftDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
-
-import java.util.Arrays;
 
 public class EntityValidation {
 
@@ -73,7 +70,7 @@ public class EntityValidation {
 	 * @return True if can be inserted and updated but not deleted
 	 */
 	public static boolean isNotDeletable(String entityName) {
-		return !isHardDeletable(entityName);
+		return !isDeletable(entityName);
 	}
 
 	/**

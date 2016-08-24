@@ -42,6 +42,7 @@ public class EntityValidationTest {
     @Test
     public void isNotDeletableEntityTest() throws IOException {
         Assert.assertTrue(EntityValidation.isNotDeletable("ClientCorporation"));
+        Assert.assertFalse(EntityValidation.isNotDeletable("Candidate"));
         Assert.assertFalse(EntityValidation.isNotDeletable("Sendout"));
     }
 
