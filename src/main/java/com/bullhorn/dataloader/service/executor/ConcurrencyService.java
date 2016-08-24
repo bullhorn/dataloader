@@ -87,7 +87,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         Map<String, Integer> countryNameToIdMap = createCountryNameToIdMap(methodMap);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            AbstractTask task = getCorrectLoadTask(entity, methodMap, countryNameToIdMap, dataMap);
+            AbstractTask task = getLoadTask(entity, methodMap, countryNameToIdMap, dataMap);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -95,7 +95,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         printUtil.printActionTotals(command, actionTotals);
     }
 
-    private AbstractTask getCorrectLoadTask(Class<B> entity, Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, LinkedHashMap<String, String> dataMap) {
+    private AbstractTask getLoadTask(Class<B> entity, Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, LinkedHashMap<String, String> dataMap) {
         if (EntityValidation.isCustomObject(entityName)){
             return new LoadCustomObjectTask(command, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         } else {
@@ -140,7 +140,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         printUtil.printActionTotals(command, actionTotals);
     }
 
-    private Map<String, Integer> createCountryNameToIdMap(Map<String, Method> methodMap) {
+    protected Map<String, Integer> createCountryNameToIdMap(Map<String, Method> methodMap) {
         if (methodMap.containsKey("countryid")) {
             Map<String, Integer> countryNameToIdMap = new HashMap<>();
             List<Country> countryList = bullhornData.queryForAllRecords(Country.class, "id IS NOT null", Sets.newHashSet("id", "name"), ParamFactory.queryParams()).getData();
