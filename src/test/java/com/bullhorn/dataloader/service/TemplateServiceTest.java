@@ -41,8 +41,9 @@ public class TemplateServiceTest {
         StandardMetaData<Candidate> metaData = new StandardMetaData<>();
         metaData.setEntity("Candidate");
         Field field = new Field();
-        field.setName("fieldName");
+        field.setName("comments");
         field.setDataType("String");
+        field.setType("SCALAR");
         metaData.setFields(Arrays.asList(field));
         when(bullhornData.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
     }
