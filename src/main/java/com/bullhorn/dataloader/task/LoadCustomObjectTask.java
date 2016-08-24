@@ -15,6 +15,9 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
+import com.bullhornsdk.data.model.entity.meta.Field;
+import com.bullhornsdk.data.model.entity.meta.MetaData;
+import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 
@@ -25,6 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadTask {
     private B parentEntity;
@@ -98,6 +102,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         Map<String,Method> parentCustomObjectMethods = getParentCustomObjectMethods();
         OneToMany oneToManyObject = getOneToMany(parentCustomObjectMethods);
         Integer newEntityId = -1;
+        scrubEntity();
         for (B customObject : (List<B>) oneToManyObject.getData()){
             Integer customObjectId = customObject.getId();
             scrubCustomObject(customObject);
@@ -116,14 +121,24 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         }
     }
 
+    private void scrubEntity() throws InvocationTargetException, IllegalAccessException {
+        MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
+        for (String fieldName : (Set<String>) dataMap.keySet()){
+            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
+            if (!fieldIsInMeta && !fieldName.contains(".")){
+                ((Method) methodMap.get(fieldName)).invoke(entity, new Object[]{ null });
+            }
+        }
+        ((CustomObjectInstance) entity).setDateAdded(null);
+        ((CustomObjectInstance) entity).setDateLastModified(null);
+    }
+
     private void scrubCustomObject(B customObject) {
         if (entity.getId() == null) {
             customObject.setId(null);
         }
         ((CustomObjectInstance) customObject).setDateAdded(null);
         ((CustomObjectInstance) customObject).setDateLastModified(null);
-        ((CustomObjectInstance) entity).setDateAdded(null);
-        ((CustomObjectInstance) entity).setDateLastModified(null);
     }
 
     @Override

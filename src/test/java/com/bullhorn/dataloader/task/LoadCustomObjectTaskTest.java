@@ -13,6 +13,9 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
+import com.bullhornsdk.data.model.entity.meta.Field;
+import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
+import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.response.crud.CreateResponse;
 import com.bullhornsdk.data.model.response.list.ClientCorporationListWrapper;
 import com.bullhornsdk.data.model.response.list.customobject.ClientCorporationCustomObjectInstance2ListWrapper;
@@ -75,7 +78,16 @@ public class LoadCustomObjectTaskTest {
         dataMap = new LinkedHashMap<>();
         dataMap.put("clientCorporation.id", "1");
         dataMap.put("text1", "Test");
+        dataMap.put("text2", "Skip");
 
+        StandardMetaData meta = new StandardMetaData();
+        List<Field> fields = new ArrayList<>();
+        Field field = new Field();
+        field.setName("id");
+        field.setName("text1");
+        fields.add(field);
+        meta.setFields(fields);
+        when(bullhornDataMock.getMetaData(ClientCorporationCustomObjectInstance2.class, MetaParameter.BASIC, null)).thenReturn(meta);
     }
 
     @Test
@@ -210,6 +222,7 @@ public class LoadCustomObjectTaskTest {
         clientCorporation.setCustomObject2s(oneToMany);
         listWrapper.setData(Arrays.asList(clientCorporation));
         when(bullhornDataMock.search(eq(ClientCorporation.class), eq("id:1"), any(), any())).thenReturn(listWrapper);
+
         task.parentField = "clientCorporation.id";
 
         //test
