@@ -27,7 +27,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         this.bullhornData = bullhornData;
     }
 
-    public void writeExampleEntityCsv(String entity) throws IOException {
+    public void writeExampleEntityCsv(String entity) throws IOException, ClassNotFoundException {
         Set<Field> metaFieldSet = getMetaFieldSet(entity);
 
         ArrayList<String> headers = new ArrayList<>();
@@ -53,17 +53,39 @@ public class TemplateUtil<B extends BullhornEntity> {
         csvWriter.close();
     }
 
-    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) {
+    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws ClassNotFoundException {
+
+        final HashSet<String> methodSet = getEntityFields(entity);
+
         for (Field field : metaFieldSet) {
-            if (!isCompositeType(field) && !hasId(metaFieldSet, field.getName())) {
-                headers.add(field.getName());
-                dataTypes.add(field.getDataType());
-            } else if (isCompositeType(field) && !hasId(metaFieldSet, field.getName())) {
-                List<Method> compositeMethodList = getCompositeMethodList(entity, field);
-                compositeMethodList.stream().forEach(n -> headers.add(getCompositeHeaderName(n, field)));
-                compositeMethodList.stream().forEach(n -> dataTypes.add(n.getReturnType().getSimpleName()));
+            if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
+                if (!isCompositeType(field)) {
+                    headers.add(field.getName());
+                    if(field.getDataType() == null) {
+                        field.setDataType("Integer");
+                    }
+                    dataTypes.add(field.getDataType());
+
+                } else if (isCompositeType(field)) {
+                    List<Method> compositeMethodList = getCompositeMethodList(entity, field);
+                    compositeMethodList.stream().forEach(n -> headers.add(getCompositeHeaderName(n, field)));
+                    compositeMethodList.stream().forEach(n -> dataTypes.add(n.getReturnType().getSimpleName()));
+                }
             }
         }
+    }
+
+    private HashSet<String> getEntityFields(String entity) throws ClassNotFoundException {
+        final HashSet<String> methodSet = new HashSet<>();
+        final ClassLoader classLoader = getClass().getClassLoader();
+        final Class entityClass = classLoader.loadClass("com.bullhornsdk.data.model.entity.core.standard." + entity);
+
+        for (Method method : Arrays.asList(entityClass.getMethods())){
+            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
+                methodSet.add(method.getName().substring(3).toLowerCase());
+            }
+        }
+        return methodSet;
     }
 
     private String getCompositeHeaderName(Method method, Field field) {

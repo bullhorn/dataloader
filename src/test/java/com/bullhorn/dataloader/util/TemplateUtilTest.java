@@ -54,6 +54,12 @@ public class TemplateUtilTest {
         clientCorporationField.setAssociatedEntity(clientCorporationMetaData);
         clientCorporationField.setOptionsType("ClientCorporation");
 
+        Field fax = new Field();
+        fax.setName("fax");
+        fax.setType(null);
+        fax.setDataType(null);
+
+        metaFieldSet.add(fax);
         metaFieldSet.add(addressField);
         metaFieldSet.add(clientCorporationField);
     }
@@ -71,7 +77,7 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void populateDataTypesTestAddress() {
+    public void populateDataTypesTestAddress() throws ClassNotFoundException {
 
         templateUtil.populateDataTypes("Candidate", metaFieldSet, headers, dataTypes);
 
@@ -119,4 +125,20 @@ public class TemplateUtilTest {
         Assert.assertTrue(result);
     }
 
+    @Test(expected=ClassNotFoundException.class)
+    public void testPopulateDataTypesIncorrectEntity() throws ClassNotFoundException {
+        final String entity = "Cornidate";
+        templateUtil.populateDataTypes(entity, metaFieldSet, headers, dataTypes);
+    }
+
+    @Test
+    public void testIsNotCompositeType() {
+        final Field random = new Field();
+        Assert.assertTrue(!templateUtil.isCompositeType(random));
+    }
+
+    @Test
+    public void testDataTypeIsNull() throws ClassNotFoundException {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+    }
 }
