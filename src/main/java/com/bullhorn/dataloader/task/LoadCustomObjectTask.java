@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
-import com.bullhornsdk.data.model.entity.core.customobject.CustomObjectInstance;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -18,6 +17,7 @@ import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
+import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 
@@ -29,12 +29,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadTask {
     private B parentEntity;
     private Class<B> parentEntityClass;
     private String instanceNumber;
     protected String parentField;
+    protected Boolean parentEntityUpdateDone = false;
 
     public LoadCustomObjectTask(Command command,
                                 Integer rowNumber,
@@ -64,6 +66,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected Result handle() throws Exception {
         createEntityObject();
         handleData();
+        getCustomObjectId();
         prepParentEntityForCustomObject();
         insertOrUpdateEntity();
         getCustomObjectId();
@@ -75,6 +78,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         try {
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) parentEntity);
             checkForRestSdkErrorMessages(response);
+            parentEntityUpdateDone = true;
         } catch (RestApiException e){
             checkIfCouldUpdateCustomObject(e);
         }
@@ -87,58 +91,52 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
             int endIndex = e.getMessage().indexOf("field customObject", startIndex);
             String cleanedExceptionMessage = e.getMessage().substring(startIndex, endIndex) + instanceNumber + " is not set up.";
             throw new RestApiException(cleanedExceptionMessage);
+        } else {
+            throw e;
         }
     }
 
     protected void getCustomObjectId() throws Exception {
         if (entityID == null){
-            getParentEntity(parentField);
-            getNewCustomObjectIdFromParent();
-            isNewEntity = true;
+            List<B> matchingCustomObjectList = queryForMatchingCustomObject();
+            checkForDuplicates(matchingCustomObjectList);
         }
     }
 
-    private void getNewCustomObjectIdFromParent() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Map<String,Method> parentCustomObjectMethods = getParentCustomObjectMethods();
-        OneToMany oneToManyObject = getOneToMany(parentCustomObjectMethods);
-        Integer newEntityId = -1;
-        scrubEntity();
-        for (B customObject : (List<B>) oneToManyObject.getData()){
-            Integer customObjectId = customObject.getId();
-            scrubCustomObject(customObject);
-            if (customObject.equals(entity)){
-                if (newEntityId == -1) {
-                    newEntityId = customObjectId;
+    private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
+        Map<String, String> scrubbedDataMap = dataMap;
+        MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
+        for (String fieldName : (Set<String>) dataMap.keySet()) {
+            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
+            if (!fieldIsInMeta && !fieldName.contains(".")) {
+                scrubbedDataMap.remove(fieldName);
+            }
+        }
+        return scrubbedDataMap;
+    }
+
+    private List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
+        Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
+        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatment(n, (String) dataMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        List<B> matchingCustomObjectList = bullhornData.query(entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        return matchingCustomObjectList;
+    }
+
+    private void checkForDuplicates(List<B> matchingCustomObjectList) throws Exception {
+        if (!matchingCustomObjectList.isEmpty()){
+            if (matchingCustomObjectList.size() > 1){
+                throw new RestApiException("Row " + rowNumber + ": Found duplicate.");
+            }
+            else {
+                entityID = matchingCustomObjectList.get(0).getId();
+                entity.setId(entityID);
+                if (!parentEntityUpdateDone) {
+                    isNewEntity = false;
                 } else {
-                    printUtil.printAndLog("Row " + rowNumber + ": Found duplicate customObject.");
+                    isNewEntity = true;
                 }
             }
         }
-        if (newEntityId == -1) {
-            throw new RestApiException("Can't retrieve inserted custom object's id.");
-        } else {
-            entityID = newEntityId;
-        }
-    }
-
-    private void scrubEntity() throws InvocationTargetException, IllegalAccessException {
-        MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
-        for (String fieldName : (Set<String>) dataMap.keySet()){
-            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
-            if (!fieldIsInMeta && !fieldName.contains(".")){
-                ((Method) methodMap.get(fieldName)).invoke(entity, new Object[]{ null });
-            }
-        }
-        ((CustomObjectInstance) entity).setDateAdded(null);
-        ((CustomObjectInstance) entity).setDateLastModified(null);
-    }
-
-    private void scrubCustomObject(B customObject) {
-        if (entity.getId() == null) {
-            customObject.setId(null);
-        }
-        ((CustomObjectInstance) customObject).setDateAdded(null);
-        ((CustomObjectInstance) customObject).setDateLastModified(null);
     }
 
     @Override
@@ -173,13 +171,17 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     protected OneToMany updateCustomObject(OneToMany customObjects) {
         OneToMany updatedCustomObjects = new OneToMany();
-        for (B customObject : (List<B>) customObjects.getData()){
-            if (entity.getId().equals(customObject.getId())){
+        for (B customObject : (List<B>) customObjects.getData()) {
+            if (entity.getId().equals(customObject.getId())) {
                 updatedCustomObjects.getData().add(entity);
             } else {
                 updatedCustomObjects.getData().add(customObject);
             }
         }
+        if (!customObjects.getData().stream().map(n -> ((B) n).getId()).anyMatch(n -> n.equals(entity.getId()))) {
+            updatedCustomObjects.getData().add(entity);
+        }
+
         updatedCustomObjects.setTotal(updatedCustomObjects.getData().size());
         return updatedCustomObjects;
     }

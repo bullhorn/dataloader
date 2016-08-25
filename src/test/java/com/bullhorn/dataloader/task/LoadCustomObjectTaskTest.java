@@ -105,6 +105,8 @@ public class LoadCustomObjectTaskTest {
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
         when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
         ClientCorporationListWrapper listWrapper2 = new ClientCorporationListWrapper();
@@ -180,18 +182,18 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         ((ClientCorporationCustomObjectInstance2) task.entity).setText1("test");
-        ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
         clientCorporationCustomObjectInstance2.setText1("test");
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
-        ClientCorporation clientCorporation = new ClientCorporation(1);
         OneToMany oneToMany = new OneToMany();
         oneToMany.setData(clientCorporationCustomObjectInstance2List);
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
-        clientCorporation.setCustomObject2s(oneToMany);
-        listWrapper.setData(Arrays.asList(clientCorporation));
-        when(bullhornDataMock.search(eq(ClientCorporation.class), eq("id:1"), any(), any())).thenReturn(listWrapper);
+        ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
+        customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
+
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+
         task.parentField = "clientCorporation.id";
 
         //test
@@ -206,8 +208,9 @@ public class LoadCustomObjectTaskTest {
         //setup
         task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
+        RestApiException expectedException = new RestApiException("Row 1: Found duplicate.");
+
         ((ClientCorporationCustomObjectInstance2) task.entity).setText1("test");
-        ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
         clientCorporationCustomObjectInstance2.setText1("test");
@@ -215,21 +218,26 @@ public class LoadCustomObjectTaskTest {
         dupeClientCorporationCustomObjectInstance2.setId(2);
         dupeClientCorporationCustomObjectInstance2.setText1("test");
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2, dupeClientCorporationCustomObjectInstance2);
-        ClientCorporation clientCorporation = new ClientCorporation(1);
         OneToMany oneToMany = new OneToMany();
         oneToMany.setData(clientCorporationCustomObjectInstance2List);
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
-        clientCorporation.setCustomObject2s(oneToMany);
-        listWrapper.setData(Arrays.asList(clientCorporation));
-        when(bullhornDataMock.search(eq(ClientCorporation.class), eq("id:1"), any(), any())).thenReturn(listWrapper);
+        ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
+        customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
+
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
 
         task.parentField = "clientCorporation.id";
 
         //test
-        task.getCustomObjectId();
+        RestApiException actualException = null;
+        try {
+            task.getCustomObjectId();
+        } catch(RestApiException e){
+            actualException = e;
+        }
 
         //verify
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("Row 1: Found duplicate customObject.");
+        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
     }
 
     @Test
@@ -248,6 +256,8 @@ public class LoadCustomObjectTaskTest {
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
         when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
         Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")),any());
@@ -257,6 +267,38 @@ public class LoadCustomObjectTaskTest {
             "  \"errors\" : [ ],\n" +
             "  \"entityName\" : \"Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\"\n" +
             "}";
+        Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornDataMock).updateEntity(any());
+
+        //test
+        task.run();
+
+        //verify
+        Mockito.verify(csvFileWriterMock, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void checkIfCouldUpdateCustomObjectTest_ThrowRandom() throws IOException {
+        //setup
+        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        String cleanedExceptionMessage = "bogus";
+        Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
+
+        ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
+        customObjectListWrapper.setData(new ArrayList<>());
+        ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper2 = new ClientCorporationCustomObjectInstance2ListWrapper();
+        ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
+        clientCorporationCustomObjectInstance2.setId(1);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+
+        ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
+        listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
+        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")),any());
+
+        String noPermissionException = "bogus";
         Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornDataMock).updateEntity(any());
 
         //test
@@ -280,6 +322,30 @@ public class LoadCustomObjectTaskTest {
         }
 
         Assert.assertEquals(actualException.getMessage(), expectedException.getMessage());
+    }
+
+    @Test
+    public void updateCustomObjectTest() {
+        //setup
+        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task.entity = new ClientCorporationCustomObjectInstance2();
+        task.entity.setId(8);
+
+        OneToMany oneToMany = new OneToMany();
+        ClientCorporationCustomObjectInstance2 object1 = new ClientCorporationCustomObjectInstance2();
+        object1.setId(1);
+        ClientCorporationCustomObjectInstance2 object2 = new ClientCorporationCustomObjectInstance2();
+        object2.setId(2);
+        ClientCorporationCustomObjectInstance2 object3 = new ClientCorporationCustomObjectInstance2();
+        object3.setId(3);
+        List<ClientCorporationCustomObjectInstance2> list = Arrays.asList(object1, object2, object3);
+        oneToMany.setData(list);
+
+        //test
+        OneToMany result = task.updateCustomObject(oneToMany);
+
+        //verify
+        Assert.assertEquals(oneToMany.getData().size() + 1, result.getData().size());
     }
 
 
