@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -77,7 +78,7 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void populateDataTypesTestAddress() throws ClassNotFoundException {
+    public void populateDataTypesTestAddress() throws ClassNotFoundException, IOException {
 
         templateUtil.populateDataTypes("Candidate", metaFieldSet, headers, dataTypes);
 
@@ -126,7 +127,7 @@ public class TemplateUtilTest {
     }
 
     @Test(expected=ClassNotFoundException.class)
-    public void testPopulateDataTypesIncorrectEntity() throws ClassNotFoundException {
+    public void testPopulateDataTypesIncorrectEntity() throws ClassNotFoundException, IOException {
         final String entity = "Cornidate";
         templateUtil.populateDataTypes(entity, metaFieldSet, headers, dataTypes);
     }
@@ -138,7 +139,7 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void testDataTypeIsNull() throws ClassNotFoundException {
+    public void testDataTypeIsNull() throws ClassNotFoundException, IOException {
         templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
     }
 }

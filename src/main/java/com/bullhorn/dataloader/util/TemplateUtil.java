@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,19 +54,19 @@ public class TemplateUtil<B extends BullhornEntity> {
         csvWriter.close();
     }
 
-    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws ClassNotFoundException {
+    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
 
         final HashSet<String> methodSet = getEntityFields(entity);
 
         for (Field field : metaFieldSet) {
             if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
                 if (!isCompositeType(field)) {
-                    headers.add(field.getName());
-                    if(field.getDataType() == null) {
+                    if(AssociationFilter.isToMany(field.getType()) || AssociationFilter.isToOne(field.getType())) {
+                        field.setName(field.getName() + ".id");
                         field.setDataType("Integer");
                     }
+                    headers.add(field.getName());
                     dataTypes.add(field.getDataType());
-
                 } else if (isCompositeType(field)) {
                     List<Method> compositeMethodList = getCompositeMethodList(entity, field);
                     compositeMethodList.stream().forEach(n -> headers.add(getCompositeHeaderName(n, field)));
