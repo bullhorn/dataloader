@@ -60,6 +60,16 @@ public class TemplateUtilTest {
         fax.setType(null);
         fax.setDataType(null);
 
+        Field clientContacts = new Field();
+        clientContacts.setName("clientContacts");
+        clientContacts.setType("TO_MANY");
+
+        Field department = new Field();
+        department.setName("department");
+        department.setType("TO_ONE");
+
+        metaFieldSet.add(department);
+        metaFieldSet.add(clientContacts);
         metaFieldSet.add(fax);
         metaFieldSet.add(addressField);
         metaFieldSet.add(clientCorporationField);
@@ -141,5 +151,17 @@ public class TemplateUtilTest {
     @Test
     public void testDataTypeIsNull() throws ClassNotFoundException, IOException {
         templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+    }
+
+    @Test
+    public void testIsToMany() throws ClassNotFoundException, IOException {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+        Assert.assertTrue(headers.contains("clientContacts.id"));
+    }
+
+    @Test
+    public void testIsToOne() throws ClassNotFoundException, IOException {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+        Assert.assertTrue(headers.contains("department.id"));
     }
 }
