@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -59,6 +60,16 @@ public class TemplateUtilTest {
         fax.setType(null);
         fax.setDataType(null);
 
+        Field clientContacts = new Field();
+        clientContacts.setName("clientContacts");
+        clientContacts.setType("TO_MANY");
+
+        Field department = new Field();
+        department.setName("department");
+        department.setType("TO_ONE");
+
+        metaFieldSet.add(department);
+        metaFieldSet.add(clientContacts);
         metaFieldSet.add(fax);
         metaFieldSet.add(addressField);
         metaFieldSet.add(clientCorporationField);
@@ -77,7 +88,7 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void populateDataTypesTestAddress() throws ClassNotFoundException {
+    public void populateDataTypesTestAddress() throws ClassNotFoundException, IOException {
 
         templateUtil.populateDataTypes("Candidate", metaFieldSet, headers, dataTypes);
 
@@ -126,7 +137,7 @@ public class TemplateUtilTest {
     }
 
     @Test(expected=ClassNotFoundException.class)
-    public void testPopulateDataTypesIncorrectEntity() throws ClassNotFoundException {
+    public void testPopulateDataTypesIncorrectEntity() throws ClassNotFoundException, IOException {
         final String entity = "Cornidate";
         templateUtil.populateDataTypes(entity, metaFieldSet, headers, dataTypes);
     }
@@ -138,7 +149,19 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void testDataTypeIsNull() throws ClassNotFoundException {
+    public void testDataTypeIsNull() throws ClassNotFoundException, IOException {
         templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+    }
+
+    @Test
+    public void testIsToMany() throws ClassNotFoundException, IOException {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+        Assert.assertTrue(headers.contains("clientContacts.id"));
+    }
+
+    @Test
+    public void testIsToOne() throws ClassNotFoundException, IOException {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+        Assert.assertTrue(headers.contains("department.id"));
     }
 }
