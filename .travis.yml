@@ -7,5 +7,5 @@ after_success:
   - mvn clean test jacoco:report coveralls:report
 
 notifications:
-  slack: 
-    secure: $SLACK
+  slack:
+    secure: 4pNYiAiEgRrKPe3Tp4A/GsJgwPC3S8BUiLC9hkaOfwG4cE6QqJqjFgz+RYREjc2Es5tSQXXAEcDypLHmloZFoRRVr9fC56UVrFHLVArOv8vx+49NUv+vUtA6Nb1baeoO1OijCZyGD+iuybW+GsNWkGb82wQkJ6RqlTBJ+rWY0kddGpSeQQpF90RN2qmn2voG+PKxrj0eVvCFH5Z+6NmMyygbZJ6tMbnRj2bUSzREAVtN1hO15kRha30PEYJFWYv6f9+OBhCQ2QuKCnfMArilXfP0Jz64b5kMOBj07IZG28sJr+1B18vrfLMEySttWz1n6Z0srUgZG/T6OaH4YzebYAtG81Fqmcy3ZSSsUM0vx7VRD40oJRYFGr+zLvt2+8K1yPC5ky/zB47wDKZxjKmfb4ehm8Apvt0/eJKQf2EGNGofyBO4Q2AvRkZBSefi9SyQA0n9FbGUvXEf5xmzkt14WlMWUQ+TBQE0YgMcgpoR3A8nJZpid14hcDvGlLl/sFkub7tRCCztoVyD4oGROF7+1vFzySh4sl80AHZ97GDVRjK7RYMQwnaDM0bvwkeKEuiZ2X30eV/2qM6PV2bx5Xv7Q4ksa+HpJhcLN3ri/I+wz9DaGf3+PN0QWJb+eCHfFeauxo8xffUskmyDRp1dfRUVCJj0nd+DeoK9tsDxVJnOubw=
