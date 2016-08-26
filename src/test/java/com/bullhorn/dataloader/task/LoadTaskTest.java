@@ -504,16 +504,6 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void getAssociationFieldsTestCatch() {
-        List expectedResult = new ArrayList<>();
-        task = new LoadTask(Command.LOAD, 1, CandidateReference.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-
-        List actualResult = task.getAssociationFields();
-
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-    }
-
-    @Test
     public void getGetMethodTestCatch() {
         task = new LoadTask(Command.LOAD, 1, CandidateReference.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
