@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -116,9 +117,16 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return Result.Failure(e);
     }
 
-    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
+    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
         String query = getQueryStatement(field, value, fieldType);
-        return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) bullhornData.search((Class<S>) entityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
+    }
+
+    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
+        String where = getWhereStatment(field, value, fieldType);
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) bullhornData.query((Class<Q>) entityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType) {
@@ -153,11 +161,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatment(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
-    }
-
-    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
-        String where = getWhereStatment(field, value, fieldType);
-        return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected String getWhereStatment(String field, String value, Class fieldType) {
@@ -196,7 +199,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         } else if (Double.class.equals(convertToClass)) {
             return Double.parseDouble(value);
         } else if (Boolean.class.equals(convertToClass)) {
-            return Boolean.getBoolean(value);
+            return Boolean.parseBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             return formatter.parseDateTime(value);
