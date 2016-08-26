@@ -35,8 +35,6 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +49,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<B> {
-    private static final Logger log = LogManager.getLogger(LoadTask.class);
+public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> extends AbstractTask<B> {
+    static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
+
     protected B entity;
     protected Integer entityID;
     private Map<String, Method> methodMap;
@@ -255,7 +254,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     private boolean verifyIfOneToMany(String field) {
-        List<AssociationField<A, B>> associationFieldList = getAssociationFields();
+        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = getAssociationFields((Class<AssociationEntity>) entityClass);
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0, field.indexOf(".")))) {
                 associationMap.put(field, associationField);
@@ -383,17 +382,33 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return valueSet.stream().map(n -> getWhereStatment(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
     }
 
-    protected List<AssociationField<A, B>> getAssociationFields() {
+    private static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getAssociationFields(Class<AssociationEntity> entityClass) {
         try {
-            E entityAssociations = getEntityAssociations((Class<A>) entityClass);
-            return entityAssociations.allAssociations();
+            if (entityClassToAssociationsMap.containsKey(entityClass)) {
+                return entityClassToAssociationsMap.get(entityClass);
+            } else {
+                EntityAssociations entityAssociations = getEntityAssociations((Class<AssociationEntity>) entityClass);
+                List<AssociationField<AssociationEntity, BullhornEntity>> associationFields = entityAssociations.allAssociations();
+                entityClassToAssociationsMap.put((Class<AssociationEntity>) entityClass, associationFields);
+                return associationFields;
+            }
         } catch (Exception e) {
             return new ArrayList<>();
         }
     }
 
-    private E getEntityAssociations(Class<A> entityClass) {
-        return (entityClass == Candidate.class ? (E) AssociationFactory.candidateAssociations() : (entityClass == Category.class ? (E) AssociationFactory.categoryAssociations() : (entityClass == ClientContact.class ? (E) AssociationFactory.clientContactAssociations() : (entityClass == ClientCorporation.class ? (E) AssociationFactory.clientCorporationAssociations() : (entityClass == CorporateUser.class ? (E) AssociationFactory.corporateUserAssociations() : (entityClass == JobOrder.class ? (E) AssociationFactory.jobOrderAssociations() : (entityClass == Note.class ? (E) AssociationFactory.noteAssociations() : (entityClass == Placement.class ? (E) AssociationFactory.placementAssociations() : (entityClass == Opportunity.class ? (E) AssociationFactory.opportunityAssociations() : (entityClass == Lead.class ? (E) AssociationFactory.leadAssociations() : entityClass == Tearsheet.class ? (E) AssociationFactory.tearsheetAssociations() : null))))))))));
+    private static synchronized EntityAssociations getEntityAssociations(Class entityClass) {
+        return (entityClass == Candidate.class ? AssociationFactory.candidateAssociations() :
+            (entityClass == Category.class ? AssociationFactory.categoryAssociations() :
+                (entityClass == ClientContact.class ? AssociationFactory.clientContactAssociations() :
+                    (entityClass == ClientCorporation.class ? AssociationFactory.clientCorporationAssociations() :
+                        (entityClass == CorporateUser.class ? AssociationFactory.corporateUserAssociations() :
+                            (entityClass == JobOrder.class ? AssociationFactory.jobOrderAssociations() :
+                                (entityClass == Note.class ? AssociationFactory.noteAssociations() :
+                                    (entityClass == Placement.class ? AssociationFactory.placementAssociations() :
+                                        (entityClass == Opportunity.class ? AssociationFactory.opportunityAssociations() :
+                                            (entityClass == Lead.class ? AssociationFactory.leadAssociations() :
+                                                entityClass == Tearsheet.class ? AssociationFactory.tearsheetAssociations() : null))))))))));
     }
 
 }
