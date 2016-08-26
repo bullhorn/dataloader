@@ -7,4 +7,5 @@ after_success:
   - mvn clean test jacoco:report coveralls:report
 
 notifications:
-  slack: bullhorn:$SLACK_INTEGRATION_TOKEN
+  slack: 
+    secure: $SLACK
