@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bullhorn/dataloader.git"
+    "url": "https://github.com/bullhorn/dataloader.git"
   },
   "bugs": {
     "url": "https://github.com/bullhorn/dataloader/issues"
