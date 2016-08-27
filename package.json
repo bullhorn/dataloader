@@ -1,7 +1,7 @@
 {
   "name": "dataloader",
   "version": "1.0.0",
-  "description": "FIX ME :)",
+  "description": "Code Coverage Reporting to Galaxy (http://metrics:9002/#/dashboard)",
   "scripts": {
     "loc": "sloc src/ --format json > ./target/site/jacoco/sloc.json",
     "pregalaxy": "npm run loc",
