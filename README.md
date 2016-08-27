@@ -143,7 +143,7 @@ java -Dpropertyfile=path/to/my/dataloader.properties -jar target/dataloader-{ver
 
 ## Contribute
 
-There are multiple ways to contribute to Bullhorn Data Loader:
+There are multiple ways to contribute to Bullhorn DataLoader:
  * **[Submit bugs](https://github.com/bullhorn/dataloader/issues)** and help us verify fixes as they are checked in.
  * Review **[source code changes](https://github.com/bullhorn/dataloader/pulls)**.
  * **[Contribute bug fixes](https://github.com/bullhorn/dataloader/issues)**.
@@ -160,7 +160,7 @@ There are multiple ways to contribute to Bullhorn Data Loader:
   git clone https://github.com/bullhorn/dataloader.git
   ```
 
-3. Change to the Data Loader directory:
+3. Change to the DataLoader directory:
 
   ```
   cd dataloader
