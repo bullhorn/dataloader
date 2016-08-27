@@ -3,14 +3,26 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.bullhorn</groupId>
     <artifactId>dataloader</artifactId>
-    <groupId>com.bullhorn.dataloader</groupId>
     <version>2.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>dataloader</name>
-    <description>Bullhorn Data Uploading Utility</description>
+    <description>A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.</description>
     <url>https://github.com/bullhorn/dataloader</url>
+    <licenses>
+        <license>
+            <name>GNU Affero General Public License</name>
+            <url>http://www.gnu.org/licenses/agpl.html</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <connection>https://github.com/bullhorn/dataloader.git</connection>
+        <developerConnection>https://github.com/bullhorn/dataloader.git</developerConnection>
+        <url>https://github.com/bullhorn/dataloader</url>
+    </scm>
 
     <properties>
         <coveralls-version>4.2.0</coveralls-version>
@@ -190,12 +202,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <scm>
-        <connection>scm:git:git://github.com/bullhorn/dataloader.git</connection>
-        <developerConnection>scm:git:git@github.com:bullhorn/dataloader.git</developerConnection>
-        <url>https://github.com/bullhorn/dataloader</url>
-        <tag>HEAD</tag>
-    </scm>
-
 </project>
