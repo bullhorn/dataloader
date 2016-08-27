@@ -1,5 +1,5 @@
 {
-  "name": "dataloader",
+  "name": "dataloader-coverage-reporter",
   "version": "1.0.0",
   "description": "Code Coverage Reporting to Galaxy (http://metrics:9002/#/dashboard)",
   "scripts": {
