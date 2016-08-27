@@ -2,6 +2,7 @@
 # DataLoader Specific
 ######################
 results/
+coverage/
 /*.csv
 
 ######################
@@ -45,6 +46,7 @@ Desktop.ini
 *.*~
 *~
 .merge_file*
+node_modules/
 
 ######################
 # Intellij

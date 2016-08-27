@@ -3,8 +3,15 @@ language: java
 jdk:
   - oraclejdk8
 
+node_js:
+  - "6"
+
+install:
+  - npm install
+
 after_success:
   - mvn clean test jacoco:report coveralls:report
+  - test $TRAVIS_BRANCH = "master" && npm run galaxy -- $FIREBASE_URL $SLACK_WEB_HOOK $SLACK_CHANNEL
 
 notifications:
   slack:
