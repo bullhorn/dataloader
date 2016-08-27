@@ -1,7 +1,7 @@
 {
-  "name": "dataloader",
+  "name": "dataloader-coverage-reporter",
   "version": "1.0.0",
-  "description": "Code Coverage Reporting to Galaxy (http://metrics:9002/#/dashboard)",
+  "description": "Code Coverage Reporting to Galaxy",
   "scripts": {
     "loc": "sloc src/ --format json > ./target/site/jacoco/sloc.json",
     "pregalaxy": "npm run loc",
@@ -16,9 +16,10 @@
   },
   "homepage": "https://github.com/bullhorn/dataloader#readme",
   "devDependencies": {
-    "galaxy-parser": "^1.0.1"
+    "galaxy-parser": "^1.0.4"
   },
   "galaxy": {
+    "display": "DataLoader",
     "type": "java",
     "public": true,
     "goal": 80,
