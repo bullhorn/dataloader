@@ -20,6 +20,7 @@
   },
   "galaxy": {
     "type": "java",
+    "public": true,
     "goal": 80,
     "threshold": 0.15,
     "locations": {
