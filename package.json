@@ -1,0 +1,31 @@
+{
+  "name": "dataloader",
+  "version": "1.0.0",
+  "description": "FIX ME :)",
+  "scripts": {
+    "loc": "sloc src/ --format json > ./target/site/jacoco/sloc.json",
+    "pregalaxy": "npm run loc",
+    "galaxy": "galaxy analyze"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bullhorn/dataloader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bullhorn/dataloader/issues"
+  },
+  "homepage": "https://github.com/bullhorn/dataloader#readme",
+  "devDependencies": {
+    "galaxy-parser": "^1.0.1"
+  },
+  "galaxy": {
+    "type": "java",
+    "public": true,
+    "goal": 80,
+    "threshold": 0.15,
+    "locations": {
+      "sloc": "/target/site/jacoco/sloc.json",
+      "jacoco": "/target/site/jacoco/jacoco.xml"
+    }
+  }
+}
