@@ -178,12 +178,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
@@ -250,15 +250,23 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return null;
     }
 
-    protected Class getFieldType(Class<B> toOneEntityClass, String fieldName) {
+    /**
+     * Returns the type of the given field on the given entity
+     *
+     * @param fieldType The type of the field if it already is known, otherwise the type of the parent
+     * @param field The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
+     * @param fieldName The part of the field after the '.', like: 'id'
+     * @return The class type of the field retrieved from the SDK-REST object.
+     */
+    protected Class getFieldType(Class<B> fieldType, String field, String fieldName) {
         if (fieldName.indexOf(".") > -1) {
-            toOneEntityClass = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
+            fieldType = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
             fieldName = fieldName.substring(fieldName.indexOf(".") + 1);
         }
         String getMethodName = "get" + fieldName;
-        List<Method> methods = Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
+        List<Method> methods = Arrays.asList(fieldType.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
-            throw new RestApiException("Row " + rowNumber + ": To-One Association field: '" + fieldName + "' does not exist on " + toOneEntityClass.getSimpleName());
+            throw new RestApiException("Row " + rowNumber + ": '" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
         }
 
         return methods.get(0).getReturnType();

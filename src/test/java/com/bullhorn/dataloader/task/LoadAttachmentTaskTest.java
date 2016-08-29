@@ -174,10 +174,40 @@ public class LoadAttachmentTaskTest {
         when(bullhornData.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task.run();
+
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-
         final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+    }
 
+    @Test
+    public void existPropertyMissingTest() throws Exception {
+        final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
+        final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
+        PropertyFileUtil propertyFileUtilMock_Empty = Mockito.mock(PropertyFileUtil.class);
+        Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornData, printUtilMock, actionTotals);
+
+        task.run();
+
+        verify(csvFileWriter).writeRow(anyObject(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+    }
+
+    @Test
+    public void existPropertyConfiguredIncorrectlyTest() throws Exception {
+        final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
+        final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'candidateExistField': 'bogus' does not exist on Candidate");
+        PropertyFileUtil propertyFileUtilMock_Incorrect = Mockito.mock(PropertyFileUtil.class);
+        List<String> existFields = Arrays.asList(new String[]{"bogus"});
+        Mockito.doReturn(Optional.ofNullable(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornData, printUtilMock, actionTotals);
+
+        task.run();
+
+        verify(csvFileWriter).writeRow(anyObject(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 

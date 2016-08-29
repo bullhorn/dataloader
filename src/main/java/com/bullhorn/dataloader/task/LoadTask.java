@@ -209,7 +209,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
-        Class fieldType = getFieldType(toOneEntityClass, fieldName);
+        Class fieldType = getFieldType(toOneEntityClass, field, fieldName);
         return findEntity(field, fieldName, toOneEntityClass, fieldType);
     }
 
@@ -373,12 +373,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     private String getQueryStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> getQueryStatement(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
+        return valueSet.stream().map(n -> getQueryStatement(fieldName, n, getFieldType(associationClass, field, fieldName))).collect(Collectors.joining(" OR "));
     }
 
     private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> getWhereStatement(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
+        return valueSet.stream().map(n -> getWhereStatement(fieldName, n, getFieldType(associationClass, field, fieldName))).collect(Collectors.joining(" OR "));
     }
 
 

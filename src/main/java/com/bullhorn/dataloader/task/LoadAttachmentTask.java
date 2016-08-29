@@ -9,6 +9,7 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -23,6 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang.WordUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,6 +34,7 @@ import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
@@ -69,7 +72,14 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     private Result handle() throws Exception {
-        getAndSetBullhornID((propertyFileUtil.getEntityExistFields(entityClass.getSimpleName())).get());
+        Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName());
+        if (!entityExistFields.isPresent()) {
+            throw new IllegalArgumentException("Row " + rowNumber + ": Properties file is missing the '" +
+                WordUtils.uncapitalize(entityClass.getSimpleName()) + "ExistField' property required to lookup " +
+                "the parent entity.");
+        }
+
+        getAndSetBullhornID(entityExistFields.get());
         addParentEntityIDtoDataMap();
         createFileMeta();
         populateFileMeta();
@@ -80,19 +90,20 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(TaskConsts.ID))) {
-            bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(TaskConsts.ID)));
+             bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(TaskConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
                 String propertyValue = dataMap.get(getEntityAssociatedPropertyName(property));
-                propertiesWithValues.add(getQueryStatement(property, propertyValue, getFieldType(entityClass, property)));
+                Class fieldType = getFieldType(entityClass, WordUtils.uncapitalize(entityClass.getSimpleName()) + "ExistField", property);
+                propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
             List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {
-                throw new Exception("Row " + rowNumber + ": Parent EntityInfo not found.");
+                throw new RestApiException("Row " + rowNumber + ": Parent Entity not found.");
             }
         }
     }
@@ -127,7 +138,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
-                throw new Exception("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+                throw new RestApiException("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
             }
         } else {
             // for update, grab original fileContent because it is required for an update
