@@ -236,7 +236,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected void checkForRequiredFieldsError(Exception e) {
         if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
-            throw new RestApiException("Possibly missing required fields for " + entityClass.getSimpleName() + ".");
+            throw new RestApiException("Missing required fields for " + entityClass.getSimpleName() + ".");
         }
     }
 
