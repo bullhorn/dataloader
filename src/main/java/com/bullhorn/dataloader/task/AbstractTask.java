@@ -283,6 +283,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    protected void checkForRequiredFieldsError(Exception e) {
+        if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
+            throw new RestApiException("Possibly missing required fields for " + entityClass.getSimpleName() + ".");
+        }
+    }
+
     /**
      * populates a field on an entity using reflection
      *
@@ -296,10 +302,18 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         if (method == null) {
             throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
+        if (isAddressField(field)) {
+            throw new RestApiException("Row " + rowNumber + ": Invalid address set up: '" + field + "' Must use 'address." + field + "' in csv header" );
+        }
 
         if (value != null && !"".equalsIgnoreCase(value)) {
             method.invoke(entity, convertStringToClass(method, value));
         }
+    }
+
+    private boolean isAddressField(String field) {
+        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid");
+        return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 
     protected String getCamelCasedClassToString() {

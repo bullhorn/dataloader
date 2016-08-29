@@ -175,11 +175,37 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     }
 
     @Test
-    public void runLoadAttachmentsProcessTest() throws IOException, InterruptedException {
+    public void getCSVMapTestWithInvalidHeaderCount() throws IOException, InterruptedException {
+        boolean errorThrown = false;
+        csvReader = new CsvReader("src/test/resources/ClientCorporation_Invalid.csv");
+        csvReader.readHeaders();
+        final ConcurrencyService service = new ConcurrencyService(
+            Command.DELETE_ATTACHMENTS,
+            EntityInfo.CLIENT_CORPORATION,
+            csvReader,
+            csvFileWriter,
+            executorService,
+            propertyFileUtil,
+            bullhornData,
+            printUtil,
+            actionTotals);
+        try {
+            service.getCsvDataMap();
+        }
+        catch (IOException e) {
+            errorThrown = true;
+        }
+        Assert.assertTrue(errorThrown);
+
+    }
+
+    @Test
+    public void EntityAttachmentConcurrencyServiceTestLoadAttachments() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadAttachmentTask.class);
 
         csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
         csvReader.readHeaders();
+
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD_ATTACHMENTS,
             EntityInfo.CANDIDATE,

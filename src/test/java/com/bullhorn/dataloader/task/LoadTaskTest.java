@@ -819,4 +819,19 @@ public class LoadTaskTest {
         return listWrapper;
     }
 
+    @Test
+    public void insertMissingRequiredFieldExceptionTest() throws IOException, InstantiationException, IllegalAccessException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: Opportunity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"Candidate\"}");
+        when(bullhornDataMock.insertEntity(any())).thenThrow(exception);
+
+        task.run();
+
+        Mockito.verify(task, Mockito.times(1)).checkForRequiredFieldsError(exception);
+    }
+
 }
