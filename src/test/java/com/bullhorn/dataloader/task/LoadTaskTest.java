@@ -642,6 +642,38 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void addAssociationToEntityTestCatchThrowDuplicateAssociation() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        RestApiException thrownException = new RestApiException("nope");
+        Set associationIdList = new HashSet<>();
+        associationIdList.add(1);
+        when(bullhornDataMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
+        SkillListWrapper skillListWrapper = new SkillListWrapper();
+        List<Skill> skillList = new ArrayList<>();
+        Skill skill = new Skill();
+        skill.setId(1);
+        skillList.add(skill);
+        Skill skill2 = new Skill();
+        skill.setId(1);
+        skillList.add(skill2);
+        skillListWrapper.setData(skillList);
+        when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task.entityID = 1;
+        String errorMessage = "";
+
+        boolean wasExceptionThrown = false;
+        try {
+            task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
+        } catch (RestApiException e) {
+            errorMessage = e.getMessage();
+            wasExceptionThrown = true;
+        }
+
+        Assert.assertThat(true, new ReflectionEquals(wasExceptionThrown));
+        Assert.assertThat(true, new ReflectionEquals(errorMessage.contains("duplicate To-Many Associations")));
+    }
+
+    @Test
     public void findEntityTest_search() {
         dataMap = new LinkedHashMap<>();
         dataMap.put("clientCorporation.id", "1");
