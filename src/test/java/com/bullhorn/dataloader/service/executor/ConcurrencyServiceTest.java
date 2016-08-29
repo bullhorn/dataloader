@@ -1,5 +1,24 @@
 package com.bullhorn.dataloader.service.executor;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -11,24 +30,6 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.csvreader.CsvReader;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ConcurrencyServiceTest {
 
@@ -53,6 +54,31 @@ public class ConcurrencyServiceTest {
         csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
         csvReader.readHeaders();
         taskCaptor = ArgumentCaptor.forClass(LoadAttachmentTask.class);
+    }
+
+    @Test
+    public void getCSVMapTestWithInvalidHeaderCount() throws IOException, InterruptedException {
+        boolean errorThrown = false;
+        csvReader = new CsvReader("src/test/resources/ClientCorporation_Invalid.csv");
+        csvReader.readHeaders();
+        final ConcurrencyService service = new ConcurrencyService(
+            Command.DELETE_ATTACHMENTS,
+            "ClientCorporation",
+            csvReader,
+            csvFileWriter,
+            executorService,
+            propertyFileUtil,
+            bullhornData,
+            printUtil,
+            actionTotals);
+        try {
+            service.getCsvDataMap();
+        }
+        catch (IOException e) {
+            errorThrown = true;
+        }
+        Assert.assertTrue(errorThrown);
+
     }
 
     @Test
