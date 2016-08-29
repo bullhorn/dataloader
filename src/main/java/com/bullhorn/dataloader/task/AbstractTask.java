@@ -139,7 +139,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    protected List<B> findEntityList() {
+    protected List<B> findEntityList() throws IOException {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
 
         if (!entityExistFieldsMap.isEmpty()) {
@@ -173,7 +173,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    protected Map<String, String> getEntityExistFieldsMap() {
+    protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
         Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName());

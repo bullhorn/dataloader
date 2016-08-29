@@ -24,6 +24,7 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -79,14 +80,14 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) parentEntity);
             checkForRestSdkErrorMessages(response);
             parentEntityUpdateDone = true;
-        } catch (RestApiException e){
+        } catch (RestApiException e) {
             checkIfCouldUpdateCustomObject(e);
         }
     }
 
     private void checkIfCouldUpdateCustomObject(RestApiException e) {
         String stringPriorToMessage = "error persisting an entity of type: Update Failed: You do not have permission for ";
-        if (e.getMessage().contains(stringPriorToMessage)){
+        if (e.getMessage().contains(stringPriorToMessage)) {
             int startIndex = e.getMessage().indexOf(stringPriorToMessage) + stringPriorToMessage.length();
             int endIndex = e.getMessage().indexOf("field customObject", startIndex);
             String cleanedExceptionMessage = e.getMessage().substring(startIndex, endIndex) + instanceNumber + " is not set up.";
@@ -97,7 +98,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected void getCustomObjectId() throws Exception {
-        if (entityID == null){
+        if (entityID == null) {
             List<B> matchingCustomObjectList = queryForMatchingCustomObject();
             checkForDuplicates(matchingCustomObjectList);
         }
@@ -123,11 +124,10 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     private void checkForDuplicates(List<B> matchingCustomObjectList) throws Exception {
-        if (!matchingCustomObjectList.isEmpty()){
-            if (matchingCustomObjectList.size() > 1){
+        if (!matchingCustomObjectList.isEmpty()) {
+            if (matchingCustomObjectList.size() > 1) {
                 throw new RestApiException("Row " + rowNumber + ": Found duplicate.");
-            }
-            else {
+            } else {
                 entityID = matchingCustomObjectList.get(0).getId();
                 entity.setId(entityID);
                 if (!parentEntityUpdateDone) {
@@ -145,20 +145,17 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected void prepParentEntityForCustomObject() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Map<String,Method> parentCustomObjectMethods = getParentCustomObjectMethods();
+        Map<String, Method> parentCustomObjectMethods = getParentCustomObjectMethods();
         OneToMany oneToManyObject = getOneToMany(parentCustomObjectMethods);
         oneToManyObject = updateOneToManyObject(oneToManyObject);
         parentCustomObjectMethods.get("set").invoke(parentEntity, oneToManyObject);
     }
 
     private OneToMany updateOneToManyObject(OneToMany oneToManyObject) {
-        if (isNewEntity) {
-            oneToManyObject.getData().add(entity);
-            oneToManyObject.setTotal(oneToManyObject.getTotal() + 1);
-            isNewEntity = false;
-        } else {
-            oneToManyObject = updateCustomObject(oneToManyObject);
-        }
+        List<B> customObjectData = Arrays.asList((B) entity);
+        oneToManyObject.setData(customObjectData);
+        oneToManyObject.setTotal(1);
+        isNewEntity = false;
         return oneToManyObject;
     }
 
@@ -167,23 +164,6 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         customObjects = customObjects == null ? new OneToMany() : customObjects;
         customObjects.setTotal(customObjects.getTotal() == null ? 0 : customObjects.getTotal());
         return customObjects;
-    }
-
-    protected OneToMany updateCustomObject(OneToMany customObjects) {
-        OneToMany updatedCustomObjects = new OneToMany();
-        for (B customObject : (List<B>) customObjects.getData()) {
-            if (entity.getId().equals(customObject.getId())) {
-                updatedCustomObjects.getData().add(entity);
-            } else {
-                updatedCustomObjects.getData().add(customObject);
-            }
-        }
-        if (!customObjects.getData().stream().map(n -> ((B) n).getId()).anyMatch(n -> n.equals(entity.getId()))) {
-            updatedCustomObjects.getData().add(entity);
-        }
-
-        updatedCustomObjects.setTotal(updatedCustomObjects.getData().size());
-        return updatedCustomObjects;
     }
 
     protected Map<String, Method> getParentCustomObjectMethods() throws NoSuchMethodException {
@@ -212,7 +192,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     protected void getParentEntity(String field) throws InvocationTargetException, IllegalAccessException {
         String entityName = entityClass.getSimpleName();
-        instanceNumber = entityName.substring(entityName.length()-1,entityName.length());
+        instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
 
@@ -226,5 +206,17 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         parentEntity = (B) getCustomObjectParent(field, fieldName, parentEntityClass);
     }
 
-
+    @Override
+    protected Map<String, String> getEntityExistFieldsMap() throws IOException {
+        Map<String, String> entityExistFieldsMap = super.getEntityExistFieldsMap();
+        if (!entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))){
+            try {
+                String parentEntityField = ((List<String>) dataMap.keySet().stream().filter(n -> ((String) n).contains(".")).collect(Collectors.toList())).get(0);
+                entityExistFieldsMap.put(parentEntityField, (String) dataMap.get(parentEntityField));
+            } catch (Exception e){
+                throw new IOException("Parent entity must be included within csv.");
+            }
+        }
+        return  entityExistFieldsMap;
+    }
 }
