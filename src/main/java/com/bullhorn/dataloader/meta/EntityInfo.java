@@ -7,7 +7,7 @@ import java.util.Comparator;
 /**
  * The list of all entities in SDK-REST supported by DataLoader.
  */
-public enum Entity {
+public enum EntityInfo {
 
     APPOINTMENT(true, BullhornEntityInfo.APPOINTMENT, 8),
     APPOINTMENT_ATTENDEE(true, BullhornEntityInfo.APPOINTMENT_ATTENDEE, 9),
@@ -72,54 +72,64 @@ public enum Entity {
     OPPORTUNITY_CUSTOM_OBJECT_INSTANCE_8(true, BullhornEntityInfo.OPPORTUNITY_CUSTOM_OBJECT_INSTANCE_8,78),
     OPPORTUNITY_CUSTOM_OBJECT_INSTANCE_9(true, BullhornEntityInfo.OPPORTUNITY_CUSTOM_OBJECT_INSTANCE_9,79),
     OPPORTUNITY_CUSTOM_OBJECT_INSTANCE_10(true, BullhornEntityInfo.OPPORTUNITY_CUSTOM_OBJECT_INSTANCE_10,80),
-    PERSON_CUSTOM_OBJECT_INSTANCE_1(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1,81),
-    PERSON_CUSTOM_OBJECT_INSTANCE_2(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2,82),
-    PERSON_CUSTOM_OBJECT_INSTANCE_3(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_3,83),
-    PERSON_CUSTOM_OBJECT_INSTANCE_4(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_4,84),
-    PERSON_CUSTOM_OBJECT_INSTANCE_5(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_5,85),
-    PERSON_CUSTOM_OBJECT_INSTANCE_6(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_6,86),
-    PERSON_CUSTOM_OBJECT_INSTANCE_7(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_7,87),
-    PERSON_CUSTOM_OBJECT_INSTANCE_8(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_8,88),
-    PERSON_CUSTOM_OBJECT_INSTANCE_9(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_9,89),
-    PERSON_CUSTOM_OBJECT_INSTANCE_10(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_10,90),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_1(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1,91),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_2(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_2,92),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_3(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_3,93),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_4(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_4,94),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_5(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_5,95),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_6(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_6,96),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_7(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_7,97),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_8(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_8,98),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_9(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_9,99),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_10(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10,100);
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_1(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1,81),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_2(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2,82),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_3(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_3,83),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_4(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_4,84),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_5(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_5,85),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_6(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_6,86),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_7(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_7,87),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_8(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_8,88),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_9(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_9,89),
+    CANDIDATE_CUSTOM_OBJECT_INSTANCE_10(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_10,90),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_1(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1,91),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_2(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2,92),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_3(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_3,93),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_4(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_4,94),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_5(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_5,95),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_6(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_6,96),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_7(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_7,97),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_8(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_8,98),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_9(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_9,99),
+    CLIENT_CONTACT_CUSTOM_OBJECT_INSTANCE_10(true, BullhornEntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_10,100),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_1(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1,101),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_2(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_2,102),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_3(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_3,103),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_4(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_4,104),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_5(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_5,105),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_6(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_6,106),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_7(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_7,107),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_8(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_8,108),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_9(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_9,109),
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_10(true, BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10,110);
 
     /**
-     * Comparator for sorting Entity objects in a sorted collection.
+     * Comparator for sorting EntityInfo objects in a sorted collection.
      */
-    final static public Comparator<Entity> loadOrderComparator = new Comparator<Entity>() {
+    final static public Comparator<EntityInfo> loadOrderComparator = new Comparator<EntityInfo>() {
         @Override
-        public int compare(Entity firstEntity, Entity secondEntity) {
-            return firstEntity.getLoadOrder() - secondEntity.getLoadOrder();
+        public int compare(EntityInfo firstEntityInfo, EntityInfo secondEntityInfo) {
+            return firstEntityInfo.getLoadOrder() - secondEntityInfo.getLoadOrder();
         }
     };
     /**
-     * Comparator for sorting Entity objects in a sorted collection in reverse of the load.
+     * Comparator for sorting EntityInfo objects in a sorted collection in reverse of the load.
      */
-    final static public Comparator<Entity> deleteOrderComparator = new Comparator<Entity>() {
+    final static public Comparator<EntityInfo> deleteOrderComparator = new Comparator<EntityInfo>() {
         @Override
-        public int compare(Entity firstEntity, Entity secondEntity) {
-            return secondEntity.getLoadOrder() - firstEntity.getLoadOrder();
+        public int compare(EntityInfo firstEntityInfo, EntityInfo secondEntityInfo) {
+            return secondEntityInfo.getLoadOrder() - firstEntityInfo.getLoadOrder();
         }
     };
     private boolean modifiable;
-    private BullhornEntityInfo entityInfo;
+    private BullhornEntityInfo bullhornEntityInfo;
     private String upperCase;
     private Integer loadOrder;
 
-    private Entity(boolean modifiable, BullhornEntityInfo entityInfo, Integer loadOrder) {
+    private EntityInfo(boolean modifiable, BullhornEntityInfo bullhornEntityInfo, Integer loadOrder) {
         this.modifiable = modifiable;
-        this.entityInfo = entityInfo;
-        this.upperCase = entityInfo.getName().toUpperCase();
+        this.bullhornEntityInfo = bullhornEntityInfo;
+        this.upperCase = bullhornEntityInfo.getName().toUpperCase();
         this.loadOrder = loadOrder;
     }
 
@@ -129,10 +139,10 @@ public enum Entity {
      * @param entityName Any entity name
      * @return the entity if it exists, null otherwise
      */
-    public static Entity fromString(String entityName) {
-        for (Entity entity : Entity.values()) {
-            if (entity.getEntityName().equalsIgnoreCase(entityName)) {
-                return entity;
+    public static EntityInfo fromString(String entityName) {
+        for (EntityInfo entityInfo : EntityInfo.values()) {
+            if (entityInfo.getEntityName().equalsIgnoreCase(entityName)) {
+                return entityInfo;
             }
         }
         return null;
@@ -149,7 +159,7 @@ public enum Entity {
      * @return the entity name usable in the Bullhorn's SDK-REST
      */
     public String getEntityName() {
-        return entityInfo.getName();
+        return bullhornEntityInfo.getName();
     }
 
     /**
@@ -165,5 +175,12 @@ public enum Entity {
      */
     public String getUpperCase() {
         return upperCase;
+    }
+
+    /**
+     * @return the bullhornEntityInfo enum
+     */
+    public BullhornEntityInfo getBullhornEntityInfo() {
+        return this.bullhornEntityInfo;
     }
 }

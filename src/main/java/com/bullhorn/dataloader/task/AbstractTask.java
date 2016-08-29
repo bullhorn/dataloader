@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -45,6 +46,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
     protected Command command;
     protected Integer rowNumber;
+    protected EntityInfo entityInfo;
     protected Class<B> entityClass;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
@@ -56,7 +58,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     public AbstractTask(Command command,
                         Integer rowNumber,
-                        Class<B> entityClass,
+                        EntityInfo entityInfo,
                         LinkedHashMap<String, String> dataMap,
                         CsvFileWriter csvWriter,
                         PropertyFileUtil propertyFileUtil,
@@ -65,13 +67,17 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                         ActionTotals actionTotals) {
         this.command = command;
         this.rowNumber = rowNumber;
-        this.entityClass = entityClass;
+        this.entityInfo = entityInfo;
         this.dataMap = dataMap;
         this.csvWriter = csvWriter;
         this.propertyFileUtil = propertyFileUtil;
         this.bullhornData = bullhornData;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
+    }
+
+    protected void init() {
+        entityClass = entityInfo.getBullhornEntityInfo().getType();
     }
 
     protected void addParentEntityIDtoDataMap() {

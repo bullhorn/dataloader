@@ -31,7 +31,7 @@ public class DeleteAttachmentsServiceTest {
 
         // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(deleteAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doReturn(concurrencyServiceMock).when(deleteAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runDeleteAttachmentsProcess();
     }
 

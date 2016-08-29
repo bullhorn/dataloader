@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service.executor;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;
@@ -17,7 +18,6 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
@@ -39,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class ConcurrencyService<B extends BullhornEntity> {
 
     private final ExecutorService executorService;
-    private final String entityName;
+    private final EntityInfo entityInfo;
     private final CsvReader csvReader;
     private final CsvFileWriter csvWriter;
     private final PropertyFileUtil propertyFileUtil;
@@ -50,7 +50,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
     private Integer rowNumber = 1;
 
     public ConcurrencyService(Command command,
-                              String entityName,
+                              EntityInfo entityInfo,
                               CsvReader csvReader,
                               CsvFileWriter csvWriter,
                               ExecutorService executorService,
@@ -59,7 +59,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
         this.command = command;
-        this.entityName = entityName;
+        this.entityInfo = entityInfo;
         this.csvReader = csvReader;
         this.csvWriter = csvWriter;
         this.executorService = executorService;
@@ -70,10 +70,9 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runConvertAttachmentsProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            ConvertAttachmentTask task = new ConvertAttachmentTask(command, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            ConvertAttachmentTask task = new ConvertAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -82,12 +81,11 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runLoadProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
-        Map<String, Method> methodMap = createMethodMap(entity);
+        Map<String, Method> methodMap = createMethodMap(entityInfo.getBullhornEntityInfo().getType());
         Map<String, Integer> countryNameToIdMap = createCountryNameToIdMap(methodMap);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            AbstractTask task = getLoadTask(entity, methodMap, countryNameToIdMap, dataMap);
+            AbstractTask task = getLoadTask(methodMap, countryNameToIdMap, dataMap);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -95,19 +93,18 @@ public class ConcurrencyService<B extends BullhornEntity> {
         printUtil.printActionTotals(command, actionTotals);
     }
 
-    private AbstractTask getLoadTask(Class<B> entity, Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, LinkedHashMap<String, String> dataMap) {
-        if (EntityValidation.isCustomObject(entityName)){
-            return new LoadCustomObjectTask(command, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+    private AbstractTask getLoadTask(Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, LinkedHashMap<String, String> dataMap) {
+        if (EntityValidation.isCustomObject(this.entityInfo.getEntityName())){
+            return new LoadCustomObjectTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         } else {
-            return new LoadTask(command, rowNumber++, entity, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            return new LoadTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         }
     }
 
     public void runDeleteProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteTask task = new DeleteTask(command, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            DeleteTask task = new DeleteTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -116,11 +113,10 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
         Map<String, Method> methodMap = createMethodMap(FileMeta.class);
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entity, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entityInfo, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -129,10 +125,9 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runDeleteAttachmentsProcess() throws IOException, InterruptedException {
-        Class<B> entity = getAndSetBullhornEntityInfo();
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteAttachmentTask task = new DeleteAttachmentTask(command, rowNumber++, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            DeleteAttachmentTask task = new DeleteAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -180,11 +175,6 @@ public class ConcurrencyService<B extends BullhornEntity> {
             dataMap.put(csvReader.getHeader(i), csvReader.getValues()[i]);
         }
         return dataMap;
-    }
-
-    protected Class<B> getAndSetBullhornEntityInfo() {
-        Class<B> entity = BullhornEntityInfo.getTypeFromName(entityName).getType();
-        return entity;
     }
 
 }

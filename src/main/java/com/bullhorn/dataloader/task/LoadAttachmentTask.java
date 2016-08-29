@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -41,7 +42,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
 
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
-                              Class<B> entity,
+                              EntityInfo entityInfo,
                               LinkedHashMap<String, String> dataMap,
                               Map<String, Method> methodMap,
                               CsvFileWriter csvWriter,
@@ -49,12 +50,13 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
                               BullhornData bullhornData,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(command, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         this.methodMap = methodMap;
     }
 
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();
@@ -88,7 +90,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {
-                throw new Exception("Row " + rowNumber + ": Parent Entity not found.");
+                throw new Exception("Row " + rowNumber + ": Parent EntityInfo not found.");
             }
         }
     }

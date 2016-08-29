@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -63,7 +64,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     public LoadTask(Command command,
                     Integer rowNumber,
-                    Class entityClass,
+                    EntityInfo entityInfo,
                     LinkedHashMap<String, String> dataMap,
                     Map<String, Method> methodMap,
                     Map<String, Integer> countryNameToIdMap,
@@ -72,13 +73,14 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                     BullhornData bullhornData,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
-        super(command, rowNumber, entityClass, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         this.methodMap = methodMap;
         this.countryNameToIdMap = countryNameToIdMap;
     }
 
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();

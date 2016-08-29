@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -29,18 +30,19 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
 
     public ConvertAttachmentTask(Command command,
                                  Integer rowNumber,
-                                 Class<B> entity,
+                                 EntityInfo entityInfo,
                                  LinkedHashMap<String, String> dataMap,
                                  CsvFileWriter csvWriter,
                                  PropertyFileUtil propertyFileUtil,
                                  BullhornData bullhornData,
                                  PrintUtil printUtil,
                                  ActionTotals actionTotals) {
-        super(command, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();

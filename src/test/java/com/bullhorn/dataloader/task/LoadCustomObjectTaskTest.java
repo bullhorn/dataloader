@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -72,7 +73,7 @@ public class LoadCustomObjectTaskTest {
         Mockito.doReturn(Optional.ofNullable(existField)).when(propertyFileUtilMock).getEntityExistFields(any());
         Mockito.doReturn(";").when(propertyFileUtilMock).getListDelimiter();
 
-        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, "ClientCorporationCustomObjectInstance2", csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         methodMap = concurrencyService.createMethodMap(ClientCorporationCustomObjectInstance2.class);
 
         dataMap = new LinkedHashMap<>();
@@ -93,7 +94,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Insert() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
@@ -132,7 +133,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Update() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Update(1);
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
@@ -166,7 +167,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Failure() throws IOException {
         //setup
-        task = Mockito.spy(new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock));
         Result expectedResult = Result.Failure(new NullPointerException());
 
         //test
@@ -179,7 +180,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void getCustomObjectIdTest_Pass() throws Exception {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         ((ClientCorporationCustomObjectInstance2) task.entity).setText1("test");
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
@@ -197,6 +198,7 @@ public class LoadCustomObjectTaskTest {
         task.parentField = "clientCorporation.id";
 
         //test
+        task.init();
         task.getCustomObjectId();
 
         //verify
@@ -206,7 +208,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void getCustomObjectIdTest_ThrowDupe() throws Exception {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         RestApiException expectedException = new RestApiException("Row 1: Found duplicate.");
 
@@ -231,6 +233,7 @@ public class LoadCustomObjectTaskTest {
         //test
         RestApiException actualException = null;
         try {
+            task.init();
             task.getCustomObjectId();
         } catch (RestApiException e) {
             actualException = e;
@@ -243,7 +246,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void noPermissionToInsertCustomObjectTest() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         String cleanedExceptionMessage = "ClientCorporation Custom Object 2 is not set up.";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
@@ -279,7 +282,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void checkIfCouldUpdateCustomObjectTest_ThrowRandom() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         String cleanedExceptionMessage = "bogus";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
@@ -310,12 +313,13 @@ public class LoadCustomObjectTaskTest {
 
     @Test
     public void getParentEntityTest_Exception() throws InvocationTargetException, IllegalAccessException {
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         RestApiException expectedException = new RestApiException("Row 1: To-One Association: 'candidate' does not exist on ClientCorporationCustomObjectInstance2");
         task.entity = new ClientCorporationCustomObjectInstance2();
 
         RestApiException actualException = new RestApiException();
         try {
+            task.init();
             task.getParentEntity("candidate.id");
         } catch (RestApiException e) {
             actualException = e;
@@ -326,7 +330,7 @@ public class LoadCustomObjectTaskTest {
 
     @Test
     public void parentEntityIsNotInCsvTest() throws IOException {
-        task = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance2.class, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new IOException("Parent entity must be included within csv."));
         dataMap.remove("clientCorporation.id");
 

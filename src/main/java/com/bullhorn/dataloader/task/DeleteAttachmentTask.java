@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -21,14 +22,14 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
 
     public DeleteAttachmentTask(Command method,
                                 Integer rowNumber,
-                                Class<B> entity,
+                                EntityInfo entityInfo,
                                 LinkedHashMap<String, String> dataMap,
                                 CsvFileWriter csvWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornData bullhornData,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(method, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(method, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     /**
@@ -36,6 +37,7 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
      */
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();

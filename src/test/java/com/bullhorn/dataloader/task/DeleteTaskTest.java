@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -7,7 +8,6 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
@@ -58,7 +58,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success() throws IOException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(bullhornData.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -73,7 +73,7 @@ public class DeleteTaskTest {
     public void run_NullFailure() throws IOException {
         dataMap = new LinkedHashMap<String, String>();
 
-        task = new DeleteTask(Command.DELETE, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NumberFormatException: null");
 
         task.run();
@@ -86,7 +86,7 @@ public class DeleteTaskTest {
     @Test
     public void run_RestFailure() throws IOException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, Candidate.class, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         DeleteResponse response = new DeleteResponse();
         response.setChangeType(ChangeType.DELETE.toString());
         Message message = new Message();

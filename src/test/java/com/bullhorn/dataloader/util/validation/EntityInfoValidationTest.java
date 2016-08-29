@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class EntityValidationTest {
+public class EntityInfoValidationTest {
 
     @Test
     public void isLoadableEntityTest() throws IOException {

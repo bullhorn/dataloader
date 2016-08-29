@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service.executor;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;
@@ -70,7 +71,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
-            "Candidate",
+            EntityInfo.CANDIDATE,
             csvReader,
             csvFileWriter,
             executorService,
@@ -94,7 +95,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
         countryNameToIdMap.put("USA", 1);
 
-        final LoadTask expectedTask = new LoadTask(Command.LOAD, 1, Candidate.class, expectedDataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final LoadTask expectedTask = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadProcess();
@@ -114,7 +115,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
-            "ClientCorporationCustomObjectInstance1",
+            EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1,
             csvReader,
             csvFileWriter,
             executorService,
@@ -129,7 +130,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
 
         Map<String, Method> methodMap = service.createMethodMap(ClientCorporationCustomObjectInstance1.class);
 
-        final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, ClientCorporationCustomObjectInstance1.class, expectedDataMap, methodMap, null, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, methodMap, null, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadProcess();
@@ -149,7 +150,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE,
-            "Candidate",
+            EntityInfo.CANDIDATE,
             csvReader,
             csvFileWriter,
             executorService,
@@ -161,7 +162,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
 
-        final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, Candidate.class, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteProcess();
@@ -181,7 +182,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD_ATTACHMENTS,
-            "Candidate",
+            EntityInfo.CANDIDATE,
             csvReader,
             csvFileWriter,
             executorService,
@@ -202,7 +203,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             }
         }
 
-        final LoadAttachmentTask<Candidate> expectedTask = new LoadAttachmentTask<Candidate>(Command.LOAD_ATTACHMENTS, 1, Candidate.class, expectedDataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final LoadAttachmentTask<Candidate> expectedTask = new LoadAttachmentTask<Candidate>(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadAttachmentsProcess();
@@ -222,7 +223,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.CONVERT_ATTACHMENTS,
-            "Candidate",
+            EntityInfo.CANDIDATE,
             csvReader,
             csvFileWriter,
             executorService,
@@ -236,7 +237,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
 
-        final ConvertAttachmentTask<Candidate> expectedTask = new ConvertAttachmentTask<Candidate>(Command.CONVERT_ATTACHMENTS, 1, Candidate.class, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final ConvertAttachmentTask<Candidate> expectedTask = new ConvertAttachmentTask<Candidate>(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runConvertAttachmentsProcess();
@@ -256,7 +257,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE_ATTACHMENTS,
-            "Candidate",
+            EntityInfo.CANDIDATE,
             csvReader,
             csvFileWriter,
             executorService,
@@ -271,7 +272,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
         expectedDataMap.put("parentEntityID", "1");
-        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, Candidate.class, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteAttachmentsProcess();

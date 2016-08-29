@@ -31,7 +31,7 @@ public class LoadAttachmentsServiceTest {
 
         // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(loadAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doReturn(concurrencyServiceMock).when(loadAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runLoadAttachmentsProcess();
 
         // mock out AbstractService Methods that call class outside of this test scope
