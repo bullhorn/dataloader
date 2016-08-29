@@ -165,7 +165,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected void handleData() throws InvocationTargetException, IllegalAccessException, ParseException {
+    protected void handleData() throws Exception {
         for (String field : dataMap.keySet()) {
             if (validField(field)) {
                 if (field.contains(".")) {
@@ -187,11 +187,11 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return true;
     }
 
-    private void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
+    protected void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
         populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
-    protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {
+    protected void handleAssociations(String field) throws Exception {
         boolean isOneToMany = verifyIfOneToMany(field);
         if (!isOneToMany) {
             handleOneToOne(field);

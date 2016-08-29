@@ -293,8 +293,7 @@ public abstract class AbstractService {
      * @return the SDK-Rest name of the entity, or null if not found
      */
     protected String extractEntityNameFromFileName(String fileName) {
-        EntityInfo bestMatch = null;
-        bestMatch = extractEntityFromFileName(fileName);
+        EntityInfo bestMatch = extractEntityFromFileName(fileName);
 
         if (bestMatch == null) {
             return null;

@@ -10,6 +10,8 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -77,6 +79,14 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     @Override
+    protected boolean validField(String field) {
+        if (field.contains("_")){
+            return false;
+        }
+        return super.validField(field);
+    }
+
+        @Override
     protected void insertOrUpdateEntity() throws IOException {
         try {
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) parentEntity);
@@ -111,7 +121,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
         for (String fieldName : (Set<String>) dataMap.keySet()) {
             boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
-            if (!fieldIsInMeta && !fieldName.contains(".")) {
+            if ((!fieldIsInMeta && !fieldName.contains(".")) || (fieldName.contains("_"))) {
                 scrubbedDataMap.remove(fieldName);
             }
         }
@@ -142,7 +152,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     @Override
-    protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {
+    protected void handleAssociations(String field) throws Exception {
         getParentEntity(field);
     }
 
@@ -192,20 +202,40 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         return list.get(0);
     }
 
-    protected void getParentEntity(String field) throws InvocationTargetException, IllegalAccessException {
+    protected void getParentEntity(String field) throws Exception {
         String entityName = entityClass.getSimpleName();
         instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
-        String toOneEntityName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
 
+        if (entityName.toLowerCase().contains("person")) {
+            getPersonCustomObjectParentEntityClass(entityName);
+        } else {
+            getParentEntityClass(field);
+        }
+        parentEntity = getCustomObjectParent(field, fieldName, parentEntityClass);
+    }
 
+    private void getParentEntityClass(String field) {
+        String toOneEntityName = field.substring(0, field.indexOf("."));
         Method method = (Method) methodMap.get(toOneEntityName.toLowerCase());
         if (method == null) {
             throw new RestApiException("Row " + rowNumber + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
         parentEntityClass = (Class<B>) method.getParameterTypes()[0];
-        parentEntity = (B) getCustomObjectParent(field, fieldName, parentEntityClass);
+    }
+
+    private void getPersonCustomObjectParentEntityClass(String entityName) throws Exception {
+        String personSubtype = (String) dataMap.get("person._subtype");
+        if ("candidate".equalsIgnoreCase(personSubtype)){
+            parentEntityClass = (Class<B>) Candidate.class;
+        } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)){
+            parentEntityClass = (Class<B>) ClientContact.class;
+        } else if (personSubtype == null) {
+            throw new Exception("Row " + rowNumber + ": The required field person._subType is missing. This field must be included to load " + entityName);
+        } else {
+            throw new Exception("Row " + rowNumber + ": The person._subType field must be either Candidate or ClientContact");
+        }
     }
 
     @Override
