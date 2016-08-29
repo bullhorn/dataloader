@@ -321,10 +321,17 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
         Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
+
         if (existingAssociations.size() != valueSet.size()) {
-            Set<String> existingAssociationValues = getExistingAssociationValues(method, existingAssociations);
-            String missingAssociations = valueSet.stream().filter(n -> !existingAssociationValues.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
-            throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+            Set<String> existingAssociationSet = getExistingAssociationValues(method, existingAssociations);
+
+            if (existingAssociations.size() > valueSet.size()) {
+                String duplicateAssociations = existingAssociationSet.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
+                throw new RestApiException("Row " + rowNumber + ": Found " + existingAssociations.size() + " duplicate To-Many Associations: '" + field + "' with value:\n" + duplicateAssociations);
+            } else {
+                String missingAssociations = valueSet.stream().filter(n -> !existingAssociationSet.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
+                throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+            }
         }
 
         List<Integer> associationIdList = findIdsOfAssociations(valueSet, existingAssociations, method);
