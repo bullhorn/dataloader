@@ -116,8 +116,15 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         }
     }
 
+    private List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
+        Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
+        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatment(n, (String) dataMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        List<B> matchingCustomObjectList = bullhornData.query(entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        return matchingCustomObjectList;
+    }
+
     private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
-        Map<String, String> scrubbedDataMap = dataMap;
+        Map<String, String> scrubbedDataMap = new HashMap<>(dataMap);
         MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
         for (String fieldName : (Set<String>) dataMap.keySet()) {
             boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
@@ -126,13 +133,6 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
             }
         }
         return scrubbedDataMap;
-    }
-
-    private List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
-        Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
-        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatment(n, (String) dataMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
-        List<B> matchingCustomObjectList = bullhornData.query(entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
-        return matchingCustomObjectList;
     }
 
     private void checkForDuplicates(List<B> matchingCustomObjectList) throws Exception {
