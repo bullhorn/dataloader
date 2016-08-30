@@ -263,7 +263,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     private boolean isAddressField(String field) {
-        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid");
+        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryName");
         return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 
