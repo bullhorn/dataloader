@@ -111,6 +111,7 @@ public class LoadTaskTest {
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("externalID", "11");
+        dataMap.put("customDate1", "2016-08-30");
         dataMap.put("firstName", "Load");
         dataMap.put("lastName", "Test");
         dataMap.put("primarySkills.id", "1");
@@ -119,6 +120,10 @@ public class LoadTaskTest {
         dataMap.put("owner.id", "1");
 
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
+
+        String dateFormatString = "yyyy-MM-dd";
+        when(propertyFileUtilMock_CandidateID.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+        when(propertyFileUtilMock_CandidateExternalID.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
     }
 
     @Test
@@ -227,6 +232,8 @@ public class LoadTaskTest {
     public void run_InsertSuccess_NoExistField() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         PropertyFileUtil propertyFileUtilMock_NoExistField = Mockito.mock(PropertyFileUtil.class);
+        String dateFormatString = "yyyy-mm-dd";
+        when(propertyFileUtilMock_NoExistField.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
         Mockito.doReturn(Optional.empty()).when(propertyFileUtilMock_NoExistField).getEntityExistFields("Candidate");
         Mockito.doReturn(";").when(propertyFileUtilMock_NoExistField).getListDelimiter();
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoExistField, bullhornDataMock, printUtilMock, actionTotalsMock));
@@ -786,6 +793,19 @@ public class LoadTaskTest {
         Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "1");
 
         Assert.assertEquals(BigDecimal.ONE, convertedString);
+    }
+
+    @Test
+    public void getDateQueryTest(){
+        String dateFormatString = "MM/dd/yyyy";
+        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_EDUCATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock));
+        String expectedResult = "2016-08-01 00:00:00.000";
+
+        String actualResult = task.getDateQuery("08/01/2016");
+
+        Assert.assertEquals(expectedResult, actualResult);
     }
 
     public void convertStringToClassTest_DoubleTestMethod(Double test){

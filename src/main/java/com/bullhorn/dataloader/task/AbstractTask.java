@@ -199,7 +199,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    private String getDateQuery(String value) {
+    protected String getDateQuery(String value) {
         if (EntityValidation.isCustomObject(entityInfo.getEntityName())){
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             DateTime dateTime = formatter.parseDateTime(value);
