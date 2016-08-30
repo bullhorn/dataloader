@@ -8,6 +8,8 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -26,7 +28,7 @@ import java.util.LinkedHashMap;
 /**
  * Responsible for converting a single row from a CSV input file.
  */
-public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class ConvertAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
     public ConvertAttachmentTask(Command command,
                                  Integer rowNumber,

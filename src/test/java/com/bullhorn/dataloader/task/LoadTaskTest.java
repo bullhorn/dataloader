@@ -515,7 +515,7 @@ public class LoadTaskTest {
         List expectedResult = new ArrayList<>();
         task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_REFERENCE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
-        List actualResult = task.getAssociationFields();
+        List actualResult = task.getAssociationFields(task.entityClass);
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }

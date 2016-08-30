@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
+import com.bullhorn.dataloader.task.DeleteCustomObjectTask;
 import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
@@ -104,12 +105,20 @@ public class ConcurrencyService<B extends BullhornEntity> {
     public void runDeleteProcess() throws IOException, InterruptedException {
         while (csvReader.readRecord()) {
             LinkedHashMap<String, String> dataMap = getCsvDataMap();
-            DeleteTask task = new DeleteTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+            AbstractTask task = getDeleteTask(dataMap);
             executorService.execute(task);
         }
         executorService.shutdown();
         while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
         printUtil.printActionTotals(command, actionTotals);
+    }
+
+    private AbstractTask getDeleteTask(LinkedHashMap<String, String> dataMap) {
+        if (EntityValidation.isCustomObject(this.entityInfo.getEntityName())){
+            return new DeleteCustomObjectTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        } else {
+            return new DeleteTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        }
     }
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {

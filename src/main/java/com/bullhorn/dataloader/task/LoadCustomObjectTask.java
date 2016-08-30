@@ -14,11 +14,13 @@ import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
+import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
@@ -32,12 +34,11 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadTask {
-    private B parentEntity;
-    private Class<B> parentEntityClass;
+public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadTask<A, E, B> {
+    protected B parentEntity;
+    protected Class<B> parentEntityClass;
     private String instanceNumber;
     protected String parentField;
     protected Boolean parentEntityUpdateDone = false;
@@ -116,17 +117,17 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         }
     }
 
-    private List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
+    private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
         String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatment(n, (String) dataMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
-        List<B> matchingCustomObjectList = bullhornData.query(entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        List<B> matchingCustomObjectList = (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
         return matchingCustomObjectList;
     }
 
     private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = new HashMap<>(dataMap);
         MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
-        for (String fieldName : (Set<String>) dataMap.keySet()) {
+        for (String fieldName : dataMap.keySet()) {
             boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
             if ((!fieldIsInMeta && !fieldName.contains(".")) || (fieldName.contains("_"))) {
                 scrubbedDataMap.remove(fieldName);
@@ -188,7 +189,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected B getCustomObjectParent(String field, String fieldName, Class<B> parentEntityClass) {
         parentField = field;
         List<B> list;
-        String value = (String) dataMap.get(field);
+        String value = dataMap.get(field);
         Class fieldType = getFieldType(parentEntityClass, fieldName);
 
         if (SearchEntity.class.isAssignableFrom(parentEntityClass)) {
@@ -215,18 +216,17 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         parentEntity = getCustomObjectParent(field, fieldName, parentEntityClass);
     }
 
-    private void getParentEntityClass(String field) {
+    protected void getParentEntityClass(String field) {
         String toOneEntityName = field.substring(0, field.indexOf("."));
-        Method method = (Method) methodMap.get(toOneEntityName.toLowerCase());
-        if (method == null) {
+        String parentEntityName = entityInfo.getEntityName().substring(0, entityInfo.getEntityName().indexOf("CustomObjectInstance"));
+        if (!toOneEntityName.equalsIgnoreCase(parentEntityName)) {
             throw new RestApiException("Row " + rowNumber + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
         }
-
-        parentEntityClass = (Class<B>) method.getParameterTypes()[0];
+        parentEntityClass = BullhornEntityInfo.getTypeFromName(toOneEntityName).getType();
     }
 
-    private void getPersonCustomObjectParentEntityClass(String entityName) throws Exception {
-        String personSubtype = (String) dataMap.get("person._subtype");
+    protected void getPersonCustomObjectParentEntityClass(String entityName) throws Exception {
+        String personSubtype = dataMap.get("person._subtype");
         if ("candidate".equalsIgnoreCase(personSubtype)){
             parentEntityClass = (Class<B>) Candidate.class;
         } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)){
@@ -243,8 +243,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         Map<String, String> entityExistFieldsMap = super.getEntityExistFieldsMap();
         if (!entityExistFieldsMap.isEmpty() && !entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))){
             try {
-                String parentEntityField = ((List<String>) dataMap.keySet().stream().filter(n -> ((String) n).contains(".")).collect(Collectors.toList())).get(0);
-                entityExistFieldsMap.put(parentEntityField, (String) dataMap.get(parentEntityField));
+                String parentEntityField = dataMap.keySet().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
+                entityExistFieldsMap.put(parentEntityField, dataMap.get(parentEntityField));
             } catch (Exception e){
                 throw new IOException("Parent entity must be included within csv.");
             }

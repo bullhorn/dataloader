@@ -10,6 +10,21 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.association.AssociationFactory;
+import com.bullhornsdk.data.model.entity.association.AssociationField;
+import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.Category;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
+import com.bullhornsdk.data.model.entity.core.standard.Note;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -41,7 +56,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
+public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable, TaskConsts {
 
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
     protected Command command;
@@ -136,9 +151,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + ":" + value;
-        } else if (String.class.equals(fieldType)) {
+        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
             throw new RestApiException("Row " + rowNumber + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
@@ -232,7 +247,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
-        if (!response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
+        if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
             for (Message message : response.getMessages()) {
                 sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
@@ -263,5 +278,18 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected String getCamelCasedClassToString() {
         return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
+    }
+
+    protected List<AssociationField<A, B>> getAssociationFields(Class<B> associationClass) {
+        try {
+            E entityAssociations = getEntityAssociations((Class<A>) associationClass);
+            return entityAssociations.allAssociations();
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private E getEntityAssociations(Class<A> entityClass) {
+        return (entityClass == Candidate.class ? (E) AssociationFactory.candidateAssociations() : (entityClass == Category.class ? (E) AssociationFactory.categoryAssociations() : (entityClass == ClientContact.class ? (E) AssociationFactory.clientContactAssociations() : (entityClass == ClientCorporation.class ? (E) AssociationFactory.clientCorporationAssociations() : (entityClass == CorporateUser.class ? (E) AssociationFactory.corporateUserAssociations() : (entityClass == JobOrder.class ? (E) AssociationFactory.jobOrderAssociations() : (entityClass == Note.class ? (E) AssociationFactory.noteAssociations() : (entityClass == Placement.class ? (E) AssociationFactory.placementAssociations() : (entityClass == Opportunity.class ? (E) AssociationFactory.opportunityAssociations() : (entityClass == Lead.class ? (E) AssociationFactory.leadAssociations() : entityClass == Tearsheet.class ? (E) AssociationFactory.tearsheetAssociations() : null))))))))));
     }
 }

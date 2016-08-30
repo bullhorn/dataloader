@@ -203,14 +203,14 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             }
         }
 
-        final LoadAttachmentTask<Candidate> expectedTask = new LoadAttachmentTask<Candidate>(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadAttachmentsProcess();
         verify(executorService).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
-        final LoadAttachmentTask<Candidate> actualTask = (LoadAttachmentTask<Candidate>) taskCaptor.getValue();
+        final LoadAttachmentTask actualTask = (LoadAttachmentTask) taskCaptor.getValue();
 
         Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
     }
@@ -237,14 +237,14 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
 
-        final ConvertAttachmentTask<Candidate> expectedTask = new ConvertAttachmentTask<Candidate>(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        final ConvertAttachmentTask expectedTask = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runConvertAttachmentsProcess();
         verify(executorService).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
-        final ConvertAttachmentTask<Candidate> actualTask = (ConvertAttachmentTask<Candidate>) taskCaptor.getValue();
+        final ConvertAttachmentTask actualTask = (ConvertAttachmentTask) taskCaptor.getValue();
 
         Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
     }
