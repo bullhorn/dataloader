@@ -74,11 +74,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
         String parentField = "";
         for (String field : dataMap.keySet()){
             if (field.contains(".") && !field.contains("_")){
-                if (parentField == "") {
-                    parentField = field;
-                } else {
-                    throw new IOException("Multiple association entities found in csv for " + entityInfo.getEntityName() + ". CustomObjectInstances only support one associated entity, which is the parent entity.");
-                }
+                parentField = field;
             }
         }
         if (parentField ==""){

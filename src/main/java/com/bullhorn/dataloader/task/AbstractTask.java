@@ -185,9 +185,9 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getWhereStatment(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
-        } else if (String.class.equals(fieldType)) {
+        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + "='" + value + "'";
         } else {
             throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);

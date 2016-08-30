@@ -42,13 +42,14 @@ public class DeleteCustomObjectTaskTest {
 
         dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
-        dataMap.put("clientCorporation.id", "1");
         dataMap.put("text1", "Test");
         dataMap.put("text2", "Skip");
     }
 
     @Test
     public void run_Success() throws IOException {
+        dataMap.put("clientCorporation.id", "1");
+
         task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         when(bullhornData.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = Result.Delete(1);
@@ -58,6 +59,30 @@ public class DeleteCustomObjectTaskTest {
         Mockito.verify(csvFileWriter, Mockito.times(1)).writeRow(any(), eq(expectedResult));
     }
 
+    @Test
+    public void run_PersonSuccess() throws IOException {
+        dataMap.put("person.id", "1");
+        dataMap.put("person._subtype", "Candidate");
+
+        task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        when(bullhornData.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
+        Result expectedResult = Result.Delete(1);
+
+        task.run();
+
+        Mockito.verify(csvFileWriter, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void run_Fail_NoAssociationField() throws IOException {
+        task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        when(bullhornData.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
+        Result expectedResult = Result.Failure(new IOException("No association entities found in csv for ClientCorporationCustomObjectInstance2. CustomObjectInstances require a parent entity in the csv."),1);
+
+        task.run();
+
+        Mockito.verify(csvFileWriter, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+    }
 
 
 }
