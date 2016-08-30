@@ -1,5 +1,15 @@
 package com.bullhorn.dataloader.service.executor;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
@@ -19,16 +29,6 @@ import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
@@ -154,7 +154,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         if (methodMap.containsKey("address")) {
             for (Method method : Arrays.asList(Address.class.getMethods())) {
                 if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                    methodMap.put(method.getName().substring(3).toLowerCase(), method);
+                     methodMap.put(method.getName().substring(3).toLowerCase(), method);
                 }
             }
         }
@@ -164,6 +164,9 @@ public class ConcurrencyService<B extends BullhornEntity> {
      * creates is a mapping of name to value pairs for a single row in the CSV file
      */
     protected LinkedHashMap<String, String> getCsvDataMap() throws IOException {
+        if (csvReader.getHeaderCount() != csvReader.getValues().length) {
+            throw new IOException("Header column count " + csvReader.getHeaderCount() + " is not equal to row column count " + csvReader.getValues().length);
+        }
         LinkedHashMap<String, String> dataMap = new LinkedHashMap<>();
         for (int i = 0; i < csvReader.getHeaderCount(); i++) {
             dataMap.put(csvReader.getHeader(i), csvReader.getValues()[i]);

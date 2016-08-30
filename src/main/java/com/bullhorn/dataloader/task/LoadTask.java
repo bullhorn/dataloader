@@ -1,5 +1,20 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.commons.io.FileUtils;
+
 import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -34,20 +49,6 @@ import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.FileUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> extends AbstractTask<B> {
     static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
@@ -152,10 +153,15 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
 
     private void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
-            CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
-            checkForRestSdkErrorMessages(response);
-            entityID = response.getChangedEntityId();
-            entity.setId(entityID);
+            try {
+                CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
+                checkForRestSdkErrorMessages(response);
+                entityID = response.getChangedEntityId();
+                entity.setId(entityID);
+            }
+            catch (RestApiException e) {
+                checkForRequiredFieldsError(e);
+            }
         } else {
             CrudResponse response = bullhornData.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
@@ -316,10 +322,17 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
         Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
+
         if (existingAssociations.size() != valueSet.size()) {
-            Set<String> existingAssociationValues = getExistingAssociationValues(method, existingAssociations);
-            String missingAssociations = valueSet.stream().filter(n -> !existingAssociationValues.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
-            throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+            Set<String> existingAssociationSet = getExistingAssociationValues(method, existingAssociations);
+
+            if (existingAssociations.size() > valueSet.size()) {
+                String duplicateAssociations = existingAssociationSet.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
+                throw new RestApiException("Row " + rowNumber + ": Found " + existingAssociations.size() + " duplicate To-Many Associations: '" + field + "' with value:\n" + duplicateAssociations);
+            } else {
+                String missingAssociations = valueSet.stream().filter(n -> !existingAssociationSet.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
+                throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+            }
         }
 
         List<Integer> associationIdList = findIdsOfAssociations(valueSet, existingAssociations, method);

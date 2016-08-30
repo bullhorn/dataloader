@@ -1,26 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
-import com.bullhorn.dataloader.service.Command;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
-import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
-import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.bullhornsdk.data.model.response.crud.CrudResponse;
-import com.bullhornsdk.data.model.response.crud.Message;
-import com.google.common.collect.Sets;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,6 +17,28 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
+import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
+import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.bullhornsdk.data.model.response.crud.Message;
+import com.google.common.collect.Sets;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
 
@@ -241,6 +242,12 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    protected void checkForRequiredFieldsError(Exception e) {
+        if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
+            throw new RestApiException("Missing required fields for " + entityClass.getSimpleName() + ".");
+        }
+    }
+
     /**
      * populates a field on an entity using reflection
      *
@@ -254,10 +261,18 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         if (method == null) {
             throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
+        if (isAddressField(field)) {
+            throw new RestApiException("Row " + rowNumber + ": Invalid address set up: '" + field + "' Must use 'address." + field + "' in csv header" );
+        }
 
         if (value != null && !"".equalsIgnoreCase(value)) {
             method.invoke(entity, convertStringToClass(method, value));
         }
+    }
+
+    private boolean isAddressField(String field) {
+        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
+        return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 
     protected String getCamelCasedClassToString() {
