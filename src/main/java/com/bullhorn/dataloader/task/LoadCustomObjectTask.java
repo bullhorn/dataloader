@@ -241,7 +241,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     @Override
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = super.getEntityExistFieldsMap();
-        if (!entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))){
+        if (!entityExistFieldsMap.isEmpty() && !entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))){
             try {
                 String parentEntityField = ((List<String>) dataMap.keySet().stream().filter(n -> ((String) n).contains(".")).collect(Collectors.toList())).get(0);
                 entityExistFieldsMap.put(parentEntityField, (String) dataMap.get(parentEntityField));
