@@ -312,7 +312,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     private boolean isAddressField(String field) {
-        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid");
+        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryName");
         return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 
