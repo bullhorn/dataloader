@@ -28,6 +28,7 @@ import com.bullhornsdk.data.model.response.list.customobject.ClientCorporationCu
 import com.bullhornsdk.data.model.response.list.customobject.PersonCustomObjectInstance2ListWrapper;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -86,15 +87,24 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("clientCorporation.id", "1");
         dataMap.put("text1", "Test");
         dataMap.put("text2", "Skip");
+        dataMap.put("date1", "2016-08-30");
 
         StandardMetaData meta = new StandardMetaData();
         List<Field> fields = new ArrayList<>();
         Field field = new Field();
         field.setName("id");
-        field.setName("text1");
         fields.add(field);
+        Field field2 = new Field();
+        field2.setName("text1");
+        fields.add(field2);
+        Field field3 = new Field();
+        field3.setName("date1");
+        fields.add(field3);
         meta.setFields(fields);
         when(bullhornDataMock.getMetaData(any(), eq(MetaParameter.BASIC), eq(null))).thenReturn(meta);
+
+        String dateFormatString = "yyyy-mm-dd";
+        when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
     }
 
     @Test
@@ -110,9 +120,8 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test' AND clientCorporation.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
@@ -144,6 +153,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("person._subtype", "cLiEnT CoNtAcT");
         dataMap.put("text1", "Test");
         dataMap.put("text2", "Skip");
+        dataMap.put("date1", "2016-08-30");
 
         task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
@@ -155,9 +165,7 @@ public class LoadCustomObjectTaskTest {
         personCustomObjectInstance2.setId(1);
         List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
-
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), eq("person.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientContactListWrapper listWrapper = new ClientContactListWrapper();
         listWrapper.setData(Arrays.asList(new ClientContact(1)));
@@ -189,6 +197,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("person._subtype", "Candidate");
         dataMap.put("text1", "Test");
         dataMap.put("text2", "Skip");
+        dataMap.put("date1", "2016-08-30");
 
         task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
@@ -200,9 +209,8 @@ public class LoadCustomObjectTaskTest {
         personCustomObjectInstance2.setId(1);
         List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), eq("person.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
         CandidateListWrapper listWrapper = new CandidateListWrapper();
         listWrapper.setData(Arrays.asList(new Candidate(1)));
@@ -233,6 +241,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("person.id", "1");
         dataMap.put("text1", "Test");
         dataMap.put("text2", "Skip");
+        dataMap.put("date1", "2016-08-30");
 
         task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new Exception("Row 1: The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
@@ -261,6 +270,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("person._subtype", "Potato");
         dataMap.put("text1", "Test");
         dataMap.put("text2", "Skip");
+        dataMap.put("date1", "2016-08-30");
 
         task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new Exception("Row 1: The person._subType field must be either Candidate or ClientContact"));
@@ -344,7 +354,7 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
 
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper);
 
         task.parentField = "clientCorporation.id";
 
@@ -377,7 +387,7 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
 
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper);
 
         task.parentField = "clientCorporation.id";
 
@@ -408,9 +418,7 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test' AND clientCorporation.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
-
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
@@ -444,13 +452,11 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test' AND clientCorporation.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
-
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("clientCorporation.id=1 AND text1='Test'"), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
-        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
+        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), any(), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
         String noPermissionException = "bogus";
         Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornDataMock).updateEntity(any());

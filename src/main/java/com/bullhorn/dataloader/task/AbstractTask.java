@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
@@ -41,9 +42,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -145,7 +148,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
-        String where = getWhereStatment(field, value, fieldType);
+        String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
         return (List<B>) bullhornData.query((Class<Q>) entityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
@@ -180,17 +183,32 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatment(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
-    protected String getWhereStatment(String field, String value, Class fieldType) {
+    protected String getWhereStatement(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
-        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
+        } else if (String.class.equals(fieldType)) {
             return field + "='" + value + "'";
+        } else if (DateTime.class.equals(fieldType)) {
+            return field + "=" + getDateQuery(value);
         } else {
             throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
+        }
+    }
+
+    private String getDateQuery(String value) {
+        if (EntityValidation.isCustomObject(entityInfo.getEntityName())){
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            DateTime dateTime = formatter.parseDateTime(value);
+            return String.valueOf(dateTime.toDate().getTime());
+        } else {
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            DateTime dateTime = formatter.parseDateTime(value);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            return df.format(dateTime.toDate());
         }
     }
 
@@ -223,7 +241,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             return Boolean.parseBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            return formatter.parseDateTime(value);
+            return (DateTime) formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
             DecimalFormat decimalFormat = new DecimalFormat();
             decimalFormat.setParseBigDecimal(true);

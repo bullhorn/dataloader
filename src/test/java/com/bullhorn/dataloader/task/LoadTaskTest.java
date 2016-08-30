@@ -709,7 +709,7 @@ public class LoadTaskTest {
     public void getWhereStatement_integer() {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
-        String actual = task.getWhereStatment("id", "99", int.class);
+        String actual = task.getWhereStatement("id", "99", int.class);
 
         Assert.assertEquals("id=99", actual);
     }
@@ -718,7 +718,7 @@ public class LoadTaskTest {
     public void getWhereStatement_unsupportedType() {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
-        task.getWhereStatment("comments", "my comment", double.class);
+        task.getWhereStatement("comments", "my comment", double.class);
     }
 
     @Test(expected = RestApiException.class)

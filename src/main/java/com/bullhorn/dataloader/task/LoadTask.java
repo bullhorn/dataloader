@@ -381,7 +381,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> getWhereStatment(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
+        return valueSet.stream().map(n -> getWhereStatement(fieldName, n, getFieldType(associationClass, fieldName))).collect(Collectors.joining(" OR "));
     }
 
 
