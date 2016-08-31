@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -9,6 +10,8 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -36,7 +39,7 @@ import java.util.Optional;
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
-public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
     private FileMeta fileMeta;
     private boolean isNewEntity = true;
@@ -44,7 +47,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
 
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
-                              Class<B> entity,
+                              EntityInfo entityInfo,
                               LinkedHashMap<String, String> dataMap,
                               Map<String, Method> methodMap,
                               CsvFileWriter csvWriter,
@@ -52,12 +55,13 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
                               BullhornData bullhornData,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(command, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         this.methodMap = methodMap;
     }
 
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();

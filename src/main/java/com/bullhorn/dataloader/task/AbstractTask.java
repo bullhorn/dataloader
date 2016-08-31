@@ -1,36 +1,31 @@
 package com.bullhorn.dataloader.task;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-
 import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.association.AssociationFactory;
+import com.bullhornsdk.data.model.entity.association.AssociationField;
+import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.Category;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
+import com.bullhornsdk.data.model.entity.core.standard.Note;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -39,12 +34,38 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
 
-public abstract class AbstractTask<B extends BullhornEntity> implements Runnable, TaskConsts {
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+
+public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable, TaskConsts {
+    static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
 
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
     protected Command command;
     protected Integer rowNumber;
+    protected EntityInfo entityInfo;
     protected Class<B> entityClass;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
@@ -56,7 +77,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     public AbstractTask(Command command,
                         Integer rowNumber,
-                        Class<B> entityClass,
+                        EntityInfo entityInfo,
                         LinkedHashMap<String, String> dataMap,
                         CsvFileWriter csvWriter,
                         PropertyFileUtil propertyFileUtil,
@@ -65,13 +86,17 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                         ActionTotals actionTotals) {
         this.command = command;
         this.rowNumber = rowNumber;
-        this.entityClass = entityClass;
+        this.entityInfo = entityInfo;
         this.dataMap = dataMap;
         this.csvWriter = csvWriter;
         this.propertyFileUtil = propertyFileUtil;
         this.bullhornData = bullhornData;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
+    }
+
+    protected void init() {
+        entityClass = entityInfo.getBullhornEntityInfo().getType();
     }
 
     protected void addParentEntityIDtoDataMap() {
@@ -117,22 +142,29 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         return Result.Failure(e);
     }
 
-    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
+    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
         String query = getQueryStatement(field, value, fieldType);
-        return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) bullhornData.search((Class<S>) entityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
+    }
+
+    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
+        String where = getWhereStatement(field, value, fieldType);
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) bullhornData.query((Class<Q>) entityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + ":" + value;
-        } else if (String.class.equals(fieldType)) {
+        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
             throw new RestApiException("Row " + rowNumber + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
-    protected List<B> findEntityList() {
+    protected List<B> findEntityList() throws IOException {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
 
         if (!entityExistFieldsMap.isEmpty()) {
@@ -152,26 +184,36 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatment(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
-    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass) {
-        String where = getWhereStatment(field, value, fieldType);
-        return (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
-    }
-
-    protected String getWhereStatment(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType)) {
+    protected String getWhereStatement(String field, String value, Class fieldType) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
         } else if (String.class.equals(fieldType)) {
             return field + "='" + value + "'";
+        } else if (DateTime.class.equals(fieldType)) {
+            return field + "=" + getDateQuery(value);
         } else {
             throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
-    protected Map<String, String> getEntityExistFieldsMap() {
+    protected String getDateQuery(String value) {
+        if (EntityValidation.isCustomObject(entityInfo.getEntityName())){
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            DateTime dateTime = formatter.parseDateTime(value);
+            return String.valueOf(dateTime.toDate().getTime());
+        } else {
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            DateTime dateTime = formatter.parseDateTime(value);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            return df.format(dateTime.toDate());
+        }
+    }
+
+    protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
         Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName());
@@ -197,10 +239,10 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         } else if (Double.class.equals(convertToClass)) {
             return Double.parseDouble(value);
         } else if (Boolean.class.equals(convertToClass)) {
-            return Boolean.getBoolean(value);
+            return Boolean.parseBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            return formatter.parseDateTime(value);
+            return (DateTime) formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
             DecimalFormat decimalFormat = new DecimalFormat();
             decimalFormat.setParseBigDecimal(true);
@@ -232,7 +274,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
-        if (!response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
+        if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
             for (Message message : response.getMessages()) {
                 sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
@@ -277,5 +319,34 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected String getCamelCasedClassToString() {
         return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
+    }
+
+    protected static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getAssociationFields(Class<AssociationEntity> entityClass) {
+        try {
+            if (entityClassToAssociationsMap.containsKey(entityClass)) {
+                return entityClassToAssociationsMap.get(entityClass);
+            } else {
+                EntityAssociations entityAssociations = getEntityAssociations((Class<AssociationEntity>) entityClass);
+                List<AssociationField<AssociationEntity, BullhornEntity>> associationFields = entityAssociations.allAssociations();
+                entityClassToAssociationsMap.put((Class<AssociationEntity>) entityClass, associationFields);
+                return associationFields;
+            }
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    private static synchronized EntityAssociations getEntityAssociations(Class entityClass) {
+        return (entityClass == Candidate.class ? AssociationFactory.candidateAssociations() :
+            (entityClass == Category.class ? AssociationFactory.categoryAssociations() :
+                (entityClass == ClientContact.class ? AssociationFactory.clientContactAssociations() :
+                    (entityClass == ClientCorporation.class ? AssociationFactory.clientCorporationAssociations() :
+                        (entityClass == CorporateUser.class ? AssociationFactory.corporateUserAssociations() :
+                            (entityClass == JobOrder.class ? AssociationFactory.jobOrderAssociations() :
+                                (entityClass == Note.class ? AssociationFactory.noteAssociations() :
+                                    (entityClass == Placement.class ? AssociationFactory.placementAssociations() :
+                                        (entityClass == Opportunity.class ? AssociationFactory.opportunityAssociations() :
+                                            (entityClass == Lead.class ? AssociationFactory.leadAssociations() :
+                                                entityClass == Tearsheet.class ? AssociationFactory.tearsheetAssociations() : null))))))))));
     }
 }

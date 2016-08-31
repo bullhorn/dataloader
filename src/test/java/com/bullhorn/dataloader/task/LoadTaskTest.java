@@ -1,33 +1,6 @@
 package com.bullhorn.dataloader.task;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -39,13 +12,11 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.CandidateReference;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
-import com.bullhornsdk.data.model.entity.core.standard.Note;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.standard.Skill;
@@ -62,6 +33,37 @@ import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
 import com.bullhornsdk.data.model.response.list.SkillListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import com.csvreader.CsvReader;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LoadTaskTest {
 
@@ -101,7 +103,7 @@ public class LoadTaskTest {
         Mockito.doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
         Mockito.doReturn(";").when(propertyFileUtilMock_CandidateExternalID).getListDelimiter();
 
-        concurrencyService = new ConcurrencyService(Command.LOAD_ATTACHMENTS, "Candidate", csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        concurrencyService = new ConcurrencyService(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         methodMap = concurrencyService.createMethodMap(Candidate.class);
         countryNameToIdMap = new LinkedHashMap<String, Integer>();
@@ -109,6 +111,7 @@ public class LoadTaskTest {
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("externalID", "11");
+        dataMap.put("customDate1", "2016-08-30");
         dataMap.put("firstName", "Load");
         dataMap.put("lastName", "Test");
         dataMap.put("primarySkills.id", "1");
@@ -117,17 +120,23 @@ public class LoadTaskTest {
         dataMap.put("owner.id", "1");
 
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
+
+        String dateFormatString = "yyyy-MM-dd";
+        when(propertyFileUtilMock_CandidateID.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+        when(propertyFileUtilMock_CandidateExternalID.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
     }
 
     @Test
     public void insertAttachmentToDescriptionCandidateTest() throws Exception {
         Candidate candidate = new Candidate();
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entity = candidate;
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
 
         Assert.assertNull(candidate.getDescription());
+        task.init();
         task.insertAttachmentToDescription();
+
         Assert.assertNotNull(candidate.getDescription());
     }
 
@@ -135,13 +144,15 @@ public class LoadTaskTest {
     public void insertAttachmentToDescriptionClientCorporationTest() throws Exception {
         ClientCorporation corporation = new ClientCorporation();
         methodMap = concurrencyService.createMethodMap(ClientCorporation.class);
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientCorporation.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entity = corporation;
         when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
 
         // ClientCorporation uses companyDescription field instead of description
         Assert.assertNull(corporation.getCompanyDescription());
+        task.init();
         task.insertAttachmentToDescription();
+
         Assert.assertNotNull(corporation.getCompanyDescription());
     }
 
@@ -150,7 +161,7 @@ public class LoadTaskTest {
         String entityName = "Candidate";
         String externalID = "123";
         String expected = "convertedAttachments/Candidate/123.html";
-        task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         String actual = task.getAttachmentFilePath(entityName, externalID);
 
@@ -160,7 +171,7 @@ public class LoadTaskTest {
     @Test
     public void getDescriptionMethodWithDescriptionMethodInMapTest() {
         String expected = "description";
-        task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         String actual = task.getDescriptionMethod();
 
@@ -172,7 +183,7 @@ public class LoadTaskTest {
         //client corp uses companyDescription field instead of description
         String expected = "companydescription";
         methodMap = concurrencyService.createMethodMap(ClientCorporation.class);
-        task = new LoadTask(Command.LOAD, 1, ClientCorporation.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         String actual = task.getDescriptionMethod();
 
@@ -184,7 +195,7 @@ public class LoadTaskTest {
         //placement does not have a description field
         String expected = "";
         methodMap = concurrencyService.createMethodMap(Placement.class);
-        task = new LoadTask(Command.LOAD, 1, ClientCorporation.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         String actual = task.getDescriptionMethod();
 
@@ -194,7 +205,7 @@ public class LoadTaskTest {
     @Test
     public void run_InsertSuccess() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
@@ -221,9 +232,11 @@ public class LoadTaskTest {
     public void run_InsertSuccess_NoExistField() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         PropertyFileUtil propertyFileUtilMock_NoExistField = Mockito.mock(PropertyFileUtil.class);
+        String dateFormatString = "yyyy-mm-dd";
+        when(propertyFileUtilMock_NoExistField.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
         Mockito.doReturn(Optional.empty()).when(propertyFileUtilMock_NoExistField).getEntityExistFields("Candidate");
         Mockito.doReturn(";").when(propertyFileUtilMock_NoExistField).getListDelimiter();
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoExistField, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoExistField, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         CreateResponse response = new CreateResponse();
@@ -256,7 +269,7 @@ public class LoadTaskTest {
         dataMap.put("opportunities.externalID", "6");
         dataMap.put("placements.customText1", "7");
 
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Note.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
         Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
 
         final List<Candidate> candidates = new ArrayList<>();
@@ -335,7 +348,7 @@ public class LoadTaskTest {
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
         dataMap.clear();
         dataMap.put("candidates.id", "1;2");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Note.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
 
@@ -367,7 +380,7 @@ public class LoadTaskTest {
     @Test
     public void run_UpdateSuccess() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
 
         UpdateResponse response = new UpdateResponse();
@@ -396,7 +409,7 @@ public class LoadTaskTest {
     public void run_invalidField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
@@ -424,7 +437,7 @@ public class LoadTaskTest {
     public void run_invalidToOneAssociation() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("bogus.id", "This should fail with meaningful error because bogus does not exist.");
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
@@ -452,7 +465,7 @@ public class LoadTaskTest {
     public void run_invalidToOneAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'owner.bogus': 'bogus' does not exist on CorporateUser");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
@@ -480,7 +493,7 @@ public class LoadTaskTest {
     public void run_invalidToOneAddressAssociationField() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
@@ -505,8 +518,18 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void getAssociationFieldsTestCatch() {
+        List expectedResult = new ArrayList<>();
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_REFERENCE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+
+        List actualResult = task.getAssociationFields(task.entityClass);
+
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+    }
+
+    @Test
     public void getGetMethodTestCatch() {
-        task = new LoadTask(Command.LOAD, 1, CandidateReference.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_REFERENCE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         boolean exceptionWasThrown = false;
         try {
@@ -521,7 +544,7 @@ public class LoadTaskTest {
     @Test
     public void getNewAssociationIdListTest() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         dataMap.put("primarySkills.id", "1;2;3");
-        task = new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         List<Skill> primarySkills = new ArrayList<>();
         Skill skillOne = new Skill();
         skillOne.setId(1);
@@ -547,7 +570,7 @@ public class LoadTaskTest {
     @Test
     public void run_TestCatch() throws Exception {
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         task.run();
 
@@ -559,7 +582,7 @@ public class LoadTaskTest {
     @Test
     public void run_populateFieldOnEntityTestCatch() throws NoSuchMethodException, ParseException, IOException, InvocationTargetException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.text.ParseException: failure");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         Method setExternalIdMethod = Candidate.class.getMethod("setExternalID", String.class);
         when(task.convertStringToClass(eq(setExternalIdMethod), eq("11"))).thenThrow(new ParseException("failure", 1));
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
@@ -574,7 +597,7 @@ public class LoadTaskTest {
     @Test
     public void run_createEntityObjectTestCatch() throws IOException {
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
         List<Candidate> candidateList = new ArrayList<>();
         candidateList.add(new Candidate(1));
@@ -602,7 +625,7 @@ public class LoadTaskTest {
         skillList.add(skill);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entityID = 1;
 
         boolean wasExceptionThrown = false;
@@ -628,11 +651,12 @@ public class LoadTaskTest {
         skillList.add(skill);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entityID = 1;
 
         boolean wasExceptionThrown = false;
         try {
+            task.init();
             task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
         } catch (RestApiException e) {
             wasExceptionThrown = true;
@@ -657,7 +681,7 @@ public class LoadTaskTest {
         skillList.add(skill2);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entityID = 1;
         String errorMessage = "";
 
@@ -677,7 +701,7 @@ public class LoadTaskTest {
     public void findEntityTest_search() {
         dataMap = new LinkedHashMap<>();
         dataMap.put("clientCorporation.id", "1");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
         List<Candidate> candidateList = new ArrayList<>();
@@ -694,7 +718,7 @@ public class LoadTaskTest {
     public void findEntityTest_searchReturnsEmptyList() {
         dataMap = new LinkedHashMap<>();
         dataMap.put("clientCorporation.id", "1");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         CandidateListWrapper candidateListWrapper = new CandidateListWrapper();
         candidateListWrapper.setData(new ArrayList<>());
@@ -712,7 +736,7 @@ public class LoadTaskTest {
         candidateList.add(new Candidate(1));
         candidateList.add(new Candidate(2));
         candidateListWrapper.setData(candidateList);
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(candidateListWrapper);
 
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
@@ -722,30 +746,30 @@ public class LoadTaskTest {
 
     @Test(expected = RestApiException.class)
     public void getWhereStatement_integer() {
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
-        String actual = task.getWhereStatment("id", "99", int.class);
+        String actual = task.getWhereStatement("id", "99", int.class);
 
         Assert.assertEquals("id=99", actual);
     }
 
     @Test(expected = RestApiException.class)
     public void getWhereStatement_unsupportedType() {
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, ClientContact.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
-        task.getWhereStatment("comments", "my comment", double.class);
+        task.getWhereStatement("comments", "my comment", double.class);
     }
 
     @Test(expected = RestApiException.class)
     public void getQueryStatement_unsupportedType() {
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         task.getQueryStatement("comments", "my comment", double.class);
     }
 
     @Test
     public void updateRowProcessedCountsTest() {
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         task.rowProcessedCount.set(110);
         task.updateRowProcessedCounts();
@@ -753,7 +777,73 @@ public class LoadTaskTest {
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("Processed: 111 records.");
     }
 
-    private <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
+    @Test
+    public void convertStringToClassTest_Integer() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("id"), "1");
+
+        Assert.assertEquals(1, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_Double() throws ParseException, NoSuchMethodException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
+
+        Object convertedString = task.convertStringToClass(method, "1");
+
+        Assert.assertEquals(1.0, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_Boolean() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "true");
+
+        Assert.assertEquals(true, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_DateTime() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        DateTime now = DateTime.now();
+        String dateFormatString = "MM/dd/yyyy HH:mm:ss.SSS";
+        DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern(dateFormatString);
+        when(propertyFileUtilMock_CandidateExternalID.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("dateadded"), now.toString(dateTimeFormat));
+
+        Assert.assertEquals(now, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_BigDecimal() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "1");
+
+        Assert.assertEquals(BigDecimal.ONE, convertedString);
+    }
+
+    @Test
+    public void getDateQueryTest(){
+        String dateFormatString = "MM/dd/yyyy";
+        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_EDUCATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock));
+        String expectedResult = "2016-08-01 00:00:00.000";
+
+        String actualResult = task.getDateQuery("08/01/2016");
+
+        Assert.assertEquals(expectedResult, actualResult);
+    }
+
+    public void convertStringToClassTest_DoubleTestMethod(Double test){
+    }
+
+    public <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
         ListWrapper<B> listWrapper = new StandardListWrapper<B>();
         B entity = entityClass.newInstance();
         entity.setId(1);
@@ -763,7 +853,7 @@ public class LoadTaskTest {
 
     @Test
     public void insertMissingRequiredFieldExceptionTest() throws IOException, InstantiationException, IllegalAccessException {
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, Candidate.class, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));

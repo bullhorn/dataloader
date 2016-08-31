@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util.validation;
 
-import com.bullhorn.dataloader.meta.Entity;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import org.apache.commons.lang.WordUtils;
 
 import java.util.List;
@@ -76,7 +76,7 @@ public class PropertyValidation {
             }
 
             // Check that the exist field matches a real entity
-            if (Entity.fromString(entityEntry.getKey()) == null) {
+            if (EntityInfo.fromString(entityEntry.getKey()) == null) {
                 throw new IllegalArgumentException("DataLoader Properties Error: " + WordUtils.uncapitalize(entityEntry.getKey()) + "ExistField property does not match a supported entity - unrecognized entity: '" + entityEntry.getKey() + "'");
             }
         }

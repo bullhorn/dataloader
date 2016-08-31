@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.meta.Entity;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -31,19 +31,19 @@ public class DeleteService extends AbstractService implements Action {
         }
 
         String filePath = args[1];
-        SortedMap<Entity, List<String>> entityToFileListMap = getDeletableCsvFilesFromPath(filePath);
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = getDeletableCsvFilesFromPath(filePath);
         if (promptUserForMultipleFiles(filePath, entityToFileListMap)) {
-            for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-                String entityName = entityFileEntry.getKey().getEntityName();
+            for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+                EntityInfo entityInfo = entityFileEntry.getKey();
                 for (String fileName : entityFileEntry.getValue()) {
                     try {
-                        printUtil.printAndLog("Deleting " + entityName + " records from: " + fileName + "...");
-                        ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE, entityName, fileName);
+                        printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
+                        ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE, entityInfo, fileName);
                         timer.start();
                         concurrencyService.runDeleteProcess();
-                        printUtil.printAndLog("Finished deleting " + entityName + " records in " + timer.getDurationStringHMS());
+                        printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
                     } catch (Exception e) {
-                        printUtil.printAndLog("FAILED to delete " + entityName + " records");
+                        printUtil.printAndLog("FAILED to delete " + entityInfo.getEntityName() + " records");
                         printUtil.printAndLog(e);
                     }
                 }

@@ -39,7 +39,7 @@ public class CsvFileWriter {
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_success.csv
      *
      * @param command
-     * @param filePath The full path to the Entity file to read in
+     * @param filePath The full path to the EntityInfo file to read in
      * @param headers  The headers read in from the input CSV file
      */
     public CsvFileWriter(Command command, String filePath, String[] headers) throws IOException {

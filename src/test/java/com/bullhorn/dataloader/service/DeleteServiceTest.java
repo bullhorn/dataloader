@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.meta.Entity;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -38,7 +38,7 @@ public class DeleteServiceTest {
 
         // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(deleteService).createConcurrencyService(Mockito.any(), Mockito.anyString(), Mockito.anyString());
+        Mockito.doReturn(concurrencyServiceMock).when(deleteService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runDeleteProcess();
     }
 
@@ -148,13 +148,13 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_ReadOnlyEntity() throws Exception {
-        final String filePath = getFilePath("Certification.csv");
+        final String filePath = getFilePath("BusinessSector.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("Certification", "not deletable");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("BusinessSector", "not deletable");
     }
 
     @Test
@@ -209,30 +209,30 @@ public class DeleteServiceTest {
     @Test
     public void testGetDeletableCsvFilesFromPath() throws Exception {
         final String filePath = getFilePath("loadFromDirectory");
-        final SortedMap<Entity, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(filePath);
+        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(filePath);
 
-        Set<Map.Entry<Entity, List<String>>> sortedSet = actualMap.entrySet();
+        Set<Map.Entry<EntityInfo, List<String>>> sortedSet = actualMap.entrySet();
         Assert.assertEquals(2, sortedSet.size());
-        Iterator<Map.Entry<Entity, List<String>>> iter = sortedSet.iterator();
-        Assert.assertEquals(iter.next().getKey(), Entity.CANDIDATE_WORK_HISTORY);
-        Assert.assertEquals(iter.next().getKey(), Entity.CANDIDATE);
+        Iterator<Map.Entry<EntityInfo, List<String>>> iter = sortedSet.iterator();
+        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE_WORK_HISTORY);
+        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE);
     }
 
     @Test
     public void testGetDeletableCsvFilesFromPath_badFile() throws Exception {
-        final SortedMap<Entity, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath("bad_file.csv");
+        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath("bad_file.csv");
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetDeletableCsvFilesFromPath_badDirectory() throws Exception {
-        final SortedMap<Entity, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath("bad_directory/");
+        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath("bad_directory/");
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetDeletableCsvFilesFromPath_emptyDirectory() throws Exception {
-        final SortedMap<Entity, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(getFilePath("testResume"));
+        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(getFilePath("testResume"));
         Assert.assertTrue(actualMap.isEmpty());
     }
 }

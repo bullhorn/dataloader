@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 
-import com.bullhorn.dataloader.meta.Entity;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -117,12 +117,12 @@ public abstract class AbstractService {
      * Create thread pool for processing entityClass attachment changes
      *
      * @param command    - command line action to perform
-     * @param entityName - entityClass name
+     * @param entityInfo - entityClass name
      * @param filePath   - CSV file with attachment data
      * @return ConcurrencyService thread pool service
      * @throws Exception if error when opening session, loading entityClass data, or reading CSV
      */
-    protected ConcurrencyService createConcurrencyService(Command command, String entityName, String filePath) throws Exception {
+    protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
         final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
 
         final BullhornData bullhornData = getBullhornData();
@@ -133,7 +133,7 @@ public abstract class AbstractService {
 
         ConcurrencyService concurrencyService = new ConcurrencyService(
             command,
-            entityName,
+            entityInfo,
             csvReader,
             csvFileWriter,
             executorService,
@@ -155,7 +155,7 @@ public abstract class AbstractService {
      * @param comparator specifies how the sorted list should be sorted
      * @return a Map of entity enums to lists of valid files.
      */
-    protected SortedMap<Entity, List<String>> getValidCsvFiles(String filePath, Comparator<Entity> comparator) {
+    protected SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, Comparator<EntityInfo> comparator) {
         File file = new File(filePath);
         if (file.isDirectory()) {
             return getValidCsvFilesFromDirectory(file, comparator);
@@ -167,18 +167,18 @@ public abstract class AbstractService {
     /**
      * Given a directory, this method searches the directory for all valid CSV files and returns the map
      */
-    private SortedMap<Entity, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<Entity> comparator) {
-        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
+    private SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<EntityInfo> comparator) {
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         for (String fileName : directory.list()) {
             String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
             if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
-                Entity entity = extractEntityFromFileName(fileName);
-                if (entity != null) {
-                    if (!entityToFileListMap.containsKey(entity)) {
-                        entityToFileListMap.put(entity, new ArrayList<>());
+                EntityInfo entityInfo = extractEntityFromFileName(fileName);
+                if (entityInfo != null) {
+                    if (!entityToFileListMap.containsKey(entityInfo)) {
+                        entityToFileListMap.put(entityInfo, new ArrayList<>());
                     }
-                    List<String> files = entityToFileListMap.get(entity);
+                    List<String> files = entityToFileListMap.get(entityInfo);
                     files.add(absoluteFilePath);
                 }
             }
@@ -190,13 +190,13 @@ public abstract class AbstractService {
     /**
      * Given an individual file path, this method constructs the entity to file map and returns it.
      */
-    private SortedMap<Entity, List<String>> getValidCsvFilesFromFilePath(String filePath, Comparator<Entity> comparator) {
-        SortedMap<Entity, List<String>> entityToFileListMap = new TreeMap<>(comparator);
+    private SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath, Comparator<EntityInfo> comparator) {
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         if (validationUtil.isValidCsvFile(filePath, false)) {
-            Entity entity = extractEntityFromFileName(filePath);
-            if (entity != null) {
-                entityToFileListMap.put(entity, Arrays.asList(filePath));
+            EntityInfo entityInfo = extractEntityFromFileName(filePath);
+            if (entityInfo != null) {
+                entityToFileListMap.put(entityInfo, Arrays.asList(filePath));
             }
         }
 
@@ -209,11 +209,11 @@ public abstract class AbstractService {
      * @param filePath The given file or directory
      * @return the subset of getValidCsvFiles that are loadable
      */
-    protected SortedMap<Entity, List<String>> getLoadableCsvFilesFromPath(String filePath) {
-        SortedMap<Entity, List<String>> loadableEntityToFileListMap = new TreeMap<>(Entity.loadOrderComparator);
+    protected SortedMap<EntityInfo, List<String>> getLoadableCsvFilesFromPath(String filePath) {
+        SortedMap<EntityInfo, List<String>> loadableEntityToFileListMap = new TreeMap<>(EntityInfo.loadOrderComparator);
 
-        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFiles(filePath, Entity.loadOrderComparator);
-        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, EntityInfo.loadOrderComparator);
+        for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
             String entityName = entityFileEntry.getKey().getEntityName();
             if (validationUtil.isLoadableEntity(entityName, false)) {
                 loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
@@ -229,11 +229,11 @@ public abstract class AbstractService {
      * @param filePath The given file or directory
      * @return the subset of getValidCsvFiles that are deletable
      */
-    protected SortedMap<Entity, List<String>> getDeletableCsvFilesFromPath(String filePath) {
-        SortedMap<Entity, List<String>> deletableEntityToFileListMap = new TreeMap<>(Entity.deleteOrderComparator);
+    protected SortedMap<EntityInfo, List<String>> getDeletableCsvFilesFromPath(String filePath) {
+        SortedMap<EntityInfo, List<String>> deletableEntityToFileListMap = new TreeMap<>(EntityInfo.deleteOrderComparator);
 
-        SortedMap<Entity, List<String>> entityToFileListMap = getValidCsvFiles(filePath, Entity.deleteOrderComparator);
-        for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, EntityInfo.deleteOrderComparator);
+        for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
             String entityName = entityFileEntry.getKey().getEntityName();
             if (validationUtil.isDeletableEntity(entityName, false)) {
                 deletableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
@@ -252,14 +252,14 @@ public abstract class AbstractService {
      * @param entityToFileListMap The list of files that will be loaded
      * @return true if the user has responded with yes, false if no
      */
-    protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<Entity, List<String>> entityToFileListMap) {
+    protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<EntityInfo, List<String>> entityToFileListMap) {
         if (entityToFileListMap.size() > 1 ||
             (!entityToFileListMap.isEmpty() &&
                 entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");
 
             Integer count = 1;
-            for (Map.Entry<Entity, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
+            for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
                 String entityName = entityFileEntry.getKey().getEntityName();
                 for (String fileName : entityFileEntry.getValue()) {
                     File file = new File(fileName);
@@ -293,8 +293,7 @@ public abstract class AbstractService {
      * @return the SDK-Rest name of the entity, or null if not found
      */
     protected String extractEntityNameFromFileName(String fileName) {
-        Entity bestMatch = null;
-        bestMatch = extractEntityFromFileName(fileName);
+        EntityInfo bestMatch = extractEntityFromFileName(fileName);
 
         if (bestMatch == null) {
             return null;
@@ -311,18 +310,18 @@ public abstract class AbstractService {
      * @param fileName path from which to extract entity name
      * @return the SDK-Rest entity, or null if not found
      */
-    protected Entity extractEntityFromFileName(String fileName) {
+    protected EntityInfo extractEntityFromFileName(String fileName) {
         File file = new File(fileName);
 
         String upperCaseFileName = file.getName().toUpperCase();
-        Entity bestMatch = null;
-        for (Entity entity : Entity.values()) {
-            if (upperCaseFileName.startsWith(entity.getUpperCase())) {
+        EntityInfo bestMatch = null;
+        for (EntityInfo entityInfo : EntityInfo.values()) {
+            if (upperCaseFileName.startsWith(entityInfo.getUpperCase())) {
                 if (bestMatch == null) {
-                    bestMatch = entity;
-                } else if (bestMatch.getEntityName().length() < entity.getEntityName().length()) {
+                    bestMatch = entityInfo;
+                } else if (bestMatch.getEntityName().length() < entityInfo.getEntityName().length()) {
                     // longer name is better
-                    bestMatch = entity;
+                    bestMatch = entityInfo;
                 }
             }
         }
@@ -341,9 +340,9 @@ public abstract class AbstractService {
      * @return SDK-REST entity name
      */
     protected String extractEntityNameFromString(String string) {
-        for (Entity entity : Entity.values()) {
-            if (string.equalsIgnoreCase(entity.getEntityName())) {
-                return entity.getEntityName();
+        for (EntityInfo entityInfo : EntityInfo.values()) {
+            if (string.equalsIgnoreCase(entityInfo.getEntityName())) {
+                return entityInfo.getEntityName();
             }
         }
         return null;

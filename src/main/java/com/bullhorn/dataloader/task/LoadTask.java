@@ -1,5 +1,37 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.consts.TaskConsts;
+import com.bullhorn.dataloader.meta.EntityInfo;
+import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.association.AssociationField;
+import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
+import com.bullhornsdk.data.model.entity.core.standard.Note;
+import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
+import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
+import com.bullhornsdk.data.model.entity.embedded.Address;
+import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.google.common.collect.Sets;
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -13,57 +45,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.FileUtils;
-
-import com.bullhorn.dataloader.consts.TaskConsts;
-import com.bullhorn.dataloader.service.Command;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.association.AssociationFactory;
-import com.bullhornsdk.data.model.entity.association.AssociationField;
-import com.bullhornsdk.data.model.entity.association.EntityAssociations;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.Category;
-import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
-import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
-import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
-import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
-import com.bullhornsdk.data.model.entity.core.standard.Lead;
-import com.bullhornsdk.data.model.entity.core.standard.Note;
-import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
-import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
-import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
-import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
-import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
-import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
-import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
-import com.bullhornsdk.data.model.entity.embedded.Address;
-import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.bullhornsdk.data.model.response.crud.CrudResponse;
-import com.google.common.collect.Sets;
-
-public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> extends AbstractTask<B> {
-    static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
-
+public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     protected B entity;
     protected Integer entityID;
-    private Map<String, Method> methodMap;
+    protected Map<String, Method> methodMap;
     private Map<String, Integer> countryNameToIdMap;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
-    private boolean isNewEntity = true;
+    protected boolean isNewEntity = true;
 
     public LoadTask(Command command,
                     Integer rowNumber,
-                    Class entityClass,
+                    EntityInfo entityInfo,
                     LinkedHashMap<String, String> dataMap,
                     Map<String, Method> methodMap,
                     Map<String, Integer> countryNameToIdMap,
@@ -72,13 +65,14 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
                     BullhornData bullhornData,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
-        super(command, rowNumber, entityClass, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
         this.methodMap = methodMap;
         this.countryNameToIdMap = countryNameToIdMap;
     }
 
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();
@@ -126,7 +120,7 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         return "convertedAttachments/" + entityName + "/" + externalID + ".html";
     }
 
-    private Result createResult() {
+    protected Result createResult() {
         if (isNewEntity) {
             return Result.Insert(entityID);
         } else {
@@ -134,7 +128,7 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         }
     }
 
-    private void createEntityObject() throws Exception {
+    protected void createEntityObject() throws Exception {
         List<B> existingEntityList = findEntityList();
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
@@ -151,7 +145,7 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         }
     }
 
-    private void insertOrUpdateEntity() throws IOException {
+    protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             try {
                 CrudResponse response = bullhornData.insertEntity((CreateEntity) entity);
@@ -168,7 +162,7 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         }
     }
 
-    private void handleData() throws InvocationTargetException, IllegalAccessException, ParseException {
+    protected void handleData() throws Exception {
         for (String field : dataMap.keySet()) {
             if (validField(field)) {
                 if (field.contains(".")) {
@@ -183,18 +177,18 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         }
     }
 
-    private boolean validField(String field) {
+    protected boolean validField(String field) {
         if (!isNewEntity) {
             return !"username".equalsIgnoreCase(field);
         }
         return true;
     }
 
-    private void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
+    protected void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
         populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
-    private void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException {
+    protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException, Exception {
         boolean isOneToMany = verifyIfOneToMany(field);
         if (!isOneToMany) {
             handleOneToOne(field);
@@ -219,7 +213,7 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         }
     }
 
-    private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
+    protected B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
         Class fieldType = getFieldType(toOneEntityClass, field, fieldName);
         return findEntity(field, fieldName, toOneEntityClass, fieldType);
     }
@@ -229,18 +223,22 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
         String value = dataMap.get(field);
 
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
-            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass);
+            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass, null);
         } else {
-            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass);
+            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass, null);
         }
 
+        validateListFromRestCall(field, list, value);
+
+        return list.get(0);
+    }
+
+    protected void validateListFromRestCall(String field, List<B> list, String value) {
         if (list == null || list.isEmpty()) {
             throw new RestApiException("Row " + rowNumber + ": Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
         } else if (list.size() > 1) {
             throw new RestApiException("Row " + rowNumber + ": Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
         }
-
-        return list.get(0);
     }
 
     private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
@@ -392,36 +390,7 @@ public class LoadTask<A extends AssociationEntity, B extends BullhornEntity> ext
 
     private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> getWhereStatment(fieldName, n, getFieldType(associationClass, field, fieldName))).collect(Collectors.joining(" OR "));
-    }
-
-    private static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getAssociationFields(Class<AssociationEntity> entityClass) {
-        try {
-            if (entityClassToAssociationsMap.containsKey(entityClass)) {
-                return entityClassToAssociationsMap.get(entityClass);
-            } else {
-                EntityAssociations entityAssociations = getEntityAssociations((Class<AssociationEntity>) entityClass);
-                List<AssociationField<AssociationEntity, BullhornEntity>> associationFields = entityAssociations.allAssociations();
-                entityClassToAssociationsMap.put((Class<AssociationEntity>) entityClass, associationFields);
-                return associationFields;
-            }
-        } catch (Exception e) {
-            return new ArrayList<>();
-        }
-    }
-
-    private static synchronized EntityAssociations getEntityAssociations(Class entityClass) {
-        return (entityClass == Candidate.class ? AssociationFactory.candidateAssociations() :
-            (entityClass == Category.class ? AssociationFactory.categoryAssociations() :
-                (entityClass == ClientContact.class ? AssociationFactory.clientContactAssociations() :
-                    (entityClass == ClientCorporation.class ? AssociationFactory.clientCorporationAssociations() :
-                        (entityClass == CorporateUser.class ? AssociationFactory.corporateUserAssociations() :
-                            (entityClass == JobOrder.class ? AssociationFactory.jobOrderAssociations() :
-                                (entityClass == Note.class ? AssociationFactory.noteAssociations() :
-                                    (entityClass == Placement.class ? AssociationFactory.placementAssociations() :
-                                        (entityClass == Opportunity.class ? AssociationFactory.opportunityAssociations() :
-                                            (entityClass == Lead.class ? AssociationFactory.leadAssociations() :
-                                                entityClass == Tearsheet.class ? AssociationFactory.tearsheetAssociations() : null))))))))));
+        return valueSet.stream().map(n -> getWhereStatement(fieldName, n, getFieldType(associationClass, field, fieldName))).collect(Collectors.joining(" OR "));
     }
 
 }

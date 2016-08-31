@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -7,6 +8,8 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -25,22 +28,23 @@ import java.util.LinkedHashMap;
 /**
  * Responsible for converting a single row from a CSV input file.
  */
-public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class ConvertAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
     public ConvertAttachmentTask(Command command,
                                  Integer rowNumber,
-                                 Class<B> entity,
+                                 EntityInfo entityInfo,
                                  LinkedHashMap<String, String> dataMap,
                                  CsvFileWriter csvWriter,
                                  PropertyFileUtil propertyFileUtil,
                                  BullhornData bullhornData,
                                  PrintUtil printUtil,
                                  ActionTotals actionTotals) {
-        super(command, rowNumber, entity, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
     }
 
     @Override
     public void run() {
+        init();
         Result result;
         try {
             result = handle();

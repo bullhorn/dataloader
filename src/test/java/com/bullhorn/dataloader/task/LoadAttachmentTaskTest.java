@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.beust.jcommander.internal.Lists;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
@@ -102,7 +103,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Insert(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -129,7 +130,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws ExecutionException, IOException {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -157,7 +158,7 @@ public class LoadAttachmentTaskTest {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Insert(0);
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -185,7 +186,7 @@ public class LoadAttachmentTaskTest {
         final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
         PropertyFileUtil propertyFileUtilMock_Empty = Mockito.mock(PropertyFileUtil.class);
         Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornData, printUtilMock, actionTotals);
 
         task.run();
 
@@ -201,7 +202,7 @@ public class LoadAttachmentTaskTest {
         PropertyFileUtil propertyFileUtilMock_Incorrect = Mockito.mock(PropertyFileUtil.class);
         List<String> existFields = Arrays.asList(new String[]{"bogus"});
         Mockito.doReturn(Optional.ofNullable(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornData, printUtilMock, actionTotals);
 
         task.run();
 
@@ -214,7 +215,7 @@ public class LoadAttachmentTaskTest {
     public void updateAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Update(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, Candidate.class, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
 
 
         FileMeta file1 = new StandardFileMeta();

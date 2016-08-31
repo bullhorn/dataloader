@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -27,19 +28,19 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
         }
 
         String filePath = args[1];
-        String entityName = extractEntityNameFromFileName(filePath);
-        if (entityName == null) {
-            throw new IllegalArgumentException("unknown or missing entity");
+        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        if (entityInfo == null) {
+            throw new IllegalArgumentException("unknown or missing entityInfo");
         }
 
         try {
-            printUtil.printAndLog("Deleting " + entityName + " attachments from: " + filePath + "...");
-            ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE_ATTACHMENTS, entityName, filePath);
+            printUtil.printAndLog("Deleting " + entityInfo + " attachments from: " + filePath + "...");
+            ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE_ATTACHMENTS, entityInfo, filePath);
             timer.start();
             concurrencyService.runDeleteAttachmentsProcess();
-            printUtil.printAndLog("Finished deleting " + entityName + " attachments in " + timer.getDurationStringHMS());
+            printUtil.printAndLog("Finished deleting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
         } catch (Exception e) {
-            printUtil.printAndLog("FAILED to delete " + entityName + " attachments");
+            printUtil.printAndLog("FAILED to delete " + entityInfo + " attachments");
             printUtil.printAndLog(e);
         }
     }

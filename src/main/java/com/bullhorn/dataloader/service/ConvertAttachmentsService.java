@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -26,19 +27,19 @@ public class ConvertAttachmentsService extends AbstractService implements Action
         }
 
         String filePath = args[1];
-        String entityName = extractEntityNameFromFileName(filePath);
-        if (entityName == null) {
-            throw new IllegalArgumentException("unknown or missing entity");
+        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        if (entityInfo == null) {
+            throw new IllegalArgumentException("unknown or missing entityInfo");
         }
 
         try {
-            printUtil.printAndLog("Converting " + entityName + " attachments from: " + filePath + "...");
-            ConcurrencyService concurrencyService = createConcurrencyService(Command.CONVERT_ATTACHMENTS, entityName, filePath);
+            printUtil.printAndLog("Converting " + entityInfo + " attachments from: " + filePath + "...");
+            ConcurrencyService concurrencyService = createConcurrencyService(Command.CONVERT_ATTACHMENTS, entityInfo, filePath);
             timer.start();
             concurrencyService.runConvertAttachmentsProcess();
-            printUtil.printAndLog("Finished converting " + entityName + " attachments in " + timer.getDurationStringHMS());
+            printUtil.printAndLog("Finished converting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
         } catch (Exception e) {
-            printUtil.printAndLog("FAILED to convert " + entityName + " attachments");
+            printUtil.printAndLog("FAILED to convert " + entityInfo + " attachments");
             printUtil.printAndLog(e);
         }
     }
