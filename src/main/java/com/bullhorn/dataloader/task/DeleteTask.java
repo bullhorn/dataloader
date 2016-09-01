@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -16,14 +17,18 @@ import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     private static final Logger log = LogManager.getLogger(DeleteTask.class);
-    private Integer entityID;
+    private Integer bullhornID;
 
     public DeleteTask(Command command,
                       Integer rowNumber,
@@ -49,16 +54,31 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         try {
             result = handle();
         } catch (Exception e) {
-            result = handleFailure(e, entityID);
+            result = handleFailure(e, bullhornID);
         }
         writeToResultCSV(result);
     }
 
-    private <D extends DeleteEntity> Result handle() {
-        entityID = Integer.parseInt(dataMap.get("id"));
-        CrudResponse response = bullhornData.deleteEntity((Class<D>) entityClass, entityID);
+    private <D extends DeleteEntity> Result handle() throws IOException {
+        // TODO: Throw error from DeleteService if ID column is not present
+        bullhornID = Integer.parseInt(dataMap.get(ID));
+
+        if (isEntitySoftDeleted(bullhornID)) {
+            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityClass.getSimpleName() +
+                " record with ID: " + bullhornID + " has already been soft deleted.");
+        }
+
+        CrudResponse response = bullhornData.deleteEntity((Class<D>) entityClass, bullhornID);
         checkForRestSdkErrorMessages(response);
-        return Result.Delete(entityID);
+        return Result.Delete(bullhornID);
     }
 
+    private Boolean isEntitySoftDeleted(Integer bullhornID) throws IOException {
+        Map<String, String> softDeletedExistFieldsMap = new HashMap<>();
+        softDeletedExistFieldsMap.put(ID, bullhornID.toString());
+        softDeletedExistFieldsMap.put("isDeleted", "1");
+
+        List<B> existingEntityList = findEntityList(softDeletedExistFieldsMap);
+        return !existingEntityList.isEmpty();
+    }
 }

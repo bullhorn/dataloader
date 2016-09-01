@@ -155,7 +155,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
             return field + ":" + value;
         } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
@@ -164,9 +164,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    protected List<B> findEntityList() throws IOException {
-        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
-
+    protected List<B> findEntityList(Map<String, String> entityExistFieldsMap) throws IOException {
         if (!entityExistFieldsMap.isEmpty()) {
             if (SearchEntity.class.isAssignableFrom(entityClass)) {
                 return searchForEntity(entityExistFieldsMap);
