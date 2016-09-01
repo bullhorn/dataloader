@@ -17,6 +17,7 @@ import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
+import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.junit.Assert;
 import org.junit.Before;
@@ -118,6 +119,19 @@ public class DeleteTaskTest {
         task.run();
 
         verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+    }
+
+    @Test
+    public void run_AlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.PLACEMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(bullhornDataMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(new PlacementListWrapper());
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
     }
