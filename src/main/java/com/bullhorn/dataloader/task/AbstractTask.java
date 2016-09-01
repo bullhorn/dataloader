@@ -187,7 +187,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getWhereStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
             return field + "=" + value;
         } else if (String.class.equals(fieldType)) {
             return field + "='" + value + "'";
