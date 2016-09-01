@@ -164,7 +164,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    protected List<B> findEntityList(Map<String, String> entityExistFieldsMap) throws IOException {
+    protected List<B> findEntityList(Map<String, String> entityExistFieldsMap) {
         if (!entityExistFieldsMap.isEmpty()) {
             if (SearchEntity.class.isAssignableFrom(entityClass)) {
                 return searchForEntity(entityExistFieldsMap);
