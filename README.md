@@ -54,7 +54,7 @@ Edit the file: `dataloader.properties` to specify the login credentials, data co
 dataloader template <EntityName>
 ```
 
-This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc).
+This will generate the file: `<EntityName>Example.csv` in the current directory. This file will contain all of the available fields in the entity record as columns in the CSV. The first row of data will contain the data type (string, integer, etc). The first row data must be replaced with the data of the first record. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#template)
 
 ## Load
 
