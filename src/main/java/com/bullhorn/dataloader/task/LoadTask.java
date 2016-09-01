@@ -287,7 +287,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                     bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
                 }
             } catch (RestApiException e) {
-                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName() + " " + entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")) {
+                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName()) && !e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")) {
                     throw e;
                 }
             }

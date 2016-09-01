@@ -296,7 +296,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             actionTotals);
         final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
-        expectedDataMap.put("action", "INSERT");
+        expectedDataMap.put(CsvFileWriter.ACTION_COLUMN, "INSERT");
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
