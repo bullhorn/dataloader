@@ -77,8 +77,7 @@ public class TemplateUtil<B extends BullhornEntity> {
 
     private HashSet<String> getEntityFields(String entity) throws ClassNotFoundException {
         final HashSet<String> methodSet = new HashSet<>();
-        final ClassLoader classLoader = getClass().getClassLoader();
-        final Class entityClass = classLoader.loadClass("com.bullhornsdk.data.model.entity.core.standard." + entity);
+        final Class entityClass = BullhornEntityInfo.getTypeFromName(entity).getType();
 
         for (Method method : Arrays.asList(entityClass.getMethods())){
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
