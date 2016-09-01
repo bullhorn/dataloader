@@ -128,8 +128,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected void createEntityObject() throws Exception {
-        List<B> existingEntityList = findEntityList();
+    protected void createEntityObject() throws IOException, IllegalAccessException, InstantiationException {
+        Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
+        List<B> existingEntityList = findEntityList(entityExistFieldsMap);
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
                 throw new RestApiException("Row " + rowNumber + ": Cannot Perform Update - Multiple Records Exist. Found " +
