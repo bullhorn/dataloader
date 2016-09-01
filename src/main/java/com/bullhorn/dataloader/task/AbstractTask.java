@@ -187,14 +187,24 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getWhereStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
+        } else if (Boolean.class.equals(fieldType)) {
+            return field + "=" + getBooleanWhereStatement(value);
         } else if (String.class.equals(fieldType)) {
             return field + "='" + value + "'";
         } else if (DateTime.class.equals(fieldType)) {
             return field + "=" + getDateQuery(value);
         } else {
             throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
+        }
+    }
+
+    protected String getBooleanWhereStatement(String value) {
+        if (value.equals("1")) {
+            return "true";
+        } else {
+            return Boolean.toString(Boolean.valueOf(value));
         }
     }
 
@@ -282,9 +292,11 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    protected void checkForRequiredFieldsError(Exception e) {
+    protected void checkForRequiredFieldsError(RestApiException e) {
         if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
             throw new RestApiException("Missing required fields for " + entityClass.getSimpleName() + ".");
+        } else {
+            throw e;
         }
     }
 

@@ -81,7 +81,7 @@ public class DeleteTaskTest {
     public void run_Success_Appointment() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
         task = new DeleteTask(Command.DELETE, 1, EntityInfo.APPOINTMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
-        when(bullhornDataMock.query(eq(Appointment.class), eq("isDeleted=1 AND id=1"), any(), any())).thenReturn(new AppointmentListWrapper());
+        when(bullhornDataMock.query(eq(Appointment.class), eq("isDeleted=true AND id=1"), any(), any())).thenReturn(new AppointmentListWrapper());
         when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -141,6 +141,21 @@ public class DeleteTaskTest {
         verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+    }
+
+    @Test
+    public void getBooleanWhereStatement() throws IOException {
+        String falseString = "false";
+        String trueString = "true";
+        String oneString = "1";
+        String twoString = "2";
+
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+
+        Assert.assertEquals("false", task.getBooleanWhereStatement(falseString));
+        Assert.assertEquals("true", task.getBooleanWhereStatement(trueString));
+        Assert.assertEquals("true", task.getBooleanWhereStatement(oneString));
+        Assert.assertEquals("false", task.getBooleanWhereStatement(twoString));
     }
 
     public <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {
