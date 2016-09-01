@@ -108,11 +108,10 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_NullFailure() throws IOException {
-        dataMap = new LinkedHashMap<String, String>();
-
+    public void run_IdColumnFailure() throws IOException {
+        dataMap.clear();
         task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NumberFormatException: null");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Cannot Perform Delete: missing 'id' column.");
 
         task.run();
 

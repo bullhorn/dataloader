@@ -60,7 +60,10 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
     }
 
     private <D extends DeleteEntity> Result handle() throws IOException {
-        // TODO: Throw error from DeleteService if ID column is not present
+        if (!dataMap.containsKey(ID)) {
+            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + ID + "' column.");
+        }
+
         bullhornID = Integer.parseInt(dataMap.get(ID));
 
         if (isEntitySoftDeleted(bullhornID)) {
