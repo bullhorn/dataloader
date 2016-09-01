@@ -136,7 +136,7 @@ public class TemplateUtilTest {
         Assert.assertTrue(result);
     }
 
-    @Test(expected=ClassNotFoundException.class)
+    @Test(expected=IllegalArgumentException.class)
     public void testPopulateDataTypesIncorrectEntity() throws ClassNotFoundException, IOException {
         final String entity = "Cornidate";
         templateUtil.populateDataTypes(entity, metaFieldSet, headers, dataTypes);
