@@ -149,10 +149,10 @@ public abstract class AbstractService {
     /**
      * Given a file or directory, this method will determine all valid CSV files that can be used by DataLoader and
      * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
-     * argument, this lits will be either empty or contain exactly one matching entity to filename.
+     * argument, this list will be either empty or contain exactly one matching entity to filename.
      *
      * @param filePath   any file or directory
-     * @param comparator specifies how the sorted list should be sorted
+     * @param comparator specifies how the sorted map should be sorted by entity
      * @return a Map of entity enums to lists of valid files.
      */
     protected SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, Comparator<EntityInfo> comparator) {
@@ -165,12 +165,15 @@ public abstract class AbstractService {
     }
 
     /**
-     * Given a directory, this method searches the directory for all valid CSV files and returns the map
+     * Given a directory, this method searches the directory for all valid CSV files and returns the map.
+     * Multiple files for a single entity will be sorted alphabetically.
      */
     private SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
-        for (String fileName : directory.list()) {
+        String[] fileNames = directory.list();
+        Arrays.sort(fileNames);
+        for (String fileName : fileNames) {
             String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
             if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
                 EntityInfo entityInfo = extractEntityFromFileName(fileName);

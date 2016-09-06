@@ -2,7 +2,9 @@ package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.Result;
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.io.PrintStream;
@@ -53,11 +55,16 @@ public class PrintUtilTest {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
         final Integer total = 0;
+        final String[] args = {"load", "candidate.csv"};
         Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
 
+        printUtil.recordStart(args);
         printUtil.printActionTotals(Command.LOAD, totals);
 
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Matchers.startsWith("End time: "));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Args: load candidate.csv");
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records inserted: " + totals.getActionTotal(Result.Action.INSERT));
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records updated: " + totals.getActionTotal(Result.Action.UPDATE));
@@ -70,15 +77,34 @@ public class PrintUtilTest {
         final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
         final Integer total = 0;
+        final String[] args = {"convertAttachments", "candidateAttachFile.csv"};
         Mockito.doNothing().when(printUtil).printAndLog(Mockito.anyString());
 
+        printUtil.recordStart(args);
         printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
 
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Results of DataLoader run");
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog(Matchers.startsWith("End time: "));
+        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Args: convertAttachments candidateAttachFile.csv");
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records processed: " + total);
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records converted: " + totals.getActionTotal(Result.Action.CONVERT));
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records skipped: " + totals.getActionTotal(Result.Action.SKIP));
         Mockito.verify(printUtil, Mockito.times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
+    }
+
+    @Test
+    public void testPrintActionTotals_noRecordStart() {
+        final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+
+        try {
+            printUtil.printActionTotals(Command.LOAD, totals);
+            Assert.fail("Excepted Exception");
+        } catch (IllegalStateException e) {
+            Assert.assertEquals("recordStart() not called", e.getMessage());
+        }
+
     }
 
     @Test
