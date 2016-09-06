@@ -17,7 +17,7 @@ import java.util.Date;
  */
 public class PrintUtil {
 
-    private final DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD kk:mm:ss.SSS");
+    private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Logger log = LogManager.getLogger(PrintUtil.class);
     private String[] args = null;
     private Date startTime = null;
