@@ -8,6 +8,9 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Methods that provide feedback to the user on the command line.
@@ -15,6 +18,15 @@ import java.io.StringWriter;
 public class PrintUtil {
 
     private Logger log = LogManager.getLogger(PrintUtil.class);
+    
+    private String[] args = null;
+    private Date startTime = null;
+    private final DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD kk:mm:ss.SSS");
+    
+    public void recordStart(String[] args) {
+    	this.args = args;
+    	this.startTime = new Date();
+    }
 
     public void printUsage() {
         print("");
@@ -52,9 +64,16 @@ public class PrintUtil {
     }
 
     public void printActionTotals(Command command, ActionTotals actionTotals) {
+    	if (startTime == null || args == null) {
+    		throw new IllegalStateException("recordStart() not called");
+    	}
+    	final Date endTime = new Date();
         final Integer totalRecords = actionTotals.getAllActionsTotal();
 
         printAndLog("Results of DataLoader run");
+        printAndLog("Start time: " + dateFormat.format(startTime));
+        printAndLog("End time: " + dateFormat.format(endTime));
+        printAndLog("Args: " + String.join(" ", args));
         printAndLog("Total records processed: " + totalRecords);
         if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             printAndLog("Total records converted: " + actionTotals.getActionTotal(Result.Action.CONVERT));

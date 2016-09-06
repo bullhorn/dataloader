@@ -81,7 +81,8 @@ public class LoadServiceTest {
 
         Mockito.verify(concurrencyServiceMock, Mockito.times(2)).runLoadProcess();
         Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity2.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity1.csv");
     }
 
     @Test

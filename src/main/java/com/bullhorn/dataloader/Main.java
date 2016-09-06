@@ -28,6 +28,8 @@ public class Main {
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, System.in);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
+            
+            printUtil.recordStart(args);
             commandLineInterface.start(args);
         } catch (Exception e) {
             printUtil.printAndLog(e);
