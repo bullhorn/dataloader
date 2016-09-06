@@ -6,6 +6,7 @@ import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.MetaParameter;
+import com.bullhornsdk.data.util.ReadOnly;
 import com.csvreader.CsvWriter;
 import com.google.common.collect.Sets;
 
@@ -54,7 +55,6 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
-
         final HashSet<String> methodSet = getEntityFields(entity);
 
         for (Field field : metaFieldSet) {
@@ -80,7 +80,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         final Class entityClass = BullhornEntityInfo.getTypeFromName(entity).getType();
 
         for (Method method : Arrays.asList(entityClass.getMethods())){
-            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
+            if ("set".equalsIgnoreCase(method.getName().substring(0, 3)) && !method.isAnnotationPresent(ReadOnly.class)) {
                 methodSet.add(method.getName().substring(3).toLowerCase());
             }
         }
