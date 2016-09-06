@@ -67,7 +67,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_directory_twoFilesSameEntity() throws Exception {
+    public void testRun_directory_fourFilesSameEntity() throws Exception {
         inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
         loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
@@ -79,10 +79,12 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(2)).runLoadProcess();
-        Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity2.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity1.csv");
+        Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
+        Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   3. Opportunity records from OpportunityA.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   4. Opportunity records from OpportunityB.csv");
     }
 
     @Test
@@ -101,6 +103,9 @@ public class LoadServiceTest {
         Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
         Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   3. Candidate records from Candidate_Valid_File.csv");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   4. CandidateWorkHistory records from CandidateWorkHistory.csv");
     }
 
     @Test
