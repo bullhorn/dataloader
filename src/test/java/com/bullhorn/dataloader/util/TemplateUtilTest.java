@@ -60,6 +60,10 @@ public class TemplateUtilTest {
         fax.setType(null);
         fax.setDataType(null);
 
+        Field childClientCorporations = new Field();
+        childClientCorporations.setName("childClientCorporations");
+        childClientCorporations.setType("TO_MANY");
+
         Field clientContacts = new Field();
         clientContacts.setName("clientContacts");
         clientContacts.setType("TO_MANY");
@@ -69,7 +73,7 @@ public class TemplateUtilTest {
         department.setType("TO_ONE");
 
         metaFieldSet.add(department);
-        metaFieldSet.add(clientContacts);
+        metaFieldSet.add(childClientCorporations);
         metaFieldSet.add(fax);
         metaFieldSet.add(addressField);
         metaFieldSet.add(clientCorporationField);
@@ -154,9 +158,15 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void testIsToMany() throws ClassNotFoundException, IOException {
+    public void testIsToManyNonReadOnly() throws ClassNotFoundException, IOException {
         templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
-        Assert.assertTrue(headers.contains("clientContacts.id"));
+        Assert.assertTrue(headers.contains("childClientCorporations.id"));
+    }
+
+    @Test
+    public void testIsToManyReadOnly() throws ClassNotFoundException, IOException {
+        templateUtil.populateDataTypes("ClientCorporation", metaFieldSet, headers, dataTypes);
+        Assert.assertFalse(headers.contains("clientContact.id"));
     }
 
     @Test
