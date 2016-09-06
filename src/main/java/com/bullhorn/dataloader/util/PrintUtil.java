@@ -17,15 +17,14 @@ import java.util.Date;
  */
 public class PrintUtil {
 
+    private final DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD kk:mm:ss.SSS");
     private Logger log = LogManager.getLogger(PrintUtil.class);
-    
     private String[] args = null;
     private Date startTime = null;
-    private final DateFormat dateFormat = new SimpleDateFormat("YYYY-MM-DD kk:mm:ss.SSS");
-    
+
     public void recordStart(String[] args) {
-    	this.args = args;
-    	this.startTime = new Date();
+        this.args = args;
+        this.startTime = new Date();
     }
 
     public void printUsage() {
@@ -64,10 +63,10 @@ public class PrintUtil {
     }
 
     public void printActionTotals(Command command, ActionTotals actionTotals) {
-    	if (startTime == null || args == null) {
-    		throw new IllegalStateException("recordStart() not called");
-    	}
-    	final Date endTime = new Date();
+        if (startTime == null || args == null) {
+            throw new IllegalStateException("recordStart() not called");
+        }
+        final Date endTime = new Date();
         final Integer totalRecords = actionTotals.getAllActionsTotal();
 
         printAndLog("Results of DataLoader run");
