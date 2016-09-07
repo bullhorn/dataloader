@@ -12,6 +12,7 @@ import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.CandidateEducation;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
@@ -430,6 +431,67 @@ public class LoadTaskTest {
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
         Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+    }
+
+    @Test
+    public void run_invalidAddressField() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("city", "Failville");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid address field format: 'city' Must use 'address.city' in csv header");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+    }
+
+    @Test
+    public void run_validAddressField() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.clear();
+        dataMap.put("id", "1");
+        dataMap.put("city", "Successville");
+
+        List<String> idExistField = Arrays.asList(new String[]{"id"});
+        Mockito.doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("CandidateEducation");
+
+        methodMap = concurrencyService.createMethodMap(CandidateEducation.class);
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_EDUCATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        when(bullhornDataMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CandidateEducation.class));
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
     }
 

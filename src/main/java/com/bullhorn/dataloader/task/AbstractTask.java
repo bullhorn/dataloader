@@ -313,8 +313,9 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         if (method == null) {
             throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
-        if (isAddressField(field)) {
-            throw new RestApiException("Row " + rowNumber + ": Invalid address set up: '" + field + "' Must use 'address." + field + "' in csv header" );
+
+        if (isAddressField(field) && methodMap.containsKey("address")) {
+            throw new RestApiException("Row " + rowNumber + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
         }
 
         if (value != null && !"".equalsIgnoreCase(value)) {
