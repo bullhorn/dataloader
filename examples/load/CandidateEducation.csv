@@ -1,2 +1,2 @@
-candidate.externalID,comments,school,gpa,degree
-candidate-ext-1,Test candidate education,UCLA,4.0,BS
+candidate.externalID,startDate,endDate,graduationDate,school,city,state,certification,degree,major,expirationDate,gpa,comments,customDate1,customDate2,customDate3,customDate4,customDate5,customFloat1,customFloat2,customFloat3,customFloat4,customFloat5,customInt1,customInt2,customInt3,customInt4,customInt5,customText1,customText2,customText3,customText4,customText5,customTextBlock1,customTextBlock2,customTextBlock3,migrateGUID
+candidate-ext-1,08/14/00 12:00,12/14/04 12:00,12/14/04 12:00,UCLA,Berkeley,CA,Engineering Certification,BA,CompSci,01/01/99 00:00,4.0,DataLoader Example CandidateEducation,01/01/01 00:00,02/02/02 00:00,03/03/03 00:00,04/04/04 00:00,05/05/05 00:00,1.1,2.2,3.3,4.4,5.5,1,2,3,4,5,candidateEducation-ext-1,customText2,customText3,customText4,customText5,customTextBlock1,customTextBlock2,customTextBlock3,141eba12-b86d-4f39-afc5-a36b43411b37
