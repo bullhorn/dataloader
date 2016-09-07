@@ -18,8 +18,8 @@ public class CsvFileWriter {
 
     public static final String RESULTS_DIR = "results/";
     public static final String BULLHORN_ID_COLUMN = "id";
-    public static final String ACTION_COLUMN = "action";
-    public static final String REASON_COLUMN = "reason";
+    public static final String ACTION_COLUMN = "dataloader_action";
+    public static final String REASON_COLUMN = "failure_reason";
     public static final String SUCCESS_CSV = "_success.csv";
     public static final String FAILURE_CSV = "_failure.csv";
 
