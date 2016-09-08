@@ -1,4 +1,8 @@
-These example CSV files reference several reference only entities that must exist in the system already for these examples to load. Here is the list:
+## Examples Directory
+
+### Prerequisites
+
+These example CSV files reference several reference only entities that must exist in the CRM Corp already for these examples to load. Here is the list:
 
 * CorporateUser
     * Recruiter CorporateUser
@@ -19,3 +23,16 @@ These example CSV files reference several reference only entities that must exis
 * Certification
     * Certification1
     * Certification2
+
+### About These Example Files
+
+The maximal number of fields have been filled out in these examples, for as many entities as can be loaded. These files are as interconnected as possible, making use of as many association fields as possible. The `externalID` field is used if present, otherwise `customText1` is used to denote the external unique identifier for data that is being loaded. These are the same default exist fields that are used in section 3 of the `dataloader.properties` file, so that updating instead of inserting using these example files requires simply uncommenting the commented out exist fields in the properties file.  
+
+### Integration Test 
+
+To perform a manual integration test (testing the integration between the DataLoader and the actual Rest API), do the following:
+
+ 1. Do a find/replace in the entire `examples` folder to replace the text: `-ext-1` with `-ext-<some unique number>`. This will ensure that all files will load and properly reference each other without conflicting. If run multiple times with the same external ids, the associations will fail because of the duplicates that exist.
+ 2. Load from directory: `dataloader load examples/load`
+ 3. Ensure that there are no errors and all entities have loaded successfully
+ 4. Delete all of the loaded records using the results files: `dataloader delete results`
