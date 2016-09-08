@@ -1,2 +1,2 @@
-subject,candidate.externalID,description
-Test DL Task,candidate-ext-1,Test Task Description
+candidate.externalID,clientContact.externalID,dateAdded,dateBegin,dateCompleted,dateEnd,description,isCompleted,isDeleted,isPrivate,isSystemTask,jobOrder.externalID,lead.customText1,migrateGUID,notificationMinutes,opportunity.externalID,owner.id,placement.customText1,priority,recurrenceDayBits,recurrenceFrequency,recurrenceMax,recurrenceMonthBits,recurrenceStyle,recurrenceType,subject,taskUUID,timeZoneID,type
+candidate-ext-1,clientContact-ext-1,9/8/2016 12:00,9/8/2016 12:00,9/8/2016 14:00,9/8/2016 12:00,This is a Task description.,TRUE,FALSE,FALSE,FALSE,jobOrder-ext-1,lead-ext-1,aa276926-150d-45a9-a1d6-b4996b78e8c8,15,opportunity-ext-1,2,placement-ext-1,1,5,5,5,5,Monthly,1,This is a Task subject.,d7205991-9b8a-4850-b3f1-f4f915f87e8a,America/Chicago,Call
