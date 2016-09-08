@@ -1,0 +1,2 @@
+name,description,candidates.externalID,clientContacts.externalID,jobOrders.externalID,owner.name
+DataLoader Example Tearsheet,DataLoader Example Description,candidate-ext-1,clientContact-ext-1,jobOrder-ext-1,Recruiter CorporateUser
