@@ -41,7 +41,7 @@ public class CsvFileWriterTest {
         FileReader fileReader = new FileReader(successFile);
         CsvReader csvReader = new CsvReader(fileReader);
         csvReader.readHeaders();
-        String[] expectedHeaders = new String[]{"id", "action", "name", "quest", "favoriteColor"};
+        String[] expectedHeaders = new String[]{"id", "dataloader_action", "name", "quest", "favoriteColor"};
         String[] actualHeaders = csvReader.getHeaders();
         Assert.assertArrayEquals(expectedHeaders, actualHeaders);
 
@@ -62,7 +62,7 @@ public class CsvFileWriterTest {
         FileReader fileReader = new FileReader(failureFile);
         CsvReader csvReader = new CsvReader(fileReader);
         csvReader.readHeaders();
-        String[] expectedHeaders = new String[]{"reason", "name", "quest", "favoriteColor"};
+        String[] expectedHeaders = new String[]{"failure_reason", "name", "quest", "favoriteColor"};
         String[] actualHeaders = csvReader.getHeaders();
         Assert.assertArrayEquals(expectedHeaders, actualHeaders);
 
