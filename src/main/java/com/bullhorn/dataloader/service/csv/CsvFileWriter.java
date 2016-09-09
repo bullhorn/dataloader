@@ -23,11 +23,13 @@ public class CsvFileWriter {
     public static final String SUCCESS_CSV = "_success.csv";
     public static final String FAILURE_CSV = "_failure.csv";
 
-    private CsvWriter successCsv;
-    private CsvWriter failureCsv;
+    final private Command command;
+    final private String[] headers;
+    final private String successFilePath;
+    final private String failureFilePath;
 
-    private FileWriter successFileWriter;
-    private FileWriter failureFileWriter;
+    private CsvWriter successCsv = null;
+    private CsvWriter failureCsv = null;
 
     /**
      * Error/Success CSV files are placed in a results folder in the current working directory. They are named
@@ -38,44 +40,20 @@ public class CsvFileWriter {
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_failure.csv
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_success.csv
      *
-     * @param command
-     * @param filePath The full path to the EntityInfo file to read in
+     * @param command  The Command object to execute during this run
+     * @param filePath The full path to the Entity file to read in
      * @param headers  The headers read in from the input CSV file
      */
     public CsvFileWriter(Command command, String filePath, String[] headers) throws IOException {
+        this.command = command;
+        this.headers = headers;
+
         String baseName = FilenameUtils.getBaseName(filePath);
+        successFilePath = RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + SUCCESS_CSV;
+        failureFilePath = RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + FAILURE_CSV;
 
-        // Create files, and create directory if it does not exist
-        File successFile = new File(RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + SUCCESS_CSV);
-        File failureFile = new File(RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + FAILURE_CSV);
-        successFile.getParentFile().mkdirs();
-        failureFile.getParentFile().mkdirs();
-
-        // Configure writers
-        successFileWriter = new FileWriter(successFile);
-        failureFileWriter = new FileWriter(failureFile);
-        successCsv = new CsvWriter(successFileWriter, ',');
-        failureCsv = new CsvWriter(failureFileWriter, ',');
-
-        // Write headers to the files, adding our own custom columns, if they do not already exist.
-        createCSVHeaders(headers, command);
-
-        successCsv.flush();
-        failureCsv.flush();
-    }
-
-    protected void createCSVHeaders(String[] headers, Command command) throws IOException {
-        if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            headers = ArrayUtil.append(TaskConsts.PARENT_ENTITY_ID, headers);
-            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
-                ArrayUtil.prepend(ACTION_COLUMN, headers)));
-        } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-            successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
-        } else {
-            successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN,
-                ArrayUtil.prepend(ACTION_COLUMN, headers)));
-        }
-        failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+        File resultsDir = new File(RESULTS_DIR);
+        resultsDir.mkdirs();
     }
 
     /**
@@ -88,16 +66,45 @@ public class CsvFileWriter {
      */
     public synchronized void writeRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {
+            CsvWriter csvWriter = getOrCreateSuccessCsvWriter();
             if (result.getBullhornId() > -1) {
-                successCsv.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
+                csvWriter.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
                     ArrayUtil.prepend(result.getAction().toString(), data)));
             } else {
-                successCsv.writeRecord(ArrayUtil.prepend(result.getAction().toString(), data));
+                csvWriter.writeRecord(ArrayUtil.prepend(result.getAction().toString(), data));
             }
-            successCsv.flush();
+            csvWriter.flush();
         } else {
-            failureCsv.writeRecord(ArrayUtil.prepend(result.getFailureText(), data));
-            failureCsv.flush();
+            CsvWriter csvWriter = getOrCreateFailureCsvWriter();
+            csvWriter.writeRecord(ArrayUtil.prepend(result.getFailureText(), data));
+            csvWriter.flush();
         }
+    }
+
+    private CsvWriter getOrCreateSuccessCsvWriter() throws IOException {
+        if (successCsv == null) {
+            FileWriter fileWriter = new FileWriter(successFilePath);
+            successCsv = new CsvWriter(fileWriter, ',');
+
+            if (command.equals(Command.LOAD_ATTACHMENTS)) {
+                String[] successHeaders = ArrayUtil.append(headers, TaskConsts.PARENT_ENTITY_ID);
+                successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, ArrayUtil.prepend(ACTION_COLUMN, successHeaders)));
+            } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
+                successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
+            } else {
+                successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, ArrayUtil.prepend(ACTION_COLUMN, headers)));
+            }
+        }
+
+        return successCsv;
+    }
+
+    private CsvWriter getOrCreateFailureCsvWriter() throws IOException {if (failureCsv == null) {
+            FileWriter fileWriter = new FileWriter(failureFilePath);
+            failureCsv = new CsvWriter(fileWriter, ',');
+            failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+        }
+
+        return failureCsv;
     }
 }

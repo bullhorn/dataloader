@@ -23,7 +23,7 @@ public class ArrayUtilTest {
     @Test
     public void testAppend() throws IOException {
         final String[] original = new String[]{"a", "b", "c"};
-        final String[] actual = ArrayUtil.append("x", original);
+        final String[] actual = ArrayUtil.append(original, "x");
 
         Assert.assertEquals(actual.length, 4);
         Assert.assertEquals(actual[0], "a");

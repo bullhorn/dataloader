@@ -22,11 +22,11 @@ public class ArrayUtil {
     /**
      * Appends an element to a String array
      *
-     * @param lastElement   The first element to add to the new array
      * @param originalArray The original array
+     * @param lastElement   The first element to add to the new array
      * @return A copy of the original array with a preceeding first element
      */
-    public static String[] append(String lastElement, String[] originalArray) {
+    public static String[] append(String[] originalArray, String lastElement) {
         String[] newArray = new String[originalArray.length + 1];
         newArray[originalArray.length] = lastElement;
         System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
