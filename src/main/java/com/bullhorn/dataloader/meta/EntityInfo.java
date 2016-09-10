@@ -20,8 +20,8 @@ public enum EntityInfo {
     CERTIFICATION(false, BullhornEntityInfo.CERTIFICATION, 0),
     CLIENT_CONTACT(true, BullhornEntityInfo.CLIENT_CONTACT, 2),
     CLIENT_CORPORATION(true, BullhornEntityInfo.CLIENT_CORPORATION, 1),
-    CORPORATION_DEPARTMENT(false, BullhornEntityInfo.CORPORATION_DEPARTMENT, 0),
     CORPORATE_USER(false, BullhornEntityInfo.CORPORATE_USER, 0),
+    CORPORATION_DEPARTMENT(false, BullhornEntityInfo.CORPORATION_DEPARTMENT, 0),
     COUNTRY(false, BullhornEntityInfo.COUNTRY, 0),
     HOUSING_COMPLEX(true, BullhornEntityInfo.HOUSING_COMPLEX, 13),
     JOB_ORDER(true, BullhornEntityInfo.JOB_ORDER, 6),
@@ -139,7 +139,7 @@ public enum EntityInfo {
     }
 
     /**
-     * @return true if this entity is modifiable by DataLoaser
+     * @return true if this entity is modifiable by DataLoader
      */
     public boolean isModifiable() {
         return this.modifiable;

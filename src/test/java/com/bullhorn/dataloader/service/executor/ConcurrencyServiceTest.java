@@ -1,25 +1,5 @@
 package com.bullhorn.dataloader.service.executor;
 
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
-import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;
@@ -30,6 +10,7 @@ import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
@@ -39,11 +20,27 @@ import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.response.list.CountryListWrapper;
 import com.csvreader.CsvReader;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ConcurrencyServiceTest <T extends AbstractTask>  {
 
