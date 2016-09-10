@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -8,6 +7,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
@@ -55,7 +55,7 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
     }
 
     private <F extends FileEntity> FileApiResponse deleteFile() {
-        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(TaskConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(TaskConsts.ID)));
+        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
     }
 
 }

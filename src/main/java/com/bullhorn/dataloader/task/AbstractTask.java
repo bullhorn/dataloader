@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -8,6 +7,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -59,7 +59,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable, TaskConsts {
+public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
     static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
 
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
@@ -100,7 +100,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected void addParentEntityIDtoDataMap() {
-        dataMap.put(TaskConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
+        dataMap.put(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
     protected void writeToResultCSV(Result result) {

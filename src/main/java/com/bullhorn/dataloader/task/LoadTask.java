@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -8,6 +7,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -104,10 +104,10 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected String getDescriptionMethod() {
-        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(TaskConsts.DESCRIPTION)).collect(Collectors.toList());
+        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(StringConsts.DESCRIPTION)).collect(Collectors.toList());
         if (descriptionMethods.size() > 0) {
-            if (descriptionMethods.indexOf(TaskConsts.DESCRIPTION) > -1) {
-                return TaskConsts.DESCRIPTION;
+            if (descriptionMethods.indexOf(StringConsts.DESCRIPTION) > -1) {
+                return StringConsts.DESCRIPTION;
             } else {
                 return descriptionMethods.get(0);
             }
