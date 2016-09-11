@@ -15,6 +15,8 @@ public class StringConsts {
     public static final String PROPERTYFILE_ARG = "propertyfile";
     public static final String RELATIVE_FILE_PATH = "relativeFilePath";
     public static final String TIMESTAMP = DateUtil.getTimestamp();
+    public static final String TO_ONE = "TO_ONE";
+    public static final String TO_MANY = "TO_MANY";
 
     private StringConsts() {}
 }

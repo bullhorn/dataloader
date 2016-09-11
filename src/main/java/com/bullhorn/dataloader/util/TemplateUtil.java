@@ -60,7 +60,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         for (Field field : metaFieldSet) {
             if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
                 if (!isCompositeType(field)) {
-                    if(AssociationFilter.isToMany(field.getType()) || AssociationFilter.isToOne(field.getType())) {
+                    if (StringConsts.TO_MANY.equalsIgnoreCase(field.getType()) || StringConsts.TO_ONE.equalsIgnoreCase(field.getType())) {
                         field.setName(field.getName() + ".id");
                         field.setDataType("Integer");
                     }
@@ -79,7 +79,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         final HashSet<String> methodSet = new HashSet<>();
         final Class entityClass = BullhornEntityInfo.getTypeFromName(entity).getType();
 
-        for (Method method : Arrays.asList(entityClass.getMethods())){
+        for (Method method : Arrays.asList(entityClass.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3)) && !method.isAnnotationPresent(ReadOnly.class)) {
                 methodSet.add(method.getName().substring(3).toLowerCase());
             }
