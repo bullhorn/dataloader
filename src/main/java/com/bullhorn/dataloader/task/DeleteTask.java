@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -61,11 +62,11 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
     }
 
     private <D extends DeleteEntity> Result handle() throws IOException {
-        if (!dataMap.containsKey(ID)) {
-            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + ID + "' column.");
+        if (!dataMap.containsKey(StringConsts.ID)) {
+            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        bullhornID = Integer.parseInt(dataMap.get(ID));
+        bullhornID = Integer.parseInt(dataMap.get(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
             throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityClass.getSimpleName() +
@@ -85,7 +86,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
      */
     private Boolean isEntityDeletable(Integer bullhornID) throws IOException {
         Map<String, String> existFieldsMap = new HashMap<>();
-        existFieldsMap.put(ID, bullhornID.toString());
+        existFieldsMap.put(StringConsts.ID, bullhornID.toString());
 
         if (EntityValidation.isSoftDeletable(entityInfo.getEntityName())) {
             existFieldsMap.put("isDeleted", "0");

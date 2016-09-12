@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
@@ -102,7 +103,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
 
         AutoDetectParser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
-        InputStream stream = new FileInputStream(dataMap.get(RELATIVE_FILE_PATH));
+        InputStream stream = new FileInputStream(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
         parser.parse(stream, handler, metadata);
         return handler.toString();
     }

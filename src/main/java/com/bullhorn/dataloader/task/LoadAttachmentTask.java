@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -8,6 +7,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
@@ -89,8 +89,8 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
-        if (properties.contains(getEntityAssociatedPropertyName(TaskConsts.ID))) {
-             bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(TaskConsts.ID)));
+        if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
+             bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(StringConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
@@ -118,8 +118,8 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         List<FileMeta> allFileMetas = bullhornData.getFileMetaData((Class<F>) entityClass, bullhornParentId);
 
         for (FileMeta curFileMeta : allFileMetas) {
-            if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(TaskConsts.ID))
-                || curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(TaskConsts.EXTERNAL_ID))
+            if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(StringConsts.ID))
+                || curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(StringConsts.EXTERNAL_ID))
                 ) {
                 isNewEntity = false;
                 fileMeta = curFileMeta;
@@ -129,16 +129,16 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     private <F extends FileEntity> void populateFileMeta() throws Exception {
-        File attachmentFile = new File(dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+        File attachmentFile = new File(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
 
         if (isNewEntity) {
             try {
-                byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(TaskConsts.RELATIVE_FILE_PATH)));
+                byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(StringConsts.RELATIVE_FILE_PATH)));
                 String fileStr = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
-                throw new RestApiException("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(TaskConsts.RELATIVE_FILE_PATH));
+                throw new RestApiException("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(StringConsts.RELATIVE_FILE_PATH));
             }
         } else {
             // for update, grab original fileContent because it is required for an update
@@ -177,9 +177,9 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
 
     private boolean validField(String field) {
         return !(field.contains(".")
-            || field.equals(PARENT_ENTITY_ID)
-            || field.equals(RELATIVE_FILE_PATH)
-            || field.equals(IS_RESUME));
+            || field.equals(StringConsts.PARENT_ENTITY_ID)
+            || field.equals(StringConsts.RELATIVE_FILE_PATH)
+            || field.equals(StringConsts.IS_RESUME));
     }
 
 }

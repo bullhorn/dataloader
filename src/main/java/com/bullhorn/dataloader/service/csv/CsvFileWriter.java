@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.service.csv;
 
-import com.bullhorn.dataloader.consts.TaskConsts;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -87,7 +86,7 @@ public class CsvFileWriter {
             successCsv = new CsvWriter(fileWriter, ',');
 
             if (command.equals(Command.LOAD_ATTACHMENTS)) {
-                String[] successHeaders = ArrayUtil.append(headers, TaskConsts.PARENT_ENTITY_ID);
+                String[] successHeaders = ArrayUtil.append(headers, StringConsts.PARENT_ENTITY_ID);
                 successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, ArrayUtil.prepend(ACTION_COLUMN, successHeaders)));
             } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
                 successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));

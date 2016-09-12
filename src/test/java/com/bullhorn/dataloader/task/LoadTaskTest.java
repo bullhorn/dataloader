@@ -755,8 +755,8 @@ public class LoadTaskTest {
             wasExceptionThrown = true;
         }
 
-        Assert.assertThat(true, new ReflectionEquals(wasExceptionThrown));
-        Assert.assertThat(true, new ReflectionEquals(errorMessage.contains("duplicate To-Many Associations")));
+        Assert.assertTrue(wasExceptionThrown);
+        Assert.assertTrue(errorMessage.contains("duplicate To-Many Associations"));
     }
 
     @Test

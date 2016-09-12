@@ -1,7 +1,5 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.service.Command;
-import com.bullhorn.dataloader.service.HelpService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
