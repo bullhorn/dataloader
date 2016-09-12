@@ -76,7 +76,7 @@ Performs load for every valid CSV file in the given directory. The order that en
 dataloader delete path/to/<EntityName>.csv
 ```
 
-The provided CSV file only requires an `id` column. This column will contain the Bullhorn internal IDs of the records to delete. The provided CSV file must start with the name of the entity.
+The provided CSV file must contain an `id` column. This column will contain the Bullhorn internal IDs of the records to delete. The provided CSV file must start with the name of the entity.
 
 ```
 dataloader delete path/to/directory
@@ -106,7 +106,7 @@ Attaches files to preexisting records. Attachment file paths are mapped with pro
 dataloader deleteAttachments <path/to/<EntityName>.csv
 ```
 
-The provided CSV file requires an `id` column and a `parentEntityID` column. The `id` column will contain the Bullhorn internal IDs of the files to delete and the `parentEntityID` column will contain the Bullhorn internal IDs of the entity the file is attached to. The provided CSV file must start with the name of the entity. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#deleteattachments).
+The provided CSV file must contain an `id` column and a `parentEntityID` column. The `id` column will contain the Bullhorn internal IDs of the files to delete and the `parentEntityID` column will contain the Bullhorn internal IDs of the entity the file is attached to. The provided CSV file must start with the name of the entity. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#deleteattachments).
 
 ## Console Output
 
