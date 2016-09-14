@@ -28,7 +28,7 @@ public class PropertyFileUtilTest {
         propertyValidation = new PropertyValidation();
         printUtilMock = Mockito.mock(PrintUtil.class);
         systemPropertiesMock = Mockito.mock(Properties.class);
-        path = getFilePath("dataloader.properties");
+        path = getFilePath("unitTest.properties");
     }
 
     @Test
@@ -77,12 +77,12 @@ public class PropertyFileUtilTest {
     public void testExistsFields() throws IOException {
         propertyFileUtil = new PropertyFileUtil(path, systemPropertiesMock, propertyValidation, printUtilMock);
 
-        Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"name"})),
-            propertyFileUtil.getEntityExistFields("BusinessSector"));
-        Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"id"})),
+        Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"externalID"})),
             propertyFileUtil.getEntityExistFields("Candidate"));
-        Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"occupation"})),
-            propertyFileUtil.getEntityExistFields("Category"));
+        Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"externalID"})),
+            propertyFileUtil.getEntityExistFields("ClientContact"));
+        Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"customText1"})),
+            propertyFileUtil.getEntityExistFields("Lead"));
         Assert.assertEquals(Optional.ofNullable(Arrays.asList(new String[]{"title", "name"})),
             propertyFileUtil.getEntityExistFields("JobOrder"));
 
