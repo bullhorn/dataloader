@@ -221,12 +221,7 @@
                     <includes>
                         <include>**/integration/**</include>
                     </includes>
-                    <systemPropertyVariables>
-                        <propertyName>USERNAME</propertyName>
-                        <propertyName>PASSWORD</propertyName>
-                        <propertyName>CLIENT_ID</propertyName>
-                        <propertyName>CLIENT_SECRET</propertyName>
-                    </systemPropertyVariables>
+                    <workingDirectory>${project.basedir}</workingDirectory>
                 </configuration>
                 <executions>
                     <execution>
