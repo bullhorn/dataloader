@@ -47,7 +47,7 @@ public class IntegrationTest {
         Main.main(args);
 
         String cmdLineOutput = consoleOutputCapturer.stop();
-        Assert.assertTrue(cmdLineOutput.toString().contains("ERROR"));
+        Assert.assertTrue(cmdLineOutput.contains("ERROR"));
     }
 
     private String getEnvironmentVariable(String name) {
