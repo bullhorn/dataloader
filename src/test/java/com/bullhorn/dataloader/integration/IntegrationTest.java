@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.integration;
 
 import com.bullhorn.dataloader.Main;
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -13,6 +14,28 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * The purpose of this integration test is to:
+ *
+ *   1. Allow for TravisCI to run as part of every build check, using `maven verify`, which goes beyond
+ *      `maven test` to also run the integration test.  Uses a test corp on SL9 (BhNext) with hidden
+ *      credentials in TravisCI Environment Variables.
+ *
+ *   2. Tests the entire Examples directory, which contains all possible values for all loadable entities and
+ *      their attachments.  The unique IDs of all of the entities are changed from `-ext-1` to something unique,
+ *      after the examples have been cloned to a test folder.
+ *
+ *   3. INSERT the entire examples/load/ folder by performing the load command the first time.
+ *
+ *   4. UPDATE the entire examples/load/ folder by performing the load command a second time, with all exist
+ *      fields properly set in the integrationTest.properties file.
+ *
+ *   5. DELETE all entered records by targeting the entire results directory.
+ *
+ *   6. Test assertions of both command line output and results files created. We are not making
+ *      calls against the CRM itself to verify the presence or absence of records, since these steps will
+ *      cover the presence of records in the index and database.
+ */
 public class IntegrationTest {
 
     private ConsoleOutputCapturer consoleOutputCapturer;
@@ -22,7 +45,7 @@ public class IntegrationTest {
         // Use the properties file from the test/resources directory
         System.setProperty("propertyfile", TestUtils.getFilePath("integrationTest.properties"));
 
-        // Use environment variables to drive the login DArgs from TravisCI
+        // Use environment variables to drive system arguments from TravisCI
         System.setProperty("username", TestUtils.getEnvironmentVariable("USERNAME"));
         System.setProperty("password", TestUtils.getEnvironmentVariable("PASSWORD"));
         System.setProperty("clientId", TestUtils.getEnvironmentVariable("CLIENT_ID"));
@@ -30,32 +53,52 @@ public class IntegrationTest {
 
         // Capture command line output as a string without stopping the real-time printout
         consoleOutputCapturer = new ConsoleOutputCapturer();
-        consoleOutputCapturer.start();
 
         // Put a "yes" response into the System.in for accepting the load/delete from directory
         InputStream inputStream = IOUtils.toInputStream("yes", "UTF-8");
         System.setIn(inputStream);
     }
 
-    // TODO: 1. Allow for session creation from here, then TravisCI
-    // TODO: 2. Allow for changing of `-ext-1` to something unique
-    // TODO: 3. Enable upload of entire examples/load/ folder
-    // TODO: 4. Enable delete from entire results/ folder
-    // TODO: 5. Allow for success/failure assertions
-
     @Test
-    public void loadFromFolder() throws IOException {
+    public void testInsertUpdateDelete() throws IOException {
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
         String resourceDirPath = TestUtils.getFilePath("");
-        String examplesDirPath = resourceDirPath + "/integrationTestExamples_" + secondsSinceEpoch;
+        String examplesDirPath = resourceDirPath + "/integrationTest_" + secondsSinceEpoch;
         String newExternalIdEnding = "-" + secondsSinceEpoch;
         File examplesDirectory = createExampleDirectory("examples/load", examplesDirPath, "-ext-1", newExternalIdEnding);
-        String[] args = {"load", examplesDirPath};
+        FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR));
 
-        Main.main(args);
+        consoleOutputCapturer.start();
+        Main.main(new String[]{"load", examplesDirPath});
+        String insertCommandOutput = consoleOutputCapturer.stop();
 
-        String cmdLineOutput = consoleOutputCapturer.stop();
-        Assert.assertFalse(cmdLineOutput.contains("ERROR"));
+        Assert.assertFalse("Error messages output during insert step", insertCommandOutput.contains("ERROR"));
+        Assert.assertFalse("Failed to process records during insert step", insertCommandOutput.contains("processed: 0"));
+        Assert.assertFalse("Update performed during insert step", insertCommandOutput.contains("updated: 1"));
+        Assert.assertFalse("Delete performed during insert step", insertCommandOutput.contains("deleted: 1"));
+        Assert.assertFalse("Failure reported during insert step", insertCommandOutput.contains("failed: 1"));
+        // TODO: Test results files
+
+        consoleOutputCapturer.start();
+        Main.main(new String[]{"load", examplesDirPath});
+        String updateCommandOutput = consoleOutputCapturer.stop();
+
+        Assert.assertFalse("Error messages output during update step", updateCommandOutput.contains("ERROR"));
+        Assert.assertFalse("Failed to process records during update step", updateCommandOutput.contains("processed: 0"));
+        Assert.assertFalse("Insert performed during update step", updateCommandOutput.contains("inserted: 1"));
+        Assert.assertFalse("Delete performed during update step", updateCommandOutput.contains("deleted: 1"));
+        Assert.assertFalse("Failure reported during update step", updateCommandOutput.contains("failed: 1"));
+
+        consoleOutputCapturer.start();
+        Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
+        String deleteCommandOutput = consoleOutputCapturer.stop();
+
+        Assert.assertFalse("Error messages output during delete step", deleteCommandOutput.contains("ERROR"));
+        Assert.assertFalse("Failed to process records during delete step", deleteCommandOutput.contains("processed: 0"));
+        Assert.assertFalse("Insert performed during delete step", deleteCommandOutput.contains("inserted: 1"));
+        Assert.assertFalse("Update performed during delete step", deleteCommandOutput.contains("updated: 1"));
+        Assert.assertFalse("Failure reported during delete step", deleteCommandOutput.contains("failed: 1"));
+
         FileUtils.deleteDirectory(examplesDirectory);
     }
 
