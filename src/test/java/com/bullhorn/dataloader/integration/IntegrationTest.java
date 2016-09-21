@@ -74,7 +74,9 @@ public class IntegrationTest {
      * @throws IOException For directory cloning
      */
     private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException {
+        // region SETUP
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
+        File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
         String tempDirPath = TestUtils.getResourceFilePath("") + "/integrationTest_" + secondsSinceEpoch;
         File tempDirectory = new File(tempDirPath);
         FileUtils.copyDirectory(new File(directoryPath), tempDirectory);
@@ -84,10 +86,10 @@ public class IntegrationTest {
 
         String uuid = UUID.randomUUID().toString();
         TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
+        // endregion SETUP
 
-        // Cleanup from previous runs
-        FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR));
-
+        // region INSERT
+        FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
@@ -99,7 +101,17 @@ public class IntegrationTest {
         Assert.assertFalse("Delete performed during insert step", insertCommandOutput.contains("deleted: 1"));
         Assert.assertFalse("Failure reported during insert step", insertCommandOutput.contains("failed: 1"));
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+        // endregion
 
+        // region ~TEMPORARY_WORKAROUND~
+        // Notes cannot be updated or delete right now. https://jira.bullhorn.com/browse/BH-43594
+        // Taking out notes until the bug is fixed.
+        File noteExample = new File(tempDirPath + "/Note.csv");
+        noteExample.delete();
+        // endregion
+
+        // region UPDATE
+        FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
@@ -111,9 +123,20 @@ public class IntegrationTest {
         Assert.assertFalse("Delete performed during update step", updateCommandOutput.contains("deleted: 1"));
         Assert.assertFalse("Failure reported during update step", updateCommandOutput.contains("failed: 1"));
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+        // endregion
 
+        // region ~TEMPORARY_WORKAROUND~
+        // Deleting custom objects is broken right now. https://jira.bullhorn.com/browse/BH-43509
+        // Taking out the deleting of custom objects until the bug is fixed.
+        for (File file : resultsDir.listFiles()) {
+            if (file.getName().contains("CustomObject")) {
+                file.delete();
+            }
+        }
+        // endregion
+
+        // region DELETE
         // capture results file directory state
-        File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
         File[] resultsFiles = resultsDir.listFiles();
 
         System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
@@ -131,8 +154,11 @@ public class IntegrationTest {
         for (File file : resultsFiles) {
             TestUtils.checkResultsFile(file, Command.DELETE);
         }
+        // endregion
 
+        // region TEARDOWN
         // Cleanup our temporary directory
         FileUtils.deleteDirectory(tempDirectory);
+        // endregion
     }
 }
