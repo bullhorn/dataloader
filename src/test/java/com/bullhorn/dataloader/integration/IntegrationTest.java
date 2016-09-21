@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.integration;
 
 import com.bullhorn.dataloader.Main;
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -79,12 +80,12 @@ public class IntegrationTest {
         FileUtils.copyDirectory(new File(directoryPath), tempDirectory);
 
         String newExternalIdEnding = "-" + secondsSinceEpoch;
-        TestUtils.ReplaceTextInFiles(tempDirectory, "csv", newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
+        TestUtils.replaceTextInFiles(tempDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
 
         String uuid = UUID.randomUUID().toString();
-        TestUtils.ReplaceTextInFiles(tempDirectory, "csv", uuid, EXAMPLE_UUID);
+        TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
 
-        // Cleanup any old results that are left from previous runs
+        // Cleanup from previous runs
         FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR));
 
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
@@ -97,9 +98,9 @@ public class IntegrationTest {
         Assert.assertFalse("Update performed during insert step", insertCommandOutput.contains("updated: 1"));
         Assert.assertFalse("Delete performed during insert step", insertCommandOutput.contains("deleted: 1"));
         Assert.assertFalse("Failure reported during insert step", insertCommandOutput.contains("failed: 1"));
-        // TODO: Test results files
+        TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
 
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
+        System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
         String updateCommandOutput = consoleOutputCapturer.stop();
@@ -109,8 +110,13 @@ public class IntegrationTest {
         Assert.assertFalse("Insert performed during update step", updateCommandOutput.contains("inserted: 1"));
         Assert.assertFalse("Delete performed during update step", updateCommandOutput.contains("deleted: 1"));
         Assert.assertFalse("Failure reported during update step", updateCommandOutput.contains("failed: 1"));
+        TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
 
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
+        // capture results file directory state
+        File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
+        File[] resultsFiles = resultsDir.listFiles();
+
+        System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
         consoleOutputCapturer.start();
         Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
         String deleteCommandOutput = consoleOutputCapturer.stop();
@@ -120,6 +126,11 @@ public class IntegrationTest {
         Assert.assertFalse("Insert performed during delete step", deleteCommandOutput.contains("inserted: 1"));
         Assert.assertFalse("Update performed during delete step", deleteCommandOutput.contains("updated: 1"));
         Assert.assertFalse("Failure reported during delete step", deleteCommandOutput.contains("failed: 1"));
+
+        // Test that we deleted the results files that were there previously (not the results of our delete)
+        for (File file : resultsFiles) {
+            TestUtils.checkResultsFile(file, Command.DELETE);
+        }
 
         // Cleanup our temporary directory
         FileUtils.deleteDirectory(tempDirectory);
