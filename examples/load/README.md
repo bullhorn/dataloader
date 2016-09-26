@@ -9,20 +9,42 @@ These example CSV files reference several reference only entities that must exis
     * Manager CorporateUser
     * Sales CorporateUser
 
-* Skill
-    * Skill1
-    * Skill2
-    * Skill3
-    * Skill4
+* BusinessSector
+    * BusinessSector1
+    * BusinessSector2
+    * BusinessSector3
 
 * Category
     * Category1
+        * Specialty1
+        * Specialty2
     * Category2
+        * Skill1
+        * Skill2
+        * Skill3
+        * Skill4
     * Category3
 
 * Certification
     * Certification1
     * Certification2
+
+* Corp Settings
+    * Enable leadAndOpportunityEnabled
+    
+* Custom Objects
+    * Setup ClientCorporation Custom Object
+    * Setup JobOrder Custom Object
+    * Setup Opportunity Custom Object
+    * Setup Person Custom Object
+    * Setup ClientContact Custom Object
+    * Setup Placement Custom Object
+    
+* Action Entitlements
+    * Enable View for all Entities
+    * Enable Add for all Entities
+    * Enable Edit for all Entities
+    * Enable Edit Owner for all Entities
 
 ### About These Example Files
 

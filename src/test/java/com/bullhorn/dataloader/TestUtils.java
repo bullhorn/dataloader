@@ -101,7 +101,7 @@ public class TestUtils {
         File successFile = new File(successFilePath);
         File failureFile = new File(failureFilePath);
 
-        Assert.assertTrue(successFilePath + " Exists", successFile.exists());
-        Assert.assertFalse(failureFilePath + " Does not Exist", failureFile.exists());
+        Assert.assertTrue("Verify " + successFilePath + " Exists Failed!", successFile.exists());
+        Assert.assertFalse("Verify " + failureFilePath + " Does not Exist Failed!", failureFile.exists());
     }
 }
