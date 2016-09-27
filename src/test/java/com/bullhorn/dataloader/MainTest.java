@@ -23,8 +23,8 @@ public class MainTest {
         PrintStream printStream = new PrintStream(outputStream);
         System.setOut(printStream);
 
-        // Use the dataloader.properties file from the test/resources directory
-        System.setProperty("propertyfile", getFilePath("dataloader.properties"));
+        // Use the properties file from the test/resources directory
+        System.setProperty("propertyfile", getFilePath("unitTest.properties"));
     }
 
     @After

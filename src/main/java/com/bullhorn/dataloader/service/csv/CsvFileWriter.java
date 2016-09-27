@@ -31,6 +31,20 @@ public class CsvFileWriter {
     private CsvWriter failureCsv = null;
 
     /**
+     * Returns the correctly formatted filePath for the results file
+     *
+     * @param inputFilePath The path of the input CSV to read
+     * @param command The command used to process the CSV file
+     * @param status Success or Failure
+     * @return The path to the results file
+     */
+    public static String getResultsFilePath(String inputFilePath, Command command, Result.Status status) {
+        String baseName = FilenameUtils.getBaseName(inputFilePath);
+        String ending = (status == Result.Status.SUCCESS) ? SUCCESS_CSV : FAILURE_CSV;
+        return RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + ending;
+    }
+
+    /**
      * Error/Success CSV files are placed in a results folder in the current working directory. They are named
      * based on the original filename used. Given /path/to/MyCandidates.csv, this class will set up log files in
      * the current working directory (may not be the /path/to/ directory).
@@ -47,9 +61,8 @@ public class CsvFileWriter {
         this.command = command;
         this.headers = headers;
 
-        String baseName = FilenameUtils.getBaseName(filePath);
-        successFilePath = RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + SUCCESS_CSV;
-        failureFilePath = RESULTS_DIR + baseName + "_" + command.getMethodName() + "_" + StringConsts.TIMESTAMP + FAILURE_CSV;
+        successFilePath = getResultsFilePath(filePath, command, Result.Status.SUCCESS);
+        failureFilePath = getResultsFilePath(filePath, command, Result.Status.FAILURE);
 
         File resultsDir = new File(RESULTS_DIR);
         resultsDir.mkdirs();
@@ -61,7 +74,7 @@ public class CsvFileWriter {
      *
      * @param data   The original CSV record
      * @param result The resulting status from REST
-     * @throws IOException
+     * @throws IOException When writing to disk
      */
     public synchronized void writeRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {

@@ -1,2 +1,2 @@
 comments,commissionPercentage,externalRecipient,flatPayout,grossMarginPercentage,hourlyPayout,migrateGUID,placement.customText1,role,status,user.name
-DataLoader Example PlacementCommission,30.0,Recipient-123456,30000.00,23.0,15.0,62c021a4-3409-4bca-a1f4-46507a43f84f,placement-ext-1,Sales,Active,Sales CorporateUser
+DataLoader Example PlacementCommission,30.0,Recipient-123456,30000.00,23.0,15.0,12345678-1234-1234-1234-1234567890AB,placement-ext-1,Sales,Active,Sales CorporateUser

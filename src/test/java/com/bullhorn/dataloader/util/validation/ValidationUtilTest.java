@@ -60,7 +60,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile_nonCsvFile() {
-        String path = getFilePath("dataloader.properties");
+        String path = getFilePath("unitTest.properties");
         Boolean actualResult = validationUtil.isValidCsvFile(path);
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
@@ -68,7 +68,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile_nonCsvFile_noPrint() {
-        String path = getFilePath("dataloader.properties");
+        String path = getFilePath("unitTest.properties");
         Boolean actualResult = validationUtil.isValidCsvFile(path, false);
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());

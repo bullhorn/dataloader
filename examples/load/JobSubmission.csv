@@ -1,2 +1,2 @@
 candidate.externalID,jobOrder.externalID,billRate,dateAdded,dateWebResponse,migrateGUID,payRate,salary,source,status,sendingUser.name
-candidate-ext-1,jobOrder-ext-1,100,1/1/16 00:00,2/2/16 00:00,e1bde0c6-1f86-4c47-bb3d-283cdca996d1,50,90000,Referral,Active,Manager CorporateUser
+candidate-ext-1,jobOrder-ext-1,100,1/1/16 00:00,2/2/16 00:00,12345678-1234-1234-1234-1234567890AB,50,90000,Referral,jobSubmission-ext-1,Manager CorporateUser
