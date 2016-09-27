@@ -53,10 +53,10 @@ public class IntegrationTest {
         System.setProperty("propertyfile", TestUtils.getResourceFilePath("integrationTest.properties"));
 
         // Use environment variables to drive system arguments from TravisCI
-        System.setProperty("username", TestUtils.getEnvironmentVariable("USERNAME"));
-        System.setProperty("password", TestUtils.getEnvironmentVariable("PASSWORD"));
-        System.setProperty("clientId", TestUtils.getEnvironmentVariable("CLIENT_ID"));
-        System.setProperty("clientSecret", TestUtils.getEnvironmentVariable("CLIENT_SECRET"));
+        System.setProperty("username", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_USERNAME"));
+        System.setProperty("password", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_PASSWORD"));
+        System.setProperty("clientId", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_CLIENT_ID"));
+        System.setProperty("clientSecret", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_CLIENT_SECRET"));
 
         // Capture command line output as a string without stopping the real-time printout
         consoleOutputCapturer = new ConsoleOutputCapturer();
