@@ -1,4 +1,5 @@
 ##DataLoader Architecture
+-This file takes advantage of advanced markdown features to draw [LaTeX](https://en.wikibooks.org/wiki/LaTeX/Mathematics) mathematical formulas. Unfortunately, GitHub markdown does not support these diagrams. To view this file using StackEdit.io, click [here](https://stackedit.io/viewer#!url=https://raw.githubusercontent.com/bullhorn/dataloader/master/ARCHITECTURE.md)
 
 ###Overview
 At the highest level, DataLoader is a command line interface that has the following inputs and outputs:
