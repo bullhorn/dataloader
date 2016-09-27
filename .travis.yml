@@ -17,7 +17,8 @@ install:
   - npm install
 
 after_success:
-  - mvn verify jacoco:report coveralls:report
+  - mvn verify
+  - mvn jacoco:report coveralls:report
   - test $TRAVIS_BRANCH = "master" && npm run galaxy -- $FIREBASE_URL $SLACK_WEB_HOOK $SLACK_CHANNEL
 
 notifications:
