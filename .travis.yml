@@ -3,6 +3,8 @@ language: java
 jdk:
   - oraclejdk8
 
+script: mvn verify
+
 env:
   - NODE_VERSION="5.12.0"
 
@@ -19,7 +21,6 @@ install:
 after_success:
   - mvn test jacoco:report coveralls:report
   - test $TRAVIS_BRANCH = "master" && npm run galaxy -- $FIREBASE_URL $SLACK_WEB_HOOK $SLACK_CHANNEL
-  - mvn verify
 
 notifications:
   slack:
