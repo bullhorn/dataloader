@@ -77,7 +77,6 @@ public abstract class AbstractService {
         bullhornRestCredentials.setPassword(propertyFileUtil.getPassword());
         bullhornRestCredentials.setRestAuthorizeUrl(propertyFileUtil.getAuthorizeUrl());
         bullhornRestCredentials.setRestClientId(propertyFileUtil.getClientId());
-        bullhornRestCredentials.setRestClientSecret(propertyFileUtil.getClientSecret());
         bullhornRestCredentials.setRestLoginUrl(propertyFileUtil.getLoginUrl());
         bullhornRestCredentials.setRestTokenUrl(propertyFileUtil.getTokenUrl());
         bullhornRestCredentials.setUsername(propertyFileUtil.getUsername());
