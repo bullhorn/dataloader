@@ -75,7 +75,7 @@ public abstract class AbstractService {
     protected BullhornRestCredentials getBullhornRestCredentials(PropertyFileUtil propertyFileUtil) throws Exception {
         BullhornRestCredentials bullhornRestCredentials = new BullhornRestCredentials();
         bullhornRestCredentials.setPassword(propertyFileUtil.getPassword());
-        bullhornRestCredentials.setRestAuthorizeUrl(propertyFileUtil.getAuthorizeUrl());
+//        bullhornRestCredentials.setRestAuthorizeUrl(propertyFileUtil.getAuthorizeUrl());
         bullhornRestCredentials.setRestClientId(propertyFileUtil.getClientId());
         bullhornRestCredentials.setRestClientSecret(propertyFileUtil.getClientSecret());
         bullhornRestCredentials.setRestLoginUrl(propertyFileUtil.getLoginUrl());
