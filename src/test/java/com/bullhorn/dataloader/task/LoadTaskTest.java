@@ -11,28 +11,11 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.CandidateEducation;
-import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
-import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
-import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
-import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
-import com.bullhornsdk.data.model.entity.core.standard.Lead;
-import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
-import com.bullhornsdk.data.model.entity.core.standard.Skill;
+import com.bullhornsdk.data.model.entity.core.standard.*;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.response.crud.CreateResponse;
 import com.bullhornsdk.data.model.response.crud.UpdateResponse;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.ClientContactListWrapper;
-import com.bullhornsdk.data.model.response.list.JobOrderListWrapper;
-import com.bullhornsdk.data.model.response.list.LeadListWrapper;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
-import com.bullhornsdk.data.model.response.list.OpportunityListWrapper;
-import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
-import com.bullhornsdk.data.model.response.list.SkillListWrapper;
-import com.bullhornsdk.data.model.response.list.StandardListWrapper;
+import com.bullhornsdk.data.model.response.list.*;
 import com.csvreader.CsvReader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -75,6 +58,7 @@ public class LoadTaskTest {
     private BullhornData bullhornDataMock;
     private PropertyFileUtil propertyFileUtilMock_CandidateID;
     private PropertyFileUtil propertyFileUtilMock_CandidateExternalID;
+    private PropertyFileUtil propertyFileUtilMock_NoteID;
 
     private LinkedHashMap<String, String> dataMap;
     private Map<String, Method> methodMap;
@@ -95,6 +79,7 @@ public class LoadTaskTest {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock_CandidateID = Mockito.mock(PropertyFileUtil.class);
         propertyFileUtilMock_CandidateExternalID = Mockito.mock(PropertyFileUtil.class);
+        propertyFileUtilMock_NoteID = Mockito.mock(PropertyFileUtil.class);
 
         List<String> idExistField = Arrays.asList(new String[]{"id"});
         Mockito.doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Candidate");
@@ -775,6 +760,27 @@ public class LoadTaskTest {
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
     }
+
+    @Test
+    public void findEntityNoteTest_search() {
+        dataMap = new LinkedHashMap<>();
+        dataMap.put("id", "1");
+        methodMap.clear();
+        methodMap = concurrencyService.createMethodMap(Note.class);
+
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoteID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        NoteListWrapper noteListWrapper = new NoteListWrapper();
+        List<Note> noteList = new ArrayList<>();
+        noteList.add(new Note(1));
+        noteListWrapper.setData(noteList);
+        when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(noteListWrapper);
+
+        task.findEntity("note.id", "id", Note.class, Integer.class);
+
+        verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
+    }
+
 
     @Test(expected = RestApiException.class)
     public void findEntityTest_searchReturnsEmptyList() {

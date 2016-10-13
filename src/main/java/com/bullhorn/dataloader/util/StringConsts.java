@@ -2,9 +2,6 @@ package com.bullhorn.dataloader.util;
 
 /**
  * Global String Constants
- * <p>
- * Only strings that are used in more than one class should go here. If a string constant is only used internal to a
- * class, that class should contain the string constant.
  */
 public class StringConsts {
     public static final String DESCRIPTION = "description";
@@ -17,6 +14,8 @@ public class StringConsts {
     public static final String TIMESTAMP = DateUtil.getTimestamp();
     public static final String TO_ONE = "TO_ONE";
     public static final String TO_MANY = "TO_MANY";
+    public static final String NOTE_ID = "noteID";
+    public static final String IS_DELETED = "isDeleted";
 
     private StringConsts() {}
 }

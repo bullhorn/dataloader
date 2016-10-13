@@ -143,6 +143,9 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
+        if(entityClass.equals(Note.class) && field.equals(StringConsts.ID)) {
+            field = StringConsts.NOTE_ID;
+        }
         String query = getQueryStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();

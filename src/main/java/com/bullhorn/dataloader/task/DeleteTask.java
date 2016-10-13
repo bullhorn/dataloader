@@ -12,6 +12,7 @@ import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.standard.Note;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
@@ -89,7 +90,11 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         existFieldsMap.put(StringConsts.ID, bullhornID.toString());
 
         if (EntityValidation.isSoftDeletable(entityInfo.getEntityName())) {
-            existFieldsMap.put("isDeleted", "0");
+            if(entityClass.equals(Note.class)) {
+                existFieldsMap.put(StringConsts.IS_DELETED, "false");
+            } else {
+                existFieldsMap.put(StringConsts.IS_DELETED, "0");
+            }
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else if (EntityValidation.isHardDeletable(entityInfo.getEntityName())) {

@@ -8,9 +8,7 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.standard.Appointment;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.*;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
@@ -83,6 +81,21 @@ public class DeleteTaskTest {
         final String[] expectedValues = {"1"};
         task = new DeleteTask(Command.DELETE, 1, EntityInfo.APPOINTMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.query(eq(Appointment.class), eq("isDeleted=false AND id=1"), any(), any())).thenReturn(getListWrapper(Appointment.class));
+        when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+    }
+
+    @Test
+    public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
+        final String[] expectedValues = {"1"};
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.NOTE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(bullhornDataMock.search(eq(Note.class), eq("isDeleted:false AND id:1"), any(), any())).thenReturn(getListWrapper(Note.class));
         when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
