@@ -90,11 +90,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         existFieldsMap.put(StringConsts.ID, bullhornID.toString());
 
         if (EntityValidation.isSoftDeletable(entityInfo.getEntityName())) {
-            if(entityClass.equals(Note.class)) {
-                existFieldsMap.put(StringConsts.IS_DELETED, "false");
-            } else {
-                existFieldsMap.put(StringConsts.IS_DELETED, "0");
-            }
+            existFieldsMap.putAll(setIsDeleted(existFieldsMap));
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else if (EntityValidation.isHardDeletable(entityInfo.getEntityName())) {
@@ -104,5 +100,14 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityClass.getSimpleName() +
                 " records are not deletable.");
         }
+    }
+
+    private Map<String, String> setIsDeleted(Map<String, String> existFieldsMap) {
+        if(entityClass.equals(Note.class)) {
+            existFieldsMap.put(StringConsts.IS_DELETED, "false");
+        } else {
+            existFieldsMap.put(StringConsts.IS_DELETED, "0");
+        }
+        return existFieldsMap;
     }
 }
