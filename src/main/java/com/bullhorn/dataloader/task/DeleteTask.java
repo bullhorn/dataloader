@@ -90,7 +90,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         existFieldsMap.put(StringConsts.ID, bullhornID.toString());
 
         if (EntityValidation.isSoftDeletable(entityInfo.getEntityName())) {
-            existFieldsMap.putAll(setIsDeleted(existFieldsMap));
+            existFieldsMap.putAll(getIsDeletedField());
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else if (EntityValidation.isHardDeletable(entityInfo.getEntityName())) {
@@ -102,8 +102,9 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         }
     }
 
-    private Map<String, String> setIsDeleted(Map<String, String> existFieldsMap) {
-        if(entityClass.equals(Note.class)) {
+    private Map<String, String> getIsDeletedField() {
+        Map<String, String> existFieldsMap = new HashMap<>();
+        if (entityClass.equals(Note.class)) {
             existFieldsMap.put(StringConsts.IS_DELETED, "false");
         } else {
             existFieldsMap.put(StringConsts.IS_DELETED, "0");

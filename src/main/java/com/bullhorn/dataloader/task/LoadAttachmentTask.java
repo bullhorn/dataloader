@@ -96,7 +96,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
             for (String property : properties) {
                 String propertyValue = dataMap.get(getEntityAssociatedPropertyName(property));
                 Class fieldType = getFieldType(entityClass, WordUtils.uncapitalize(entityClass.getSimpleName()) + "ExistField", property);
-                propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType));
+                propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityClass));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
             List<S> searchList = bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();

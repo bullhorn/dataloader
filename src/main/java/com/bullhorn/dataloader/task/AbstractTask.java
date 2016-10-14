@@ -142,22 +142,23 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return Result.Failure(e);
     }
 
-    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
-        if(entityClass.equals(Note.class) && field.equals(StringConsts.ID)) {
-            field = StringConsts.NOTE_ID;
-        }
-        String query = getQueryStatement(field, value, fieldType);
+    protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
+        String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornData.search((Class<S>) entityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
+        return (List<B>) bullhornData.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
     }
 
-    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> entityClass, Set<String> fieldsToReturn) {
+    protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornData.query((Class<Q>) entityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
+        return (List<B>) bullhornData.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
 
-    protected String getQueryStatement(String field, String value, Class fieldType) {
+    protected String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
+        if (fieldEntityClass.equals(Note.class) && field.equals(StringConsts.ID)) {
+            field = StringConsts.NOTE_ID;
+        }
+
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
             return field + ":" + value;
         } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
@@ -180,7 +181,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
         return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
@@ -282,6 +283,20 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
 
         return methods.get(0).getReturnType();
+    }
+
+    /**
+     * Returns the Bullhorn entity class for the given field on the given entity
+     *
+     * @param field The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
+     * @return The Bullhorn entity class that the field is on
+     */
+    protected Class<B> getFieldEntityClass(String field) {
+        if (field.contains(".")) {
+            return BullhornEntityInfo.getTypeFromName(field.substring(0, field.indexOf("."))).getType();
+        } else {
+            return entityClass;
+        }
     }
 
     protected void checkForRestSdkErrorMessages(CrudResponse response) {

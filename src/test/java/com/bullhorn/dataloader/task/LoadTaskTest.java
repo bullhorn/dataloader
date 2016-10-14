@@ -335,7 +335,6 @@ public class LoadTaskTest {
         dataMap.clear();
         dataMap.put("candidates.id", "1;2");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
 
         final List<Candidate> candidates = new ArrayList<>();
@@ -349,6 +348,7 @@ public class LoadTaskTest {
         response.setChangedEntityId(1);
         when(bullhornDataMock.insertEntity(any())).thenReturn(response);
 
+        task.init();
         task.run();
 
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
@@ -756,13 +756,14 @@ public class LoadTaskTest {
         candidateListWrapper.setData(candidateList);
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(candidateListWrapper);
 
+        task.init();
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
     }
 
     @Test
-    public void findEntityNoteTest_search() {
+    public void findEntityTest_note() {
         dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
         methodMap.clear();
@@ -774,9 +775,10 @@ public class LoadTaskTest {
         List<Note> noteList = new ArrayList<>();
         noteList.add(new Note(1));
         noteListWrapper.setData(noteList);
-        when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(noteListWrapper);
+        when(bullhornDataMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(noteListWrapper);
 
-        task.findEntity("note.id", "id", Note.class, Integer.class);
+        task.init();
+        task.findEntity("id", "id", Note.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
     }
@@ -792,6 +794,7 @@ public class LoadTaskTest {
         candidateListWrapper.setData(new ArrayList<>());
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(candidateListWrapper);
 
+        task.init();
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
     }
 
@@ -807,6 +810,7 @@ public class LoadTaskTest {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(candidateListWrapper);
 
+        task.init();
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
@@ -832,7 +836,8 @@ public class LoadTaskTest {
     public void getQueryStatement_unsupportedType() {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
-        task.getQueryStatement("comments", "my comment", double.class);
+        task.init();
+        task.getQueryStatement("doubleField", "doubleValue", double.class, Note.class);
     }
 
     @Test

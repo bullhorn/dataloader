@@ -95,10 +95,11 @@ public class DeleteTaskTest {
     public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
         task = new DeleteTask(Command.DELETE, 1, EntityInfo.NOTE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
-        when(bullhornDataMock.search(eq(Note.class), eq("isDeleted:false AND id:1"), any(), any())).thenReturn(getListWrapper(Note.class));
+        when(bullhornDataMock.search(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(getListWrapper(Note.class));
         when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
+        task.init();
         task.run();
 
         verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
