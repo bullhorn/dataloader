@@ -103,13 +103,6 @@ public class IntegrationTest {
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
 
-        // region ~TEMPORARY_WORKAROUND~
-        // Notes cannot be updated or delete right now. https://jira.bullhorn.com/browse/BH-43594
-        // Taking out notes until the bug is fixed.
-        File noteExample = new File(tempDirPath + "/Note.csv");
-        noteExample.delete();
-        // endregion
-
         // region ~FIXME~
         // Updating of JobSubmission records is failing due to insufficient update privileges.
         File jobSubmissionExample = new File(tempDirPath + "/JobSubmission.csv");

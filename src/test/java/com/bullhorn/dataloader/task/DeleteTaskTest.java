@@ -8,11 +8,9 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.model.entity.core.standard.Appointment;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.*;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.enums.ChangeType;
+import com.bullhornsdk.data.model.enums.*;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
@@ -86,6 +84,22 @@ public class DeleteTaskTest {
         when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+    }
+
+    @Test
+    public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
+        final String[] expectedValues = {"1"};
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.NOTE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(bullhornDataMock.search(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(getListWrapper(Note.class));
+        when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
+
+        task.init();
         task.run();
 
         verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
@@ -199,6 +213,16 @@ public class DeleteTaskTest {
         Assert.assertEquals("false", task.getBooleanWhereStatement(zeroString));
         Assert.assertEquals("true", task.getBooleanWhereStatement(oneString));
         Assert.assertEquals("false", task.getBooleanWhereStatement(twoString));
+    }
+
+    @Test
+    public void testGetFieldEntityClassWithAssociation() {
+        final String candidateID = "candidate.id";
+
+        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        Class<BullhornEntityInfo> bullhornEntityInfo = task.getFieldEntityClass(candidateID);
+
+        Assert.assertEquals(bullhornEntityInfo.getSimpleName(), EntityInfo.CANDIDATE.getEntityName());
     }
 
     public <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass) throws IllegalAccessException, InstantiationException {

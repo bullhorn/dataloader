@@ -307,11 +307,22 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void addNoteEntity(Note noteAdded, String targetEntityName, Integer targetEntityID) {
+        List<B> existingList = getNoteEntities(noteAdded, targetEntityName, targetEntityID);
+        if (!existingList.isEmpty()) {
+            return;
+        }
+
         NoteEntity noteEntity = new NoteEntity();
         noteEntity.setNote(noteAdded);
         noteEntity.setTargetEntityID(targetEntityID);
         noteEntity.setTargetEntityName(targetEntityName);
         bullhornData.insertEntity(noteEntity);
+    }
+
+    protected <Q extends QueryEntity> List<B> getNoteEntities(Note noteAdded, String targetEntityName, Integer targetEntityID) {
+        String where = "note.id=" + noteAdded.getId() + " AND targetEntityName='" + targetEntityName + "' AND targetEntityID=" + targetEntityID;
+        List<B> list = (List<B>) bullhornData.query((Class<Q>) NoteEntity.class, where, null, ParamFactory.queryParams()).getData();
+        return list;
     }
 
     protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -386,7 +397,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     private String getQueryStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-        return valueSet.stream().map(n -> getQueryStatement(fieldName, n, getFieldType(associationClass, field, fieldName))).collect(Collectors.joining(" OR "));
+        return valueSet.stream().map(n -> getQueryStatement(fieldName, n, getFieldType(associationClass, field, fieldName), associationClass)).collect(Collectors.joining(" OR "));
     }
 
     private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
