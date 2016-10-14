@@ -11,11 +11,32 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
-import com.bullhornsdk.data.model.entity.core.standard.*;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.CandidateEducation;
+import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
+import com.bullhornsdk.data.model.entity.core.standard.Note;
+import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.Skill;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.response.crud.CreateResponse;
 import com.bullhornsdk.data.model.response.crud.UpdateResponse;
-import com.bullhornsdk.data.model.response.list.*;
+import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
+import com.bullhornsdk.data.model.response.list.ClientContactListWrapper;
+import com.bullhornsdk.data.model.response.list.JobOrderListWrapper;
+import com.bullhornsdk.data.model.response.list.LeadListWrapper;
+import com.bullhornsdk.data.model.response.list.ListWrapper;
+import com.bullhornsdk.data.model.response.list.NoteEntityListWrapper;
+import com.bullhornsdk.data.model.response.list.NoteListWrapper;
+import com.bullhornsdk.data.model.response.list.OpportunityListWrapper;
+import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
+import com.bullhornsdk.data.model.response.list.SkillListWrapper;
+import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import com.csvreader.CsvReader;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -466,12 +487,9 @@ public class LoadTaskTest {
         placementListWrapper.setData(placements);
         when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
 
-        // Mock out existing note entities
-        final ListWrapper<NoteEntity> noteEntityListWrapper = new NoteEntityListWrapper();
-        List<NoteEntity> noteEntityList = new ArrayList<>();
-        noteEntityList.add(new NoteEntity());
-        noteEntityListWrapper.setData(noteEntityList);
-        when(bullhornDataMock.query(eq(NoteEntity.class), any(), any(), any())).thenReturn(noteEntityListWrapper);
+        // Mock out existing note entities with the duplicate error message
+        RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: NoteEntity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"NoteEntity\"}");
+        Mockito.when(bullhornDataMock.insertEntity(any(NoteEntity.class))).thenThrow(exception);
 
         UpdateResponse response = new UpdateResponse();
         response.setChangedEntityId(1);
@@ -484,8 +502,8 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
-        Mockito.verify(bullhornDataMock, Mockito.never()).insertEntity(any());
-        Mockito.verify(bullhornDataMock, Mockito.times(1)).updateEntity(any());
+        Mockito.verify(bullhornDataMock, Mockito.times(1)).updateEntity(any(Note.class));
+        Mockito.verify(bullhornDataMock, Mockito.times(7)).insertEntity(any(NoteEntity.class));
 
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
         Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
