@@ -287,7 +287,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                     bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
                 }
             } catch (RestApiException e) {
-                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName()) && !e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists")) {
+                // Ignore duplicate (existing) REST errors for associations to avoid a costly duplicate check
+                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName()) && !e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists") &&
+                    !(e.getMessage().contains("DUPLICATE_VALUE") && e.getMessage().contains("NoteEntity"))) {
                     throw e;
                 }
             }
@@ -307,22 +309,11 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void addNoteEntity(Note noteAdded, String targetEntityName, Integer targetEntityID) {
-        List<B> existingList = getNoteEntities(noteAdded, targetEntityName, targetEntityID);
-        if (!existingList.isEmpty()) {
-            return;
-        }
-
         NoteEntity noteEntity = new NoteEntity();
         noteEntity.setNote(noteAdded);
         noteEntity.setTargetEntityID(targetEntityID);
         noteEntity.setTargetEntityName(targetEntityName);
         bullhornData.insertEntity(noteEntity);
-    }
-
-    protected <Q extends QueryEntity> List<B> getNoteEntities(Note noteAdded, String targetEntityName, Integer targetEntityID) {
-        String where = "note.id=" + noteAdded.getId() + " AND targetEntityName='" + targetEntityName + "' AND targetEntityID=" + targetEntityID;
-        List<B> list = (List<B>) bullhornData.query((Class<Q>) NoteEntity.class, where, null, ParamFactory.queryParams()).getData();
-        return list;
     }
 
     protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
