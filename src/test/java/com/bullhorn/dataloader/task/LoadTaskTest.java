@@ -309,6 +309,10 @@ public class LoadTaskTest {
         placementListWrapper.setData(placements);
         when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
 
+        // Do not mock out any existing note entities
+        final ListWrapper<NoteEntity> noteEntityListWrapper = new NoteEntityListWrapper();
+        when(bullhornDataMock.query(eq(NoteEntity.class), any(), any(), any())).thenReturn(noteEntityListWrapper);
+
         CreateResponse response = new CreateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.insertEntity(any())).thenReturn(response);
@@ -382,6 +386,106 @@ public class LoadTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
+
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+    }
+
+    @Test
+    public void run_UpdateSuccess_Note() throws IOException, InstantiationException, IllegalAccessException {
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
+
+        dataMap.clear();
+        dataMap.put("id", "1");
+        dataMap.put("candidates.externalID", "1;2");
+        dataMap.put("clientContacts.externalID", "3");
+        dataMap.put("leads.customText1", "4");
+        dataMap.put("jobOrders.externalID", "5");
+        dataMap.put("opportunities.externalID", "6");
+        dataMap.put("placements.customText1", "7");
+
+        methodMap = concurrencyService.createMethodMap(Note.class);
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        List<String> idExistField = Arrays.asList(new String[]{"id"});
+        Mockito.doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
+        when(bullhornDataMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(getListWrapper(Note.class));
+
+        final List<Candidate> candidates = new ArrayList<>();
+        Candidate candidate1 = new Candidate(1001);
+        candidate1.setExternalID("1");
+        candidates.add(candidate1);
+        Candidate candidate2 = new Candidate(1002);
+        candidate2.setExternalID("2");
+        candidates.add(candidate2);
+        final ListWrapper<Candidate> candidateListWrapper = new CandidateListWrapper();
+        candidateListWrapper.setData(candidates);
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
+
+        final List<ClientContact> clientContacts = new ArrayList<>();
+        ClientContact clientContact = new ClientContact(1003);
+        clientContact.setExternalID("3");
+        clientContacts.add(clientContact);
+        final ListWrapper<ClientContact> clientContactListWrapper = new ClientContactListWrapper();
+        clientContactListWrapper.setData(clientContacts);
+        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
+
+        final List<Lead> leads = new ArrayList<>();
+        Lead lead = new Lead(1004);
+        lead.setCustomText1("4");
+        leads.add(lead);
+        final ListWrapper<Lead> leadListWrapper = new LeadListWrapper();
+        leadListWrapper.setData(leads);
+        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
+
+        final List<JobOrder> jobOrders = new ArrayList<>();
+        JobOrder jobOrder = new JobOrder(1005);
+        jobOrder.setExternalID("5");
+        jobOrders.add(jobOrder);
+        final ListWrapper<JobOrder> jobOrderListWrapper = new JobOrderListWrapper();
+        jobOrderListWrapper.setData(jobOrders);
+        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
+
+        final List<Opportunity> opportunities = new ArrayList<>();
+        Opportunity opportunity = new Opportunity(1006);
+        opportunity.setExternalID("6");
+        opportunities.add(opportunity);
+        final ListWrapper<Opportunity> opportunityListWrapper = new OpportunityListWrapper();
+        opportunityListWrapper.setData(opportunities);
+        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
+
+        final List<Placement> placements = new ArrayList<>();
+        Placement placement = new Placement(1007);
+        placement.setCustomText1("7");
+        placements.add(placement);
+        final ListWrapper<Placement> placementListWrapper = new PlacementListWrapper();
+        placementListWrapper.setData(placements);
+        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
+
+        // Mock out existing note entities
+        final ListWrapper<NoteEntity> noteEntityListWrapper = new NoteEntityListWrapper();
+        List<NoteEntity> noteEntityList = new ArrayList<>();
+        noteEntityList.add(new NoteEntity());
+        noteEntityListWrapper.setData(noteEntityList);
+        when(bullhornDataMock.query(eq(NoteEntity.class), any(), any(), any())).thenReturn(noteEntityListWrapper);
+
+        UpdateResponse response = new UpdateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.updateEntity(any())).thenReturn(response);
+
+        task.init();
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+
+        Mockito.verify(bullhornDataMock, Mockito.never()).insertEntity(any());
+        Mockito.verify(bullhornDataMock, Mockito.times(1)).updateEntity(any());
 
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
         Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
