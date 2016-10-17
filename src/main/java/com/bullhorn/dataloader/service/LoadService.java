@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -21,8 +22,9 @@ public class LoadService extends AbstractService implements Action {
     public LoadService(PrintUtil printUtil,
                        PropertyFileUtil propertyFileUtil,
                        ValidationUtil validationUtil,
+                       CompleteUtil completeUtil,
                        InputStream inputStream) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, inputStream);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
     }
 
     @Override
@@ -43,6 +45,7 @@ public class LoadService extends AbstractService implements Action {
                         timer.start();
                         concurrencyService.runLoadProcess();
                         printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
+                        completeUtil.complete(Command.LOAD, fileName, entityInfo, concurrencyService.getActionTotals(), timer.getDurationMillis());
                     } catch (Exception e) {
                         printUtil.printAndLog("FAILED to load: " + entityInfo.getEntityName() + " records");
                         printUtil.printAndLog(e);

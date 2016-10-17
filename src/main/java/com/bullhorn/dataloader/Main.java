@@ -2,6 +2,7 @@ package com.bullhorn.dataloader;
 
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.service.CommandLineInterface;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -25,7 +26,8 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getProperties(), propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, System.in);
+            CompleteUtil completeUtil = new CompleteUtil(propertyFileUtil);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, System.in);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
             

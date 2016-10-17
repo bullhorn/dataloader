@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -50,15 +51,18 @@ public abstract class AbstractService {
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
+    final protected CompleteUtil completeUtil;
     final protected InputStream inputStream;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
+                           CompleteUtil completeUtil,
                            InputStream inputStream) throws IOException {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
+        this.completeUtil = completeUtil;
         this.inputStream = inputStream;
         timer = new Timer();
     }

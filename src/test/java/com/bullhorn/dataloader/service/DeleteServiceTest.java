@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -24,6 +25,7 @@ public class DeleteServiceTest {
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private ValidationUtil validationUtil;
+    private CompleteUtil completeUtilMock;
     private InputStream inputStreamFake;
     private ConcurrencyService concurrencyServiceMock;
     private DeleteService deleteService;
@@ -33,8 +35,10 @@ public class DeleteServiceTest {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
         inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
-        deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamFake));
+
+        deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake));
 
         // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);

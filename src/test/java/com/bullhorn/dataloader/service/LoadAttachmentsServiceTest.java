@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -17,6 +18,7 @@ public class LoadAttachmentsServiceTest {
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private ValidationUtil validationUtil;
+    private CompleteUtil completeUtilMock;
     private InputStream inputStreamMock;
     private LoadAttachmentsService loadAttachmentsService;
     private ConcurrencyService concurrencyServiceMock;
@@ -26,8 +28,9 @@ public class LoadAttachmentsServiceTest {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
         inputStreamMock = Mockito.mock(InputStream.class);
-        loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
+        loadAttachmentsService = Mockito.spy(new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock));
 
         // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);

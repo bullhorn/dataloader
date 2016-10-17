@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -20,8 +21,10 @@ public class DeleteService extends AbstractService implements Action {
 
     public DeleteService(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
-                         ValidationUtil validationUtil, InputStream inputStream) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, inputStream);
+                         ValidationUtil validationUtil,
+                         CompleteUtil completeUtil,
+                         InputStream inputStream) throws IOException {
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
     }
 
     @Override

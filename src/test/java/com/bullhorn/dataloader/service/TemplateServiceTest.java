@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -25,6 +26,7 @@ public class TemplateServiceTest {
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private ValidationUtil validationUtil;
+    private CompleteUtil completeUtilMock;
     private InputStream inputStreamMock;
     private TemplateService templateService;
     private BullhornData bullhornData;
@@ -34,9 +36,11 @@ public class TemplateServiceTest {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
         inputStreamMock = Mockito.mock(InputStream.class);
-        templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
         bullhornData = Mockito.mock(BullhornData.class);
+
+        templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock));
 
         StandardMetaData<Candidate> metaData = new StandardMetaData<>();
         metaData.setEntity("Candidate");

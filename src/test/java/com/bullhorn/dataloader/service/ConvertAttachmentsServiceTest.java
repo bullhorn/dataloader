@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -17,20 +18,23 @@ public class ConvertAttachmentsServiceTest {
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private ValidationUtil validationUtil;
+    private CompleteUtil completeUtilMock;
     private InputStream inputStreamMock;
-    private ConvertAttachmentsService convertAttachmentsService;
     private ConcurrencyService concurrencyServiceMock;
+    private ConvertAttachmentsService convertAttachmentsService;
 
     @Before
     public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
         inputStreamMock = Mockito.mock(InputStream.class);
-        convertAttachmentsService = Mockito.spy(new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
+        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
+
+        convertAttachmentsService = Mockito.spy(new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock));
 
         // mock out AbstractService Methods that call class outside of this test scope
-        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
         Mockito.doReturn(concurrencyServiceMock).when(convertAttachmentsService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runConvertAttachmentsProcess();
 
