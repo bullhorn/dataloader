@@ -26,7 +26,7 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getProperties(), propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            CompleteUtil completeUtil = new CompleteUtil(propertyFileUtil);
+            CompleteUtil completeUtil = new CompleteUtil(propertyFileUtil, printUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, System.in);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);

@@ -4,13 +4,8 @@ import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.Result;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.http.client.utils.URIBuilder;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
 
 /**
  * Utility class for sending DataLoader complete call to REST
@@ -18,10 +13,13 @@ import java.net.URISyntaxException;
 public class CompleteUtil {
 
     final private PropertyFileUtil propertyFileUtil;
+    final private PrintUtil printUtil;
 
     // TODO: Get access to REST endpoint.
-    public CompleteUtil(PropertyFileUtil propertyFileUtil) {
+    public CompleteUtil(PropertyFileUtil propertyFileUtil,
+                        PrintUtil printUtil) {
         this.propertyFileUtil = propertyFileUtil;
+        this.printUtil = printUtil;
     }
 
     public void complete(Command command, String fileName, EntityInfo entityInfo, ActionTotals actionTotals, long durationMSec) {
@@ -29,38 +27,22 @@ public class CompleteUtil {
         Integer failureRecords = actionTotals.getActionTotal(Result.Action.FAILURE);
         Integer successRecords = totalRecords - failureRecords;
 
-        URIBuilder uriBuilder = null;
         try {
-            uriBuilder = new URIBuilder("http://<rest>/dataloader/complete");
-        } catch (URISyntaxException e) {
-            // TODO: Use PrintUtil for Exceptions
-            e.printStackTrace();
-        }
+            URIBuilder uriBuilder = new URIBuilder("http://<rest>/dataloader/complete");
+            uriBuilder.addParameter("command", command.toString());
+            uriBuilder.addParameter("entity", entityInfo.getEntityName());
+            uriBuilder.addParameter("file", fileName);
+            uriBuilder.addParameter("totalRecords", totalRecords.toString());
+            uriBuilder.addParameter("successRecords", successRecords.toString());
+            uriBuilder.addParameter("failureRecords", failureRecords.toString());
+            uriBuilder.addParameter("durationMSec", String.valueOf(durationMSec));
+            uriBuilder.addParameter("numThreads", propertyFileUtil.getNumThreads().toString());
 
-        uriBuilder.addParameter("command", command.toString());
-        uriBuilder.addParameter("entity", entityInfo.getEntityName());
-        uriBuilder.addParameter("file", fileName);
-        uriBuilder.addParameter("totalRecords", totalRecords.toString());
-        uriBuilder.addParameter("successRecords", successRecords.toString());
-        uriBuilder.addParameter("failureRecords", failureRecords.toString());
-        uriBuilder.addParameter("durationMSec", String.valueOf(durationMSec));
-        uriBuilder.addParameter("numThreads", propertyFileUtil.getNumThreads().toString());
-
-        sendCompleteCall(uriBuilder);
-    }
-
-    private void sendCompleteCall(URIBuilder uriBuilder) {
-        try {
             HttpClient client = new HttpClient();
-            GetMethod getMethod = new GetMethod(uriBuilder.toString());
-            client.executeMethod(getMethod);
-        } catch (URIException e) {
-            // TODO: Use PrintUtil for Exceptions
-            e.printStackTrace();
-        } catch (HttpException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            PostMethod postMethod = new PostMethod(uriBuilder.toString());
+            client.executeMethod(postMethod);
+        } catch (Exception e) {
+            printUtil.printAndLog(e);
         }
     }
 }
