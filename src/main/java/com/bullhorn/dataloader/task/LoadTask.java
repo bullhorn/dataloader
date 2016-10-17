@@ -31,6 +31,7 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -288,8 +289,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 }
             } catch (RestApiException e) {
                 // Ignore duplicate (existing) REST errors for associations to avoid a costly duplicate check
-                if (!e.getMessage().contains("an association between " + entityClass.getSimpleName()) && !e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists") &&
-                    !(e.getMessage().contains("DUPLICATE_VALUE") && e.getMessage().contains("NoteEntity"))) {
+                if ((e.getMessage().contains("an association between " + entityClass.getSimpleName())
+                        && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists"))
+                    || (e.getMessage().contains("error persisting an entity of type: NoteEntity")
+                        && e.getMessage().contains("\"type\" : \"DUPLICATE_VALUE\""))) {
+                    printUtil.log(Level.INFO, "Association from " + entityClass.getSimpleName() + " entity " + entityID + " to " + associationField.getAssociationType().getSimpleName() + " entity " + associationId + " already exists.");
+                } else {
                     throw e;
                 }
             }

@@ -38,6 +38,7 @@ import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
 import com.bullhornsdk.data.model.response.list.SkillListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import com.csvreader.CsvReader;
+import org.apache.logging.log4j.Level;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -505,6 +506,14 @@ public class LoadTaskTest {
         Mockito.verify(bullhornDataMock, Mockito.times(1)).updateEntity(any(Note.class));
         Mockito.verify(bullhornDataMock, Mockito.times(7)).insertEntity(any(NoteEntity.class));
 
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Candidate entity 1001 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Candidate entity 1002 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to ClientContact entity 1003 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Lead entity 1004 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to JobOrder entity 1005 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Opportunity entity 1006 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Placement entity 1007 already exists.");
+
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
         Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
         Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
@@ -784,9 +793,11 @@ public class LoadTaskTest {
     @Test
     public void addAssociationToEntityTestCatchNoThrow() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         RestApiException thrownException = new RestApiException("an association between Candidate 1 and Skill 1 already exists");
+
         Set associationIdList = new HashSet<>();
         associationIdList.add(1);
         when(bullhornDataMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
+
         SkillListWrapper skillListWrapper = new SkillListWrapper();
         List<Skill> skillList = new ArrayList<>();
         Skill skill = new Skill();
@@ -794,17 +805,13 @@ public class LoadTaskTest {
         skillList.add(skill);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
+
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task.init();
         task.entityID = 1;
+        task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
 
-        boolean wasExceptionThrown = false;
-        try {
-            task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
-        } catch (RestApiException e) {
-            wasExceptionThrown = true;
-        }
-
-        Assert.assertThat(false, new ReflectionEquals(wasExceptionThrown));
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Candidate entity 1 to Skill entity 1 already exists.");
     }
 
     @Test
