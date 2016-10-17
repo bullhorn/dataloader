@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import org.apache.commons.httpclient.HttpClient;
 
 public class Main {
 
@@ -20,13 +21,14 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        HttpClient httpClient = new HttpClient();
         PrintUtil printUtil = new PrintUtil();
 
         try {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getProperties(), propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            CompleteUtil completeUtil = new CompleteUtil(propertyFileUtil, printUtil);
+            CompleteUtil completeUtil = new CompleteUtil(httpClient, propertyFileUtil, printUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, System.in);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);

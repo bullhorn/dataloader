@@ -192,4 +192,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     public ActionTotals getActionTotals() {
         return actionTotals;
     }
+
+    public BullhornData getBullhornData() {
+        return bullhornData;
+    }
 }

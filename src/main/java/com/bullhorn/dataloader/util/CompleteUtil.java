@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.util;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.http.client.utils.URIBuilder;
@@ -12,23 +13,31 @@ import org.apache.http.client.utils.URIBuilder;
  */
 public class CompleteUtil {
 
+    final private HttpClient httpClient;
     final private PropertyFileUtil propertyFileUtil;
     final private PrintUtil printUtil;
 
-    // TODO: Get access to REST endpoint.
-    public CompleteUtil(PropertyFileUtil propertyFileUtil,
+    public CompleteUtil(HttpClient httpClient,
+                        PropertyFileUtil propertyFileUtil,
                         PrintUtil printUtil) {
+        this.httpClient = httpClient;
         this.propertyFileUtil = propertyFileUtil;
         this.printUtil = printUtil;
     }
 
-    public void complete(Command command, String fileName, EntityInfo entityInfo, ActionTotals actionTotals, long durationMSec) {
+    public void complete(Command command,
+                         String fileName,
+                         EntityInfo entityInfo,
+                         ActionTotals actionTotals,
+                         long durationMSec,
+                         BullhornData bullhornData) {
+        String restUrl = bullhornData.getRestUrl() + "/dataloader/complete";
         Integer totalRecords = actionTotals.getAllActionsTotal();
         Integer failureRecords = actionTotals.getActionTotal(Result.Action.FAILURE);
         Integer successRecords = totalRecords - failureRecords;
 
         try {
-            URIBuilder uriBuilder = new URIBuilder("http://<rest>/dataloader/complete");
+            URIBuilder uriBuilder = new URIBuilder(restUrl);
             uriBuilder.addParameter("command", command.toString());
             uriBuilder.addParameter("entity", entityInfo.getEntityName());
             uriBuilder.addParameter("file", fileName);
@@ -38,9 +47,8 @@ public class CompleteUtil {
             uriBuilder.addParameter("durationMSec", String.valueOf(durationMSec));
             uriBuilder.addParameter("numThreads", propertyFileUtil.getNumThreads().toString());
 
-            HttpClient client = new HttpClient();
             PostMethod postMethod = new PostMethod(uriBuilder.toString());
-            client.executeMethod(postMethod);
+            httpClient.executeMethod(postMethod);
         } catch (Exception e) {
             printUtil.printAndLog(e);
         }
