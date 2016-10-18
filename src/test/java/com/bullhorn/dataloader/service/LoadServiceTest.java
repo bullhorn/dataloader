@@ -2,10 +2,13 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,15 +25,20 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static org.mockito.Matchers.any;
+
 public class LoadServiceTest {
 
-    private PrintUtil printUtilMock;
-    private PropertyFileUtil propertyFileUtilMock;
-    private ValidationUtil validationUtil;
+    private ActionTotals actionTotalsMock;
+    private BullhornData bullhornDataMock;
     private CompleteUtil completeUtilMock;
+    private ConcurrencyService concurrencyServiceMock;
     private InputStream inputStreamFake;
     private LoadService loadService;
-    private ConcurrencyService concurrencyServiceMock;
+    private PrintUtil printUtilMock;
+    private PropertyFileUtil propertyFileUtilMock;
+    private Timer timerMock;
+    private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws Exception {
@@ -38,14 +46,20 @@ public class LoadServiceTest {
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
         completeUtilMock = Mockito.mock(CompleteUtil.class);
+        actionTotalsMock = Mockito.mock(ActionTotals.class);
+        bullhornDataMock = Mockito.mock(BullhornData.class);
         inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
+        timerMock = Mockito.mock(Timer.class);
 
-        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake));
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake, timerMock));
 
-        // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
+        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
+        Mockito.doReturn(actionTotalsMock).when(concurrencyServiceMock).getActionTotals();
+        Mockito.doReturn(999L).when(timerMock).getDurationMillis();
+        Mockito.doReturn(bullhornDataMock).when(concurrencyServiceMock).getBullhornData();
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
+        Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).getExecutorService(Mockito.any());
     }
 
     @Test
@@ -57,6 +71,7 @@ public class LoadServiceTest {
 
         Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornDataMock);
     }
 
     @Test
@@ -103,9 +118,9 @@ public class LoadServiceTest {
     @Test
     public void testRun_directory_fourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake));
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake, timerMock));
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
+        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
 
         final String filePath = getFilePath("loadFromDirectory");

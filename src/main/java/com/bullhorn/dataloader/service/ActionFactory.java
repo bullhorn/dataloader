@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 import java.io.IOException;
@@ -18,17 +19,20 @@ public class ActionFactory {
     final private PropertyFileUtil propertyFileUtil;
     final private CompleteUtil completeUtil;
     final private InputStream inputStream;
+    final private Timer timer;
 
     public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ValidationUtil validationUtil,
                          CompleteUtil completeUtil,
-                         InputStream inputStream) {
+                         InputStream inputStream,
+                         Timer timer) {
         this.printUtil = printUtil;
         this.validationUtil = validationUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.completeUtil = completeUtil;
         this.inputStream = inputStream;
+        this.timer = timer;
     }
 
     /**
@@ -42,17 +46,17 @@ public class ActionFactory {
         if (command.equals(Command.HELP)) {
             action = new HelpService(printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
         } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
         } else if (command.equals(Command.DELETE)) {
-            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
         }
         return action;
     }

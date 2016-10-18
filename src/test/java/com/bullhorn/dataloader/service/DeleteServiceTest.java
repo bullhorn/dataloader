@@ -2,10 +2,13 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,13 +25,16 @@ import java.util.SortedMap;
 
 public class DeleteServiceTest {
 
-    private PrintUtil printUtilMock;
-    private PropertyFileUtil propertyFileUtilMock;
-    private ValidationUtil validationUtil;
+    private ActionTotals actionTotalsMock;
+    private BullhornData bullhornDataMock;
     private CompleteUtil completeUtilMock;
-    private InputStream inputStreamFake;
     private ConcurrencyService concurrencyServiceMock;
     private DeleteService deleteService;
+    private InputStream inputStreamFake;
+    private PrintUtil printUtilMock;
+    private PropertyFileUtil propertyFileUtilMock;
+    private Timer timerMock;
+    private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws Exception {
@@ -36,14 +42,21 @@ public class DeleteServiceTest {
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
         completeUtilMock = Mockito.mock(CompleteUtil.class);
+        actionTotalsMock = Mockito.mock(ActionTotals.class);
+        bullhornDataMock = Mockito.mock(BullhornData.class);
         inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
+        timerMock = Mockito.mock(Timer.class);
 
-        deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake));
+        deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake, timerMock));
 
-        // mock out AbstractService Methods that call class outside of this test scope
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
         Mockito.doReturn(concurrencyServiceMock).when(deleteService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
+        Mockito.doReturn(actionTotalsMock).when(concurrencyServiceMock).getActionTotals();
+        Mockito.doReturn(999L).when(timerMock).getDurationMillis();
+        Mockito.doReturn(bullhornDataMock).when(concurrencyServiceMock).getBullhornData();
+        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
         Mockito.doNothing().when(concurrencyServiceMock).runDeleteProcess();
+        Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).getExecutorService(Mockito.any());
     }
 
     @Test
@@ -55,6 +68,7 @@ public class DeleteServiceTest {
 
         Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runDeleteProcess();
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornDataMock);
     }
 
     @Test

@@ -47,24 +47,25 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractService {
 
-    final protected Timer timer;
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
     final protected CompleteUtil completeUtil;
     final protected InputStream inputStream;
+    final protected Timer timer;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
-                           InputStream inputStream) throws IOException {
+                           InputStream inputStream,
+                           Timer timer) throws IOException {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
         this.completeUtil = completeUtil;
         this.inputStream = inputStream;
-        timer = new Timer();
+        this.timer = timer;
     }
 
     public PropertyFileUtil getPropertyFileUtil() {

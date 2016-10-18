@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
@@ -19,6 +20,7 @@ public class ActionFactoryTest {
     private ValidationUtil validationUtilMock;
     private CompleteUtil completeUtilMock;
     private InputStream inputStreamMock;
+    private Timer timerMock;
     private ActionFactory actionFactory;
 
     @Before
@@ -28,8 +30,9 @@ public class ActionFactoryTest {
         validationUtilMock = Mockito.mock(ValidationUtil.class);
         completeUtilMock = Mockito.mock(CompleteUtil.class);
         inputStreamMock = Mockito.mock(InputStream.class);
+        timerMock = Mockito.mock(Timer.class);
 
-        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, inputStreamMock);
+        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, inputStreamMock, timerMock);
     }
 
     @Test
@@ -94,5 +97,4 @@ public class ActionFactoryTest {
 
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
-
 }

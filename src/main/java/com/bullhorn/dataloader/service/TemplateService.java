@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
 
@@ -19,8 +20,9 @@ public class TemplateService extends AbstractService implements Action {
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
-                           InputStream inputStream) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+                           InputStream inputStream,
+                           Timer timer) throws IOException {
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
     }
 
     @Override

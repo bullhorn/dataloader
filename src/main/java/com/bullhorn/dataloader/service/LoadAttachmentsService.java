@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 import java.io.IOException;
@@ -19,8 +20,9 @@ public class LoadAttachmentsService extends AbstractService implements Action {
                                   PropertyFileUtil propertyFileUtil,
                                   ValidationUtil validationUtil,
                                   CompleteUtil completeUtil,
-                                  InputStream inputStream) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream);
+                                  InputStream inputStream,
+                                  Timer timer) throws IOException {
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
     }
 
     @Override
@@ -41,6 +43,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
             timer.start();
             concurrencyService.runLoadAttachmentsProcess();
             printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHMS());
+            completeUtil.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, concurrencyService.getActionTotals(), timer.getDurationMillis(), concurrencyService.getBullhornData());
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to load " + entityInfo + " attachments");
             printUtil.printAndLog(e);
