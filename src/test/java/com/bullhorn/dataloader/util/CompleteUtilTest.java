@@ -41,6 +41,7 @@ public class CompleteUtilTest {
         Mockito.when(httpClientMock.executeMethod(any())).thenReturn(0);
         Mockito.when(propertyFileUtilMock.getNumThreads()).thenReturn(9);
         Mockito.when(bullhornDataMock.getRestUrl()).thenReturn("http://bullhorn-rest-api/");
+        Mockito.when(bullhornDataMock.getBhRestToken()).thenReturn("12345678-1234-1234-1234-1234567890AB");
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(2);
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.FAILURE)).thenReturn(3);
@@ -48,16 +49,16 @@ public class CompleteUtilTest {
     }
 
     @Test
-    public void completeLoadTest() throws IOException {
+    public void completeTest() throws IOException {
         long durationMsec = 999;
-        String expectedURI = "http://bullhorn-rest-api/dataloader/complete";
+        String expectedURL = "http://bullhorn-rest-api/services/dataLoader/complete?BhRestToken=12345678-1234-1234-1234-1234567890AB";
         String expectedPayload = "{" +
-            "\"totalRecords\":\"6\"," +
+            "\"totalRecords\":6," +
             "\"file\":\"Candidate.csv\"," +
-            "\"failureRecords\":\"3\"," +
-            "\"durationMSec\":\"999\"," +
-            "\"successRecords\":\"3\"," +
-            "\"numThreads\":\"9\"," +
+            "\"failureRecords\":3," +
+            "\"durationMsec\":999," +
+            "\"successRecords\":3," +
+            "\"numThreads\":9," +
             "\"command\":\"LOAD\"," +
             "\"entity\":\"Candidate\"" +
         "}";
@@ -67,7 +68,7 @@ public class CompleteUtilTest {
         Mockito.verify(httpClientMock).executeMethod(httpMethodArgumentCaptor.capture());
         final HttpMethod httpMethod = httpMethodArgumentCaptor.getValue();
         PostMethod postMethod = (PostMethod) httpMethod;
-        Assert.assertEquals(expectedURI, postMethod.getURI().toString());
+        Assert.assertEquals(expectedURL, postMethod.getURI().toString());
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         postMethod.getRequestEntity().writeRequest(outputStream);
