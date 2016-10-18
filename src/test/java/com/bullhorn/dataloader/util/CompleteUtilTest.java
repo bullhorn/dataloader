@@ -6,12 +6,14 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static org.mockito.Matchers.any;
@@ -48,20 +50,28 @@ public class CompleteUtilTest {
     @Test
     public void completeLoadTest() throws IOException {
         long durationMsec = 999;
-        String expectedURI = "http://bullhorn-rest-api/dataloader/complete" +
-            "?command=LOAD" +
-            "&entity=Candidate" +
-            "&file=Candidate.csv" +
-            "&totalRecords=6" +
-            "&successRecords=3" +
-            "&failureRecords=3" +
-            "&durationMSec=999" +
-            "&numThreads=9";
+        String expectedURI = "http://bullhorn-rest-api/dataloader/complete";
+        String expectedPayload = "{" +
+            "\"totalRecords\":\"6\"," +
+            "\"file\":\"Candidate.csv\"," +
+            "\"failureRecords\":\"3\"," +
+            "\"durationMSec\":\"999\"," +
+            "\"successRecords\":\"3\"," +
+            "\"numThreads\":\"9\"," +
+            "\"command\":\"LOAD\"," +
+            "\"entity\":\"Candidate\"" +
+        "}";
 
         completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, durationMsec, bullhornDataMock);
 
         Mockito.verify(httpClientMock).executeMethod(httpMethodArgumentCaptor.capture());
         final HttpMethod httpMethod = httpMethodArgumentCaptor.getValue();
-        Assert.assertEquals(expectedURI, httpMethod.getURI().toString());
+        PostMethod postMethod = (PostMethod) httpMethod;
+        Assert.assertEquals(expectedURI, postMethod.getURI().toString());
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        postMethod.getRequestEntity().writeRequest(outputStream);
+        String actualPayload = outputStream.toString();
+        Assert.assertEquals(expectedPayload, actualPayload);
     }
 }

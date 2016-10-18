@@ -6,7 +6,8 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.json.JSONObject;
 
 /**
  * Utility class for sending DataLoader complete call to REST
@@ -37,17 +38,20 @@ public class CompleteUtil {
         Integer successRecords = totalRecords - failureRecords;
 
         try {
-            URIBuilder uriBuilder = new URIBuilder(restUrl);
-            uriBuilder.addParameter("command", command.toString());
-            uriBuilder.addParameter("entity", entityInfo.getEntityName());
-            uriBuilder.addParameter("file", fileName);
-            uriBuilder.addParameter("totalRecords", totalRecords.toString());
-            uriBuilder.addParameter("successRecords", successRecords.toString());
-            uriBuilder.addParameter("failureRecords", failureRecords.toString());
-            uriBuilder.addParameter("durationMSec", String.valueOf(durationMSec));
-            uriBuilder.addParameter("numThreads", propertyFileUtil.getNumThreads().toString());
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("command", command.toString());
+            jsonObject.put("entity", entityInfo.getEntityName());
+            jsonObject.put("file", fileName);
+            jsonObject.put("totalRecords", totalRecords.toString());
+            jsonObject.put("successRecords", successRecords.toString());
+            jsonObject.put("failureRecords", failureRecords.toString());
+            jsonObject.put("durationMSec", String.valueOf(durationMSec));
+            jsonObject.put("numThreads", propertyFileUtil.getNumThreads().toString());
+            String jsonString = jsonObject.toString();
+            StringRequestEntity stringRequestEntity = new StringRequestEntity(jsonString, "application/json", "UTF-8");
 
-            PostMethod postMethod = new PostMethod(uriBuilder.toString());
+            PostMethod postMethod = new PostMethod(restUrl);
+            postMethod.setRequestEntity(stringRequestEntity);
             httpClient.executeMethod(postMethod);
         } catch (Exception e) {
             printUtil.printAndLog(e);
