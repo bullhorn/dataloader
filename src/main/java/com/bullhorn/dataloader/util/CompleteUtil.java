@@ -31,7 +31,7 @@ public class CompleteUtil {
                          ActionTotals actionTotals,
                          long durationMSec,
                          BullhornData bullhornData) {
-        String restUrl = bullhornData.getRestUrl() + "/dataloader/complete";
+        String restUrl = bullhornData.getRestUrl() + "dataloader/complete";
         Integer totalRecords = actionTotals.getAllActionsTotal();
         Integer failureRecords = actionTotals.getActionTotal(Result.Action.FAILURE);
         Integer successRecords = totalRecords - failureRecords;

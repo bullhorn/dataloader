@@ -38,7 +38,7 @@ public class CompleteUtilTest {
 
         Mockito.when(httpClientMock.executeMethod(any())).thenReturn(0);
         Mockito.when(propertyFileUtilMock.getNumThreads()).thenReturn(9);
-        Mockito.when(bullhornDataMock.getRestUrl()).thenReturn("http://bullhorn-rest-api");
+        Mockito.when(bullhornDataMock.getRestUrl()).thenReturn("http://bullhorn-rest-api/");
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(2);
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.FAILURE)).thenReturn(3);
