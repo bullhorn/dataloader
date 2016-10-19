@@ -2,11 +2,14 @@ package com.bullhorn.dataloader;
 
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.service.CommandLineInterface;
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import org.apache.commons.httpclient.HttpClient;
 
 public class Main {
 
@@ -19,13 +22,16 @@ public class Main {
     }
 
     public static void main(String[] args) {
+        HttpClient httpClient = new HttpClient();
         PrintUtil printUtil = new PrintUtil();
+        Timer timer = new Timer();
 
         try {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getProperties(), propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, System.in);
+            CompleteUtil completeUtil = new CompleteUtil(httpClient, propertyFileUtil, printUtil);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
             

@@ -1,7 +1,9 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
@@ -25,18 +27,23 @@ public class TemplateServiceTest {
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private ValidationUtil validationUtil;
+    private CompleteUtil completeUtilMock;
     private InputStream inputStreamMock;
     private TemplateService templateService;
     private BullhornData bullhornData;
+    private Timer timerMock;
 
     @Before
     public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
         inputStreamMock = Mockito.mock(InputStream.class);
-        templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, inputStreamMock));
         bullhornData = Mockito.mock(BullhornData.class);
+        timerMock = Mockito.mock(Timer.class);
+
+        templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
 
         StandardMetaData<Candidate> metaData = new StandardMetaData<>();
         metaData.setEntity("Candidate");
@@ -45,6 +52,7 @@ public class TemplateServiceTest {
         field.setDataType("String");
         field.setType("SCALAR");
         metaData.setFields(Arrays.asList(field));
+
         when(bullhornData.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
     }
 

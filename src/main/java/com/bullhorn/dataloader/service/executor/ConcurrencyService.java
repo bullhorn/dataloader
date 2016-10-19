@@ -169,7 +169,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         if (methodMap.containsKey("address")) {
             for (Method method : Arrays.asList(Address.class.getMethods())) {
                 if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                     methodMap.put(method.getName().substring(3).toLowerCase(), method);
+                    methodMap.put(method.getName().substring(3).toLowerCase(), method);
                 }
             }
         }
@@ -189,4 +189,11 @@ public class ConcurrencyService<B extends BullhornEntity> {
         return dataMap;
     }
 
+    public ActionTotals getActionTotals() {
+        return actionTotals;
+    }
+
+    public BullhornData getBullhornData() {
+        return bullhornData;
+    }
 }
