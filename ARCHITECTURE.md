@@ -44,4 +44,3 @@ $$T_{row} = T_{call} * ((N_{a} * 2) + 1)$$
 T<sub>row</sub> = time to load an individual row
 T<sub>call</sub> = average time to send and receive a response for a REST call
 N<sub>a</sub> = number of columns in this row that are associated to another entity (will require a single rest call to associate)
-
