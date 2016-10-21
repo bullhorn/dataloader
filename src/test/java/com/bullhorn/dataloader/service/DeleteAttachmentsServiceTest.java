@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -14,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.InputStream;
 
 public class DeleteAttachmentsServiceTest {
@@ -52,7 +52,7 @@ public class DeleteAttachmentsServiceTest {
 
     @Test
     public void testRun() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
         deleteAttachmentsService.run(testArgs);
@@ -64,7 +64,7 @@ public class DeleteAttachmentsServiceTest {
 
     @Test
     public void testIsValidArguments() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
         final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
@@ -75,7 +75,7 @@ public class DeleteAttachmentsServiceTest {
 
     @Test
     public void testIsValidArguments_BadEntity() throws Exception {
-        final String filePath = getFilePath("Invalid_Candidate_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
         final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
@@ -125,10 +125,5 @@ public class DeleteAttachmentsServiceTest {
 
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

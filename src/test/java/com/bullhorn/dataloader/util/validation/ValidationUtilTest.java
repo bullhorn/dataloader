@@ -1,12 +1,12 @@
 package com.bullhorn.dataloader.util.validation;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.IOException;
 
 public class ValidationUtilTest {
@@ -22,7 +22,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile() {
-        String path = getFilePath("Candidate_Valid_File.csv");
+        String path = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         Boolean actualResult = validationUtil.isValidCsvFile(path);
         Assert.assertTrue(actualResult);
         Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
@@ -44,7 +44,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile_directory() {
-        String path = getFilePath(".");
+        String path = TestUtils.getResourceFilePath(".");
         Boolean actualResult = validationUtil.isValidCsvFile(path);
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("ERROR: Expected a file, but a directory was provided.");
@@ -52,7 +52,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile_directory_noPrint() {
-        String path = getFilePath(".");
+        String path = TestUtils.getResourceFilePath(".");
         Boolean actualResult = validationUtil.isValidCsvFile(path, false);
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
@@ -60,7 +60,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile_nonCsvFile() {
-        String path = getFilePath("unitTest.properties");
+        String path = TestUtils.getResourceFilePath("unitTest.properties");
         Boolean actualResult = validationUtil.isValidCsvFile(path);
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
@@ -68,7 +68,7 @@ public class ValidationUtilTest {
 
     @Test
     public void testIsValidCsvFile_nonCsvFile_noPrint() {
-        String path = getFilePath("unitTest.properties");
+        String path = TestUtils.getResourceFilePath("unitTest.properties");
         Boolean actualResult = validationUtil.isValidCsvFile(path, false);
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
@@ -116,10 +116,5 @@ public class ValidationUtilTest {
         Assert.assertFalse(validationUtil.isDeletableEntity("BusinessSector", false));
         Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

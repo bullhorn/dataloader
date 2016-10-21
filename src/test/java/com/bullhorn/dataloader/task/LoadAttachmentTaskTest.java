@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.beust.jcommander.internal.Lists;
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -25,7 +26,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -60,7 +60,7 @@ public class LoadAttachmentTaskTest {
 
     private Map<String, Method> methodMap = new HashMap();
 
-    private String relativeFilePath = getFilePath("testResume/TestResume.doc");
+    private String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
 
     @Before
     public void setUp() throws Exception {
@@ -248,10 +248,5 @@ public class LoadAttachmentTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }
