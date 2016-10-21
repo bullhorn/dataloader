@@ -17,16 +17,29 @@ public class TestUtils {
     static final String CSV = "csv";
 
     /**
-     * Returns the value of the environment variable with the given name. Throws an error if it does not exist.
-     * @param name The name of the environment variable
-     * @return The value of the environment variable
+     * Sets a system property to the value of the environment variable, and throws an error if it does not exist
+     * @param propertyName the system property to set
+     * @param envVarName the environment variable to read from
      */
-    public static String getEnvironmentVariable(String name) {
-        String envVar = System.getenv(name);
+    public static void setPropertyFromEnvironmentVariable(String propertyName, String envVarName) {
+        String envVar = System.getenv(envVarName);
         if (envVar == null) {
-            throw new IllegalArgumentException("Test Setup Error: Missing Environment Variable: '" + name + "'");
+            throw new IllegalArgumentException("Test Setup Error: Missing Environment Variable: '" + envVarName + "'");
+        } else {
+            System.setProperty(propertyName, envVar);
         }
-        return envVar;
+    }
+
+    /**
+     * Sets a system property to the value of the environment variable, if it exists
+     * @param propertyName the system property to set
+     * @param envVarName the environment variable to read from if it exists
+     */
+    public static void setPropertyFromEnvironmentVariableIfExists(String propertyName, String envVarName) {
+        String envVar = System.getenv(envVarName);
+        if (envVar != null) {
+            System.setProperty(propertyName, envVar);
+        }
     }
 
     /**
