@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -15,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -61,7 +61,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testRun_file() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
@@ -73,7 +73,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testRun_directoryOneFile() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory/ClientContact");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
@@ -84,7 +84,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testRun_directoryFourFiles() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
@@ -101,7 +101,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -112,7 +112,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_BadEntity() throws Exception {
-        final String filePath = getFilePath("Invalid_Candidate_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -166,7 +166,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_ReadOnlyEntity() throws Exception {
-        final String filePath = getFilePath("BusinessSector.csv");
+        final String filePath = TestUtils.getResourceFilePath("BusinessSector.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -177,7 +177,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_NonDeletableEntity() throws Exception {
-        final String filePath = getFilePath("ClientCorporation.csv");
+        final String filePath = TestUtils.getResourceFilePath("ClientCorporation.csv");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -188,7 +188,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_Directory() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -199,7 +199,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_noCsvFiles() throws Exception {
-        final String filePath = getFilePath("testResume");
+        final String filePath = TestUtils.getResourceFilePath("testResume");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -210,7 +210,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testIsValidArguments_noDeletableCsvFiles() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory/businessSector");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/businessSector");
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         final boolean actualResult = deleteService.isValidArguments(testArgs);
@@ -219,14 +219,9 @@ public class DeleteServiceTest {
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
 
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
-    }
-
     @Test
     public void testGetDeletableCsvFilesFromPath() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(filePath);
 
         Set<Map.Entry<EntityInfo, List<String>>> sortedSet = actualMap.entrySet();
@@ -250,7 +245,7 @@ public class DeleteServiceTest {
 
     @Test
     public void testGetDeletableCsvFilesFromPath_emptyDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(getFilePath("testResume"));
+        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"));
         Assert.assertTrue(actualMap.isEmpty());
     }
 }

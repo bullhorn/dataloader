@@ -6,7 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 
 public class MainTest {
@@ -24,7 +23,7 @@ public class MainTest {
         System.setOut(printStream);
 
         // Use the properties file from the test/resources directory
-        System.setProperty("propertyfile", getFilePath("unitTest.properties"));
+        System.setProperty("propertyfile", TestUtils.getResourceFilePath("unitTest.properties"));
     }
 
     @After
@@ -41,10 +40,5 @@ public class MainTest {
         main.main(args);
 
         Assert.assertTrue(outputStream.toString().contains("ERROR: Cannot access: file.bad"));
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

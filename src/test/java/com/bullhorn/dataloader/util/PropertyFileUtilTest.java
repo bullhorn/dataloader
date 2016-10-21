@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
@@ -7,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,7 +28,7 @@ public class PropertyFileUtilTest {
         propertyValidation = new PropertyValidation();
         printUtilMock = Mockito.mock(PrintUtil.class);
         systemPropertiesMock = Mockito.mock(Properties.class);
-        path = getFilePath("unitTest.properties");
+        path = TestUtils.getResourceFilePath("unitTest.properties");
     }
 
     @Test
@@ -106,10 +106,5 @@ public class PropertyFileUtilTest {
     public void testPropertyFileSystemPropertyOverride() throws IOException {
         Mockito.doReturn("bogus/file/path/to/dataloader.properties").when(systemPropertiesMock).getProperty("propertyfile");
         propertyFileUtil = new PropertyFileUtil(path, systemPropertiesMock, propertyValidation, printUtilMock);
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

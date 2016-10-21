@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -14,7 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.InputStream;
 
 public class LoadAttachmentsServiceTest {
@@ -52,7 +52,7 @@ public class LoadAttachmentsServiceTest {
 
     @Test
     public void testRun() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 
         loadAttachmentsService.run(testArgs);
@@ -64,7 +64,7 @@ public class LoadAttachmentsServiceTest {
 
     @Test
     public void testIsValidArguments() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -75,7 +75,7 @@ public class LoadAttachmentsServiceTest {
 
     @Test
     public void testIsValidArguments_BadEntity() throws Exception {
-        final String filePath = getFilePath("Invalid_Candidate_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
@@ -129,17 +129,12 @@ public class LoadAttachmentsServiceTest {
 
     @Test
     public void testIsValidArguments_InvalidParentEntity() throws Exception {
-        final String filePath = getFilePath("AppointmentAttachments.csv");
+        final String filePath = TestUtils.getResourceFilePath("AppointmentAttachments.csv");
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath};
 
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }

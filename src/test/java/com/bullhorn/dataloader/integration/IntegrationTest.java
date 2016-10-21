@@ -52,11 +52,16 @@ public class IntegrationTest {
         // Use the properties file from the test/resources directory
         System.setProperty("propertyfile", TestUtils.getResourceFilePath("integrationTest.properties"));
 
-        // Use environment variables to drive system arguments from TravisCI
-        System.setProperty("username", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_USERNAME"));
-        System.setProperty("password", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_PASSWORD"));
-        System.setProperty("clientId", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_CLIENT_ID"));
-        System.setProperty("clientSecret", TestUtils.getEnvironmentVariable("INTEGRATION_TEST_CLIENT_SECRET"));
+        // Require environment variables for login credentials
+        TestUtils.setPropertyFromEnvironmentVariable("username", "INTEGRATION_TEST_USERNAME");
+        TestUtils.setPropertyFromEnvironmentVariable("password", "INTEGRATION_TEST_PASSWORD");
+        TestUtils.setPropertyFromEnvironmentVariable("clientId", "INTEGRATION_TEST_CLIENT_ID");
+        TestUtils.setPropertyFromEnvironmentVariable("clientSecret", "INTEGRATION_TEST_CLIENT_SECRET");
+
+        // Allow environment variables to optionally override the REST URLs
+        TestUtils.setPropertyFromEnvironmentVariableIfExists("authorizeUrl", "INTEGRATION_TEST_AUTHORIZE_URL");
+        TestUtils.setPropertyFromEnvironmentVariableIfExists("tokenUrl", "INTEGRATION_TEST_TOKEN_URL");
+        TestUtils.setPropertyFromEnvironmentVariableIfExists("loginUrl", "INTEGRATION_TEST_LOGIN_URL");
 
         // Capture command line output as a string without stopping the real-time printout
         consoleOutputCapturer = new ConsoleOutputCapturer();
@@ -103,12 +108,6 @@ public class IntegrationTest {
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
 
-        // region ~FIXME~
-        // Updating of JobSubmission records is failing due to insufficient update privileges.
-        File jobSubmissionExample = new File(tempDirPath + "/JobSubmission.csv");
-        jobSubmissionExample.delete();
-        // endregion
-
         // region UPDATE
         FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
@@ -135,9 +134,9 @@ public class IntegrationTest {
         // endregion
 
         // region ~FIXME~
-        // Deleting ClientContact and Placement records is failing!
+        // Deleting Placement records is failing!
         for (File file : resultsDir.listFiles()) {
-            if (file.getName().contains("Placement_") || file.getName().contains("ClientContact_")) {
+            if (file.getName().contains("Placement_")) {
                 file.delete();
             }
         }

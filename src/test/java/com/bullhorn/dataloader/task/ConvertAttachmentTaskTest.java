@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -16,7 +17,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
@@ -56,7 +56,7 @@ public class ConvertAttachmentTaskTest {
 
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id", "1");
-        dataMap.put("relativeFilePath", getFilePath("testResume/TestResume.doc"));
+        dataMap.put("relativeFilePath", TestUtils.getResourceFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "1");
 
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
@@ -95,7 +95,7 @@ public class ConvertAttachmentTaskTest {
     public void run_Success_Skip() throws IOException {
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id", "1");
-        dataMap.put("relativeFilePath", getFilePath("testResume/TestResume.doc"));
+        dataMap.put("relativeFilePath", TestUtils.getResourceFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "0");
 
         Result expectedResult = Result.Skip();
@@ -121,7 +121,7 @@ public class ConvertAttachmentTaskTest {
     public void getConvertedAttachmentPathTest() {
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("clientContact.externalID", "1");
-        dataMap.put("relativeFilePath", getFilePath("testResume/TestResume.doc"));
+        dataMap.put("relativeFilePath", TestUtils.getResourceFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "0");
         String expectedResult = "convertedAttachments/ClientContact/1.html";
 
@@ -132,10 +132,4 @@ public class ConvertAttachmentTaskTest {
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
-    }
-
 }

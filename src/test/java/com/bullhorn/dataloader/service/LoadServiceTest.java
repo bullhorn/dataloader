@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
@@ -64,7 +65,7 @@ public class LoadServiceTest {
 
     @Test
     public void testRun_file() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
@@ -76,7 +77,7 @@ public class LoadServiceTest {
 
     @Test
     public void testRun_directoryOneFile() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory/ClientContact");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
@@ -87,7 +88,7 @@ public class LoadServiceTest {
 
     @Test
     public void testRun_directory_fourFilesSameEntity() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory/opportunity");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/opportunity");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
@@ -102,7 +103,7 @@ public class LoadServiceTest {
 
     @Test
     public void testRun_directory_fourFiles() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
@@ -123,7 +124,7 @@ public class LoadServiceTest {
         Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
 
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
@@ -140,7 +141,7 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArguments_File() throws Exception {
-        final String filePath = getFilePath("Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -151,7 +152,7 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArguments_BadEntity() throws Exception {
-        final String filePath = getFilePath("Invalid_Candidate_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -205,7 +206,7 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArguments_ReadOnlyEntity() throws Exception {
-        final String filePath = getFilePath("BusinessSector.csv");
+        final String filePath = TestUtils.getResourceFilePath("BusinessSector.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -216,7 +217,7 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArguments_Directory() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -227,7 +228,7 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArguments_noCsvFiles() throws Exception {
-        final String filePath = getFilePath("testResume");
+        final String filePath = TestUtils.getResourceFilePath("testResume");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -238,7 +239,7 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArguments_noLoadableCsvFiles() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory/businessSector");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/businessSector");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -249,7 +250,7 @@ public class LoadServiceTest {
 
     @Test
     public void testGetValidCsvFilesFromPath_file() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory/Candidate_Valid_File.csv");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv");
         final File file = new File(filePath);
         final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
         expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(file.getAbsolutePath()));
@@ -262,13 +263,13 @@ public class LoadServiceTest {
 
     @Test
     public void testGetLoadableCsvFilesFromPath() throws Exception {
-        final String filePath = getFilePath("loadFromDirectory");
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
 
-        File candidateFile = new File(getFilePath("loadFromDirectory/Candidate_Valid_File.csv"));
-        File candidateWorkHistoryFile = new File(getFilePath("loadFromDirectory/CandidateWorkHistory.csv"));
-        File clientCorporationFile1 = new File(getFilePath("loadFromDirectory/ClientCorporation_1.csv"));
-        File clientCorporationFile2 = new File(getFilePath("loadFromDirectory/ClientCorporation_2.csv"));
+        File candidateFile = new File(TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv"));
+        File candidateWorkHistoryFile = new File(TestUtils.getResourceFilePath("loadFromDirectory/CandidateWorkHistory.csv"));
+        File clientCorporationFile1 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_1.csv"));
+        File clientCorporationFile2 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_2.csv"));
 
         expectedMap.put(EntityInfo.CLIENT_CORPORATION, Arrays.asList(clientCorporationFile1.getAbsolutePath(), clientCorporationFile2.getAbsolutePath()));
         expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(candidateFile.getAbsolutePath()));
@@ -303,12 +304,7 @@ public class LoadServiceTest {
 
     @Test
     public void testGetLoadableCsvFilesFromPath_emptyDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(getFilePath("testResume"));
+        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"));
         Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    private String getFilePath(String filename) {
-        final ClassLoader classLoader = getClass().getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
     }
 }
