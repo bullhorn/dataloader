@@ -1,2 +1,2 @@
-candidate.externalID,jobOrder.externalID,billRate,dateAdded,dateWebResponse,migrateGUID,payRate,salary,source,status,sendingUser.name
-candidate-ext-1,jobOrder-ext-1,100,1/1/16 00:00,2/2/16 00:00,12345678-1234-1234-1234-1234567890AB,50,90000,Referral,jobSubmission-ext-1,Manager CorporateUser
+candidate.externalID,jobOrder.externalID,billRate,dateAdded,dateWebResponse,migrateGUID,payRate,salary,source,status,sendingUser.name,customText1,customText2,customText3,customText4,customText5
+candidate-ext-1,jobOrder-ext-1,100,1/1/16 00:00,2/2/16 00:00,12345678-1234-1234-1234-1234567890AB,50,90000,Referral,Submitted,Manager CorporateUser,jobSubmission-ext-1,custom text field 2,custom text field 3,custom text field 4,custom text field 5
