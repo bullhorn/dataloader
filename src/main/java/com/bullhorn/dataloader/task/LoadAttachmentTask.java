@@ -129,7 +129,13 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     private <F extends FileEntity> void populateFileMeta() throws Exception {
-        File attachmentFile = new File(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+        File attachmentFile;
+
+        try{
+            attachmentFile = new File(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+        } catch(NullPointerException e) {
+            throw new IOException("Relative File Path column is required for loadAttachments");
+        }
 
         if (isNewEntity) {
             try {
