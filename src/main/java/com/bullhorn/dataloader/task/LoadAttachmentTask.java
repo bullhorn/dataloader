@@ -90,7 +90,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
-             bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(StringConsts.ID)));
+            bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(StringConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
@@ -131,10 +131,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private <F extends FileEntity> void populateFileMeta() throws Exception {
         File attachmentFile;
 
-        try{
+        try {
             attachmentFile = new File(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
-        } catch(NullPointerException e) {
-            throw new IOException("Relative File Path column is required for loadAttachments");
+        } catch (NullPointerException e) {
+            throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
         }
 
         if (isNewEntity) {

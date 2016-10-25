@@ -133,10 +133,9 @@ public class LoadAttachmentTaskTest {
     }
 
     @Test
-    public void loadAttachmentNoRelativeFilePathTest() throws IOException{
+    public void loadAttachmentNoRelativeFilePathTest() throws IOException {
         final String[] expectedValues = {"2016Ext", "1", "1001"};
-        final Result expectedResult = Result.Failure(new IOException("Relative File Path column is required for loadAttachments"));
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
+        final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for loadAttachments"));
 
         final List<Candidate> candidates = new ArrayList<>();
         candidates.add(new Candidate(1001));
@@ -146,6 +145,9 @@ public class LoadAttachmentTaskTest {
 
         when(bullhornData.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
 
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
+
+        task.init();
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
