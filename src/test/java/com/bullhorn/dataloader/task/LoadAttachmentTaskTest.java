@@ -56,6 +56,7 @@ public class LoadAttachmentTaskTest {
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private LinkedHashMap<String, String> dataMap;
     private LinkedHashMap<String, String> dataMap2;
+    private LinkedHashMap<String, String> dataMap3;
     private LoadAttachmentTask task;
 
     private Map<String, Method> methodMap = new HashMap();
@@ -97,6 +98,11 @@ public class LoadAttachmentTaskTest {
         dataMap2.put("isResume", "1");
         dataMap2.put("externalID", "extFileId1");
         dataMap2.put("name", "new filename");
+
+        dataMap3 = new LinkedHashMap<String, String>();
+        dataMap3.put("candidate.externalID", "2016Ext");
+        dataMap3.put("isResume", "1");
+
     }
 
     @Test
@@ -123,6 +129,30 @@ public class LoadAttachmentTaskTest {
 
         final Result actualResult = resultArgumentCaptor.getValue();
 
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+    }
+
+    @Test
+    public void loadAttachmentNoRelativeFilePathTest() throws IOException {
+        final String[] expectedValues = {"2016Ext", "1", "1001"};
+        final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for loadAttachments"));
+
+        final List<Candidate> candidates = new ArrayList<>();
+        candidates.add(new Candidate(1001));
+
+        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
+        listWrapper.setData(candidates);
+
+        when(bullhornData.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
+
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
+
+        task.init();
+        task.run();
+
+        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+
+        final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
