@@ -12,6 +12,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * The purpose of this integration test is to:
@@ -48,7 +49,7 @@ public class IntegrationTest {
      * @throws IOException For directory cloning
      */
     @Test
-    public void testIntegration() throws IOException {
+    public void testIntegration() throws IOException, InterruptedException {
         // Use the properties file from the test/resources directory
         System.setProperty("propertyfile", TestUtils.getResourceFilePath("integrationTest.properties"));
 
@@ -78,7 +79,7 @@ public class IntegrationTest {
      * @param directoryPath The path to the directory to load
      * @throws IOException For directory cloning
      */
-    private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException {
+    private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException, InterruptedException {
         // region SETUP
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
         File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
@@ -106,6 +107,11 @@ public class IntegrationTest {
         Assert.assertFalse("Delete performed during insert step", insertCommandOutput.contains("deleted: 1"));
         Assert.assertFalse("Failure reported during insert step", insertCommandOutput.contains("failed: 1"));
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+        // endregion
+
+        // region ~WORKAROUND~
+        // The Note V1 indexers on SL9 can take a while to index during normal business hours.
+        TimeUnit.MINUTES.sleep(5);
         // endregion
 
         // region UPDATE
