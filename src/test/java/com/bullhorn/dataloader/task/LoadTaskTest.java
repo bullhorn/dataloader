@@ -54,6 +54,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.ParseException;
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -758,21 +759,6 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void run_populateFieldOnEntityTestCatch() throws NoSuchMethodException, ParseException, IOException, InvocationTargetException, IllegalAccessException {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.text.ParseException: failure");
-        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        Method setExternalIdMethod = Candidate.class.getMethod("setExternalID", String.class);
-        when(task.convertStringToClass(eq(setExternalIdMethod), eq("11"))).thenThrow(new ParseException("failure", 1));
-        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
-
-        task.run();
-
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-    }
-
-    @Test
     public void run_createEntityObjectTestCatch() throws IOException {
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
@@ -989,6 +975,15 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void convertStringToClassTest_IntegerEmptyValue() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("id"), "");
+
+        Assert.assertEquals(0, convertedString);
+    }
+
+    @Test
     public void convertStringToClassTest_Double() throws ParseException, NoSuchMethodException {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
@@ -999,12 +994,31 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void convertStringToClassTest_DoubleEmptyValue() throws ParseException, NoSuchMethodException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
+
+        Object convertedString = task.convertStringToClass(method, "");
+
+        Assert.assertEquals(0.0, convertedString);
+    }
+
+    @Test
     public void convertStringToClassTest_Boolean() throws ParseException {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "true");
 
         Assert.assertEquals(true, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_BooleanNullValue() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "");
+
+        Assert.assertEquals(false, convertedString);
     }
 
     @Test
@@ -1020,6 +1034,13 @@ public class LoadTaskTest {
         Assert.assertEquals(now, convertedString);
     }
 
+    @Test(expected = DateTimeException.class)
+    public void convertStringToClassTest_DateTimeException() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        task.convertStringToClass(methodMap.get("dateadded"), "");
+    }
+
     @Test
     public void convertStringToClassTest_BigDecimal() throws ParseException {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
@@ -1027,6 +1048,15 @@ public class LoadTaskTest {
         Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "1");
 
         Assert.assertEquals(BigDecimal.ONE, convertedString);
+    }
+
+    @Test
+    public void convertStringToClassTest_BigDecimalEmptyValue() throws ParseException {
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+
+        Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "");
+
+        Assert.assertTrue(BigDecimal.ZERO.setScale(1).equals(convertedString));
     }
 
     @Test
