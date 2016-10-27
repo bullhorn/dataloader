@@ -47,6 +47,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -239,25 +240,38 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected Object convertStringToClass(Method method, String value) throws ParseException {
-        if (StringUtils.isEmpty(value)) {
-            return null;
-        }
         Class convertToClass = method.getParameterTypes()[0];
         value = value.trim();
+
         if (String.class.equals(convertToClass)) {
             return value;
         } else if (Integer.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return 0;
+            }
             return Integer.parseInt(value);
         } else if (Double.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return 0.0;
+            }
             return Double.parseDouble(value);
         } else if (Boolean.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return Boolean.parseBoolean(null);
+            }
             return Boolean.parseBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            if (StringUtils.isEmpty(value)) {
+                throw new DateTimeException("Row " + rowNumber + ": Cannot set date value to null");
+            }
             return (DateTime) formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
             DecimalFormat decimalFormat = new DecimalFormat();
             decimalFormat.setParseBigDecimal(true);
+            if (StringUtils.isEmpty(value)) {
+                return (BigDecimal) decimalFormat.parse(String.valueOf(0.0));
+            }
             return (BigDecimal) decimalFormat.parse(value);
         }
         return null;
@@ -336,7 +350,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             throw new RestApiException("Row " + rowNumber + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
         }
 
-        if (value != null && !"".equalsIgnoreCase(value)) {
+        if (value != null) {
             method.invoke(entity, convertStringToClass(method, value));
         }
     }
