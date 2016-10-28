@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -25,7 +26,7 @@ public class DeleteCustomObjectTaskTest {
 
     private PropertyFileUtil propertyFileUtil;
     private CsvFileWriter csvFileWriter;
-    private LinkedHashMap<String, String> dataMap;
+    private Map<String, String> dataMap;
     private BullhornData bullhornData;
     private PrintUtil printUtil;
     private ActionTotals actionTotals;

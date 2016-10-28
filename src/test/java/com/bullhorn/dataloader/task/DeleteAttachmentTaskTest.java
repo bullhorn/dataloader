@@ -19,6 +19,7 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.Matchers.any;
@@ -33,7 +34,7 @@ public class DeleteAttachmentTaskTest {
     private PropertyFileUtil propertyFileUtil;
     private CsvFileWriter csvFileWriter;
     private ArgumentCaptor<Result> resultArgumentCaptor;
-    private LinkedHashMap<String, String> dataMap;
+    private Map<String, String> dataMap;
     private BullhornData bullhornData;
     private PrintUtil printUtil;
     private ActionTotals actionTotals;

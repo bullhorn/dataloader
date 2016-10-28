@@ -83,7 +83,7 @@ public class LoadTaskTest {
     private PropertyFileUtil propertyFileUtilMock_CandidateExternalID;
     private PropertyFileUtil propertyFileUtilMock_NoteID;
 
-    private LinkedHashMap<String, String> dataMap;
+    private Map<String, String> dataMap;
     private Map<String, Method> methodMap;
     private Map<String, Integer> countryNameToIdMap;
 

@@ -80,7 +80,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             printUtil,
             actionTotals);
 
-        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
 
         Map<String, Method> methodMap = service.createMethodMap(Candidate.class);
@@ -124,7 +124,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             printUtil,
             actionTotals);
 
-        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("clientCorporation.id", "1");
         expectedDataMap.put("text1", "test");
 
@@ -159,7 +159,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             printUtil,
             actionTotals);
 
-        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
 
         final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
@@ -217,7 +217,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             printUtil,
             actionTotals);
 
-        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
@@ -258,7 +258,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             printUtil,
             actionTotals);
 
-        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
@@ -291,7 +291,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             bullhornData,
             printUtil,
             actionTotals);
-        final LinkedHashMap<String, String> expectedDataMap = new LinkedHashMap<>();
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
         expectedDataMap.put("action", "INSERT");
         expectedDataMap.put("externalID", "1");

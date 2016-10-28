@@ -17,8 +17,8 @@ import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
@@ -28,7 +28,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     public DeleteCustomObjectTask(Command command,
                                 Integer rowNumber,
                                 EntityInfo entityInfo,
-                                LinkedHashMap<String, String> dataMap,
+                                Map<String, String> dataMap,
                                 CsvFileWriter csvWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornData bullhornData,

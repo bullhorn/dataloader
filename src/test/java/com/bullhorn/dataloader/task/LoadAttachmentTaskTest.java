@@ -54,9 +54,9 @@ public class LoadAttachmentTaskTest {
     private PropertyFileUtil propertyFileUtilMock_CandidateID;
     private PropertyFileUtil propertyFileUtilMock_CandidateExternalID;
     private ArgumentCaptor<Result> resultArgumentCaptor;
-    private LinkedHashMap<String, String> dataMap;
-    private LinkedHashMap<String, String> dataMap2;
-    private LinkedHashMap<String, String> dataMap3;
+    private Map<String, String> dataMap;
+    private Map<String, String> dataMap2;
+    private Map<String, String> dataMap3;
     private LoadAttachmentTask task;
 
     private Map<String, Method> methodMap = new HashMap();

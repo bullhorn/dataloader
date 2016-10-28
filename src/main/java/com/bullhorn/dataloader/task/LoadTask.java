@@ -40,7 +40,6 @@ import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,7 +57,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     public LoadTask(Command command,
                     Integer rowNumber,
                     EntityInfo entityInfo,
-                    LinkedHashMap<String, String> dataMap,
+                    Map<String, String> dataMap,
                     Map<String, Method> methodMap,
                     Map<String, Integer> countryNameToIdMap,
                     CsvFileWriter csvWriter,
