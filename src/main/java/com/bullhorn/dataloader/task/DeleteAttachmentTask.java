@@ -15,7 +15,7 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.response.file.FileApiResponse;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
@@ -25,7 +25,7 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
     public DeleteAttachmentTask(Command method,
                                 Integer rowNumber,
                                 EntityInfo entityInfo,
-                                LinkedHashMap<String, String> dataMap,
+                                Map<String, String> dataMap,
                                 CsvFileWriter csvWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornData bullhornData,

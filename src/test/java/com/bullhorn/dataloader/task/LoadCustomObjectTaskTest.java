@@ -62,7 +62,7 @@ public class LoadCustomObjectTaskTest {
 
     private LoadCustomObjectTask task;
 
-    private LinkedHashMap<String, String> dataMap;
+    private Map<String, String> dataMap;
     private Map<String, Method> methodMap;
 
     @Before

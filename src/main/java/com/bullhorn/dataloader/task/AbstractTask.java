@@ -51,7 +51,6 @@ import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -79,7 +78,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     public AbstractTask(Command command,
                         Integer rowNumber,
                         EntityInfo entityInfo,
-                        LinkedHashMap<String, String> dataMap,
+                        Map<String, String> dataMap,
                         CsvFileWriter csvWriter,
                         PropertyFileUtil propertyFileUtil,
                         BullhornData bullhornData,

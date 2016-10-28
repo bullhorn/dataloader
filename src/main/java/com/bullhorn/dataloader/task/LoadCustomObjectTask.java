@@ -31,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,7 +45,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     public LoadCustomObjectTask(Command command,
                                 Integer rowNumber,
                                 EntityInfo entityInfo,
-                                LinkedHashMap<String, String> dataMap,
+                                Map<String, String> dataMap,
                                 Map<String, Method> methodMap,
                                 Map<String, Integer> countryNameToIdMap,
                                 CsvFileWriter csvWriter,

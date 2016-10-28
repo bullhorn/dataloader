@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -48,7 +47,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     public LoadAttachmentTask(Command command,
                               Integer rowNumber,
                               EntityInfo entityInfo,
-                              LinkedHashMap<String, String> dataMap,
+                              Map<String, String> dataMap,
                               Map<String, Method> methodMap,
                               CsvFileWriter csvWriter,
                               PropertyFileUtil propertyFileUtil,

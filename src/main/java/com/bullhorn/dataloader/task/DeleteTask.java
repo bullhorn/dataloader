@@ -22,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
     public DeleteTask(Command command,
                       Integer rowNumber,
                       EntityInfo entityInfo,
-                      LinkedHashMap<String, String> dataMap,
+                      Map<String, String> dataMap,
                       CsvFileWriter csvWriter,
                       PropertyFileUtil propertyFileUtil,
                       BullhornData bullhornData,

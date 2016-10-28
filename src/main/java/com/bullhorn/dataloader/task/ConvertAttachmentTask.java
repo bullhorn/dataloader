@@ -24,7 +24,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Responsible for converting a single row from a CSV input file.
@@ -34,7 +34,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
     public ConvertAttachmentTask(Command command,
                                  Integer rowNumber,
                                  EntityInfo entityInfo,
-                                 LinkedHashMap<String, String> dataMap,
+                                 Map<String, String> dataMap,
                                  CsvFileWriter csvWriter,
                                  PropertyFileUtil propertyFileUtil,
                                  BullhornData bullhornData,

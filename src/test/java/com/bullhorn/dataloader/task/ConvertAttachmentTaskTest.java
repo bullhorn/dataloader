@@ -31,7 +31,7 @@ import static org.mockito.Mockito.verify;
 
 public class ConvertAttachmentTaskTest {
 
-    private LinkedHashMap<String, String> dataMap;
+    private Map<String, String> dataMap;
     private ExecutorService executorService;
     private Map<String, Method> methodMap;
     private ArgumentCaptor<Result> resultArgumentCaptor;
