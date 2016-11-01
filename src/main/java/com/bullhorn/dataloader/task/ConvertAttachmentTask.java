@@ -103,7 +103,12 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
 
         AutoDetectParser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
-        InputStream stream = new FileInputStream(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+        InputStream stream;
+        try {
+            stream = new FileInputStream(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+        } catch (NullPointerException e) {
+            throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for convertAttachments");
+        }
         parser.parse(stream, handler, metadata);
         return handler.toString();
     }
