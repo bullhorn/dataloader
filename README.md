@@ -48,6 +48,73 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 
 Edit the file: `dataloader.properties` to specify the login credentials, data configuration and more.
 
+The following list of properties can be set in the DataLoader.properties file:
+
+**Credentials**
+
+* username, password : this is a Bullhorn admin or API user credentials
+
+* clientId/clientSecret: To retrieve your clientId and clientSecret, please call Support.
+
+**Environment URL**
+* authorizeUrl
+  * This is the location of your Bullhorn authorization server.
+  * For staging/non-production environment, use: https://auth9.bullhornstaffing.com/oauth/authorize
+  * If you are a live Bullhorn customer and loading data in production, use: https://auth.bullhornstaffing.com/oauth/authorize
+* tokenUrl
+  * This is the location of your Bullhorn REST token server.
+  * For staging/non-production environment, use: https://auth9.bullhornstaffing.com/oauth/token
+  * If you are a live Bullhorn customer and loading data in production, use:  https://auth.bullhornstaffing.com/oauth/token
+* loginUrl
+  * This is the location of your Bullhorn REST login server.
+  * For staging/non-production environment, use:  https://rest9.bullhornstaffing.com/rest-services/login
+  * If you are a live Bullhorn customer and loading data in production, use:  https://rest.bullhornstaffing.com/rest-services/login
+
+**New vs Updates**
+
+If you would like to update existing Bullhorn records, use this section to specify what Bullhorn entity field should be used to match the record to be loaded with a Bullhorn record. The entries should be in the following format:
+```
+<entityName>ExistField=<fieldName>
+```
+If you are inserting all new records, leave this field blank or comment out the entries listed here.
+For additional details, see Load Insert vs Update.
+
+**Formatting**
+
+* dateFormat
+  * Default value is MM/dd/yy HH:mm
+  * Documentation can be found here: http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+* listDelimiter
+  * A list delimiter would be used when a field supports multiple values.
+  * For example, if I was to use “|” as a list delimiter, I could insert a single candidate with multiple categories into the CRM by saying “Category A|Category B|Category C”.
+  * Default value is ;
+  * Commas can also be used as the list delimiter value, provided quotes are used around the value, such as: "A,B,C",”D,E,F”.
+  
+**Performance**
+
+* numThreads
+  * Number of rows to process at a time.
+  * Default value is 0 to allow the program to select the optimal number of threads based off system properties.
+  * Maximum is 10.
+  * We suggest that users do not edit this value.
+  
+* frontLoadedEntities
+  * This is a property in which users can cache in specific fields before the insert/update action begins.
+  * This property relates to pageSize and cacheSize detailed below.
+  * Default value is “Business Sector,Skill,Category”.
+  * If you are not using these fields, this property can be left blank.
+  
+* pageSize
+  * Used for frontloading. Amount of data to request in each call.
+  * Max value is 500.
+  * We suggest that users do not edit this value.
+  
+* cacheSize
+  * Maximum amount of front-loaded entities to keep at any given time.
+  * Default value is 10,000.
+  * We suggest that users do not edit this value.
+  
+  
 ## Generate CSV Template
 
 ```
@@ -69,6 +136,33 @@ dataloader load path/to/directory
 ```
 
 Performs load for every valid CSV file in the given directory. The order that entities are loaded in will respect dependencies. The provided directory must contain valid CSV files that start with the name of the entity.
+
+### Load Insert vs Update
+
+The **load** command allows users to load data as new records or update existing records depending on the dataloader.properties.
+
+To create new records:
+
+* In the dataloader.properties file, do not include or set the <EntityName>ExistField setting, or comment out the existing settings.
+
+To update existing records:
+
+* Several of the Bullhorn entities have an externalID available although any field could be used to compare against existing records.  
+* For other entities that do not have the externalID predefined, one of the available custom or standard fields can be used. 
+* To match against the Bullhorn-assigned ID, use id.
+* The external ID must be unique for each entity type. For example, having more than one candidate with the same external ID is not allowed and the system will not be able to update or delete the record if needed through the data loader tool.
+* Sample external ID configuration in dataloader.properties:
+  * candidateExistField=externalID
+  * clientContactExistField=externalID
+  * clientCorporationExistField=externalID
+  * jobOrderExistField=externalID
+  * leadExistField=customText1
+  * opportunityExistField=externalID
+  * placementExistField=customText1
+  * leadExistField=customText1
+  * housingComplexExistField=id      (this is an example for matching against the BH-assigned ID)
+
+
 
 ## Delete
 
