@@ -219,6 +219,8 @@ public class LoadTaskTest {
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         CreateResponse response = new CreateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.insertEntity(any())).thenReturn(response);
@@ -248,6 +250,8 @@ public class LoadTaskTest {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoExistField, bullhornDataMock, printUtilMock, actionTotalsMock));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         CreateResponse response = new CreateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.insertEntity(any())).thenReturn(response);
@@ -291,6 +295,7 @@ public class LoadTaskTest {
         final ListWrapper<Candidate> candidateListWrapper = new CandidateListWrapper();
         candidateListWrapper.setData(candidates);
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
 
         final List<ClientContact> clientContacts = new ArrayList<>();
         ClientContact clientContact = new ClientContact(1003);
@@ -299,6 +304,7 @@ public class LoadTaskTest {
         final ListWrapper<ClientContact> clientContactListWrapper = new ClientContactListWrapper();
         clientContactListWrapper.setData(clientContacts);
         when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
 
         final List<Lead> leads = new ArrayList<>();
         Lead lead = new Lead(1004);
@@ -307,6 +313,7 @@ public class LoadTaskTest {
         final ListWrapper<Lead> leadListWrapper = new LeadListWrapper();
         leadListWrapper.setData(leads);
         when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
 
         final List<JobOrder> jobOrders = new ArrayList<>();
         JobOrder jobOrder = new JobOrder(1005);
@@ -315,6 +322,7 @@ public class LoadTaskTest {
         final ListWrapper<JobOrder> jobOrderListWrapper = new JobOrderListWrapper();
         jobOrderListWrapper.setData(jobOrders);
         when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
 
         final List<Opportunity> opportunities = new ArrayList<>();
         Opportunity opportunity = new Opportunity(1006);
@@ -323,6 +331,7 @@ public class LoadTaskTest {
         final ListWrapper<Opportunity> opportunityListWrapper = new OpportunityListWrapper();
         opportunityListWrapper.setData(opportunities);
         when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
 
         final List<Placement> placements = new ArrayList<>();
         Placement placement = new Placement(1007);
@@ -331,10 +340,12 @@ public class LoadTaskTest {
         final ListWrapper<Placement> placementListWrapper = new PlacementListWrapper();
         placementListWrapper.setData(placements);
         when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
 
         // Do not mock out any existing note entities
         final ListWrapper<NoteEntity> noteEntityListWrapper = new NoteEntityListWrapper();
         when(bullhornDataMock.query(eq(NoteEntity.class), any(), any(), any())).thenReturn(noteEntityListWrapper);
+        when(bullhornDataMock.queryForAllRecords(eq(NoteEntity.class), any(), any(), any())).thenReturn(noteEntityListWrapper);
 
         CreateResponse response = new CreateResponse();
         response.setChangedEntityId(1);
@@ -371,6 +382,7 @@ public class LoadTaskTest {
         listWrapper.setData(candidates);
 
         when(bullhornDataMock.search(any(), eq("id:1 OR id:2"), any(), any())).thenReturn(listWrapper);
+        when(bullhornDataMock.searchForAllRecords(any(), eq("id:1 OR id:2"), any(), any())).thenReturn(listWrapper);
         CreateResponse response = new CreateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.insertEntity(any())).thenReturn(response);
@@ -402,6 +414,8 @@ public class LoadTaskTest {
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
 
         task.run();
 
@@ -448,6 +462,7 @@ public class LoadTaskTest {
         final ListWrapper<Candidate> candidateListWrapper = new CandidateListWrapper();
         candidateListWrapper.setData(candidates);
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
 
         final List<ClientContact> clientContacts = new ArrayList<>();
         ClientContact clientContact = new ClientContact(1003);
@@ -456,6 +471,7 @@ public class LoadTaskTest {
         final ListWrapper<ClientContact> clientContactListWrapper = new ClientContactListWrapper();
         clientContactListWrapper.setData(clientContacts);
         when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
 
         final List<Lead> leads = new ArrayList<>();
         Lead lead = new Lead(1004);
@@ -464,6 +480,7 @@ public class LoadTaskTest {
         final ListWrapper<Lead> leadListWrapper = new LeadListWrapper();
         leadListWrapper.setData(leads);
         when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
 
         final List<JobOrder> jobOrders = new ArrayList<>();
         JobOrder jobOrder = new JobOrder(1005);
@@ -472,6 +489,7 @@ public class LoadTaskTest {
         final ListWrapper<JobOrder> jobOrderListWrapper = new JobOrderListWrapper();
         jobOrderListWrapper.setData(jobOrders);
         when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
 
         final List<Opportunity> opportunities = new ArrayList<>();
         Opportunity opportunity = new Opportunity(1006);
@@ -480,6 +498,7 @@ public class LoadTaskTest {
         final ListWrapper<Opportunity> opportunityListWrapper = new OpportunityListWrapper();
         opportunityListWrapper.setData(opportunities);
         when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
 
         final List<Placement> placements = new ArrayList<>();
         Placement placement = new Placement(1007);
@@ -488,6 +507,7 @@ public class LoadTaskTest {
         final ListWrapper<Placement> placementListWrapper = new PlacementListWrapper();
         placementListWrapper.setData(placements);
         when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
+        when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
 
         // Mock out existing note entities with the duplicate error message
         RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: NoteEntity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"NoteEntity\"}");
@@ -533,6 +553,8 @@ public class LoadTaskTest {
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         UpdateResponse response = new UpdateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.updateEntity(any())).thenReturn(response);
@@ -564,6 +586,8 @@ public class LoadTaskTest {
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
 
         task.run();
 
@@ -594,6 +618,7 @@ public class LoadTaskTest {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_EDUCATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock));
 
         when(bullhornDataMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CandidateEducation.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CandidateEducation.class));
         UpdateResponse response = new UpdateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.updateEntity(any())).thenReturn(response);
@@ -622,6 +647,8 @@ public class LoadTaskTest {
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         UpdateResponse response = new UpdateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.updateEntity(any())).thenReturn(response);
@@ -650,6 +677,8 @@ public class LoadTaskTest {
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         UpdateResponse response = new UpdateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.updateEntity(any())).thenReturn(response);
@@ -678,6 +707,8 @@ public class LoadTaskTest {
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         UpdateResponse response = new UpdateResponse();
         response.setChangedEntityId(1);
         when(bullhornDataMock.updateEntity(any())).thenReturn(response);
@@ -734,6 +765,7 @@ public class LoadTaskTest {
         SkillListWrapper listWrapper = new SkillListWrapper();
         listWrapper.setData(primarySkills);
         when(bullhornDataMock.query(any(), any(), any(), any())).thenReturn(listWrapper);
+        when(bullhornDataMock.queryForAllRecords(any(), any(), any(), any())).thenReturn(listWrapper);
         String expectedExceptionMessage = "Row 1: Error occurred: primarySkills does not exist with id of the following values:\n\t3";
 
         String actualExceptionMessage = "";
@@ -791,6 +823,7 @@ public class LoadTaskTest {
         skillList.add(skill);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
+        when(bullhornDataMock.queryForAllRecords(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
 
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.init();
@@ -813,6 +846,7 @@ public class LoadTaskTest {
         skillList.add(skill);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
+        when(bullhornDataMock.queryForAllRecords(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entityID = 1;
 
@@ -843,6 +877,7 @@ public class LoadTaskTest {
         skillList.add(skill2);
         skillListWrapper.setData(skillList);
         when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
+        when(bullhornDataMock.queryForAllRecords(any(), any(), eq(null), any())).thenReturn(skillListWrapper);
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
         task.entityID = 1;
         String errorMessage = "";
@@ -1090,6 +1125,8 @@ public class LoadTaskTest {
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
         when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(Skill.class));
         RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: Opportunity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"Candidate\"}");
         when(bullhornDataMock.insertEntity(any())).thenThrow(exception);
 

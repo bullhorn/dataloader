@@ -372,10 +372,10 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
         if (SearchEntity.class.isAssignableFrom(associationClass)) {
             String where = getQueryStatement(valueSet, field, associationClass);
-            list = (List<B>) bullhornData.search((Class<S>) associationClass, where, null, ParamFactory.searchParams()).getData();
+            list = (List<B>) bullhornData.searchForAllRecords((Class<S>) associationClass, where, null, ParamFactory.searchParams()).getData();
         } else {
             String where = getWhereStatement(valueSet, field, associationClass);
-            list = (List<B>) bullhornData.query((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
+            list = (List<B>) bullhornData.queryForAllRecords((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
         }
 
         return list;
