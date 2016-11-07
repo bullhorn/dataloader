@@ -26,7 +26,15 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
 
  4. Merge the release branch
 
- 5. Create release in GitHub
+ 5. Create the wiki zipfile which includes PDFs of the wiki pages
+ 
+    1. Clone the wiki repo: `git clone https://github.com/bullhorn/dataloader.wiki.git`
+     
+    2. Download conversion utilities: `npm install`
+
+    3. Create the wiki.zip file: `npm start`
+
+ 6. Create release in GitHub
 
     1. From the [Releases Page](https://github.com/bullhorn/dataloader/releases) click [Draft a New Release](https://github.com/bullhorn/dataloader/releases/new).
     
@@ -34,4 +42,6 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
     
     3. In the Attach Binaries section of the release page, attach the release package file: `target/dataloader.zip`
  
- 6. Make a new commit to master to bump the version and add `-SNAPSHOT` to the pom.xml version
+    4. In the Attach Binaries section of the release page, attach the wiki package file: `wiki.zip`
+ 
+ 7. Make a new commit to master to bump the version and add `-SNAPSHOT` to the pom.xml version
