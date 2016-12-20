@@ -46,6 +46,7 @@ These example CSV files reference several reference only entities that must exis
     * Enable Edit for all Entities
         * Do Not Enable `View/EditMyOwnRecord - <Entity>` entitlements, because they will lock down edit/delete for records owned by someone else.
     * Enable Edit Owner for all Entities
+    * Enable Edit Confidential Data
 
 ### About These Example Files
 
