@@ -117,10 +117,10 @@ public class PropertyFileUtil {
                 Property propertyEnum = Property.fromString(name);
                 if (propertyEnum != null) {
                     properties.setProperty(propertyEnum.getName(), value);
-                    printUtil.log("Using Environment Variable \'" + key + "\' to Override Property File Value");
+                    printUtil.printAndLog("Using Environment Variable \'" + key + "\' to Override Property File Value");
                 } else if (name.endsWith(EXIST_FIELD_SUFFIX)) {
                     properties.setProperty(name, value);
-                    printUtil.log("Using Environment Variable \'" + key + "\' to Override Property File Value");
+                    printUtil.printAndLog("Using Environment Variable \'" + key + "\' to Override Property File Value");
                 }
             }
         }

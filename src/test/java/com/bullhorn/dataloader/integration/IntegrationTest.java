@@ -102,7 +102,7 @@ public class IntegrationTest {
         // region ~WORKAROUND~
         // The Note V1 indexers on SL9 can take a while to index during normal business hours.
         if (waitTimeMinutes > 0) {
-            System.out.println("...Waiting for " + waitTimeMinutes + " minutes for indexers to catch up...");
+            System.out.println("...Waiting " + waitTimeMinutes + " minutes for indexers to catch up...");
             TimeUnit.MINUTES.sleep(waitTimeMinutes);
         }
         // endregion
