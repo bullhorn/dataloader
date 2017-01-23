@@ -17,32 +17,6 @@ public class TestUtils {
     static final String CSV = "csv";
 
     /**
-     * Sets a system property to the value of the environment variable, and throws an error if it does not exist
-     * @param propertyName the system property to set
-     * @param envVarName the environment variable to read from
-     */
-    public static void setPropertyFromEnvironmentVariable(String propertyName, String envVarName) {
-        String envVar = System.getenv(envVarName);
-        if (envVar == null) {
-            throw new IllegalArgumentException("Test Setup Error: Missing Environment Variable: '" + envVarName + "'");
-        } else {
-            System.setProperty(propertyName, envVar);
-        }
-    }
-
-    /**
-     * Sets a system property to the value of the environment variable, if it exists
-     * @param propertyName the system property to set
-     * @param envVarName the environment variable to read from if it exists
-     */
-    public static void setPropertyFromEnvironmentVariableIfExists(String propertyName, String envVarName) {
-        String envVar = System.getenv(envVarName);
-        if (envVar != null) {
-            System.setProperty(propertyName, envVar);
-        }
-    }
-
-    /**
      * Returns the full path to the resource file with the given name
      *
      * @param filename The name of the resource file to locate on disk

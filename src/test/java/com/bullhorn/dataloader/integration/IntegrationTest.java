@@ -40,6 +40,7 @@ public class IntegrationTest {
 
     private static final String EXAMPLE_UUID = "12345678-1234-1234-1234-1234567890AB";
     private static final String EXAMPLE_EXTERNAL_ID_ENDING = "-ext-1";
+    private static final Integer INDEXER_WAIT_MINUTES = 5;
 
     private ConsoleOutputCapturer consoleOutputCapturer;
 
@@ -53,23 +54,12 @@ public class IntegrationTest {
         // Use the properties file from the test/resources directory
         System.setProperty("propertyfile", TestUtils.getResourceFilePath("integrationTest.properties"));
 
-        // Require environment variables for login credentials
-        TestUtils.setPropertyFromEnvironmentVariable("username", "INTEGRATION_TEST_USERNAME");
-        TestUtils.setPropertyFromEnvironmentVariable("password", "INTEGRATION_TEST_PASSWORD");
-        TestUtils.setPropertyFromEnvironmentVariable("clientId", "INTEGRATION_TEST_CLIENT_ID");
-        TestUtils.setPropertyFromEnvironmentVariable("clientSecret", "INTEGRATION_TEST_CLIENT_SECRET");
-
-        // Allow environment variables to optionally override the REST URLs
-        TestUtils.setPropertyFromEnvironmentVariableIfExists("authorizeUrl", "INTEGRATION_TEST_AUTHORIZE_URL");
-        TestUtils.setPropertyFromEnvironmentVariableIfExists("tokenUrl", "INTEGRATION_TEST_TOKEN_URL");
-        TestUtils.setPropertyFromEnvironmentVariableIfExists("loginUrl", "INTEGRATION_TEST_LOGIN_URL");
-
         // Capture command line output as a string without stopping the real-time printout
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
         // Run the sanity, then full test
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("integrationTestSanity"));
-        insertUpdateDeleteFromDirectory("examples/load");
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("integrationTestSanity"), 0);
+        insertUpdateDeleteFromDirectory("examples/load", INDEXER_WAIT_MINUTES);
     }
 
     /**
@@ -79,7 +69,7 @@ public class IntegrationTest {
      * @param directoryPath The path to the directory to load
      * @throws IOException For directory cloning
      */
-    private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException, InterruptedException {
+    private void insertUpdateDeleteFromDirectory(String directoryPath, Integer waitTimeMinutes) throws IOException, InterruptedException {
         // region SETUP
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
         File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
@@ -111,7 +101,10 @@ public class IntegrationTest {
 
         // region ~WORKAROUND~
         // The Note V1 indexers on SL9 can take a while to index during normal business hours.
-        TimeUnit.MINUTES.sleep(5);
+        if (waitTimeMinutes > 0) {
+            System.out.println("...Waiting " + waitTimeMinutes + " minutes for indexers to catch up...");
+            TimeUnit.MINUTES.sleep(waitTimeMinutes);
+        }
         // endregion
 
         // region UPDATE

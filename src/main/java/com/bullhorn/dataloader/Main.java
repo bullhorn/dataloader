@@ -28,13 +28,14 @@ public class Main {
 
         try {
             PropertyValidation propertyValidation = new PropertyValidation();
-            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getProperties(), propertyValidation, printUtil);
+            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
             CompleteUtil completeUtil = new CompleteUtil(httpClient, propertyFileUtil, printUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
-            
+
+            args = propertyFileUtil.getRemainingArgs();
             printUtil.recordStart(args);
             commandLineInterface.start(args);
         } catch (Exception e) {
