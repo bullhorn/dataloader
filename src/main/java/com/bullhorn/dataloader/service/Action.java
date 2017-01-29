@@ -10,7 +10,7 @@ public interface Action {
      *
      * @param args command line args pass to main()
      */
-    public void run(String[] args);
+    public void run(String[] args) throws InterruptedException;
 
     /**
      * Validate the command line arguments

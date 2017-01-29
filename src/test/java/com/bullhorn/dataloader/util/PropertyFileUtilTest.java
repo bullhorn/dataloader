@@ -50,6 +50,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(";", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitTimeSecondsBetweenFilesInDirectory());
     }
 
     @Test
@@ -63,7 +64,9 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_LOGIN_URL", "https://rest.bullhornstaffing.com/rest-services/cherry");
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
         envVars.put("DATALOADER_NUM_THREADS", "5");
+        envVars.put("DATALOADER_WAIT_TIME_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
 
+        // Ensure that values that do not begin with "DATALOADER_" do not get used
         envVars.put("dataloader_username", "bogus");
         envVars.put("username", "bogus");
         envVars.put("password", "bogus");
@@ -76,6 +79,7 @@ public class PropertyFileUtilTest {
         envVars.put("listDelimiter", "bogus");
         envVars.put("dataloader_numThreads", "bogus");
         envVars.put("numThreads", "bogus");
+        envVars.put("waitTimeSecondsBetweenFilesInDirectory", "9999");
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidation, printUtilMock);
 
@@ -89,19 +93,21 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(",", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitTimeSecondsBetweenFilesInDirectory());
     }
 
     @Test
     public void testGetMethods_SystemPropertyOverrides() throws IOException {
-        envVars.put("username", "johnny.appleseed");
-        envVars.put("password", "password456");
-        envVars.put("clientId", "2234abcd-123a-123a-123a-acbd1234567");
-        envVars.put("clientSecret", "2234567890abcdefghijklmn");
-        envVars.put("authorizeUrl", "https://auth.bullhornstaffing.com/oauth/apple");
-        envVars.put("tokenUrl", "https://auth.bullhornstaffing.com/oauth/banana");
-        envVars.put("loginUrl", "https://rest.bullhornstaffing.com/rest-services/cherry");
-        envVars.put("listDelimiter", ",");
-        envVars.put("numThreads", "5");
+        envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
+        envVars.put("DATALOADER_PASSWORD", "password456");
+        envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
+        envVars.put("DATALOADER_CLIENT_SECRET", "2234567890abcdefghijklmn");
+        envVars.put("DATALOADER_AUTHORIZE_URL", "https://auth.bullhornstaffing.com/oauth/apple");
+        envVars.put("DATALOADER_TOKEN_URL", "https://auth.bullhornstaffing.com/oauth/banana");
+        envVars.put("DATALOADER_LOGIN_URL", "https://rest.bullhornstaffing.com/rest-services/cherry");
+        envVars.put("DATALOADER_LIST_DELIMITER", ",");
+        envVars.put("DATALOADER_NUM_THREADS", "5");
+        envVars.put("DATALOADER_WAIT_TIME_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
 
         systemProperties.setProperty("username", "johnny.be-good");
         systemProperties.setProperty("password", "password789");
@@ -112,6 +118,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("loginUrl", "https://rest.bullhornstaffing.com/rest-services/wallaby");
         systemProperties.setProperty("listDelimiter", "|");
         systemProperties.setProperty("numThreads", "6");
+        systemProperties.setProperty("waitTimeSecondsBetweenFilesInDirectory", "20");
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidation, printUtilMock);
 
@@ -125,19 +132,21 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("|", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(new Integer(20), propertyFileUtil.getWaitTimeSecondsBetweenFilesInDirectory());
     }
 
     @Test
     public void testGetMethods_ArgumentPropertyOverrides() throws IOException {
-        envVars.put("username", "johnny.appleseed");
-        envVars.put("password", "password456");
-        envVars.put("clientId", "2234abcd-123a-123a-123a-acbd1234567");
-        envVars.put("clientSecret", "2234567890abcdefghijklmn");
-        envVars.put("authorizeUrl", "https://auth.bullhornstaffing.com/oauth/apple");
-        envVars.put("tokenUrl", "https://auth.bullhornstaffing.com/oauth/banana");
-        envVars.put("loginUrl", "https://rest.bullhornstaffing.com/rest-services/cherry");
-        envVars.put("listDelimiter", ",");
-        envVars.put("numThreads", "5");
+        envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
+        envVars.put("DATALOADER_PASSWORD", "password456");
+        envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
+        envVars.put("DATALOADER_CLIENT_SECRET", "2234567890abcdefghijklmn");
+        envVars.put("DATALOADER_AUTHORIZE_URL", "https://auth.bullhornstaffing.com/oauth/apple");
+        envVars.put("DATALOADER_TOKEN_URL", "https://auth.bullhornstaffing.com/oauth/banana");
+        envVars.put("DATALOADER_LOGIN_URL", "https://rest.bullhornstaffing.com/rest-services/cherry");
+        envVars.put("DATALOADER_LIST_DELIMITER", ",");
+        envVars.put("DATALOADER_NUM_THREADS", "5");
+        envVars.put("DATALOADER_WAIT_TIME_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
 
         systemProperties.setProperty("username", "johnny.be-good");
         systemProperties.setProperty("password", "password789");
@@ -148,6 +157,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("loginUrl", "https://rest.bullhornstaffing.com/rest-services/wallaby");
         systemProperties.setProperty("listDelimiter", "|");
         systemProperties.setProperty("numThreads", "6");
+        systemProperties.setProperty("waitTimeSecondsBetweenFilesInDirectory", "20");
 
         ArrayList<String> args = new ArrayList<>();
         args.add("username");
@@ -168,6 +178,8 @@ public class PropertyFileUtilTest {
         args.add("&");
         args.add("-NUM_THREADS");
         args.add("7");
+        args.add("-waitTimeSecondsBetweenFilesInDirectory");
+        args.add("25");
         String[] argsArray = args.toArray(new String[] {});
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidation, printUtilMock);
@@ -182,6 +194,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("&", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(new Integer(25), propertyFileUtil.getWaitTimeSecondsBetweenFilesInDirectory());
     }
 
     @Test

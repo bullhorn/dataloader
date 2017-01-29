@@ -16,7 +16,8 @@ public enum Property {
     NUM_THREADS("numThreads"),
     PASSWORD("password"),
     TOKEN_URL("tokenUrl"),
-    USERNAME("username");
+    USERNAME("username"),
+    WAIT_TIME_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitTimeSecondsBetweenFilesInDirectory");
 
     private final String propertyName;
 
