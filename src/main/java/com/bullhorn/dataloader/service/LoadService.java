@@ -57,10 +57,10 @@ public class LoadService extends AbstractService implements Action {
 
                 // region ~WORKAROUND~
                 // Even V2 indexers can take a while to index during normal business hours in the QA environment.
-                Integer waitTimeSeconds = propertyFileUtil.getWaitTimeSecondsBetweenFilesInDirectory();
-                if (waitTimeSeconds > 0) {
-                    System.out.println("...Waiting " + waitTimeSeconds + " seconds for indexers to catch up...");
-                    TimeUnit.SECONDS.sleep(waitTimeSeconds);
+                Integer waitTimeMsec = propertyFileUtil.getWaitTimeMsecBetweenFilesInDirectory();
+                if (waitTimeMsec > 0) {
+                    printUtil.printAndLog("...Waiting " + waitTimeMsec / 1000 + " seconds for indexers to catch up...");
+                    TimeUnit.MILLISECONDS.sleep(waitTimeMsec);
                 }
                 // endregion
             }

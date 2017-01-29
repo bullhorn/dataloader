@@ -136,23 +136,23 @@ public class PropertyValidationTest {
 
     @Test
     public void testNullWaitTime() {
-        Integer waitTimeSeconds = propertyValidation.validateWaitTimeSeconds(null);
-        Assert.assertEquals(Integer.valueOf(0), waitTimeSeconds);
+        Integer waitTimeMSec = propertyValidation.validateWaitTimeMSec(null);
+        Assert.assertEquals(Integer.valueOf(0), waitTimeMSec);
     }
 
     @Test
     public void testValidWaitTime() {
-        Integer waitTimeSeconds = propertyValidation.validateWaitTimeSeconds("30");
-        Assert.assertEquals(Integer.valueOf(30), waitTimeSeconds);
+        Integer waitTimeMSec = propertyValidation.validateWaitTimeMSec("3000");
+        Assert.assertEquals(Integer.valueOf(3000), waitTimeMSec);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testLowerBoundWaitTime() throws IOException {
-        propertyValidation.validateWaitTimeSeconds("-1");
+        propertyValidation.validateWaitTimeMSec("-1");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUpperBoundWaitTime() throws IOException {
-        propertyValidation.validateWaitTimeSeconds("3601");
+        propertyValidation.validateWaitTimeMSec("3600001");
     }
 }

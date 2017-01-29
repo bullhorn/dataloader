@@ -17,7 +17,7 @@ public enum Property {
     PASSWORD("password"),
     TOKEN_URL("tokenUrl"),
     USERNAME("username"),
-    WAIT_TIME_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitTimeSecondsBetweenFilesInDirectory");
+    WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY("waitTimeMSecBetweenFilesInDirectory");
 
     private final String propertyName;
 

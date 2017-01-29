@@ -87,6 +87,19 @@ public class LoadServiceTest {
     }
 
     @Test
+    public void testRun_directory_oneFile_withWait() throws Exception {
+        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
+        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        Mockito.doReturn(1).when(propertyFileUtilMock).getWaitTimeMsecBetweenFilesInDirectory();
+
+        loadService.run(testArgs);
+
+        Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
+        Mockito.verify(printUtilMock, Mockito.times(3)).printAndLog(Mockito.anyString());
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
+    }
+
+    @Test
     public void testRun_directory_fourFilesSameEntity() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/opportunity");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
