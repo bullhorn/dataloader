@@ -247,7 +247,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             addressMap.put(toOneEntityName, new Address());
         }
         if (fieldName.contains("country")) {
-            methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
+            // Allow for the use of a country name or internal Bullhorn ID
+            if (countryNameToIdMap.containsKey(dataMap.get(field))) {
+                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
+            } else {
+                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), Integer.valueOf(dataMap.get(field)));
+            }
         } else {
             Method method = methodMap.get(fieldName);
             if (method == null) {
