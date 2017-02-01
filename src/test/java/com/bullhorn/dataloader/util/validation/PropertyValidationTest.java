@@ -133,4 +133,26 @@ public class PropertyValidationTest {
     public void testUpperBoundNumThreads() throws IOException {
         propertyValidation.validateNumThreads(11);
     }
+
+    @Test
+    public void testNullWaitTime() {
+        Integer waitTimeMSec = propertyValidation.validateWaitTimeMSec(null);
+        Assert.assertEquals(Integer.valueOf(0), waitTimeMSec);
+    }
+
+    @Test
+    public void testValidWaitTime() {
+        Integer waitTimeMSec = propertyValidation.validateWaitTimeMSec("3000");
+        Assert.assertEquals(Integer.valueOf(3000), waitTimeMSec);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testLowerBoundWaitTime() throws IOException {
+        propertyValidation.validateWaitTimeMSec("-1");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testUpperBoundWaitTime() throws IOException {
+        propertyValidation.validateWaitTimeMSec("3600001");
+    }
 }

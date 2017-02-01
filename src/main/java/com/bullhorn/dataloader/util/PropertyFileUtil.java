@@ -40,6 +40,7 @@ public class PropertyFileUtil {
     private String listDelimiter;
     private DateTimeFormatter dateParser;
     private Integer numThreads;
+    private Integer waitTimeMSecBetweenFilesInDirectory;
 
     /**
      * Constructor that assembles the dataloader properties from a variety of possible methods.
@@ -200,6 +201,7 @@ public class PropertyFileUtil {
         this.dateParser = getDateTimeFormatter(properties);
         this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
         propertyValidation.validateEntityExistFields(entityExistFieldsMap);
+        this.waitTimeMSecBetweenFilesInDirectory = propertyValidation.validateWaitTimeMSec(properties.getProperty(Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
@@ -327,5 +329,9 @@ public class PropertyFileUtil {
 
     public Integer getNumThreads() {
         return numThreads;
+    }
+
+    public Integer getWaitTimeMsecBetweenFilesInDirectory() {
+        return waitTimeMSecBetweenFilesInDirectory;
     }
 }

@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Load (Insert/Update) service implementation
@@ -30,7 +31,7 @@ public class LoadService extends AbstractService implements Action {
     }
 
     @Override
-    public void run(String[] args) {
+    public void run(String[] args) throws InterruptedException {
         if (!isValidArguments(args)) {
             throw new IllegalStateException("invalid command line arguments");
         }
@@ -53,6 +54,15 @@ public class LoadService extends AbstractService implements Action {
                         printUtil.printAndLog(e);
                     }
                 }
+
+                // region ~WORKAROUND~
+                // Even V2 indexers can take a while to index during normal business hours in the QA environment.
+                Integer waitTimeMsec = propertyFileUtil.getWaitTimeMsecBetweenFilesInDirectory();
+                if (waitTimeMsec > 0) {
+                    printUtil.printAndLog("...Waiting " + waitTimeMsec / 1000 + " seconds for indexers to catch up...");
+                    TimeUnit.MILLISECONDS.sleep(waitTimeMsec);
+                }
+                // endregion
             }
         }
     }

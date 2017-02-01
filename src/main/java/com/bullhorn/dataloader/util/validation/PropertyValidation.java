@@ -101,4 +101,17 @@ public class PropertyValidation {
         }
         return Math.min(numThreads, maxThreads);
     }
+
+    public Integer validateWaitTimeMSec(String waitTimeString) {
+        final int MAX_WAIT_TIME_SECONDS = 3600 * 1000; // 1 hour
+        Integer waitTime = 0;
+        if (waitTimeString != null) {
+            waitTime = Integer.valueOf(waitTimeString);
+        }
+        if (waitTime < 0 ||
+            waitTime > MAX_WAIT_TIME_SECONDS) {
+            throw new IllegalArgumentException("DataLoader Properties Error: waitTimeMSecBetweenFilesInDirectory property must be in the range of 0 to " + MAX_WAIT_TIME_SECONDS);
+        }
+        return waitTime;
+    }
 }
