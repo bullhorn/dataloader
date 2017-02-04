@@ -98,22 +98,6 @@ For additional details, see Load Insert vs Update.
   * Maximum is 10.
   * We suggest that users do not edit this value.
   
-* frontLoadedEntities
-  * This is a property in which users can cache in specific fields before the insert/update action begins.
-  * This property relates to pageSize and cacheSize detailed below.
-  * Default value is “Business Sector,Skill,Category”.
-  * If you are not using these fields, this property can be left blank.
-  
-* pageSize
-  * Used for frontloading. Amount of data to request in each call.
-  * Max value is 500.
-  * We suggest that users do not edit this value.
-  
-* cacheSize
-  * Maximum amount of front-loaded entities to keep at any given time.
-  * Default value is 10,000.
-  * We suggest that users do not edit this value.
-  
   
 ## Generate CSV Template
 
