@@ -276,7 +276,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         for (String associationName : associationMap.keySet()) {
-            if (dataMap.get(associationName) != null && dataMap.get(associationName) != "") {
+            if (dataMap.get(associationName) != null && !dataMap.get(associationName).equals("")) {
                 addAssociationToEntity(associationName, associationMap.get(associationName));
             }
         }
@@ -284,36 +284,42 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
-        for (Integer associationId : newAssociationIdList) {
-            try {
-                if (entityClass == Note.class) {
-                    addAssociationToNote((Note) entity, associationField.getAssociationType(), associationId);
-                } else {
-                    bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(associationId));
-                }
-            } catch (RestApiException e) {
-                // Ignore duplicate (existing) REST errors for associations to avoid a costly duplicate check
-                if ((e.getMessage().contains("an association between " + entityClass.getSimpleName())
-                        && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " " + associationId + " already exists"))
-                    || (e.getMessage().contains("error persisting an entity of type: NoteEntity")
-                        && e.getMessage().contains("\"type\" : \"DUPLICATE_VALUE\""))) {
-                    printUtil.log(Level.INFO, "Association from " + entityClass.getSimpleName() + " entity " + entityID + " to " + associationField.getAssociationType().getSimpleName() + " entity " + associationId + " already exists.");
-                } else {
-                    throw e;
-                }
+        try {
+            if (entityClass == Note.class) {
+                addAssociationsToNote((Note) entity, associationField.getAssociationType(), newAssociationIdList);
+            } else {
+                bullhornData.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(newAssociationIdList));
+            }
+        } catch (RestApiException e) {
+            // Provide a simpler duplication error message with all of the essential data
+            if (e.getMessage().contains("an association between " + entityClass.getSimpleName()) && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
+                printUtil.log(Level.INFO, "Association from " + entityClass.getSimpleName() + " entity " + entityID + " to " + associationField.getAssociationType().getSimpleName() + " entities " + newAssociationIdList.toString() + " already exists.");
+            } else {
+                throw e;
             }
         }
     }
 
-    protected void addAssociationToNote(Note note, Class type, Integer associationID) {
-        if (Candidate.class.equals(type) || ClientContact.class.equals(type) || Lead.class.equals(type)) {
-            addNoteEntity(note, "User", associationID);
-        } else if (JobOrder.class.equals(type)) {
-            addNoteEntity(note, "JobPosting", associationID);
-        } else if (Opportunity.class.equals(type)) {
-            addNoteEntity(note, "Opportunity", associationID);
-        } else if (Placement.class.equals(type)) {
-            addNoteEntity(note, "Placement", associationID);
+    protected void addAssociationsToNote(Note note, Class type, List<Integer> associationIdList) {
+        for (Integer associationId : associationIdList) {
+            try {
+                if (Candidate.class.equals(type) || ClientContact.class.equals(type) || Lead.class.equals(type)) {
+                    addNoteEntity(note, "User", associationId);
+                } else if (JobOrder.class.equals(type)) {
+                    addNoteEntity(note, "JobPosting", associationId);
+                } else if (Opportunity.class.equals(type)) {
+                    addNoteEntity(note, "Opportunity", associationId);
+                } else if (Placement.class.equals(type)) {
+                    addNoteEntity(note, "Placement", associationId);
+                }
+            } catch (RestApiException e) {
+                // Provide a simpler duplication error message with all of the essential data
+                if (e.getMessage().contains("error persisting an entity of type: NoteEntity") && e.getMessage().contains("\"type\" : \"DUPLICATE_VALUE\"")) {
+                    printUtil.log(Level.INFO, "Association from " + entityClass.getSimpleName() + " entity " + entityID + " to " + type.getSimpleName() + " entity " + associationId + " already exists.");
+                } else {
+                    throw e;
+                }
+            }
         }
     }
 
