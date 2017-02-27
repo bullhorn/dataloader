@@ -241,6 +241,55 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void run_InsertSuccess_MultipleAssociations() throws IOException, InstantiationException, IllegalAccessException {
+        // Associate with multiple primarySkills
+        Set associationIdSet = new HashSet<>(Arrays.asList(1, 2, 3));
+        dataMap.put("primarySkills.id", "1;2;3");
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(new CandidateListWrapper());
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(getListWrapper(CorporateUser.class));
+
+        // Mock out the search to ensure that the associated records exist in the system before they are associated to the entity
+        Skill Skill1 = new Skill();
+        Skill Skill2 = new Skill();
+        Skill Skill3 = new Skill();
+        Skill1.setId(1);
+        Skill2.setId(2);
+        Skill3.setId(3);
+        List<Skill> skillList = new ArrayList<>();
+        skillList.add(Skill1);
+        skillList.add(Skill2);
+        skillList.add(Skill3);
+        ListWrapper<Skill> skillListWrapper = new SkillListWrapper();
+        skillListWrapper.setData(skillList);
+        when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1 OR id=2 OR id=3"), any(), any())).thenReturn(skillListWrapper);
+
+        CreateResponse response = new CreateResponse();
+        response.setChangedEntityId(1);
+        when(bullhornDataMock.insertEntity(any())).thenReturn(response);
+
+        task.run();
+
+        // Verify that only one association call got made for all of the associated primarySkills
+        Mockito.verify(bullhornDataMock, Mockito.times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdSet));
+
+        Mockito.verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+
+        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
+        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+    }
+
+    @Test
     public void run_InsertSuccess_NoExistField() throws IOException, InstantiationException, IllegalAccessException {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         PropertyFileUtil propertyFileUtilMock_NoExistField = Mockito.mock(PropertyFileUtil.class);
@@ -934,7 +983,7 @@ public class LoadTaskTest {
         task.entityID = 1;
         task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
 
-        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Candidate entity 1 to Skill entity 1 already exists.");
+        Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Candidate entity 1 to Skill entities [1] already exists.");
     }
 
     @Test
