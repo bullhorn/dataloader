@@ -24,29 +24,19 @@ public class TestUtils {
     /**
      * Given a simple array of ids, this method constructs the listWrapper returned by SDK-REST
      * @param entityClass The type of entity to create a list wrapper for
-     * @param ids The array of IDs to assign to new entity objects
+     * @param idList The array of IDs to assign to new entity objects
      * @return The listWrapper from the SDK-REST that contains the entities
      */
-    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, int[] ids) throws IllegalAccessException, InstantiationException {
+    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, Integer... idList) throws IllegalAccessException, InstantiationException {
         ListWrapper<B> listWrapper = new StandardListWrapper<B>();
         List<B> list = new ArrayList<B>();
-        for (Integer id : ids) {
+        for (Integer id : idList) {
             B entity = entityClass.newInstance();
             entity.setId(id);
             list.add(entity);
         }
         listWrapper.setData(list);
         return listWrapper;
-    }
-
-    /**
-     * Given a single id, this method constructs the listWrapper returned by SDK-REST that contains an entity with that ID
-     * @param entityClass The type of entity to create a list wrapper for
-     * @param id The ID to assign to the newly created entity object
-     * @return The listWrapper from the SDK-REST that contains the single entity
-     */
-    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, Integer id) throws IllegalAccessException, InstantiationException {
-        return getListWrapper(entityClass, new int[] {id});
     }
 
     /**

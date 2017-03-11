@@ -10,8 +10,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
 import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -22,9 +20,7 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -149,24 +145,15 @@ public class ConvertAttachmentTaskTest {
     }
 
     @Test
-    public void convertAttachmentNoRelativeFilePathTest() throws IOException {
+    public void convertAttachmentNoRelativeFilePathTest() throws Exception {
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for convertAttachments"));
-
-        final List<Candidate> candidates = new ArrayList<>();
-        candidates.add(new Candidate(1001));
-
-        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
-        listWrapper.setData(candidates);
-
-        when(bullhornData.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
         task = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, candidateExternalIdProperties, bullhornData, printUtil, actionTotalMock);
-
         task.init();
         task.run();
 
         verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());
-
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }

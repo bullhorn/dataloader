@@ -17,8 +17,6 @@ import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileContent;
 import com.bullhornsdk.data.model.response.file.standard.StandardFileWrapper;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,14 +26,12 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -102,7 +98,6 @@ public class LoadAttachmentTaskTest {
         dataMap3 = new LinkedHashMap<String, String>();
         dataMap3.put("candidate.externalID", "2016Ext");
         dataMap3.put("isResume", "1");
-
     }
 
     @Test
@@ -110,18 +105,10 @@ public class LoadAttachmentTaskTest {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Insert(0);
         task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
-
-        final List<Candidate> candidates = new ArrayList<>();
-        candidates.add(new Candidate(1001));
-
-        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
-        listWrapper.setData(candidates);
-
         final FileContent mockedFileContent = Mockito.mock(FileContent.class);
         final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-
-        when(bullhornData.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(bullhornData.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task.run();
@@ -133,53 +120,35 @@ public class LoadAttachmentTaskTest {
     }
 
     @Test
-    public void loadAttachmentNoRelativeFilePathTest() throws IOException {
+    public void loadAttachmentNoRelativeFilePathTest() throws Exception {
         final String[] expectedValues = {"2016Ext", "1", "1001"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for loadAttachments"));
-
-        final List<Candidate> candidates = new ArrayList<>();
-        candidates.add(new Candidate(1001));
-
-        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
-        listWrapper.setData(candidates);
-
-        when(bullhornData.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
         task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
-
         task.init();
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     @Test
-    public void loadAttachmentFailureTest() throws ExecutionException, IOException {
+    public void loadAttachmentFailureTest() throws Exception {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
-
-        final List<Candidate> candidates = new ArrayList<>();
-        candidates.add(new Candidate(1001));
-
-        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
-        listWrapper.setData(candidates);
-
         final FileContent mockedFileContent = Mockito.mock(FileContent.class);
         final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-
-        when(bullhornData.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(bullhornData.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
 
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornData, printUtilMock, actionTotals);
         task.run();
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
 
         final Result actualResult = resultArgumentCaptor.getValue();
-
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
@@ -187,22 +156,13 @@ public class LoadAttachmentTaskTest {
     public void existPropertyConfiguredCorrectlyTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Insert(0);
-
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
-
-        final List<Candidate> candidates = new ArrayList<>();
-        candidates.add(new Candidate(1001));
-
-        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
-        listWrapper.setData(candidates);
-
         final FileContent mockedFileContent = Mockito.mock(FileContent.class);
         final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-
-        when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(bullhornData.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
 
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
@@ -245,38 +205,26 @@ public class LoadAttachmentTaskTest {
     public void updateAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Update(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
-
-
         FileMeta file1 = new StandardFileMeta();
         file1.setName("original name");
         file1.setId(222);
         file1.setExternalID("extFileId1");
         List<FileMeta> fileList = Lists.newArrayList();
         fileList.add(file1);
-
         StandardFileContent mockedFileContent = new StandardFileContent();
         mockedFileContent.setFileContent("thisisafilecontent");
-
-        final List<Candidate> candidates = new ArrayList<>();
-        candidates.add(new Candidate(1001));
-
-        final ListWrapper<Candidate> listWrapper = new CandidateListWrapper();
-        listWrapper.setData(candidates);
-
         final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-
-        when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(listWrapper);
+        when(bullhornData.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(bullhornData.updateFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
         when(bullhornData.getFileMetaData(anyObject(), anyInt())).thenReturn(fileList);
         when(bullhornData.getFileContent(anyObject(), anyInt(), anyInt())).thenReturn(mockedFileContent);
 
+        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornData, printUtilMock, actionTotals);
         task.run();
+
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
-
         final Result actualResult = resultArgumentCaptor.getValue();
-
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 }

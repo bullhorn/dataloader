@@ -17,8 +17,6 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,7 +127,7 @@ public class DeleteTaskTest {
     public void run_AlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
         task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
-        when(bullhornDataMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(new CandidateListWrapper());
+        when(bullhornDataMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
 
@@ -143,7 +141,7 @@ public class DeleteTaskTest {
     @Test
     public void run_AlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         task = new DeleteTask(Command.DELETE, 1, EntityInfo.PLACEMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
-        when(bullhornDataMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(new PlacementListWrapper());
+        when(bullhornDataMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Placement.class));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
 
         task.run();
