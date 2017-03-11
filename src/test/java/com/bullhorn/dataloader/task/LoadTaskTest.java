@@ -1176,9 +1176,6 @@ public class LoadTaskTest {
         Assert.assertEquals(expectedResult, actualResult);
     }
 
-    public void convertStringToClassTest_DoubleTestMethod(Double test){
-    }
-
     @Test
     public void insertMissingRequiredFieldExceptionTest() throws Exception {
         task = Mockito.spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
