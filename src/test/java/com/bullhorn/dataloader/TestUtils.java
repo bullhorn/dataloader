@@ -5,6 +5,9 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.enums.ChangeType;
+import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
+import com.bullhornsdk.data.model.response.crud.Message;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
@@ -15,6 +18,7 @@ import org.mockito.Mockito;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.never;
@@ -41,6 +45,38 @@ public class TestUtils {
         }
         listWrapper.setData(list);
         return listWrapper;
+    }
+
+    /**
+     * Convenience method for mocking a CreateResponse from SDK-REST
+     *
+     * @param changeType INSERT, UPDATE, or DELETE
+     * @param changedEntityId The id of the entity that has been inserted
+     * @return A new create response object
+     */
+    public static AbstractCrudResponse getResponse(ChangeType changeType, Integer changedEntityId) {
+        AbstractCrudResponse response = new AbstractCrudResponse();
+        response.setChangeType(changeType.toString());
+        response.setChangedEntityId(changedEntityId);
+        return response;
+    }
+
+    /**
+     * Version of getResponse that returns an error
+     *
+     * @param changeType INSERT, UPDATE, or DELETE
+     * @param changedEntityId The id of the entity that has been inserted
+     * @param propertyName The property with an error
+     * @param errorMessage The error message for the property
+     * @return A new create response object
+     */
+    public static AbstractCrudResponse getResponse(ChangeType changeType, Integer changedEntityId, String propertyName, String errorMessage) {
+        AbstractCrudResponse response = getResponse(changeType, changedEntityId);
+        Message message = new Message();
+        message.setPropertyName(propertyName);
+        message.setDetailMessage(errorMessage);
+        response.setMessages(Arrays.asList(message));
+        return response;
     }
 
     /**
