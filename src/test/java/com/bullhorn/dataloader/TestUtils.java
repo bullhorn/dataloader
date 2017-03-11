@@ -3,17 +3,21 @@ package com.bullhorn.dataloader;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
+import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.Mockito.never;
 
 /**
  * Utilities used in tests
@@ -37,6 +41,24 @@ public class TestUtils {
         }
         listWrapper.setData(list);
         return listWrapper;
+    }
+
+    /**
+     * Verifies that the actionTotalsMock has been called exactly expectedTotal times for the expectedAction, and that
+     * all other totals have not been called at all.
+     *
+     * @param actionTotalsMock The mocked action totals object
+     * @param expectedAction Which one out of the many actions are expected to be incremented
+     * @param expectedTotal The number of rows that are expected to be in the total
+     */
+    public static void verifyActionTotals(ActionTotals actionTotalsMock, Result.Action expectedAction, Integer expectedTotal) {
+        for (Result.Action action : Result.Action.values()) {
+            if (action == expectedAction) {
+                Mockito.verify(actionTotalsMock, Mockito.times(expectedTotal)).incrementActionTotal(action);
+            } else {
+                Mockito.verify(actionTotalsMock, never()).incrementActionTotal(action);
+            }
+        }
     }
 
     /**

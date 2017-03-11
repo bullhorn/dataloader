@@ -60,7 +60,6 @@ import java.util.concurrent.ExecutorService;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -224,13 +223,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
@@ -259,13 +252,7 @@ public class LoadTaskTest {
         Mockito.verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
@@ -290,13 +277,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
@@ -386,13 +367,7 @@ public class LoadTaskTest {
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
         Mockito.verify(bullhornDataMock, Mockito.times(8)).insertEntity(any());
-
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
@@ -414,13 +389,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -443,14 +412,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
     @Test
@@ -555,13 +517,7 @@ public class LoadTaskTest {
         Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to JobOrder entity 1005 already exists.");
         Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Opportunity entity 1006 already exists.");
         Mockito.verify(printUtilMock, Mockito.times(1)).log(Level.INFO, "Association from Note entity 1 to Placement entity 1007 already exists.");
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
     @Test
@@ -585,13 +541,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -615,13 +565,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -649,13 +593,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
     @Test
@@ -685,13 +623,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
@@ -722,13 +654,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
@@ -752,13 +678,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -782,13 +702,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -812,13 +726,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -842,13 +750,7 @@ public class LoadTaskTest {
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.INSERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.UPDATE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.CONVERT);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.DELETE);
-        Mockito.verify(actionTotalsMock, Mockito.times(1)).incrementActionTotal(Result.Action.FAILURE);
-        Mockito.verify(actionTotalsMock, never()).incrementActionTotal(Result.Action.NOT_SET);
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
@@ -1191,5 +1093,11 @@ public class LoadTaskTest {
         task.run();
 
         Mockito.verify(task, Mockito.times(1)).checkForRequiredFieldsError(exception);
+    }
+
+    /**
+     * Used by the convertStringToClass_Double tests above
+     */
+    public void convertStringToClassTest_DoubleTestMethod(Double test){
     }
 }

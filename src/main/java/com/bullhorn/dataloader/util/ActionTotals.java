@@ -35,5 +35,4 @@ public class ActionTotals {
     public int getActionTotal(Result.Action action) {
         return concurrentHashMap.get(action).intValue();
     }
-
 }
