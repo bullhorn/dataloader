@@ -25,13 +25,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.standard.Skill;
 import com.bullhornsdk.data.model.enums.ChangeType;
-import com.bullhornsdk.data.model.response.list.CandidateListWrapper;
-import com.bullhornsdk.data.model.response.list.ClientContactListWrapper;
-import com.bullhornsdk.data.model.response.list.JobOrderListWrapper;
-import com.bullhornsdk.data.model.response.list.LeadListWrapper;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
-import com.bullhornsdk.data.model.response.list.OpportunityListWrapper;
-import com.bullhornsdk.data.model.response.list.PlacementListWrapper;
 import com.csvreader.CsvReader;
 import org.apache.logging.log4j.Level;
 import org.joda.time.DateTime;
@@ -289,62 +282,37 @@ public class LoadTaskTest {
         doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
 
         // Mock out all existing reference entities
-        final List<Candidate> candidates = new ArrayList<>();
         Candidate candidate1 = new Candidate(1001);
         candidate1.setExternalID("1");
-        candidates.add(candidate1);
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        candidates.add(candidate2);
-        final ListWrapper<Candidate> candidateListWrapper = new CandidateListWrapper();
-        candidateListWrapper.setData(candidates);
-        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
+        when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
 
-        final List<ClientContact> clientContacts = new ArrayList<>();
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        clientContacts.add(clientContact);
-        final ListWrapper<ClientContact> clientContactListWrapper = new ClientContactListWrapper();
-        clientContactListWrapper.setData(clientContacts);
-        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
+        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
+        when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
 
-        final List<Lead> leads = new ArrayList<>();
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        leads.add(lead);
-        final ListWrapper<Lead> leadListWrapper = new LeadListWrapper();
-        leadListWrapper.setData(leads);
-        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
+        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
+        when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
 
-        final List<JobOrder> jobOrders = new ArrayList<>();
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        jobOrders.add(jobOrder);
-        final ListWrapper<JobOrder> jobOrderListWrapper = new JobOrderListWrapper();
-        jobOrderListWrapper.setData(jobOrders);
-        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
+        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
+        when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
 
-        final List<Opportunity> opportunities = new ArrayList<>();
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        opportunities.add(opportunity);
-        final ListWrapper<Opportunity> opportunityListWrapper = new OpportunityListWrapper();
-        opportunityListWrapper.setData(opportunities);
-        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
+        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
+        when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
 
-        final List<Placement> placements = new ArrayList<>();
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        placements.add(placement);
-        final ListWrapper<Placement> placementListWrapper = new PlacementListWrapper();
-        placementListWrapper.setData(placements);
-        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
+        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
+        when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
 
         // Do not mock out any existing note entities
         when(bullhornDataMock.query(eq(NoteEntity.class), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class));
@@ -420,62 +388,37 @@ public class LoadTaskTest {
         doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
         when(bullhornDataMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
 
-        final List<Candidate> candidates = new ArrayList<>();
         Candidate candidate1 = new Candidate(1001);
         candidate1.setExternalID("1");
-        candidates.add(candidate1);
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        candidates.add(candidate2);
-        final ListWrapper<Candidate> candidateListWrapper = new CandidateListWrapper();
-        candidateListWrapper.setData(candidates);
-        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(candidateListWrapper);
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
+        when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
 
-        final List<ClientContact> clientContacts = new ArrayList<>();
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        clientContacts.add(clientContact);
-        final ListWrapper<ClientContact> clientContactListWrapper = new ClientContactListWrapper();
-        clientContactListWrapper.setData(clientContacts);
-        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(clientContactListWrapper);
+        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
+        when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
 
-        final List<Lead> leads = new ArrayList<>();
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        leads.add(lead);
-        final ListWrapper<Lead> leadListWrapper = new LeadListWrapper();
-        leadListWrapper.setData(leads);
-        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(leadListWrapper);
+        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
+        when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
 
-        final List<JobOrder> jobOrders = new ArrayList<>();
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        jobOrders.add(jobOrder);
-        final ListWrapper<JobOrder> jobOrderListWrapper = new JobOrderListWrapper();
-        jobOrderListWrapper.setData(jobOrders);
-        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(jobOrderListWrapper);
+        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
+        when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
 
-        final List<Opportunity> opportunities = new ArrayList<>();
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        opportunities.add(opportunity);
-        final ListWrapper<Opportunity> opportunityListWrapper = new OpportunityListWrapper();
-        opportunityListWrapper.setData(opportunities);
-        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(opportunityListWrapper);
+        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
+        when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
 
-        final List<Placement> placements = new ArrayList<>();
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        placements.add(placement);
-        final ListWrapper<Placement> placementListWrapper = new PlacementListWrapper();
-        placementListWrapper.setData(placements);
-        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
-        when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(placementListWrapper);
+        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
+        when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
         when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         // Mock out existing note entities with the duplicate error message

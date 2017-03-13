@@ -27,24 +27,35 @@ import static org.mockito.Mockito.never;
  * Utilities used in tests
  */
 public class TestUtils {
-    static final String CSV = "csv";
+    static private final String CSV = "csv";
 
     /**
-     * Given a simple array of ids, this method constructs the listWrapper returned by SDK-REST
+     * Given a list of entity objects, this method constructs the listWrapper returned by SDK-REST
+     *
+     * @param entityList The list of entity objects
+     * @return The listWrapper from the SDK-REST that contains the entities
+     */
+    @SafeVarargs
+    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(B... entityList) throws IllegalAccessException, InstantiationException {
+        List<B> list = new ArrayList<>(Arrays.asList(entityList));
+        return new StandardListWrapper<>(list);
+    }
+
+    /**
+     * Given an entity type and list of ids, this method constructs the listWrapper returned by SDK-REST
+     *
      * @param entityClass The type of entity to create a list wrapper for
      * @param idList The array of IDs to assign to new entity objects
      * @return The listWrapper from the SDK-REST that contains the entities
      */
     public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, Integer... idList) throws IllegalAccessException, InstantiationException {
-        ListWrapper<B> listWrapper = new StandardListWrapper<B>();
-        List<B> list = new ArrayList<B>();
+        List<B> list = new ArrayList<>();
         for (Integer id : idList) {
             B entity = entityClass.newInstance();
             entity.setId(id);
             list.add(entity);
         }
-        listWrapper.setData(list);
-        return listWrapper;
+        return new StandardListWrapper<>(list);
     }
 
     /**
