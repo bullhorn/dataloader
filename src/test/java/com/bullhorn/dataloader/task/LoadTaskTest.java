@@ -41,6 +41,7 @@ import java.math.BigDecimal;
 import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -100,11 +101,11 @@ public class LoadTaskTest {
         concurrencyService = new ConcurrencyService(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         methodMap = concurrencyService.createMethodMap(Candidate.class);
-        countryNameToIdMap = new LinkedHashMap<String, Integer>();
+        countryNameToIdMap = new LinkedHashMap<>();
         countryNameToIdMap.put("United States", 1);
         countryNameToIdMap.put("Canada", 2216);
 
-        dataMap = new LinkedHashMap<String, String>();
+        dataMap = new LinkedHashMap<>();
         dataMap.put("externalID", "11");
         dataMap.put("customDate1", "2016-08-30");
         dataMap.put("firstName", "Load");
@@ -128,9 +129,10 @@ public class LoadTaskTest {
         Assert.assertNull(candidate.getDescription());
 
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        task.entity = candidate;
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         task.init();
+        task.entity = candidate;
+
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         task.insertAttachmentToDescription();
 
         Assert.assertNotNull(candidate.getDescription());
@@ -145,9 +147,9 @@ public class LoadTaskTest {
         Assert.assertNull(corporation.getCompanyDescription());
 
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task.init();
         task.entity = corporation;
         when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
-        task.init();
         task.insertAttachmentToDescription();
 
         Assert.assertNotNull(corporation.getCompanyDescription());
@@ -201,20 +203,17 @@ public class LoadTaskTest {
 
     @Test
     public void run_InsertSuccess() throws Exception {
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
@@ -222,55 +221,47 @@ public class LoadTaskTest {
     @Test
     public void run_InsertSuccess_MultipleAssociations() throws Exception {
         // Associate with multiple primarySkills
-        Set associationIdSet = new HashSet<>(Arrays.asList(1, 2, 3));
         dataMap.put("primarySkills.id", "1;2;3");
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
+        Set associationIdSet = new HashSet<>(Arrays.asList(1, 2, 3));
+        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1 OR id=2 OR id=3"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1, 2, 3));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
         // Verify that only one association call got made for all of the associated primarySkills
         verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdSet));
-
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
     public void run_InsertSuccess_NoExistField() throws Exception {
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         PropertyFileUtil propertyFileUtilMock_NoExistField = mock(PropertyFileUtil.class);
-        String dateFormatString = "yyyy-mm-dd";
-        when(propertyFileUtilMock_NoExistField.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
+        when(propertyFileUtilMock_NoExistField.getDateParser()).thenReturn(DateTimeFormat.forPattern("yyyy-mm-dd"));
         doReturn(Optional.empty()).when(propertyFileUtilMock_NoExistField).getEntityExistFields("Candidate");
         doReturn(";").when(propertyFileUtilMock_NoExistField).getListDelimiter();
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoExistField, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
     public void run_InsertSuccess_Note() throws Exception {
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-
         dataMap.clear();
         dataMap.put("candidates.externalID", "1;2");
         dataMap.put("clientContacts.externalID", "3");
@@ -279,51 +270,44 @@ public class LoadTaskTest {
         dataMap.put("opportunities.externalID", "6");
         dataMap.put("placements.customText1", "7");
 
-        doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
+        doReturn(Optional.empty()).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
 
         // Mock out all existing reference entities
         Candidate candidate1 = new Candidate(1001);
         candidate1.setExternalID("1");
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
         when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
 
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
         when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
 
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
         when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
 
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
         when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
 
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
         when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
         when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
 
         // Do not mock out any existing note entities
-        when(bullhornDataMock.query(eq(NoteEntity.class), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class));
-        when(bullhornDataMock.queryForAllRecords(eq(NoteEntity.class), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
         verify(bullhornDataMock, times(8)).insertEntity(any());
@@ -332,47 +316,41 @@ public class LoadTaskTest {
 
     @Test
     public void run_InsertError_Note_MissingRecords() throws Exception {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
         dataMap.clear();
         dataMap.put("candidates.id", "1;2");
-        doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
-        when(bullhornDataMock.search(any(), eq("id:1 OR id:2"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
+        doReturn(Optional.empty()).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
         when(bullhornDataMock.searchForAllRecords(any(), eq("id:1 OR id:2"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
     public void run_UpdateSuccess() throws Exception {
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
     @Test
     public void run_UpdateSuccess_Note() throws Exception {
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-
         dataMap.clear();
         dataMap.put("id", "1");
         dataMap.put("candidates.externalID", "1;2");
@@ -384,53 +362,47 @@ public class LoadTaskTest {
 
         methodMap = concurrencyService.createMethodMap(Note.class);
 
-        List<String> idExistField = Arrays.asList(new String[]{"id"});
-        doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
+        List<String> idExistField = Collections.singletonList("id");
+        doReturn(Optional.of(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
         when(bullhornDataMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
 
         Candidate candidate1 = new Candidate(1001);
         candidate1.setExternalID("1");
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
         when(bullhornDataMock.searchForAllRecords(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
 
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        when(bullhornDataMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
         when(bullhornDataMock.searchForAllRecords(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
 
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        when(bullhornDataMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
         when(bullhornDataMock.searchForAllRecords(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
 
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        when(bullhornDataMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
         when(bullhornDataMock.searchForAllRecords(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
 
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        when(bullhornDataMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
         when(bullhornDataMock.searchForAllRecords(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(bullhornDataMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
         when(bullhornDataMock.searchForAllRecords(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
         when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
-        // Mock out existing note entities with the duplicate error message
+        // Ensure that no inserts happen by returning the duplicate error message from SDK-REST, should an insert call be made
         RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: NoteEntity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"NoteEntity\"}");
         when(bullhornDataMock.insertEntity(any(NoteEntity.class))).thenThrow(exception);
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.run();
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
         verify(bullhornDataMock, times(1)).updateEntity(any(Note.class));
@@ -449,19 +421,17 @@ public class LoadTaskTest {
     @Test
     public void run_invalidField() throws Exception {
         dataMap.put("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -469,19 +439,17 @@ public class LoadTaskTest {
     @Test
     public void run_invalidAddressField() throws Exception {
         dataMap.put("city", "Failville");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid address field format: 'city' Must use 'address.city' in csv header");
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid address field format: 'city' Must use 'address.city' in csv header");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -491,10 +459,9 @@ public class LoadTaskTest {
         dataMap.clear();
         dataMap.put("id", "1");
         dataMap.put("city", "Successville");
-        List<String> idExistField = Arrays.asList(new String[]{"id"});
-        doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("CandidateEducation");
+        List<String> idExistField = Collections.singletonList("id");
+        doReturn(Optional.of(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("CandidateEducation");
         methodMap = concurrencyService.createMethodMap(CandidateEducation.class);
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         when(bullhornDataMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CandidateEducation.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CandidateEducation.class, 1));
         when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
@@ -502,8 +469,9 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_EDUCATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
@@ -511,11 +479,8 @@ public class LoadTaskTest {
     @Test
     public void run_validAddressField_CountryName() throws Exception {
         dataMap.put("address.countryName", "Canada");
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -525,11 +490,12 @@ public class LoadTaskTest {
         // Verify the candidate's countryID
         ArgumentCaptor<Candidate> entityArgumentCaptor = ArgumentCaptor.forClass(Candidate.class);
         verify(bullhornDataMock).insertEntity(entityArgumentCaptor.capture());
-        final Candidate actualCandidate = entityArgumentCaptor.getValue();
+        Candidate actualCandidate = entityArgumentCaptor.getValue();
         Assert.assertEquals(Integer.valueOf(2216), actualCandidate.getAddress().getCountryID());
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
@@ -538,26 +504,23 @@ public class LoadTaskTest {
     public void run_validAddressField_CountryID() throws Exception {
         dataMap.remove("address.countryName");
         dataMap.put("address.countryID", "2216"); // Canada
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
         // Verify the candidate's countryID
         ArgumentCaptor<Candidate> entityArgumentCaptor = ArgumentCaptor.forClass(Candidate.class);
         verify(bullhornDataMock).insertEntity(entityArgumentCaptor.capture());
-        final Candidate actualCandidate = entityArgumentCaptor.getValue();
+        Candidate actualCandidate = entityArgumentCaptor.getValue();
         Assert.assertEquals(Integer.valueOf(2216), actualCandidate.getAddress().getCountryID());
 
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
@@ -566,19 +529,16 @@ public class LoadTaskTest {
     public void run_invalidAddressField_CountryID() throws Exception {
         dataMap.remove("address.countryName");
         dataMap.put("address.countryID", "BOGUS");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NumberFormatException: For input string: \"BOGUS\"");
         when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NumberFormatException: For input string: \"BOGUS\"");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -586,20 +546,16 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAssociation() throws Exception {
         dataMap.put("bogus.id", "This should fail with meaningful error because bogus does not exist.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -607,20 +563,16 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAssociationField() throws Exception {
         dataMap.put("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'owner.bogus': 'bogus' does not exist on CorporateUser");
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'owner.bogus': 'bogus' does not exist on CorporateUser");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -628,20 +580,16 @@ public class LoadTaskTest {
     @Test
     public void run_invalidToOneAddressAssociationField() throws Exception {
         dataMap.put("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
         when(bullhornDataMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornDataMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.queryForAllRecords(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornDataMock.queryForAllRecords(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornDataMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -689,37 +637,33 @@ public class LoadTaskTest {
 
     @Test
     public void run_TestCatch() throws Exception {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
-
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     @Test
     public void run_createEntityObjectTestCatch() throws Exception {
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
+        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1, 2));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        when(bullhornDataMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1, 2));
         task.run();
 
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
+        Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
 
     @Test
     public void addAssociationToEntityTestCatchNoThrow() throws Exception {
+        Set associationIdList = new HashSet<>(Collections.singletonList(1));
         RestApiException thrownException = new RestApiException("an association between Candidate 1 and Skill 1 already exists");
-
-        Set associationIdList = new HashSet<>();
-        associationIdList.add(1);
         when(bullhornDataMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(bullhornDataMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornDataMock.queryForAllRecords(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
@@ -743,8 +687,8 @@ public class LoadTaskTest {
         boolean wasExceptionThrown = false;
         try {
             LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-            task.entityID = 1;
             task.init();
+            task.entityID = 1;
             task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
         } catch (RestApiException e) {
             wasExceptionThrown = true;
@@ -784,7 +728,6 @@ public class LoadTaskTest {
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
@@ -799,7 +742,6 @@ public class LoadTaskTest {
         when(bullhornDataMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoteID, bullhornDataMock,printUtilMock, actionTotalsMock);
-        task.init();
         task.findEntity("id", "id", Note.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
@@ -813,7 +755,6 @@ public class LoadTaskTest {
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
     }
 
@@ -824,7 +765,6 @@ public class LoadTaskTest {
         when(bullhornDataMock.search(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1, 2));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
         verify(bullhornDataMock, times(1)).search(any(), any(), any(), any());
@@ -847,7 +787,6 @@ public class LoadTaskTest {
     @Test(expected = RestApiException.class)
     public void getQueryStatement_unsupportedType() {
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornDataMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.getQueryStatement("doubleField", "doubleValue", double.class, Note.class);
     }
 
