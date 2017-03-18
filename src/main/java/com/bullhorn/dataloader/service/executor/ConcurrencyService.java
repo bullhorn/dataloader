@@ -154,6 +154,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         return null;
     }
 
+    // TODO: Pull out into Utility
     public Map<String, Method> createMethodMap(Class entity) {
         Map<String, Method> methodMap = new HashMap();
         for (Method method : Arrays.asList(entity.getMethods())) {
@@ -165,6 +166,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         return methodMap;
     }
 
+    // TODO: Pull out into Utility
     private void addAddressMethodsIfNeeded(Map<String, Method> methodMap) {
         if (methodMap.containsKey("address")) {
             for (Method method : Arrays.asList(Address.class.getMethods())) {

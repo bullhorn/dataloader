@@ -124,10 +124,32 @@ public class ResultTest {
     }
 
     @Test
+    public void testEquals_action_setter() {
+        final Result result1 = Result.Insert(1);
+        final Result result2 = Result.Insert(1);
+        final Result different = Result.Insert(1);
+        different.setAction(Result.Action.UPDATE);
+
+        Assert.assertEquals(result1, result2);
+        Assert.assertNotEquals(result1, different);
+    }
+
+    @Test
     public void testEquals_bullhornId() {
         final Result result1 = Result.Insert(1);
         final Result result2 = Result.Insert(1);
         final Result different = Result.Insert(2);
+
+        Assert.assertEquals(result1, result2);
+        Assert.assertNotEquals(result1, different);
+    }
+
+    @Test
+    public void testEquals_bullhornId_setter() {
+        final Result result1 = Result.Insert(1);
+        final Result result2 = Result.Insert(1);
+        final Result different = Result.Insert(1);
+        different.setBullhornId(2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);

@@ -95,6 +95,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.actionTotals = actionTotals;
     }
 
+    // TODO: Remove this method, and remove the need for storing it again by using a getEntityClass getter
     protected void init() {
         entityClass = entityInfo.getBullhornEntityInfo().getType();
     }
@@ -312,6 +313,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    // TODO: Move out to utility class
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
@@ -323,6 +325,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    // TODO: Move out to utility class
     protected void checkForRequiredFieldsError(RestApiException e) {
         if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
             throw new RestApiException("Missing required fields for " + entityClass.getSimpleName() + ".");
@@ -331,6 +334,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    // TODO: Pass in row number and move to utility class
     /**
      * populates a field on an entity using reflection
      *
@@ -354,15 +358,18 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    // TODO: Move out to utility class
     private boolean isAddressField(String field) {
         List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
         return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 
+    // TODO: Remove this and refactor calling code
     protected String getCamelCasedClassToString() {
         return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
     }
 
+    // TODO: Move out to utility class
     protected static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getAssociationFields(Class<AssociationEntity> entityClass) {
         try {
             if (entityClassToAssociationsMap.containsKey(entityClass)) {
@@ -378,6 +385,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    // TODO: Move out to utility class
     private static synchronized EntityAssociations getEntityAssociations(Class entityClass) {
         return (entityClass == Candidate.class ? AssociationFactory.candidateAssociations() :
             (entityClass == Category.class ? AssociationFactory.categoryAssociations() :

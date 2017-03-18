@@ -72,6 +72,7 @@ public abstract class AbstractService {
         return propertyFileUtil;
     }
 
+    // TODO: Inject BullhornData, don't new inside of base class
     protected BullhornData getBullhornData() throws Exception {
         BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(getPropertyFileUtil()));
         return bullhornData;
@@ -90,6 +91,7 @@ public abstract class AbstractService {
         return bullhornRestCredentials;
     }
 
+    // TODO: Inject ExecutorService, don't new inside of base class
     /**
      * Create a thread pool executor service for processing entities
      *
@@ -169,6 +171,7 @@ public abstract class AbstractService {
         }
     }
 
+    // TODO: Move out to utility class
     /**
      * Given a directory, this method searches the directory for all valid CSV files and returns the map.
      * Multiple files for a single entity will be sorted alphabetically.
@@ -195,6 +198,7 @@ public abstract class AbstractService {
         return entityToFileListMap;
     }
 
+    // TODO: Move out to utility class
     /**
      * Given an individual file path, this method constructs the entity to file map and returns it.
      */
@@ -211,6 +215,7 @@ public abstract class AbstractService {
         return entityToFileListMap;
     }
 
+    // TODO: Move out to utility class
     /**
      * Returns the list of loadable csv files in load order
      *
@@ -231,6 +236,7 @@ public abstract class AbstractService {
         return loadableEntityToFileListMap;
     }
 
+    // TODO: Move out to utility class
     /**
      * Returns the list of deletable csv files in delete order
      *
@@ -292,6 +298,7 @@ public abstract class AbstractService {
         return true;
     }
 
+    // TODO: Move out to utility class, and use EntityInfo instead of string everywhere
     /**
      * Extractions entity name from a file path.
      * <p>
@@ -310,6 +317,7 @@ public abstract class AbstractService {
         }
     }
 
+    // TODO: Move out to utility class
     /**
      * Extractions entity type from a file path.
      * <p>
@@ -341,6 +349,7 @@ public abstract class AbstractService {
         }
     }
 
+    // TODO: Move out to utility class, and use EntityInfo instead of string everywhere
     /**
      * Return properly capitalize SDK-REST entity name from a string with any capitalization
      *
@@ -356,6 +365,7 @@ public abstract class AbstractService {
         return null;
     }
 
+    // TODO: Move to the EntityType
     /**
      * checks if entity can load attachments
      */
@@ -373,6 +383,7 @@ public abstract class AbstractService {
         return false;
     }
 
+    // TODO: Move out to utility class
     private CsvReader getCsvReader(String filePath) throws IOException {
         final CsvReader csvReader = new CsvReader(filePath);
         csvReader.readHeaders();
@@ -383,6 +394,7 @@ public abstract class AbstractService {
         return csvReader;
     }
 
+    // TODO: Move out to utility class
     private StringBuilder getDuplicates(CsvReader csvReader) throws IOException {
         List<String> nonDupe = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
