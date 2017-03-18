@@ -16,6 +16,4 @@ public class StringConsts {
     public static final String TO_MANY = "TO_MANY";
     public static final String NOTE_ID = "noteID";
     public static final String IS_DELETED = "isDeleted";
-
-    private StringConsts() {}
 }

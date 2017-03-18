@@ -1,16 +1,17 @@
 package com.bullhorn.dataloader.service.executor;
 
+import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.service.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
+import com.bullhorn.dataloader.task.DeleteCustomObjectTask;
 import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.meta.EntityInfo;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornData;
@@ -44,41 +45,40 @@ import static org.mockito.Mockito.when;
 
 public class ConcurrencyServiceTest <T extends AbstractTask>  {
 
-    private PropertyFileUtil propertyFileUtil;
-    private CsvFileWriter csvFileWriter;
-    private CsvReader csvReader;
-    private BullhornData bullhornData;
-    private ExecutorService executorService;
-    @SuppressWarnings("rawtypes")
-    private PrintUtil printUtil;
-    private ActionTotals actionTotals;
+    private CsvFileWriter csvFileWriterMock;
+    private ExecutorService executorServiceMock;
+    private PropertyFileUtil propertyFileUtilMock;
+    private BullhornData bullhornDataMock;
+    private PrintUtil printUtilMock;
+    private ActionTotals actionTotalsMock;
 
+    @SuppressWarnings("rawtypes")
     @Before
     public void setUp() throws IOException {
-        propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
-        csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        bullhornData = Mockito.mock(BullhornData.class);
-        executorService = Mockito.mock(ExecutorService.class);
-        printUtil = Mockito.mock(PrintUtil.class);
-        actionTotals = Mockito.mock(ActionTotals.class);
+        csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
+        executorServiceMock = Mockito.mock(ExecutorService.class);
+        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        bullhornDataMock = Mockito.mock(BullhornData.class);
+        printUtilMock = Mockito.mock(PrintUtil.class);
+        actionTotalsMock = Mockito.mock(ActionTotals.class);
     }
 
     @Test
     public void runLoadProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadTask.class);
 
-        csvReader = new CsvReader("src/test/resources/Candidate.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
             EntityInfo.CANDIDATE,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
 
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
@@ -91,15 +91,15 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         usa.setName("USA");
         countryList.add(usa);
         listWrapper.setData(countryList);
-        when(bullhornData.queryForAllRecords(any(), any(), any(), any())).thenReturn(listWrapper);
+        when(bullhornDataMock.queryForAllRecords(any(), any(), any(), any())).thenReturn(listWrapper);
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
         countryNameToIdMap.put("USA", 1);
 
-        final LoadTask expectedTask = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        final LoadTask expectedTask = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadProcess();
-        verify(executorService).execute((Runnable) taskCaptor.capture());
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
         final LoadTask actualTask = (LoadTask) taskCaptor.getValue();
@@ -111,18 +111,18 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     public void runCustomObjectLoadProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadCustomObjectTask.class);
 
-        csvReader = new CsvReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
             EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
 
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("clientCorporation.id", "1");
@@ -130,11 +130,11 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
 
         Map<String, Method> methodMap = service.createMethodMap(ClientCorporationCustomObjectInstance1.class);
 
-        final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, methodMap, null, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadProcess();
-        verify(executorService).execute((Runnable) taskCaptor.capture());
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
         final LoadCustomObjectTask actualTask = (LoadCustomObjectTask) taskCaptor.getValue();
@@ -146,27 +146,27 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     public void runDeleteProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(DeleteTask.class);
 
-        csvReader = new CsvReader("src/test/resources/Candidate.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE,
             EntityInfo.CANDIDATE,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
 
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
 
-        final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteProcess();
-        verify(executorService).execute((Runnable) taskCaptor.capture());
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
         final DeleteTask actualTask = (DeleteTask) taskCaptor.getValue();
@@ -175,20 +175,53 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     }
 
     @Test
+    public void runDeleteProcessTest_CustomObject() throws IOException, InterruptedException {
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(DeleteTask.class);
+
+        CsvReader csvReader = new CsvReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
+        csvReader.readHeaders();
+        final ConcurrencyService service = new ConcurrencyService(
+            Command.DELETE,
+            EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1,
+            csvReader,
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
+
+        final Map<String, String> expectedDataMap = new LinkedHashMap<>();
+        expectedDataMap.put("clientCorporation.id", "1");
+        expectedDataMap.put("text1", "test");
+
+        final DeleteCustomObjectTask expectedTask = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+
+        service.runDeleteProcess();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+
+        @SuppressWarnings("unchecked")
+        final DeleteCustomObjectTask actualTask = (DeleteCustomObjectTask) taskCaptor.getValue();
+
+        Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
+    }
+
+    @Test
     public void getCSVMapTestWithInvalidHeaderCount() throws IOException, InterruptedException {
         boolean errorThrown = false;
-        csvReader = new CsvReader("src/test/resources/ClientCorporation_Invalid.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/ClientCorporation_Invalid.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE_ATTACHMENTS,
             EntityInfo.CLIENT_CORPORATION,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
         try {
             service.getCsvDataMap();
         }
@@ -203,19 +236,19 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     public void EntityAttachmentConcurrencyServiceTestLoadAttachments() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadAttachmentTask.class);
 
-        csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
         csvReader.readHeaders();
 
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD_ATTACHMENTS,
             EntityInfo.CANDIDATE,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
 
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
@@ -229,11 +262,11 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             }
         }
 
-        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadAttachmentsProcess();
-        verify(executorService).execute((Runnable) taskCaptor.capture());
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
         final LoadAttachmentTask actualTask = (LoadAttachmentTask) taskCaptor.getValue();
@@ -245,29 +278,29 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     public void runConvertAttachmentsProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(ConvertAttachmentTask.class);
 
-        csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.CONVERT_ATTACHMENTS,
             EntityInfo.CANDIDATE,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
 
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("externalID", "1");
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
 
-        final ConvertAttachmentTask expectedTask = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        final ConvertAttachmentTask expectedTask = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runConvertAttachmentsProcess();
-        verify(executorService).execute((Runnable) taskCaptor.capture());
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
 
         @SuppressWarnings("unchecked")
         final ConvertAttachmentTask actualTask = (ConvertAttachmentTask) taskCaptor.getValue();
@@ -279,18 +312,18 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
     public void runDeleteAttachmentsProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(DeleteAttachmentTask.class);
 
-        csvReader = new CsvReader("src/test/resources/CandidateAttachments_success.csv");
+        CsvReader csvReader = new CsvReader("src/test/resources/CandidateAttachments_success.csv");
         csvReader.readHeaders();
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE_ATTACHMENTS,
             EntityInfo.CANDIDATE,
             csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornData,
-            printUtil,
-            actionTotals);
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
         expectedDataMap.put("action", "INSERT");
@@ -298,14 +331,56 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
         expectedDataMap.put("parentEntityID", "1");
-        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
-        when(executorService.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteAttachmentsProcess();
 
-        verify(executorService).execute((Runnable) taskCaptor.capture());
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
         final DeleteAttachmentTask actualTask = (DeleteAttachmentTask) taskCaptor.getValue();
 
         Assert.assertThat(expectedTask, new ReflectionEquals(actualTask));
+    }
+
+    @Test
+    public void testGetActionTotals() throws IOException {
+        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
+        csvReader.readHeaders();
+
+        final ConcurrencyService service = new ConcurrencyService(
+            Command.LOAD,
+            EntityInfo.CANDIDATE,
+            csvReader,
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
+
+        ActionTotals actionTotals = service.getActionTotals();
+
+        Assert.assertEquals(actionTotals, actionTotalsMock);
+    }
+
+    @Test
+    public void testGetBullhornData() throws IOException {
+        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
+        csvReader.readHeaders();
+
+        final ConcurrencyService service = new ConcurrencyService(
+            Command.LOAD,
+            EntityInfo.CANDIDATE,
+            csvReader,
+            csvFileWriterMock,
+            executorServiceMock,
+            propertyFileUtilMock,
+            bullhornDataMock,
+            printUtilMock,
+            actionTotalsMock);
+
+        BullhornData bullhornData = service.getBullhornData();
+
+        Assert.assertEquals(bullhornData, bullhornDataMock);
     }
 }

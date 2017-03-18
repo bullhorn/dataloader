@@ -2,9 +2,6 @@ package com.bullhorn.dataloader.util;
 
 public class ArrayUtil {
 
-    private ArrayUtil() {
-    }
-
     /**
      * Prepends an element to a String array
      *
