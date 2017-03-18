@@ -36,13 +36,11 @@ public class DeleteTaskTest {
 
     private PropertyFileUtil propertyFileUtilMock;
     private CsvFileWriter csvFileWriterMock;
-    private ArgumentCaptor<Result> resultArgumentCaptor;
-    private Map<String, String> dataMap;
     private BullhornData bullhornDataMock;
     private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
-
-    private DeleteTask task;
+    private ArgumentCaptor<Result> resultArgumentCaptor;
+    private Map<String, String> dataMap;
 
     @Before
     public void setUp() throws Exception {
@@ -62,7 +60,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Candidate() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -76,7 +74,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Appointment() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.APPOINTMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.APPOINTMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.query(eq(Appointment.class), eq("isDeleted=false AND id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Appointment.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -90,7 +88,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.NOTE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.NOTE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.search(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -105,7 +103,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Placement() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.PLACEMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.PLACEMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Placement.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -119,7 +117,7 @@ public class DeleteTaskTest {
     @Test
     public void run_AlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
 
@@ -132,7 +130,7 @@ public class DeleteTaskTest {
 
     @Test
     public void run_AlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.PLACEMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.PLACEMENT, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Placement.class));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
 
@@ -146,7 +144,7 @@ public class DeleteTaskTest {
     @Test
     public void run_NonDeletableEntityFailure() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: ClientCorporation records are not deletable.");
 
         task.run();
@@ -159,7 +157,7 @@ public class DeleteTaskTest {
     @Test
     public void run_IdColumnFailure() throws IOException {
         dataMap.clear();
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Cannot Perform Delete: missing 'id' column.");
 
         task.run();
@@ -172,7 +170,7 @@ public class DeleteTaskTest {
     @Test
     public void run_RestFailure() throws IOException, InstantiationException, IllegalAccessException {
         final String[] expectedValues = {"1"};
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         when(bullhornDataMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
         when(bullhornDataMock.deleteEntity(any(), anyInt())).thenReturn(TestUtils.getResponse(ChangeType.DELETE, null, "FailureField", "Because failed"));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making DELETE REST call:\n" +
@@ -193,7 +191,7 @@ public class DeleteTaskTest {
         String oneString = "1";
         String twoString = "2";
 
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
 
         Assert.assertEquals("false", task.getBooleanWhereStatement(falseString));
         Assert.assertEquals("true", task.getBooleanWhereStatement(trueString));
@@ -206,7 +204,7 @@ public class DeleteTaskTest {
     public void testGetFieldEntityClassWithAssociation() {
         final String candidateID = "candidate.id";
 
-        task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        DeleteTask task = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
         Class<BullhornEntityInfo> bullhornEntityInfo = task.getFieldEntityClass(candidateID);
 
         Assert.assertEquals(bullhornEntityInfo.getSimpleName(), EntityInfo.CANDIDATE.getEntityName());
