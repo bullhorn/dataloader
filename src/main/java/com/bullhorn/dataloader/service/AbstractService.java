@@ -1,7 +1,8 @@
 package com.bullhorn.dataloader.service;
 
 
-import com.bullhorn.dataloader.meta.EntityInfo;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;

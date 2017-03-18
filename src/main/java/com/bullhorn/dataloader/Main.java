@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader;
 
 import com.bullhorn.dataloader.service.ActionFactory;
-import com.bullhorn.dataloader.service.CommandLineInterface;
+import com.bullhorn.dataloader.service.executor.CommandLineInterface;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;

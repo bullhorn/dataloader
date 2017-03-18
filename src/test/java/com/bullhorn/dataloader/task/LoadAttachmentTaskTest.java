@@ -2,8 +2,8 @@ package com.bullhorn.dataloader.task;
 
 import com.beust.jcommander.internal.Lists;
 import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;

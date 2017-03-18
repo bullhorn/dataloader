@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.service.csv;
 
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;

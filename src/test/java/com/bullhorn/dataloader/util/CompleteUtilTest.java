@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.httpclient.HttpClient;

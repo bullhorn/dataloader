@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.enums;
 
 import com.google.common.base.CaseFormat;
 

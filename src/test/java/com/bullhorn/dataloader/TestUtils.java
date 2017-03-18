@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader;
 
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
