@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.service.Action;

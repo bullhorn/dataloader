@@ -3,14 +3,15 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
+import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.bullhornsdk.data.api.BullhornData;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,9 +33,10 @@ import static org.mockito.Matchers.any;
 public class LoadServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private BullhornData bullhornDataMock;
+    private BullhornRestApi bullhornRestApi;
     private CompleteUtil completeUtilMock;
     private ConcurrencyService concurrencyServiceMock;
+    private ConnectionUtil connectionUtilMock;
     private InputStream inputStreamFake;
     private LoadService loadService;
     private PrintUtil printUtilMock;
@@ -44,22 +46,24 @@ public class LoadServiceTest {
 
     @Before
     public void setup() throws Exception {
+        actionTotalsMock = Mockito.mock(ActionTotals.class);
+        bullhornRestApi = Mockito.mock(BullhornRestApi.class);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
+        connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        validationUtil = new ValidationUtil(printUtilMock);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        bullhornDataMock = Mockito.mock(BullhornData.class);
-        inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
         timerMock = Mockito.mock(Timer.class);
+        validationUtil = new ValidationUtil(printUtilMock);
 
-        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake, timerMock));
+        // TODO: Stop spying on service and mocking the ConcurrencyService that we don't inject
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamFake, timerMock));
 
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
         Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
         Mockito.doReturn(actionTotalsMock).when(concurrencyServiceMock).getActionTotals();
         Mockito.doReturn(999L).when(timerMock).getDurationMillis();
-        Mockito.doReturn(bullhornDataMock).when(concurrencyServiceMock).getBullhornData();
+        Mockito.doReturn(bullhornRestApi).when(concurrencyServiceMock).getBullhornRestApi();
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
         Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).getExecutorService(Mockito.any());
     }
@@ -73,7 +77,7 @@ public class LoadServiceTest {
 
         Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornDataMock);
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornRestApi);
     }
 
     @Test
@@ -133,7 +137,7 @@ public class LoadServiceTest {
     @Test
     public void testRun_directory_fourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamFake, timerMock));
+        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamFake, timerMock));
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
         Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();

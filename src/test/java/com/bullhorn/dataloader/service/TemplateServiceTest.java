@@ -1,12 +1,13 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.CompleteUtil;
+import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
@@ -19,29 +20,29 @@ import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 
 import static org.mockito.Mockito.when;
 
 public class TemplateServiceTest {
 
+    private CompleteUtil completeUtilMock;
+    private ConnectionUtil connectionUtilMock;
+    private InputStream inputStreamMock;
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
-    private ValidationUtil validationUtil;
-    private CompleteUtil completeUtilMock;
-    private InputStream inputStreamMock;
     private Timer timerMock;
-    private BullhornData bullhornDataMock;
+    private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws Exception {
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
+        connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        inputStreamMock = Mockito.mock(InputStream.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        validationUtil = new ValidationUtil(printUtilMock);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        inputStreamMock = Mockito.mock(InputStream.class);
         timerMock = Mockito.mock(Timer.class);
-        bullhornDataMock = Mockito.mock(BullhornData.class);
+        validationUtil = new ValidationUtil(printUtilMock);
 
         StandardMetaData<Candidate> metaData = new StandardMetaData<>();
         metaData.setEntity("Candidate");
@@ -49,21 +50,21 @@ public class TemplateServiceTest {
         field.setName("comments");
         field.setDataType("String");
         field.setType("SCALAR");
-        metaData.setFields(Arrays.asList(field));
+        metaData.setFields(Collections.singletonList(field));
 
-        when(bullhornDataMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
+        BullhornRestApi bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
+        when(connectionUtilMock.connect()).thenReturn(bullhornRestApiMock);
+        when(bullhornRestApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
     }
 
-    // TODO: After Injecting BullhornData, make this work correctly
     @Test
     public void testRun() throws Exception {
         final String entity = "Candidate";
         final String dataType = "String";
         final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
 
-        TemplateService templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
-        String entityName = templateService.validateArguments(testArgs);
-        templateService.createTemplate(entityName, bullhornDataMock);
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
+        templateService.run(testArgs);
 
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
         final String fileName = entity + "Example.csv";
@@ -76,15 +77,15 @@ public class TemplateServiceTest {
         csvReader.readRecord();
         Assert.assertEquals(dataType, csvReader.getValues()[0]);
 
+        // Cleanup test files
         outputFile.delete();
     }
 
     @Test
     public void testIsValidArguments() throws Exception {
-        final String entityName = "Candidate";
-        final String[] testArgs = {Command.TEMPLATE.getMethodName(), entityName};
+        final String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidate"};
 
-        TemplateService templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
         final boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
@@ -95,7 +96,7 @@ public class TemplateServiceTest {
     public void testIsValidArgumentsMissingArgument() throws Exception {
         final String[] testArgs = {Command.TEMPLATE.getMethodName()};
 
-        TemplateService templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
         final boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
@@ -104,10 +105,9 @@ public class TemplateServiceTest {
 
     @Test
     public void testIsValidArgumentsTooManyArgments() throws Exception {
-        final String entityName = "Candidate.csv";
-        final String[] testArgs = {Command.TEMPLATE.getMethodName(), entityName, "tooMany"};
+        final String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidate", "tooMany"};
 
-        TemplateService templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
         final boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
@@ -116,10 +116,9 @@ public class TemplateServiceTest {
 
     @Test
     public void testIsValidArgumentsBadEntity() throws Exception {
-        final String filePath = "filePath";
-        final String[] testArgs = {Command.TEMPLATE.getMethodName(), filePath};
+        final String[] testArgs = {Command.TEMPLATE.getMethodName(), "BadActors"};
 
-        TemplateService templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
         final boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
@@ -127,11 +126,10 @@ public class TemplateServiceTest {
     }
 
     @Test
-    public void testIsValidArgumentsEmptyFile() throws Exception {
-        final String filePath = "";
-        final String[] testArgs = {Command.TEMPLATE.getMethodName(), filePath};
+    public void testIsValidArgumentsEmptyEntity() throws Exception {
+        final String[] testArgs = {Command.TEMPLATE.getMethodName(), ""};
 
-        TemplateService templateService = Mockito.spy(new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, inputStreamMock, timerMock));
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
         final boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);

@@ -1,15 +1,15 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
@@ -38,10 +38,10 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
                       Map<String, String> dataMap,
                       CsvFileWriter csvWriter,
                       PropertyFileUtil propertyFileUtil,
-                      BullhornData bullhornData,
+                      BullhornRestApi bullhornRestApi,
                       PrintUtil printUtil,
                       ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**
@@ -73,7 +73,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
                 " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
-        CrudResponse response = bullhornData.deleteEntity((Class<D>) entityClass, bullhornID);
+        CrudResponse response = bullhornRestApi.deleteEntity((Class<D>) entityClass, bullhornID);
         checkForRestSdkErrorMessages(response);
         return Result.Delete(bullhornID);
     }

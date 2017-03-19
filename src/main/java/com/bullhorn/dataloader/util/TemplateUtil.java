@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhornsdk.data.api.BullhornData;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
@@ -19,13 +19,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// TODO: Convert to using EntityInfo enum everywhere instead of Entity String Name
 public class TemplateUtil<B extends BullhornEntity> {
 
     private final Set<String> compositeTypes = Sets.newHashSet("address");
-    private BullhornData bullhornData;
+    private BullhornRestApi bullhornRestApi;
 
-    public TemplateUtil(BullhornData bullhornData) {
-        this.bullhornData = bullhornData;
+    public TemplateUtil(BullhornRestApi bullhornRestApi) {
+        this.bullhornRestApi = bullhornRestApi;
     }
 
     public void writeExampleEntityCsv(String entity) throws IOException, ClassNotFoundException {
@@ -39,7 +40,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private Set<Field> getMetaFieldSet(String entity) {
-        MetaData<B> metaData = bullhornData.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
+        MetaData<B> metaData = bullhornRestApi.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
         Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
         Set<Field> associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
         addAssociatedFields(metaFieldSet, associationFields);

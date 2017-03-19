@@ -1,19 +1,17 @@
 package com.bullhorn.dataloader.service;
 
-
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
+import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.bullhornsdk.data.api.BullhornData;
-import com.bullhornsdk.data.api.BullhornRestCredentials;
-import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
@@ -48,6 +46,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractService {
 
+    final protected ConnectionUtil connectionUtil;
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
@@ -59,40 +58,19 @@ public abstract class AbstractService {
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
+                           ConnectionUtil connectionUtil,
                            InputStream inputStream,
                            Timer timer) throws IOException {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
         this.completeUtil = completeUtil;
+        this.connectionUtil = connectionUtil;
         this.inputStream = inputStream;
         this.timer = timer;
     }
 
-    public PropertyFileUtil getPropertyFileUtil() {
-        return propertyFileUtil;
-    }
-
-    // TODO: Inject BullhornData, don't new inside of base class
-    protected BullhornData getBullhornData() throws Exception {
-        BullhornData bullhornData = new StandardBullhornData(getBullhornRestCredentials(getPropertyFileUtil()));
-        return bullhornData;
-    }
-
-    protected BullhornRestCredentials getBullhornRestCredentials(PropertyFileUtil propertyFileUtil) throws Exception {
-        BullhornRestCredentials bullhornRestCredentials = new BullhornRestCredentials();
-        bullhornRestCredentials.setPassword(propertyFileUtil.getPassword());
-        bullhornRestCredentials.setRestAuthorizeUrl(propertyFileUtil.getAuthorizeUrl());
-        bullhornRestCredentials.setRestClientId(propertyFileUtil.getClientId());
-        bullhornRestCredentials.setRestClientSecret(propertyFileUtil.getClientSecret());
-        bullhornRestCredentials.setRestLoginUrl(propertyFileUtil.getLoginUrl());
-        bullhornRestCredentials.setRestTokenUrl(propertyFileUtil.getTokenUrl());
-        bullhornRestCredentials.setUsername(propertyFileUtil.getUsername());
-        bullhornRestCredentials.setRestSessionMinutesToLive("60");
-        return bullhornRestCredentials;
-    }
-
-    // TODO: Inject ExecutorService, don't new inside of base class
+    // TODO: Move out to utility class
     /**
      * Create a thread pool executor service for processing entities
      *
@@ -106,6 +84,7 @@ public abstract class AbstractService {
         return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), timeToLive, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
+    // TODO: Move out to utility class
     /**
      * Gets task pool size limit on basis of system memory
      *
@@ -131,9 +110,7 @@ public abstract class AbstractService {
      * @throws Exception if error when opening session, loading entityClass data, or reading CSV
      */
     protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
-        final PropertyFileUtil propertyFileUtil = getPropertyFileUtil();
-
-        final BullhornData bullhornData = getBullhornData();
+        final BullhornRestApi bullhornRestApi = connectionUtil.connect();
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
         final CsvReader csvReader = getCsvReader(filePath);
         final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
@@ -146,7 +123,7 @@ public abstract class AbstractService {
             csvFileWriter,
             executorService,
             propertyFileUtil,
-            bullhornData,
+            bullhornRestApi,
             printUtil,
             actionTotals
         );
@@ -348,22 +325,6 @@ public abstract class AbstractService {
         } else {
             return bestMatch;
         }
-    }
-
-    // TODO: Move out to utility class, and use EntityInfo instead of string everywhere
-    /**
-     * Return properly capitalize SDK-REST entity name from a string with any capitalization
-     *
-     * @param string a string of the entity name
-     * @return SDK-REST entity name
-     */
-    protected String extractEntityNameFromString(String string) {
-        for (EntityInfo entityInfo : EntityInfo.values()) {
-            if (string.equalsIgnoreCase(entityInfo.getEntityName())) {
-                return entityInfo.getEntityName();
-            }
-        }
-        return null;
     }
 
     // TODO: Move to the EntityType

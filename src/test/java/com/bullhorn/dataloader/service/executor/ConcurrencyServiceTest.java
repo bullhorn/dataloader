@@ -1,9 +1,8 @@
 package com.bullhorn.dataloader.service.executor;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteCustomObjectTask;
@@ -14,7 +13,6 @@ import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance1;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
@@ -43,12 +41,12 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ConcurrencyServiceTest <T extends AbstractTask>  {
+public class ConcurrencyServiceTest {
 
     private CsvFileWriter csvFileWriterMock;
     private ExecutorService executorServiceMock;
     private PropertyFileUtil propertyFileUtilMock;
-    private BullhornData bullhornDataMock;
+    private BullhornRestApi bullhornRestApiMock;
     private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
 
@@ -58,7 +56,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
         executorServiceMock = Mockito.mock(ExecutorService.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        bullhornDataMock = Mockito.mock(BullhornData.class);
+        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
     }
@@ -76,7 +74,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
@@ -91,11 +89,11 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         usa.setName("USA");
         countryList.add(usa);
         listWrapper.setData(countryList);
-        when(bullhornDataMock.queryForAllRecords(any(), any(), any(), any())).thenReturn(listWrapper);
+        when(bullhornRestApiMock.queryForAllRecords(any(), any(), any(), any())).thenReturn(listWrapper);
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
         countryNameToIdMap.put("USA", 1);
 
-        final LoadTask expectedTask = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final LoadTask expectedTask = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadProcess();
@@ -120,7 +118,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
@@ -130,7 +128,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
 
         Map<String, Method> methodMap = service.createMethodMap(ClientCorporationCustomObjectInstance1.class);
 
-        final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadProcess();
@@ -155,14 +153,14 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
 
-        final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final DeleteTask expectedTask = new DeleteTask(Command.DELETE, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteProcess();
@@ -187,7 +185,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
@@ -195,7 +193,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("clientCorporation.id", "1");
         expectedDataMap.put("text1", "test");
 
-        final DeleteCustomObjectTask expectedTask = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final DeleteCustomObjectTask expectedTask = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteProcess();
@@ -219,7 +217,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
         try {
@@ -246,7 +244,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
@@ -262,7 +260,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             }
         }
 
-        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final LoadAttachmentTask expectedTask = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, methodMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runLoadAttachmentsProcess();
@@ -287,7 +285,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
@@ -296,7 +294,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
 
-        final ConvertAttachmentTask expectedTask = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final ConvertAttachmentTask expectedTask = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runConvertAttachmentsProcess();
@@ -321,7 +319,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
@@ -331,7 +329,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "0");
         expectedDataMap.put("parentEntityID", "1");
-        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        final DeleteAttachmentTask expectedTask = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, expectedDataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
 
         service.runDeleteAttachmentsProcess();
@@ -354,7 +352,7 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
@@ -375,12 +373,12 @@ public class ConcurrencyServiceTest <T extends AbstractTask>  {
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
-            bullhornDataMock,
+            bullhornRestApiMock,
             printUtilMock,
             actionTotalsMock);
 
-        BullhornData bullhornData = service.getBullhornData();
+        BullhornRestApi bullhornRestApi = service.getBullhornRestApi();
 
-        Assert.assertEquals(bullhornData, bullhornDataMock);
+        Assert.assertEquals(bullhornRestApi, bullhornRestApiMock);
     }
 }
