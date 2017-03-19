@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
@@ -33,6 +34,7 @@ public class TemplateServiceTest {
     private PropertyFileUtil propertyFileUtilMock;
     private Timer timerMock;
     private ValidationUtil validationUtil;
+    private BullhornRestApi bullhornRestApiMock;
 
     @Before
     public void setup() throws Exception {
@@ -43,7 +45,12 @@ public class TemplateServiceTest {
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         timerMock = Mockito.mock(Timer.class);
         validationUtil = new ValidationUtil(printUtilMock);
+        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
+    }
 
+    @Test
+    public void testRun() throws Exception {
+        // Mock out meta data
         StandardMetaData<Candidate> metaData = new StandardMetaData<>();
         metaData.setEntity("Candidate");
         Field field = new Field();
@@ -52,13 +59,9 @@ public class TemplateServiceTest {
         field.setType("SCALAR");
         metaData.setFields(Collections.singletonList(field));
 
-        BullhornRestApi bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         when(connectionUtilMock.connect()).thenReturn(bullhornRestApiMock);
         when(bullhornRestApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
-    }
 
-    @Test
-    public void testRun() throws Exception {
         final String entity = "Candidate";
         final String dataType = "String";
         final String[] testArgs = {Command.TEMPLATE.getMethodName(), entity};
@@ -79,6 +82,16 @@ public class TemplateServiceTest {
 
         // Cleanup test files
         outputFile.delete();
+    }
+
+    @Test
+    public void testRun_BadConnection() throws Exception {
+        when(connectionUtilMock.connect()).thenThrow(new RestApiException());
+
+        TemplateService templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
+        templateService.run(new String[] {Command.TEMPLATE.getMethodName(), "Candidate"});
+
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("Failed to create REST session.");
     }
 
     @Test
