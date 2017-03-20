@@ -1,14 +1,14 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -29,10 +29,10 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
                                 Map<String, String> dataMap,
                                 CsvFileWriter csvWriter,
                                 PropertyFileUtil propertyFileUtil,
-                                BullhornData bullhornData,
+                                BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(method, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(method, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**
@@ -62,6 +62,6 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
         if (!dataMap.containsKey(StringConsts.ID) || dataMap.get(StringConsts.ID).isEmpty()) {
             throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
         }
-        return bullhornData.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
+        return bullhornRestApi.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
     }
 }

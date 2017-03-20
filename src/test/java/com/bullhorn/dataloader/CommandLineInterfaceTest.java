@@ -1,5 +1,12 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.service.ActionFactory;
+import com.bullhorn.dataloader.service.DeleteAttachmentsService;
+import com.bullhorn.dataloader.service.DeleteService;
+import com.bullhorn.dataloader.service.LoadAttachmentsService;
+import com.bullhorn.dataloader.service.LoadService;
+import com.bullhorn.dataloader.service.TemplateService;
 import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -292,5 +299,4 @@ public class CommandLineInterfaceTest {
         Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
-
 }

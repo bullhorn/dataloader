@@ -1,9 +1,9 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhornsdk.data.api.BullhornData;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -23,7 +23,7 @@ public class CompleteUtilTest {
     private PropertyFileUtil propertyFileUtilMock;
     private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
-    private BullhornData bullhornDataMock;
+    private BullhornRestApi bullhornRestApiMock;
     private CompleteUtil completeUtil;
     private HttpClient httpClientMock;
     private ArgumentCaptor<HttpMethod> httpMethodArgumentCaptor;
@@ -34,14 +34,14 @@ public class CompleteUtilTest {
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        bullhornDataMock = Mockito.mock(BullhornData.class);
+        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         httpMethodArgumentCaptor = ArgumentCaptor.forClass(HttpMethod.class);
         completeUtil = new CompleteUtil(httpClientMock, propertyFileUtilMock, printUtilMock);
 
         Mockito.when(httpClientMock.executeMethod(any())).thenReturn(0);
         Mockito.when(propertyFileUtilMock.getNumThreads()).thenReturn(9);
-        Mockito.when(bullhornDataMock.getRestUrl()).thenReturn("http://bullhorn-rest-api/");
-        Mockito.when(bullhornDataMock.getBhRestToken()).thenReturn("12345678-1234-1234-1234-1234567890AB");
+        Mockito.when(bullhornRestApiMock.getRestUrl()).thenReturn("http://bullhorn-rest-api/");
+        Mockito.when(bullhornRestApiMock.getBhRestToken()).thenReturn("12345678-1234-1234-1234-1234567890AB");
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(2);
         Mockito.when(actionTotalsMock.getActionTotal(Result.Action.FAILURE)).thenReturn(3);
@@ -63,7 +63,7 @@ public class CompleteUtilTest {
             "\"entity\":\"Candidate\"" +
         "}";
 
-        completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, durationMsec, bullhornDataMock);
+        completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, durationMsec, bullhornRestApiMock);
 
         Mockito.verify(httpClientMock).executeMethod(httpMethodArgumentCaptor.capture());
         final HttpMethod httpMethod = httpMethodArgumentCaptor.getValue();

@@ -1,13 +1,13 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
@@ -50,10 +50,10 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                                 Map<String, Integer> countryNameToIdMap,
                                 CsvFileWriter csvWriter,
                                 PropertyFileUtil propertyFileUtil,
-                                BullhornData bullhornData,
+                                BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornData, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     @Override
@@ -89,7 +89,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         @Override
     protected void insertOrUpdateEntity() throws IOException {
         try {
-            CrudResponse response = bullhornData.updateEntity((UpdateEntity) parentEntity);
+            CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) parentEntity);
             checkForRestSdkErrorMessages(response);
             parentEntityUpdateDone = true;
         } catch (RestApiException e) {
@@ -119,13 +119,13 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
         String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
-        List<B> matchingCustomObjectList = (List<B>) bullhornData.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        List<B> matchingCustomObjectList = (List<B>) bullhornRestApi.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
         return matchingCustomObjectList;
     }
 
     private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = new HashMap<>(dataMap);
-        MetaData meta = bullhornData.getMetaData(entityClass, MetaParameter.BASIC, null);
+        MetaData meta = bullhornRestApi.getMetaData(entityClass, MetaParameter.BASIC, null);
         for (String fieldName : dataMap.keySet()) {
             boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
             if ((!fieldIsInMeta && !fieldName.contains(".")) || (fieldName.contains("_"))) {

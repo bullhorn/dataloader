@@ -1,15 +1,15 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.validation.EntityValidation;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -71,7 +71,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvWriter;
     protected PropertyFileUtil propertyFileUtil;
-    protected BullhornData bullhornData;
+    protected BullhornRestApi bullhornRestApi;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
 
@@ -81,7 +81,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                         Map<String, String> dataMap,
                         CsvFileWriter csvWriter,
                         PropertyFileUtil propertyFileUtil,
-                        BullhornData bullhornData,
+                        BullhornRestApi bullhornRestApi,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
         this.command = command;
@@ -90,7 +90,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.dataMap = dataMap;
         this.csvWriter = csvWriter;
         this.propertyFileUtil = propertyFileUtil;
-        this.bullhornData = bullhornData;
+        this.bullhornRestApi = bullhornRestApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
     }
@@ -146,13 +146,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornData.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
+        return (List<B>) bullhornRestApi.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
     }
 
     protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornData.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
+        return (List<B>) bullhornRestApi.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
@@ -183,12 +183,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornData.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        return (List<B>) bullhornRestApi.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornData.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        return (List<B>) bullhornRestApi.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected String getWhereStatement(String field, String value, Class fieldType) {

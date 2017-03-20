@@ -1,12 +1,14 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.CompleteUtil;
+import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.bullhornsdk.data.api.BullhornData;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,45 +22,51 @@ public class TemplateService extends AbstractService implements Action {
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
+                           ConnectionUtil connectionUtil,
                            InputStream inputStream,
                            Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, inputStream, timer);
     }
 
     @Override
     public void run(String[] args) {
+        BullhornRestApi bullhornRestApi;
+
         try {
-            String entityName = validateArguments(args);
-            createTemplate(entityName, getBullhornData());
+            bullhornRestApi = connectionUtil.connect();
         } catch (Exception e) {
             printUtil.printAndLog("Failed to create REST session.");
             printUtil.printAndLog(e);
+            return;
         }
+
+        EntityInfo entityInfo = validateArguments(args);
+        createTemplate(entityInfo, bullhornRestApi);
     }
 
-    protected void createTemplate(String entityName, BullhornData bullhornData) {
+    protected void createTemplate(EntityInfo entityInfo, BullhornRestApi bullhornRestApi) {
         try {
-            printUtil.printAndLog("Creating Template for " + entityName + "...");
+            printUtil.printAndLog("Creating Template for " + entityInfo.getEntityName() + "...");
             timer.start();
-            TemplateUtil templateUtil = new TemplateUtil(bullhornData);
-            templateUtil.writeExampleEntityCsv(entityName);
+            TemplateUtil templateUtil = new TemplateUtil(bullhornRestApi);
+            templateUtil.writeExampleEntityCsv(entityInfo.getEntityName());
             printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
         } catch (Exception e) {
-            printUtil.printAndLog("Failed to create template for " + entityName);
+            printUtil.printAndLog("Failed to create template for " + entityInfo);
             printUtil.printAndLog(e);
         }
     }
 
-    protected String validateArguments(String[] args) {
+    protected EntityInfo validateArguments(String[] args) {
         if (!isValidArguments(args)) {
             throw new IllegalArgumentException("Invalid arguments");
         }
 
-        String entityName = extractEntityNameFromString(args[1]);
-        if (entityName == null) {
+        EntityInfo entityInfo = EntityInfo.fromString(args[1]);
+        if (entityInfo == null) {
             throw new IllegalArgumentException("unknown entity");
         }
-        return entityName;
+        return entityInfo;
     }
 
     @Override
@@ -67,8 +75,8 @@ public class TemplateService extends AbstractService implements Action {
             return false;
         }
 
-        String entityName = extractEntityNameFromString(args[1]);
-        if (entityName == null) {
+        EntityInfo entityInfo = EntityInfo.fromString(args[1]);
+        if (entityInfo == null) {
             printUtil.printAndLog("Template requested is not valid. " + args[1] + " is not a valid entity.");
             return false;
         }

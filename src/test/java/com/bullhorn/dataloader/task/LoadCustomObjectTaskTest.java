@@ -1,15 +1,15 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
@@ -55,7 +55,7 @@ public class LoadCustomObjectTaskTest {
     private PropertyFileUtil propertyFileUtilMock;
     private ValidationUtil validationUtilMock;
     private CsvFileWriter csvFileWriterMock;
-    private BullhornData bullhornDataMock;
+    private BullhornRestApi bullhornRestApiMock;
     private ActionTotals actionTotalsMock;
     private CsvReader csvReaderMock;
     private ExecutorService executorServiceMock;
@@ -71,7 +71,7 @@ public class LoadCustomObjectTaskTest {
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtilMock = Mockito.mock(ValidationUtil.class);
         csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
-        bullhornDataMock = Mockito.mock(BullhornData.class);
+        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
         csvReaderMock = Mockito.mock(CsvReader.class);
         executorServiceMock = Mockito.mock(ExecutorService.class);
@@ -80,7 +80,7 @@ public class LoadCustomObjectTaskTest {
         Mockito.doReturn(Optional.ofNullable(existField)).when(propertyFileUtilMock).getEntityExistFields(any());
         Mockito.doReturn(";").when(propertyFileUtilMock).getListDelimiter();
 
-        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         methodMap = concurrencyService.createMethodMap(ClientCorporationCustomObjectInstance2.class);
 
         dataMap = new LinkedHashMap<>();
@@ -101,7 +101,7 @@ public class LoadCustomObjectTaskTest {
         field3.setName("date1");
         fields.add(field3);
         meta.setFields(fields);
-        when(bullhornDataMock.getMetaData(any(), eq(MetaParameter.BASIC), eq(null))).thenReturn(meta);
+        when(bullhornRestApiMock.getMetaData(any(), eq(MetaParameter.BASIC), eq(null))).thenReturn(meta);
 
         String dateFormatString = "yyyy-mm-dd";
         when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
@@ -110,7 +110,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Insert() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
@@ -120,7 +120,7 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
@@ -134,9 +134,9 @@ public class LoadCustomObjectTaskTest {
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
         clientCorporation.setCustomObject2s(oneToMany);
         listWrapper2.setData(Arrays.asList(clientCorporation));
-        when(bullhornDataMock.search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
+        when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
 
-        Mockito.doReturn(new CreateResponse()).when(bullhornDataMock).updateEntity(any());
+        Mockito.doReturn(new CreateResponse()).when(bullhornRestApiMock).updateEntity(any());
 
         //test
         task.run();
@@ -155,7 +155,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("text2", "Skip");
         dataMap.put("date1", "2016-08-30");
 
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -165,7 +165,7 @@ public class LoadCustomObjectTaskTest {
         personCustomObjectInstance2.setId(1);
         List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientContactListWrapper listWrapper = new ClientContactListWrapper();
         listWrapper.setData(Arrays.asList(new ClientContact(1)));
@@ -178,9 +178,9 @@ public class LoadCustomObjectTaskTest {
         oneToMany.setTotal(personCustomObjectInstance2List.size());
         clientContact.setCustomObject2s(oneToMany);
         listWrapper2.setData(Arrays.asList(clientContact));
-        when(bullhornDataMock.search(eq(ClientContact.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
+        when(bullhornRestApiMock.search(eq(ClientContact.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
 
-        Mockito.doReturn(new CreateResponse()).when(bullhornDataMock).updateEntity(any());
+        Mockito.doReturn(new CreateResponse()).when(bullhornRestApiMock).updateEntity(any());
 
         //test
         task.run();
@@ -199,7 +199,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("text2", "Skip");
         dataMap.put("date1", "2016-08-30");
 
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -209,7 +209,7 @@ public class LoadCustomObjectTaskTest {
         personCustomObjectInstance2.setId(1);
         List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
 
         CandidateListWrapper listWrapper = new CandidateListWrapper();
@@ -223,9 +223,9 @@ public class LoadCustomObjectTaskTest {
         oneToMany.setTotal(personCustomObjectInstance2List.size());
         candidate.setCustomObject2s(oneToMany);
         listWrapper2.setData(Arrays.asList(candidate));
-        when(bullhornDataMock.search(eq(Candidate.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
+        when(bullhornRestApiMock.search(eq(Candidate.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
 
-        Mockito.doReturn(new CreateResponse()).when(bullhornDataMock).updateEntity(any());
+        Mockito.doReturn(new CreateResponse()).when(bullhornRestApiMock).updateEntity(any());
 
         //test
         task.run();
@@ -243,7 +243,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("text2", "Skip");
         dataMap.put("date1", "2016-08-30");
 
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new Exception("Row 1: The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -253,7 +253,7 @@ public class LoadCustomObjectTaskTest {
         personCustomObjectInstance2.setId(1);
         List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
         //test
         task.run();
@@ -272,7 +272,7 @@ public class LoadCustomObjectTaskTest {
         dataMap.put("text2", "Skip");
         dataMap.put("date1", "2016-08-30");
 
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new Exception("Row 1: The person._subType field must be either Candidate or ClientContact"));
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -282,7 +282,7 @@ public class LoadCustomObjectTaskTest {
         personCustomObjectInstance2.setId(1);
         List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
         //test
         task.run();
@@ -294,7 +294,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Update() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Update(1);
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
@@ -302,7 +302,7 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test' AND clientCorporation.id=1"), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornRestApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test' AND clientCorporation.id=1"), any(), any())).thenReturn(customObjectListWrapper);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         ClientCorporation clientCorporation = new ClientCorporation(1);
@@ -314,9 +314,9 @@ public class LoadCustomObjectTaskTest {
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
         clientCorporation.setCustomObject2s(oneToMany);
         listWrapper.setData(Arrays.asList(clientCorporation));
-        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
+        Mockito.doReturn(listWrapper).when(bullhornRestApiMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
-        Mockito.doReturn(new CreateResponse()).when(bullhornDataMock).updateEntity(any());
+        Mockito.doReturn(new CreateResponse()).when(bullhornRestApiMock).updateEntity(any());
 
         //test
         task.run();
@@ -328,7 +328,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Failure() throws IOException {
         //setup
-        task = Mockito.spy(new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock));
+        task = Mockito.spy(new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock));
         Result expectedResult = Result.Failure(new NullPointerException());
 
         //test
@@ -341,7 +341,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void getCustomObjectIdTest_Pass() throws Exception {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         ((ClientCorporationCustomObjectInstance2) task.entity).setText1("test");
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
@@ -354,7 +354,7 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
 
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornRestApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper);
 
         task.parentField = "clientCorporation.id";
 
@@ -369,7 +369,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void getCustomObjectIdTest_ThrowDupe() throws Exception {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         RestApiException expectedException = new RestApiException("Row 1: Found duplicate.");
 
@@ -387,7 +387,7 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
 
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper);
+        when(bullhornRestApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper);
 
         task.parentField = "clientCorporation.id";
 
@@ -407,7 +407,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void noPermissionToInsertCustomObjectTest() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         String cleanedExceptionMessage = "ClientCorporation Custom Object 2 is not set up.";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
@@ -418,18 +418,18 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
-        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
+        Mockito.doReturn(listWrapper).when(bullhornRestApiMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
         String noPermissionException = "{\n" +
             "  \"errorMessage\" : \"error persisting an entity of type: Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\",\n" +
             "  \"errors\" : [ ],\n" +
             "  \"entityName\" : \"Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\"\n" +
             "}";
-        Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornDataMock).updateEntity(any());
+        Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornRestApiMock).updateEntity(any());
 
         //test
         task.run();
@@ -441,7 +441,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void checkIfCouldUpdateCustomObjectTest_ThrowRandom() throws IOException {
         //setup
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         String cleanedExceptionMessage = "bogus";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
@@ -452,14 +452,14 @@ public class LoadCustomObjectTaskTest {
         clientCorporationCustomObjectInstance2.setId(1);
         List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
-        when(bullhornDataMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
+        when(bullhornRestApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
         listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
-        Mockito.doReturn(listWrapper).when(bullhornDataMock).search(eq(ClientCorporation.class), any(), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
+        Mockito.doReturn(listWrapper).when(bullhornRestApiMock).search(eq(ClientCorporation.class), any(), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
         String noPermissionException = "bogus";
-        Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornDataMock).updateEntity(any());
+        Mockito.doThrow(new RestApiException(noPermissionException)).when(bullhornRestApiMock).updateEntity(any());
 
         //test
         task.run();
@@ -470,7 +470,7 @@ public class LoadCustomObjectTaskTest {
 
     @Test
     public void getParentEntityTest_Exception() throws InvocationTargetException, IllegalAccessException {
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         RestApiException expectedException = new RestApiException("Row 1: To-One Association: 'candidate' does not exist on ClientCorporationCustomObjectInstance2");
         task.entity = new ClientCorporationCustomObjectInstance2();
 
@@ -488,7 +488,7 @@ public class LoadCustomObjectTaskTest {
 
     @Test
     public void parentEntityIsNotInCsvTest() throws IOException {
-        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornDataMock, printUtilMock, actionTotalsMock);
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new IOException("Parent entity must be included within csv."));
         dataMap.remove("clientCorporation.id");
 

@@ -1,5 +1,8 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.service.Action;
+import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 public class CommandLineInterface {

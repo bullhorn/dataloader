@@ -1,6 +1,8 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.CompleteUtil;
+import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -15,24 +17,19 @@ import java.io.InputStream;
 
 public class ActionFactoryTest {
 
-    private PrintUtil printUtilMock;
-    private PropertyFileUtil propertyFileUtilMock;
-    private ValidationUtil validationUtilMock;
-    private CompleteUtil completeUtilMock;
-    private InputStream inputStreamMock;
-    private Timer timerMock;
     private ActionFactory actionFactory;
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        validationUtilMock = Mockito.mock(ValidationUtil.class);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        inputStreamMock = Mockito.mock(InputStream.class);
-        timerMock = Mockito.mock(Timer.class);
+        CompleteUtil completeUtilMock = Mockito.mock(CompleteUtil.class);
+        ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        InputStream inputStreamMock = Mockito.mock(InputStream.class);
+        PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
+        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        Timer timerMock = Mockito.mock(Timer.class);
+        ValidationUtil validationUtilMock = Mockito.mock(ValidationUtil.class);
 
-        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, inputStreamMock, timerMock);
+        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
     }
 
     @Test

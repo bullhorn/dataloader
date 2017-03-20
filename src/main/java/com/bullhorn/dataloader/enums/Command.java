@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service;
+package com.bullhorn.dataloader.enums;
 
 /**
  * Enumeration of Command Line Actions
@@ -15,7 +15,7 @@ public enum Command {
 
     private final String methodName;
 
-    private Command(String methodName) {
+    Command(String methodName) {
         this.methodName = methodName;
     }
 

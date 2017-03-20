@@ -1,9 +1,9 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhornsdk.data.api.BullhornData;
+import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -32,9 +32,9 @@ public class CompleteUtil {
                          EntityInfo entityInfo,
                          ActionTotals actionTotals,
                          long durationMSec,
-                         BullhornData bullhornData) {
-        String restUrl = bullhornData.getRestUrl() + "services/dataLoader/complete";
-        String bhRestToken = bullhornData.getBhRestToken();
+                         BullhornRestApi bullhornRestApi) {
+        String restUrl = bullhornRestApi.getRestUrl() + "services/dataLoader/complete";
+        String bhRestToken = bullhornRestApi.getBhRestToken();
         Integer totalRecords = actionTotals.getAllActionsTotal();
         Integer failureRecords = actionTotals.getActionTotal(Result.Action.FAILURE);
         Integer successRecords = totalRecords - failureRecords;

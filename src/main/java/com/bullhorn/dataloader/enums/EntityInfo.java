@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.meta;
+package com.bullhorn.dataloader.enums;
 
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 

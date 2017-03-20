@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.service.Command;
+import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.service.csv.Result;
 import org.junit.Assert;
 import org.junit.Test;

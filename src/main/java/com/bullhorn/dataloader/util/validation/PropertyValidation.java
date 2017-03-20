@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util.validation;
 
-import com.bullhorn.dataloader.meta.EntityInfo;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import org.apache.commons.lang.WordUtils;
 
 import java.util.List;
