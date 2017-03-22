@@ -27,13 +27,19 @@ public class BullhornRestApiExtension {
                 RESPONSETYPE_DELETERESPONSE.equals(crudResponse.getClass().getSimpleName()) &&  //when we tried to delete, then it was a soft delete
                 ENTITY_JOBSUBMISSION.equals(crudResponse.getChangedEntityType())                //and we soft deleted a Job Submission record
             ) {
-            crudResponse = deleteJobSubmissionHistoryRecordsForGivenJobSubmissionId(bullhornRestApi, crudResponse.getChangedEntityId());
+            crudResponse = deleteJobSubmissionHistoryRecords(bullhornRestApi, crudResponse.getChangedEntityId());
         }
 
         return crudResponse;
     }
 
-    static private <C extends CrudResponse> C deleteJobSubmissionHistoryRecordsForGivenJobSubmissionId(BullhornRestApi bullhornRestApi, Integer jobSubmissionId) {
+    /**
+     * Given a jobSubmissionId, delete all associated JobSubmissionHistory records for it.
+     * @param bullhornRestApi BullhornRestApi
+     * @param jobSubmissionId The id of the JobSubmission
+     * @return CrudResponse with up to 1 error message if any deletes failed.
+     */
+    static private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(BullhornRestApi bullhornRestApi, Integer jobSubmissionId) {
 
         C crudResponse = null;
 
