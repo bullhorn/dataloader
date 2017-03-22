@@ -27,6 +27,8 @@ import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
+import com.bullhornsdk.data.model.parameter.QueryParams;
+import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
@@ -376,17 +378,27 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return associationIdList;
     }
 
+    /**
+     * Makes the lookup call to check that all associated values are present, and there are no duplicates. This will
+     * work with up to 500 associated records, such as candidates or businessSectors. It will perform the lookup using
+     * the field given after the period, like: 'businessSector.name' or 'candidate.id'
+     */
     private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(String field, AssociationField
         associationField, Set<String> valueSet) {
+        Integer COUNT_PARAMETER = 500;
         List<B> list;
         Class<B> associationClass = associationField.getAssociationType();
 
         if (SearchEntity.class.isAssignableFrom(associationClass)) {
             String where = getQueryStatement(valueSet, field, associationClass);
-            list = (List<B>) bullhornRestApi.searchForAllRecords((Class<S>) associationClass, where, null, ParamFactory.searchParams()).getData();
+            SearchParams searchParams = ParamFactory.searchParams();
+            searchParams.setCount(COUNT_PARAMETER);
+            list = (List<B>) bullhornRestApi.search((Class<S>) associationClass, where, null, searchParams).getData();
         } else {
             String where = getWhereStatement(valueSet, field, associationClass);
-            list = (List<B>) bullhornRestApi.queryForAllRecords((Class<Q>) associationClass, where, null, ParamFactory.queryParams()).getData();
+            QueryParams queryParams = ParamFactory.queryParams();
+            queryParams.setCount(COUNT_PARAMETER);
+            list = (List<B>) bullhornRestApi.query((Class<Q>) associationClass, where, null, queryParams).getData();
         }
 
         return list;
