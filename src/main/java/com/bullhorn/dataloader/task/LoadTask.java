@@ -379,7 +379,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     /**
-     * Makes the lookup call to check that all associated values are present, and there are no duplicates
+     * Makes the lookup call to check that all associated values are present, and there are no duplicates. This will
+     * work with up to 500 associated records, such as candidates or businessSectors. It will perform the lookup using
+     * the field given after the period, like: 'businessSector.name' or 'candidate.id'
      */
     private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(String field, AssociationField
         associationField, Set<String> valueSet) {
