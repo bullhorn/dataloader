@@ -70,7 +70,7 @@ public class BullhornRestApiExtensionTest {
         crudResponse.setChangedEntityType(changedEntityType);
         crudResponse.setChangeType(changeType);
         List<Message> messages = new ArrayList<>();
-        if(null != message) {
+        if (null != message) {
             Message newMessage = new Message();
             newMessage.setDetailMessage(message);
             newMessage.setType("ERROR");

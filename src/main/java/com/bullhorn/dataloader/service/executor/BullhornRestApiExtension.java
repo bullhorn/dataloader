@@ -20,7 +20,7 @@ public class BullhornRestApiExtension {
 
     static public <C extends CrudResponse> C postDelete(BullhornRestApi bullhornRestApi, C crudResponse) {
 
-        if(
+        if (
             null != crudResponse &&                                                             //crudResponse is not null
                 crudResponse.getMessages().isEmpty() &&                                         //and has no errors
                 CHANGETYPE_UPDATE.equals(crudResponse.getChangeType()) &&                       //if we updated
@@ -64,12 +64,12 @@ public class BullhornRestApiExtension {
         //List of JobSubmissionHistory records to hard-delete
         @SuppressWarnings("unchecked") List<JobSubmissionHistory> jobSubmissionHistories = bullhornRestApi.queryForList(jshClass, whereClause, fieldSet, queryParams);
 
-        for(JobSubmissionHistory jsh : jobSubmissionHistories) {
+        for (JobSubmissionHistory jsh : jobSubmissionHistories) {
             //hard-delete JobSubmissionHistory record
             crudResponse = bullhornRestApi.deleteEntity(JobSubmissionHistory.class, jsh.getId());
 
             //stop processing if there are any errors
-            if(!crudResponse.getMessages().isEmpty()) {
+            if (!crudResponse.getMessages().isEmpty()) {
                 break;
             }
         }
