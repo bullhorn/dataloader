@@ -152,8 +152,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 if (entity.getClass() == ClientCorporation.class) {
                     setDefaultContactExternalId(entityID);
                 }
-            }
-            catch (RestApiException e) {
+            } catch (RestApiException e) {
                 checkForRequiredFieldsError(e);
             }
         } else {
@@ -163,21 +162,20 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void setDefaultContactExternalId(Integer entityID) {
-        final String query = "clientCorporation.id=%s AND status='Archive'";
-        Class<B> clientCorp = (Class<B>)ClientCorporation.class;
-        @SuppressWarnings("unchecked") List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityID.toString(), Integer.class, clientCorp, Sets.newHashSet("id", "externalID"));
-        ClientCorporation clientCorporation = clientCorporations.get(0);
-        if(StringUtils.isNotBlank(clientCorporation.getExternalID())) {
-            List<ClientContact> clientContacts = bullhornRestApi.query(ClientContact.class, String.format(query, clientCorporation.getId().toString()), Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
-            ClientContact clientContact = clientContacts.get(0);
-            String defaultContactExternalId = String.format("defaultContact%s", clientCorporation.getExternalID());
-            if(defaultContactExternalId.length() > 30){
-                int offset = defaultContactExternalId.length() - 30;
-                defaultContactExternalId = defaultContactExternalId.substring(offset, defaultContactExternalId.length() - 1);
+        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityID.toString(), Integer.class, (Class<B>) ClientCorporation.class, Sets.newHashSet("id", "externalID"));
+        if (!clientCorporations.isEmpty()) {
+            ClientCorporation clientCorporation = clientCorporations.get(0);
+            if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
+                final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
+                List<ClientContact> clientContacts = bullhornRestApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+                if (!clientContacts.isEmpty()) {
+                    ClientContact clientContact = clientContacts.get(0);
+                    String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
+                    clientContact.setExternalID(defaultContactExternalId);
+                    CrudResponse response = bullhornRestApi.updateEntity(clientContact);
+                    checkForRestSdkErrorMessages(response);
+                }
             }
-            clientContact.setExternalID(defaultContactExternalId);
-            CrudResponse response = bullhornRestApi.updateEntity(clientContact);
-            checkForRestSdkErrorMessages(response);
         }
     }
 
