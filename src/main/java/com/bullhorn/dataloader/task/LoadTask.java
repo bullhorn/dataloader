@@ -150,7 +150,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 entityID = response.getChangedEntityId();
                 entity.setId(entityID);
                 if (entity.getClass() == ClientCorporation.class) {
-                    handleDefaultContactExternalId(entityID);
+                    setDefaultContactExternalId(entityID);
                 }
             }
             catch (RestApiException e) {
@@ -162,7 +162,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected void handleDefaultContactExternalId(Integer entityID) {
+    protected void setDefaultContactExternalId(Integer entityID) {
         final String query = "clientCorporation.id=%s AND status='Archive'";
         Class<B> clientCorp = (Class<B>)ClientCorporation.class;
         @SuppressWarnings("unchecked") List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityID.toString(), Integer.class, clientCorp, Sets.newHashSet("id", "externalID"));
