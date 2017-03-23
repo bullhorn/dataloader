@@ -236,6 +236,9 @@ public class LoadTaskTest {
         ClientCorporation clientCorporation = new ClientCorporation(1);
         clientCorporation.setExternalID("JAMCORP123");
 
+        ClientContact clientContact = new ClientContact(1);
+        clientContact.setExternalID("defaultContactJAMCORP123");
+
         when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"JAMCORP123\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class));
         when(bullhornRestApiMock.query(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(clientCorporation));
         when(bullhornRestApiMock.query(eq(ClientContact.class), eq("clientCorporation.id=1 AND status='Archive'"), any(), any())).thenReturn(TestUtils.getListWrapper(ClientContact.class, 1));
@@ -249,10 +252,7 @@ public class LoadTaskTest {
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
-    }
-
-    public void run_UpdateExistingCorp_ExternalID() throws Exception {
-
+        verify(bullhornRestApiMock).updateEntity(eq(clientContact));
     }
 
     @Test
