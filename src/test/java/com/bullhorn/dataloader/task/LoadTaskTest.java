@@ -69,6 +69,7 @@ public class LoadTaskTest {
     private PropertyFileUtil propertyFileUtilMock_CandidateID;
     private PropertyFileUtil propertyFileUtilMock_CandidateExternalID;
     private PropertyFileUtil propertyFileUtilMock_NoteID;
+    private PropertyFileUtil propertyFileUtilMock_ClientCorporationExternalID;
 
     private Map<String, String> dataMap;
     private Map<String, Method> methodMap;
@@ -89,6 +90,7 @@ public class LoadTaskTest {
         propertyFileUtilMock_CandidateID = mock(PropertyFileUtil.class);
         propertyFileUtilMock_CandidateExternalID = mock(PropertyFileUtil.class);
         propertyFileUtilMock_NoteID = mock(PropertyFileUtil.class);
+        propertyFileUtilMock_ClientCorporationExternalID = mock(PropertyFileUtil.class);
 
         List<String> idExistField = Arrays.asList(new String[]{"id"});
         doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Candidate");
@@ -216,6 +218,41 @@ public class LoadTaskTest {
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void run_InsertNewCorp_ExternalID() throws Exception {
+        List<String> externalIdExistField = Arrays.asList(new String[]{"externalID"});
+        doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_ClientCorporationExternalID).getEntityExistFields("ClientCorporation");
+        doReturn(";").when(propertyFileUtilMock_ClientCorporationExternalID).getListDelimiter();
+
+        methodMap = concurrencyService.createMethodMap(ClientCorporation.class);
+
+        dataMap.clear();
+        dataMap.put("id", "1");
+        dataMap.put("externalID", "JAMCORP123");
+
+        // Mock out all existing reference entities
+        ClientCorporation clientCorporation = new ClientCorporation(1);
+        clientCorporation.setExternalID("JAMCORP123");
+
+        ClientContact clientContact = new ClientContact(1);
+        clientContact.setExternalID("defaultContactJAMCORP123");
+
+        when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"JAMCORP123\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class));
+        when(bullhornRestApiMock.query(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(clientCorporation));
+        when(bullhornRestApiMock.query(eq(ClientContact.class), eq("clientCorporation.id=1 AND status='Archive'"), any(), any())).thenReturn(TestUtils.getListWrapper(ClientContact.class, 1));
+        when(bullhornRestApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_ClientCorporationExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+        verify(bullhornRestApiMock).updateEntity(eq(clientContact));
     }
 
     @Test

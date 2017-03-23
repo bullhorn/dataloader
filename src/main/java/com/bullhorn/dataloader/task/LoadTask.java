@@ -14,6 +14,7 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
@@ -33,6 +34,7 @@ import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Level;
 
 import java.io.File;
@@ -155,13 +157,33 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 checkForRestSdkErrorMessages(response);
                 entityID = response.getChangedEntityId();
                 entity.setId(entityID);
-            }
-            catch (RestApiException e) {
+                if (entity.getClass() == ClientCorporation.class) {
+                    setDefaultContactExternalId(entityID);
+                }
+            } catch (RestApiException e) {
                 checkForRequiredFieldsError(e);
             }
         } else {
             CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
+        }
+    }
+
+    protected void setDefaultContactExternalId(Integer entityID) {
+        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityID.toString(), Integer.class, (Class<B>) ClientCorporation.class, Sets.newHashSet("id", "externalID"));
+        if (!clientCorporations.isEmpty()) {
+            ClientCorporation clientCorporation = clientCorporations.get(0);
+            if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
+                final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
+                List<ClientContact> clientContacts = bullhornRestApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+                if (!clientContacts.isEmpty()) {
+                    ClientContact clientContact = clientContacts.get(0);
+                    String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
+                    clientContact.setExternalID(defaultContactExternalId);
+                    CrudResponse response = bullhornRestApi.updateEntity(clientContact);
+                    checkForRestSdkErrorMessages(response);
+                }
+            }
         }
     }
 
