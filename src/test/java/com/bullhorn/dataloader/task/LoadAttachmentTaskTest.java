@@ -60,7 +60,7 @@ public class LoadAttachmentTaskTest {
     private String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornRestApi = Mockito.mock(BullhornRestApi.class);

@@ -24,7 +24,7 @@ public class CommandLineInterfaceTest {
     private TemplateService templateServiceMock;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         actionFactoryMock = Mockito.mock(ActionFactory.class);
         commandLineInterface = new CommandLineInterface(printUtilMock, actionFactoryMock);

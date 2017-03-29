@@ -51,7 +51,7 @@ public class ConvertAttachmentTaskTest {
     private PropertyFileUtil candidateExternalIdProperties;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         executorService = Mockito.mock(ExecutorService.class);
         csvReader = Mockito.mock(CsvReader.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);

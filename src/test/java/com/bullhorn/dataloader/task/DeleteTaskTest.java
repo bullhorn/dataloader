@@ -43,7 +43,7 @@ public class DeleteTaskTest {
     private Map<String, String> dataMap;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);

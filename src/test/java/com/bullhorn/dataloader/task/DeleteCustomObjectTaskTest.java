@@ -34,7 +34,7 @@ public class DeleteCustomObjectTaskTest {
     private DeleteCustomObjectTask task;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornRestApi = Mockito.mock(BullhornRestApi.class);

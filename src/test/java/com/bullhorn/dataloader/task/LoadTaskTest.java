@@ -80,7 +80,7 @@ public class LoadTaskTest {
     private ConcurrencyService concurrencyService;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         executorServiceMock = mock(ExecutorService.class);
         csvReaderMock = mock(CsvReader.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
