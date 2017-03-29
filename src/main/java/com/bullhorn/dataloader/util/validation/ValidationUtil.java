@@ -23,23 +23,15 @@ public class ValidationUtil {
      * @param expectedNumArgs The expected number of arguments
      * @return true if there are the correct number of parameters returned
      */
-    public boolean isNumParametersValid(String[] args, Integer expectedNumArgs, Boolean shouldPrint) {
+    public boolean isNumParametersValid(String[] args, Integer expectedNumArgs) {
         if (args.length < expectedNumArgs) {
-            if (shouldPrint) {
-                printUtil.printAndLog("ERROR: Not enough arguments provided.");
-            }
+            printUtil.printAndLog("ERROR: Not enough arguments provided.");
             return false;
         } else if (args.length > expectedNumArgs) {
-            if (shouldPrint) {
-                printUtil.printAndLog("ERROR: Too many arguments provided.");
-            }
+            printUtil.printAndLog("ERROR: Too many arguments provided.");
             return false;
         }
         return true;
-    }
-
-    public boolean isNumParametersValid(String[] args, Integer expectedNumArgs) {
-        return isNumParametersValid(args, expectedNumArgs, true);
     }
 
     /**
@@ -70,53 +62,5 @@ public class ValidationUtil {
 
     public boolean isValidCsvFile(String filePath) {
         return isValidCsvFile(filePath, true);
-    }
-
-    /**
-     * Validates that an entity can be loaded, based on the entityName.
-     */
-    public boolean isLoadableEntity(String entityName, Boolean shouldPrint) {
-        if (EntityValidation.isLoadable(entityName) || EntityValidation.isCustomObject(entityName)) {
-            return true;
-        } else if (EntityValidation.isReadOnly(entityName)) {
-            if (shouldPrint) {
-                printUtil.printEntityError(entityName, "read only");
-            }
-            return false;
-        }
-
-        if (shouldPrint) {
-            printUtil.printUnknownEntityError(entityName);
-        }
-
-        return false;
-    }
-
-    public boolean isLoadableEntity(String entityName) {
-        return isLoadableEntity(entityName, true);
-    }
-
-    /**
-     * Validates that an entity can be deleted, based on the entityName.
-     */
-    public boolean isDeletableEntity(String entityName, Boolean shouldPrint) {
-        if (EntityValidation.isDeletable(entityName) || EntityValidation.isCustomObject(entityName)) {
-            return true;
-        } else if (!EntityValidation.isDeletable(entityName) || EntityValidation.isReadOnly(entityName)) {
-            if (shouldPrint) {
-                printUtil.printEntityError(entityName, "not deletable");
-            }
-            return false;
-        }
-
-        if (shouldPrint) {
-            printUtil.printUnknownEntityError(entityName);
-        }
-
-        return false;
-    }
-
-    public boolean isDeletableEntity(String entityName) {
-        return isDeletableEntity(entityName, true);
     }
 }

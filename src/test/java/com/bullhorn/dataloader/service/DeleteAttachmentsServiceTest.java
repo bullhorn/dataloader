@@ -125,4 +125,15 @@ public class DeleteAttachmentsServiceTest {
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
     }
+
+    @Test
+    public void testIsValidArguments_NonAttachmentEntity() throws Exception {
+        final String filePath = TestUtils.getResourceFilePath("BusinessSector.csv");
+        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+
+        final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
+
+        Assert.assertFalse(actualResult);
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+    }
 }

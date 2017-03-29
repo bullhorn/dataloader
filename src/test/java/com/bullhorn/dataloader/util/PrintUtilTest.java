@@ -9,8 +9,6 @@ import org.mockito.Mockito;
 
 import java.io.PrintStream;
 
-import static org.mockito.Matchers.anyString;
-
 public class PrintUtilTest {
 
     @Test
@@ -24,30 +22,6 @@ public class PrintUtilTest {
         printUtil.printUsage();
 
         Mockito.verify(out).println(Mockito.contains(usage));
-    }
-
-    @Test
-    public void testPrintEntityError() {
-        final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
-        final String entity = "Candidate";
-        final String warning = "WARNING";
-
-        printUtil.printEntityError(entity, warning);
-
-        Mockito.verify(printUtil, Mockito.times(6)).printAndLog(Mockito.anyString());
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("ERROR: " + warning + " entity: \"" + entity + "\"");
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("       The entity is " + warning + " in REST and cannot be changed by DataLoader.\"");
-    }
-
-    @Test
-    public void testPrintUnknownEntityError() {
-        final PrintUtil printUtil = Mockito.spy(PrintUtil.class);
-        final String entity = "Candidate";
-
-        printUtil.printUnknownEntityError(entity);
-
-        Mockito.verify(printUtil, Mockito.times(6)).printAndLog(anyString());
-        Mockito.verify(printUtil, Mockito.times(1)).printAndLog("ERROR: Unknown entity: \"" + entity + "\"");
     }
 
     @Test
@@ -104,7 +78,6 @@ public class PrintUtilTest {
         } catch (IllegalStateException e) {
             Assert.assertEquals("recordStart() not called", e.getMessage());
         }
-
     }
 
     @Test

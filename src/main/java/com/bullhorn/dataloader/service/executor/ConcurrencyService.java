@@ -14,7 +14,6 @@ import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
@@ -94,7 +93,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     private AbstractTask getLoadTask(Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, Map<String, String> dataMap) {
-        if (EntityValidation.isCustomObject(this.entityInfo.getEntityName())){
+        if (entityInfo.isCustomObject()){
             return new LoadCustomObjectTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         } else {
             return new LoadTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
@@ -113,7 +112,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     private AbstractTask getDeleteTask(Map<String, String> dataMap) {
-        if (EntityValidation.isCustomObject(this.entityInfo.getEntityName())){
+        if (entityInfo.isCustomObject()){
             return new DeleteCustomObjectTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         } else {
             return new DeleteTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);

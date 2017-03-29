@@ -230,7 +230,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("BusinessSector", "read only");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
 
     @Test

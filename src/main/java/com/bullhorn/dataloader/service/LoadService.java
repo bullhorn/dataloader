@@ -88,13 +88,14 @@ public class LoadService extends AbstractService implements Action {
                 return false;
             }
 
-            String entityName = extractEntityNameFromFileName(filePath);
-            if (entityName == null) {
+            EntityInfo entityInfo = extractEntityFromFileName(filePath);
+            if (entityInfo == null) {
                 printUtil.printAndLog("ERROR: Could not determine entity from file name: " + filePath);
                 return false;
             }
 
-            if (!validationUtil.isLoadableEntity(entityName)) {
+            if (!entityInfo.isLoadable()) {
+                printUtil.printAndLog("ERROR: " + entityInfo.getEntityName() + " entity is read only.");
                 return false;
             }
         }

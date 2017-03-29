@@ -53,7 +53,6 @@ public class DeleteServiceTest {
 
         deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamFake, timerMock));
 
-        // TODO: Stop mocking the ConcurrencyService and replace with ConnectionService mocking
         concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
         Mockito.doReturn(concurrencyServiceMock).when(deleteService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
         Mockito.doReturn(actionTotalsMock).when(concurrencyServiceMock).getActionTotals();
@@ -177,7 +176,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("BusinessSector", "not deletable");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
 
     @Test
@@ -188,7 +187,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError("ClientCorporation", "not deletable");
+        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
     }
 
     @Test

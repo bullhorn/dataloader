@@ -1,6 +1,5 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.enums;
 
-import com.bullhorn.dataloader.enums.Property;
 import org.junit.Assert;
 import org.junit.Test;
 
