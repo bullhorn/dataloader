@@ -129,6 +129,7 @@ public enum EntityInfo {
 
     /**
      * Constructor for enum containing information about each entity type
+     *
      * @param bullhornEntityInfo The contained SDK-REST Entity Info
      * @param loadOrder          The order in which this entity is loaded, when loading from a directory
      */
