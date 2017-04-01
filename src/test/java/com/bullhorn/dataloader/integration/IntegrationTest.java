@@ -57,8 +57,10 @@ public class IntegrationTest {
         // Capture command line output as a string without stopping the real-time printout
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
-        // Run the sanity, then full test
+        // Run the sanity to catch quick and obvious failures
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("integrationTestSanity"), 0);
+
+        // Run the full test
         insertUpdateDeleteFromDirectory("examples/load", INDEXER_WAIT_MINUTES);
     }
 
@@ -71,17 +73,32 @@ public class IntegrationTest {
      */
     private void insertUpdateDeleteFromDirectory(String directoryPath, Integer waitTimeMinutes) throws IOException, InterruptedException {
         // region SETUP
+        // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
         File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
         String tempDirPath = TestUtils.getResourceFilePath("") + "/integrationTest_" + secondsSinceEpoch;
         File tempDirectory = new File(tempDirPath);
         FileUtils.copyDirectory(new File(directoryPath), tempDirectory);
 
+        // Replace all external ID endings with unique ones based on the current timestamp
         String newExternalIdEnding = "-" + secondsSinceEpoch;
         TestUtils.replaceTextInFiles(tempDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
 
+        // Replace all UUIDs in with unique ones
         String uuid = UUID.randomUUID().toString();
         TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
+
+        // Copy over attachments to a subdirectory if they exists (these will not get loaded as part of the directory)
+        File attachmentsDirectory = new File(directoryPath + "Attachments");
+        File tempAttachmentsDirectory = null;
+        if (attachmentsDirectory.exists()) {
+            tempAttachmentsDirectory = new File(tempDirectory + "/attachments");
+            FileUtils.copyDirectory(new File(attachmentsDirectory.getPath()), tempAttachmentsDirectory);
+            TestUtils.replaceTextInFiles(tempAttachmentsDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
+
+            // TODO: Remove this replacement by allowing paths relative the to CSV file or the working directory
+            TestUtils.replaceTextInFiles(tempAttachmentsDirectory, tempAttachmentsDirectory.getPath(), "examples/loadAttachments");
+        }
         // endregion SETUP
 
         // region INSERT
@@ -107,6 +124,23 @@ public class IntegrationTest {
         }
         // endregion
 
+        // region INSERT ATTACHMENTS
+        if (tempAttachmentsDirectory != null) {
+            FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/Candidate.csv"});
+            String loadAttachmentsCommandOutput = consoleOutputCapturer.stop();
+
+            Assert.assertFalse("Error messages output during load attachments step", loadAttachmentsCommandOutput.contains("ERROR"));
+            Assert.assertFalse("Failed to process records during load attachments step", loadAttachmentsCommandOutput.contains("processed: 0"));
+            Assert.assertFalse("Update performed during load attachments step", loadAttachmentsCommandOutput.contains("updated: 1"));
+            Assert.assertFalse("Delete performed during load attachments step", loadAttachmentsCommandOutput.contains("deleted: 1"));
+            Assert.assertFalse("Failure reported during load attachments step", loadAttachmentsCommandOutput.contains("failed: 1"));
+            TestUtils.checkResultsFiles(tempDirectory, Command.LOAD_ATTACHMENTS);
+        }
+        // endregion
+
         // region UPDATE
         FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
@@ -121,6 +155,8 @@ public class IntegrationTest {
         Assert.assertFalse("Failure reported during update step", updateCommandOutput.contains("failed: 1"));
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
+
+        // TODO: UPDATE ATTACHMENTS
 
         // region ~TEMPORARY_WORKAROUND~
         // Deleting custom objects is broken right now. https://jira.bullhorn.com/browse/BH-43509
@@ -163,6 +199,8 @@ public class IntegrationTest {
             }
         }
         // endregion
+
+        // TODO: DELETE ATTACHMENTS
 
         // region TEARDOWN
         // Cleanup our temporary directory
