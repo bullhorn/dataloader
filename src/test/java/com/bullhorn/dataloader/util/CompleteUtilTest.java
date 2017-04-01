@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhornsdk.data.exception.RestApiException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -49,7 +50,7 @@ public class CompleteUtilTest {
     }
 
     @Test
-    public void completeTest() throws IOException {
+    public void testComplete() throws IOException {
         long durationMsec = 999;
         String expectedURL = "http://bullhorn-rest-api/services/dataLoader/complete?BhRestToken=12345678-1234-1234-1234-1234567890AB";
         String expectedPayload = "{" +
@@ -74,5 +75,16 @@ public class CompleteUtilTest {
         postMethod.getRequestEntity().writeRequest(outputStream);
         String actualPayload = outputStream.toString();
         Assert.assertEquals(expectedPayload, actualPayload);
+    }
+
+    @Test
+    public void testComplete_error() throws IOException {
+        long durationMsec = 999;
+        RestApiException restApiException = new RestApiException("ERROR TEXT");
+        Mockito.when(httpClientMock.executeMethod(any())).thenThrow(restApiException);
+
+        completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, durationMsec, bullhornRestApiMock);
+
+        Mockito.verify(printUtilMock).printAndLog(restApiException);
     }
 }
