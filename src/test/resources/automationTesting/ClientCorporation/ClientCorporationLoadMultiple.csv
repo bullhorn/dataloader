@@ -1,3 +1,0 @@
-name,address.address1,address.city,address.state,address.zip,address.countryName,companyDescription,businessSectorList,status,externalID
-Test Client Corp1,600 Chestnut Street,Austin,Texas,80165,United States,This is a Client Corp Description,Support,Active,2015
-Test Client Corp2,366 Maple Street,Sacramento,California,43827,United States,This is a Client Corp Description,Marketing,Active,2016
