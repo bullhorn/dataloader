@@ -12,12 +12,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
-import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
-import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
-import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
@@ -205,8 +199,8 @@ public abstract class AbstractService {
 
         SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, EntityInfo.loadOrderComparator);
         for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            String entityName = entityFileEntry.getKey().getEntityName();
-            if (validationUtil.isLoadableEntity(entityName, false)) {
+            EntityInfo entityInfo = entityFileEntry.getKey();
+            if (entityInfo.isLoadable()) {
                 loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
             }
         }
@@ -226,8 +220,8 @@ public abstract class AbstractService {
 
         SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, EntityInfo.deleteOrderComparator);
         for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            String entityName = entityFileEntry.getKey().getEntityName();
-            if (validationUtil.isDeletableEntity(entityName, false)) {
+            EntityInfo entityInfo = entityFileEntry.getKey();
+            if (entityInfo.isDeletable()) {
                 deletableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
             }
         }
@@ -276,25 +270,6 @@ public abstract class AbstractService {
         return true;
     }
 
-    // TODO: Move out to utility class, and use EntityInfo instead of string everywhere
-    /**
-     * Extractions entity name from a file path.
-     * <p>
-     * The file name must start with the name of the entity
-     *
-     * @param fileName path from which to extract entity name
-     * @return the SDK-Rest name of the entity, or null if not found
-     */
-    protected String extractEntityNameFromFileName(String fileName) {
-        EntityInfo bestMatch = extractEntityFromFileName(fileName);
-
-        if (bestMatch == null) {
-            return null;
-        } else {
-            return bestMatch.getEntityName();
-        }
-    }
-
     // TODO: Move out to utility class
     /**
      * Extractions entity type from a file path.
@@ -310,7 +285,7 @@ public abstract class AbstractService {
         String upperCaseFileName = file.getName().toUpperCase();
         EntityInfo bestMatch = null;
         for (EntityInfo entityInfo : EntityInfo.values()) {
-            if (upperCaseFileName.startsWith(entityInfo.getUpperCase())) {
+            if (upperCaseFileName.startsWith(entityInfo.getEntityName().toUpperCase())) {
                 if (bestMatch == null) {
                     bestMatch = entityInfo;
                 } else if (bestMatch.getEntityName().length() < entityInfo.getEntityName().length()) {
@@ -325,24 +300,6 @@ public abstract class AbstractService {
         } else {
             return bestMatch;
         }
-    }
-
-    // TODO: Move to the EntityType
-    /**
-     * checks if entity can load attachments
-     */
-    protected boolean isValidAttachmentEntity(String entityName) {
-        if (entityName.equalsIgnoreCase(Candidate.class.getSimpleName())
-            || entityName.equalsIgnoreCase(ClientContact.class.getSimpleName())
-            || entityName.equalsIgnoreCase(ClientCorporation.class.getSimpleName())
-            || entityName.equalsIgnoreCase(JobOrder.class.getSimpleName())
-            || entityName.equalsIgnoreCase(Opportunity.class.getSimpleName())
-            || entityName.equalsIgnoreCase(Placement.class.getSimpleName())
-            ) {
-            return true;
-        }
-
-        return false;
     }
 
     // TODO: Move out to utility class

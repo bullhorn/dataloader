@@ -44,24 +44,6 @@ public class PrintUtil {
         print("");
     }
 
-    public void printEntityError(String entityName, String warningText) {
-        printAndLog("");
-        printAndLog("ERROR: " + warningText + " entity: \"" + entityName + "\"");
-        printAndLog("       The entity is " + warningText + " in REST and cannot be changed by DataLoader.\"");
-        printAndLog("       See the full list of DataLoader supported entities at:");
-        printAndLog("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
-        printAndLog("");
-    }
-
-    public void printUnknownEntityError(String entityName) {
-        printAndLog("");
-        printAndLog("ERROR: Unknown entity: \"" + entityName + "\"");
-        printAndLog("       This entity is not known to DataLoader and cannot be used.");
-        printAndLog("       Check your spelling and see the full list of DataLoader supported entities at:");
-        printAndLog("       https://github.com/bullhorn/dataloader/wiki/Supported-Entities.");
-        printAndLog("");
-    }
-
     public void printActionTotals(Command command, ActionTotals actionTotals) {
         if (startTime == null || args == null) {
             throw new IllegalStateException("recordStart() not called");

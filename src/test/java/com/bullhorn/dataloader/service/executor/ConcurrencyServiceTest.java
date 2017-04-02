@@ -52,7 +52,7 @@ public class ConcurrencyServiceTest {
 
     @SuppressWarnings("rawtypes")
     @Before
-    public void setUp() throws IOException {
+    public void setup() throws IOException {
         csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
         executorServiceMock = Mockito.mock(ExecutorService.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);

@@ -64,8 +64,8 @@ public class ConvertAttachmentsService extends AbstractService implements Action
             return false;
         }
 
-        String entityName = extractEntityNameFromFileName(filePath);
-        if (entityName == null) {
+        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        if (entityInfo == null) {
             printUtil.printAndLog("Could not determine entity from file name: " + filePath);
             return false;
         }

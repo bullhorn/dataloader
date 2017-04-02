@@ -8,6 +8,12 @@ import java.io.IOException;
 public class ArrayUtilTest {
 
     @Test
+    public void testConstructor() throws IOException {
+        ArrayUtil arrayUtil = new ArrayUtil();
+        Assert.assertNotNull(arrayUtil);
+    }
+
+    @Test
     public void testPrepend() throws IOException {
         final String[] original = new String[]{"a", "b", "c"};
         final String[] actual = ArrayUtil.prepend("x", original);

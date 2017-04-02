@@ -1,3 +1,0 @@
-firstName,lastName,name,address.address1,address.city,address.state,address.zip,address.countryName,clientCorporation.id,email,isDeleted,numEmployees,password,preferredContact,status,type,username,category.name,externalID
-Test,ClientContact1,Test ClientContact1,758 Cedar Street,Tucson,Arizona,94411,United States,1362,lochnessmonster@gmail.com,0,1,test,Email,Active,Unknown,contact1,Test,1011
-Test,ClientContact2,Test ClientContact2,758 Cedar Street,Tucson,Arizona,94411,United States,1362,lochnessmonster@gmail.com,0,1,test,Email,Active,Unknown,contact1,Test,1012

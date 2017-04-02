@@ -64,14 +64,14 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
             return false;
         }
 
-        String entityName = extractEntityNameFromFileName(filePath);
-        if (entityName == null) {
+        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        if (entityInfo == null) {
             printUtil.printAndLog("Could not determine entity from file name: " + filePath);
             return false;
         }
 
-        if (!isValidAttachmentEntity(entityName)) {
-            printUtil.printAndLog("deleteAttachments not available for " + entityName);
+        if (!entityInfo.isAttachmentEntity()) {
+            printUtil.printAndLog("ERROR: " + entityInfo.getEntityName() + " entity does not support attachments.");
             return false;
         }
 

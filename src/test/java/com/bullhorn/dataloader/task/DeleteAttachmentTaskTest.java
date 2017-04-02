@@ -44,7 +44,7 @@ public class DeleteAttachmentTaskTest {
     private DeleteAttachmentTask task;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornRestApi = Mockito.mock(BullhornRestApi.class);

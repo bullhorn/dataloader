@@ -110,5 +110,4 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
             getParentEntityClass(field);
         }
     }
-
 }

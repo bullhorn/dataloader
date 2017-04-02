@@ -66,7 +66,7 @@ public class LoadCustomObjectTaskTest {
     private Map<String, Method> methodMap;
 
     @Before
-    public void setUp() throws Exception {
+    public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         validationUtilMock = Mockito.mock(ValidationUtil.class);

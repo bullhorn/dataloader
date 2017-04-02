@@ -73,48 +73,4 @@ public class ValidationUtilTest {
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
     }
-
-    @Test
-    public void testIsLoadableEntity() {
-        Assert.assertTrue(validationUtil.isLoadableEntity("Candidate"));
-        Assert.assertTrue(validationUtil.isLoadableEntity("ClientCorporation"));
-        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
-
-    @Test
-    public void testIsLoadableEntity_readOnly() {
-        Assert.assertFalse(validationUtil.isLoadableEntity("BusinessSector"));
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError(Mockito.anyString(), Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
-
-    @Test
-    public void testIsLoadableEntity_readOnly_noPrint() {
-        Assert.assertFalse(validationUtil.isLoadableEntity("BusinessSector", false));
-        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
-
-    @Test
-    public void testIsDeletableEntity() {
-        Assert.assertTrue(validationUtil.isDeletableEntity("Candidate"));
-        Assert.assertTrue(validationUtil.isDeletableEntity("ClientContact"));
-        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
-
-    @Test
-    public void testIsDeletableEntity_notDeletable() {
-        Assert.assertFalse(validationUtil.isDeletableEntity("BusinessSector"));
-        Mockito.verify(printUtilMock, Mockito.times(1)).printEntityError(Mockito.anyString(), Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
-
-    @Test
-    public void testIsDeletableEntity_notDeletable_noPrint() {
-        Assert.assertFalse(validationUtil.isDeletableEntity("BusinessSector", false));
-        Mockito.verify(printUtilMock, Mockito.never()).printEntityError(Mockito.anyString(), Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.never()).printUnknownEntityError(Mockito.anyString());
-    }
 }

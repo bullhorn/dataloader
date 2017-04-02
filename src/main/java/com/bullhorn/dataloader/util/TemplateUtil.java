@@ -129,8 +129,8 @@ public class TemplateUtil<B extends BullhornEntity> {
                 newFieldList.addAll(field.getAssociatedEntity().getFields());
                 field.getAssociatedEntity().setFields(newFieldList);
             }
-        } catch (NoSuchMethodException e) {
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            // Ignore errors here
         }
     }
 

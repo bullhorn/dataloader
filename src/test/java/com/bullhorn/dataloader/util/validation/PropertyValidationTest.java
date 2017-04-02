@@ -119,6 +119,12 @@ public class PropertyValidationTest {
         propertyValidation.validateListDelimiter("");
     }
 
+    @Test
+    public void testValidateNumThreads() throws IOException {
+        Integer actual = propertyValidation.validateNumThreads(0);
+        Assert.assertNotEquals(actual, new Integer(0));
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyNumThreads() throws IOException {
         propertyValidation.validateNumThreads(Integer.valueOf(""));

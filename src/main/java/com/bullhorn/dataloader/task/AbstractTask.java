@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhorn.dataloader.util.validation.EntityValidation;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -214,7 +213,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getDateQuery(String value) {
-        if (EntityValidation.isCustomObject(entityInfo.getEntityName())){
+        if (entityInfo.isCustomObject()){
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             DateTime dateTime = formatter.parseDateTime(value);
             return String.valueOf(dateTime.toDate().getTime());
