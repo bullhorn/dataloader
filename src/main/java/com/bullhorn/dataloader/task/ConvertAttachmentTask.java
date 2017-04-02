@@ -112,5 +112,4 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
         parser.parse(stream, handler, metadata);
         return handler.toString();
     }
-
 }

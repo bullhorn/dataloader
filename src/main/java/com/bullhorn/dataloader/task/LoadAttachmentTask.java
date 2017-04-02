@@ -186,5 +186,4 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
             || field.equals(StringConsts.RELATIVE_FILE_PATH)
             || field.equals(StringConsts.IS_RESUME));
     }
-
 }

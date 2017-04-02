@@ -137,7 +137,7 @@ public class IntegrationTest {
             Assert.assertFalse("Update performed during load attachments step", loadAttachmentsCommandOutput.contains("updated: 1"));
             Assert.assertFalse("Delete performed during load attachments step", loadAttachmentsCommandOutput.contains("deleted: 1"));
             Assert.assertFalse("Failure reported during load attachments step", loadAttachmentsCommandOutput.contains("failed: 1"));
-            TestUtils.checkResultsFiles(tempDirectory, Command.LOAD_ATTACHMENTS);
+            TestUtils.checkResultsFiles(tempAttachmentsDirectory, Command.LOAD_ATTACHMENTS);
         }
         // endregion
 
