@@ -91,15 +91,15 @@ public class PropertyValidation {
     }
 
     public Integer validateNumThreads(Integer numThreads) {
-        final int maxThreads = 10;
+        final Integer MAX_NUM_THREADS = 15;
 
-        if (numThreads < 0 || numThreads > maxThreads) {
-            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to 10");
+        if (numThreads < 0 || numThreads > MAX_NUM_THREADS) {
+            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
         }
         if (numThreads == 0) {
             numThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
         }
-        return Math.min(numThreads, maxThreads);
+        return Math.min(numThreads, MAX_NUM_THREADS);
     }
 
     public Integer validateWaitTimeMSec(String waitTimeString) {
