@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -636,7 +637,7 @@ public class LoadTaskTest {
         List expectedResult = new ArrayList<>();
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_REFERENCE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-        List actualResult = task.getAssociationFields(task.entityClass);
+        List actualResult = AssociationUtil.getAssociationFields(task.entityClass);
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
