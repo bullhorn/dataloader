@@ -132,7 +132,6 @@ public class LoadTaskTest {
         Assert.assertNull(candidate.getDescription());
 
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock));
-        task.init();
         task.entity = candidate;
 
         when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
@@ -150,7 +149,6 @@ public class LoadTaskTest {
         Assert.assertNull(corporation.getCompanyDescription());
 
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock));
-        task.init();
         task.entity = corporation;
         when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
         task.insertAttachmentToDescription();
@@ -637,7 +635,7 @@ public class LoadTaskTest {
         List expectedResult = new ArrayList<>();
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE_REFERENCE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-        List actualResult = AssociationUtil.getAssociationFields(task.entityClass);
+        List actualResult = AssociationUtil.getAssociationFields(task.entityInfo.getEntityClass());
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }
@@ -705,7 +703,6 @@ public class LoadTaskTest {
         when(bullhornRestApiMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-        task.init();
         task.entityID = 1;
         task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
 
@@ -725,7 +722,6 @@ public class LoadTaskTest {
         boolean wasExceptionThrown = false;
         try {
             LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-            task.init();
             task.entityID = 1;
             task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
         } catch (RestApiException e) {

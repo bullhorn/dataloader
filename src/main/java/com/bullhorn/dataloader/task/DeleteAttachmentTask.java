@@ -40,7 +40,6 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
      */
     @Override
     public void run() {
-        init();
         Result result;
         try {
             result = handle();
@@ -62,6 +61,6 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
         if (!dataMap.containsKey(StringConsts.ID) || dataMap.get(StringConsts.ID).isEmpty()) {
             throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
         }
-        return bullhornRestApi.deleteFile((Class<F>) entityClass, Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
+        return bullhornRestApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
     }
 }

@@ -45,7 +45,6 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
 
     @Override
     public void run() {
-        init();
         Result result;
         try {
             result = handle();
@@ -91,7 +90,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getConvertedAttachmentPath() {
-        return "convertedAttachments/" + entityClass.getSimpleName() + "/" + getExternalId() + ".html";
+        return "convertedAttachments/" + entityInfo.getEntityName() + "/" + getExternalId() + ".html";
     }
 
     private String getExternalId() {

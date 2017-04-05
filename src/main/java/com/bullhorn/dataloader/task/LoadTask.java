@@ -77,7 +77,6 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     @Override
     public void run() {
-        init();
         Result result;
         try {
             result = handle();
@@ -99,7 +98,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
         String descriptionMethod = getDescriptionMethod();
         if (!"".equals(descriptionMethod)) {
-            String attachmentFilePath = getAttachmentFilePath(entityClass.getSimpleName(), dataMap.get("externalID"));
+            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), dataMap.get("externalID"));
             File convertedAttachment = new File(attachmentFilePath);
             if (convertedAttachment.exists()) {
                 String description = FileUtils.readFileToString(convertedAttachment);
@@ -139,7 +138,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
                 throw new RestApiException("Row " + rowNumber + ": Cannot Perform Update - Multiple Records Exist. Found " +
-                    existingEntityList.size() + " " + entityClass.getSimpleName() +
+                    existingEntityList.size() + " " + entityInfo.getEntityName() +
                     " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
             } else {
                 isNewEntity = false;
@@ -147,7 +146,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 entityID = entity.getId();
             }
         } else {
-            entity = entityClass.newInstance();
+            entity = (B)entityInfo.getEntityClass().newInstance();
         }
     }
 
@@ -289,7 +288,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     private boolean verifyIfOneToMany(String field) {
-        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = AssociationUtil.getAssociationFields((Class<AssociationEntity>) entityClass);
+        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = AssociationUtil.getAssociationFields((Class<AssociationEntity>) entityInfo.getEntityClass());
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0, field.indexOf(".")))) {
                 associationMap.put(field, associationField);
@@ -310,15 +309,15 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         try {
-            if (entityClass == Note.class) {
+            if (entityInfo == EntityInfo.NOTE) {
                 addAssociationsToNote((Note) entity, associationField.getAssociationType(), newAssociationIdList);
             } else {
-                bullhornRestApi.associateWithEntity((Class<A>) entityClass, entityID, associationField, Sets.newHashSet(newAssociationIdList));
+                bullhornRestApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
             }
         } catch (RestApiException e) {
             // Provide a simpler duplication error message with all of the essential data
-            if (e.getMessage().contains("an association between " + entityClass.getSimpleName()) && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
-                printUtil.log(Level.INFO, "Association from " + entityClass.getSimpleName() + " entity " + entityID + " to " + associationField.getAssociationType().getSimpleName() + " entities " + newAssociationIdList.toString() + " already exists.");
+            if (e.getMessage().contains("an association between " + entityInfo.getEntityName()) && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
+                printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName() + " entity " + entityID + " to " + associationField.getAssociationType().getSimpleName() + " entities " + newAssociationIdList.toString() + " already exists.");
             } else {
                 throw e;
             }
@@ -340,7 +339,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             } catch (RestApiException e) {
                 // Provide a simpler duplication error message with all of the essential data
                 if (e.getMessage().contains("error persisting an entity of type: NoteEntity") && e.getMessage().contains("\"type\" : \"DUPLICATE_VALUE\"")) {
-                    printUtil.log(Level.INFO, "Association from " + entityClass.getSimpleName() + " entity " + entityID + " to " + type.getSimpleName() + " entity " + associationId + " already exists.");
+                    printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName() + " entity " + entityID + " to " + type.getSimpleName() + " entity " + associationId + " already exists.");
                 } else {
                     throw e;
                 }

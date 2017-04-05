@@ -123,7 +123,6 @@ public class ConvertAttachmentTaskTest {
         String expectedResult = "convertedAttachments/ClientContact/1.html";
 
         task = Mockito.spy(new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CLIENT_CONTACT, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock));
-        task.init();
 
         String actualResult = task.getConvertedAttachmentPath();
 
@@ -136,7 +135,6 @@ public class ConvertAttachmentTaskTest {
         when(bullhornRestApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
         task = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock);
-        task.init();
         task.run();
 
         verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());

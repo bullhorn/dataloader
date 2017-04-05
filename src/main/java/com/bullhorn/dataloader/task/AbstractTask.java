@@ -51,7 +51,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected Command command;
     protected Integer rowNumber;
     protected EntityInfo entityInfo;
-    protected Class<B> entityClass;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvWriter;
@@ -78,11 +77,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.bullhornRestApi = bullhornRestApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
-    }
-
-    // TODO: Remove this method, and remove the need for storing it again by using a getEntityClass getter
-    protected void init() {
-        entityClass = entityInfo.getBullhornEntityInfo().getType();
     }
 
     protected void addParentEntityIDtoDataMap() {
@@ -156,7 +150,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
     protected List<B> findEntityList(Map<String, String> entityExistFieldsMap) {
         if (!entityExistFieldsMap.isEmpty()) {
-            if (SearchEntity.class.isAssignableFrom(entityClass)) {
+            if (SearchEntity.class.isAssignableFrom(entityInfo.getEntityClass())) {
                 return searchForEntity(entityExistFieldsMap);
             } else {
                 return queryForEntity(entityExistFieldsMap);
@@ -167,13 +161,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornRestApi.search((Class<S>) entityClass, query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
+        return (List<B>) bullhornRestApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
-        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornRestApi.query((Class<Q>) entityClass, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        return (List<B>) bullhornRestApi.query((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected String getWhereStatement(String field, String value, Class fieldType) {
@@ -214,7 +208,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
-        Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityClass.getSimpleName());
+        Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (existFields.isPresent()) {
             for (String existField : existFields.get()) {
                 entityExistFieldsMap.put(existField, dataMap.get(existField));
@@ -294,7 +288,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         if (field.contains(".")) {
             return BullhornEntityInfo.getTypeFromName(field.substring(0, field.indexOf("."))).getType();
         } else {
-            return entityClass;
+            return entityInfo.getEntityClass();
         }
     }
 
@@ -313,7 +307,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     // TODO: Move out to utility class
     protected void checkForRequiredFieldsError(RestApiException e) {
         if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
-            throw new RestApiException("Missing required fields for " + entityClass.getSimpleName() + ".");
+            throw new RestApiException("Missing required fields for " + entityInfo.getEntityName() + ".");
         } else {
             throw e;
         }
@@ -351,6 +345,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
     // TODO: Remove this and refactor calling code
     protected String getCamelCasedClassToString() {
-        return entityClass.getSimpleName().substring(0, 1).toLowerCase() + entityClass.getSimpleName().substring(1);
+        return entityInfo.getEntityName().substring(0, 1).toLowerCase() + entityInfo.getEntityName().substring(1);
     }
 }
