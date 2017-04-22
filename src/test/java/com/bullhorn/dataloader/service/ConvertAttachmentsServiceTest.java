@@ -66,6 +66,19 @@ public class ConvertAttachmentsServiceTest {
         Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.CONVERT_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornRestApiMock);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testRun_missingArgument_ThrowsException() throws Exception {
+        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName()};
+        convertAttachmentsService.run(testArgs);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testIsValidArguments_badEntityFile() throws Exception {
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
+        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
+        convertAttachmentsService.run(testArgs);
+    }
+
     @Test
     public void testIsValidArguments() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
