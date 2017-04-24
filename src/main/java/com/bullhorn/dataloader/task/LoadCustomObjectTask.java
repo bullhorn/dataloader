@@ -58,7 +58,6 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     @Override
     public void run() {
-        init();
         Result result;
         try {
             result = handle();
@@ -118,14 +117,14 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
-        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityClass, n, n))).collect(Collectors.joining(" AND "));
-        List<B> matchingCustomObjectList = (List<B>) bullhornRestApi.query((Class<Q>) entityClass, where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        List<B> matchingCustomObjectList = (List<B>) bullhornRestApi.query((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
         return matchingCustomObjectList;
     }
 
     private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
         Map<String, String> scrubbedDataMap = new HashMap<>(dataMap);
-        MetaData meta = bullhornRestApi.getMetaData(entityClass, MetaParameter.BASIC, null);
+        MetaData meta = bullhornRestApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.BASIC, null);
         for (String fieldName : dataMap.keySet()) {
             boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
             if ((!fieldIsInMeta && !fieldName.contains(".")) || (fieldName.contains("_"))) {
@@ -203,7 +202,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected void getParentEntity(String field) throws Exception {
-        String entityName = entityClass.getSimpleName();
+        String entityName = entityInfo.getEntityName();
         instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
 

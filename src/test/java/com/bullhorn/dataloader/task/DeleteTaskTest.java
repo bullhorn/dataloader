@@ -92,7 +92,6 @@ public class DeleteTaskTest {
         when(bullhornRestApiMock.search(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
-        task.init();
         task.run();
 
         verify(csvFileWriterMock).writeRow(eq(expectedValues), resultArgumentCaptor.capture());

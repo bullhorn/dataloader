@@ -154,10 +154,24 @@ public enum EntityInfo {
     }
 
     /**
+     * @return the bullhornEntityInfo enum
+     */
+    public BullhornEntityInfo getBullhornEntityInfo() {
+        return this.bullhornEntityInfo;
+    }
+
+    /**
      * @return the entity name usable in the Bullhorn's SDK-REST
      */
     public String getEntityName() {
         return bullhornEntityInfo.getName();
+    }
+
+    /**
+     * @return the entity class used in the Bullhorn's SDK-REST
+     */
+    public Class getEntityClass() {
+        return bullhornEntityInfo.getType();
     }
 
     /**
@@ -166,13 +180,6 @@ public enum EntityInfo {
      */
     public Integer getLoadOrder() {
         return this.loadOrder;
-    }
-
-    /**
-     * @return the bullhornEntityInfo enum
-     */
-    public BullhornEntityInfo getBullhornEntityInfo() {
-        return this.bullhornEntityInfo;
     }
 
     /**
@@ -186,14 +193,14 @@ public enum EntityInfo {
      * @return True if this entity can be inserted using REST.
      */
     public boolean isInsertable() {
-        return CreateEntity.class.isAssignableFrom(getBullhornEntityInfo().getType());
+        return CreateEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
      * @return True if this entity can be updated using REST.
      */
     public boolean isUpdatable() {
-        return UpdateEntity.class.isAssignableFrom(getBullhornEntityInfo().getType());
+        return UpdateEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
@@ -207,14 +214,14 @@ public enum EntityInfo {
      * @return True if this entity can be hard deleted using REST.
      */
     public boolean isHardDeletable() {
-        return HardDeleteEntity.class.isAssignableFrom(getBullhornEntityInfo().getType());
+        return HardDeleteEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
      * @return True if this entity can be soft deleted using REST.
      */
     public boolean isSoftDeletable() {
-        return SoftDeleteEntity.class.isAssignableFrom(getBullhornEntityInfo().getType());
+        return SoftDeleteEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
@@ -228,18 +235,18 @@ public enum EntityInfo {
      * @return True if this entity is a custom object class.
      */
     public boolean isCustomObject() {
-        return CustomObjectInstance.class.isAssignableFrom(getBullhornEntityInfo().getType());
+        return CustomObjectInstance.class.isAssignableFrom(getEntityClass());
     }
 
     /**
      * @return True if this entity can have attachments.
      */
     public boolean isAttachmentEntity() {
-        return (Candidate.class.isAssignableFrom(getBullhornEntityInfo().getType())
-            || ClientContact.class.isAssignableFrom(getBullhornEntityInfo().getType())
-            || ClientCorporation.class.isAssignableFrom(getBullhornEntityInfo().getType())
-            || JobOrder.class.isAssignableFrom(getBullhornEntityInfo().getType())
-            || Opportunity.class.isAssignableFrom(getBullhornEntityInfo().getType())
-            || Placement.class.isAssignableFrom(getBullhornEntityInfo().getType()));
+        return (Candidate.class.isAssignableFrom(getEntityClass())
+            || ClientContact.class.isAssignableFrom(getEntityClass())
+            || ClientCorporation.class.isAssignableFrom(getEntityClass())
+            || JobOrder.class.isAssignableFrom(getEntityClass())
+            || Opportunity.class.isAssignableFrom(getEntityClass())
+            || Placement.class.isAssignableFrom(getEntityClass()));
     }
 }

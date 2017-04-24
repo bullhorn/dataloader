@@ -11,7 +11,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
-import com.bullhornsdk.data.model.entity.core.standard.Note;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
@@ -46,11 +45,10 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
     /**
      * Run method on this runnable object called by the thread manager.
      * <p>
-     * At this point, we should have an entityClass type that we know we can delete (soft or hard).
+     * At this point, we should have an entity type that we know we can delete (soft or hard).
      */
     @Override
     public void run() {
-        init();
         Result result;
         try {
             result = handle();
@@ -68,11 +66,11 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         bullhornID = Integer.parseInt(dataMap.get(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
-            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityClass.getSimpleName() +
+            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
-        CrudResponse response = bullhornRestApi.deleteEntity((Class<D>) entityClass, bullhornID);
+        CrudResponse response = bullhornRestApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
         checkForRestSdkErrorMessages(response);
         return Result.Delete(bullhornID);
     }
@@ -95,14 +93,14 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityClass.getSimpleName() +
+            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " records are not deletable.");
         }
     }
 
     private Map<String, String> getIsDeletedField() {
         Map<String, String> existFieldsMap = new HashMap<>();
-        if (entityClass.equals(Note.class)) {
+        if (entityInfo == EntityInfo.NOTE) {
             existFieldsMap.put(StringConsts.IS_DELETED, "false");
         } else {
             existFieldsMap.put(StringConsts.IS_DELETED, "0");

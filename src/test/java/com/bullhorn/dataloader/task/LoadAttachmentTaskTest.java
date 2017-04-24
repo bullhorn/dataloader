@@ -126,7 +126,6 @@ public class LoadAttachmentTaskTest {
         when(bullhornRestApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
         task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
-        task.init();
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());

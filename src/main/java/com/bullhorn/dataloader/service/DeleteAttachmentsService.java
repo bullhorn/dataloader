@@ -36,9 +36,6 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 
         String filePath = args[1];
         EntityInfo entityInfo = extractEntityFromFileName(filePath);
-        if (entityInfo == null) {
-            throw new IllegalArgumentException("unknown or missing entityInfo");
-        }
 
         try {
             printUtil.printAndLog("Deleting " + entityInfo + " attachments from: " + filePath + "...");

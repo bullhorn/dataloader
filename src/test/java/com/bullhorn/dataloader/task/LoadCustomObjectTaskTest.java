@@ -359,7 +359,6 @@ public class LoadCustomObjectTaskTest {
         task.parentField = "clientCorporation.id";
 
         //test
-        task.init();
         task.getCustomObjectId();
 
         //verify
@@ -394,7 +393,6 @@ public class LoadCustomObjectTaskTest {
         //test
         RestApiException actualException = null;
         try {
-            task.init();
             task.getCustomObjectId();
         } catch (RestApiException e) {
             actualException = e;
@@ -476,7 +474,6 @@ public class LoadCustomObjectTaskTest {
 
         RestApiException actualException = new RestApiException();
         try {
-            task.init();
             task.getParentEntity("candidate.id");
         } catch (RestApiException e) {
             actualException = e;

@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -40,11 +41,10 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     /**
      * Run method on this runnable object called by the thread manager.
      * <p>
-     * At this point, we should have an entityClass type that we know we can delete (soft or hard).
+     * At this point, we should have an entity type that we know we can delete (soft or hard).
      */
     @Override
     public void run() {
-        init();
         Result result;
         try {
             result = handle();
@@ -85,7 +85,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
 
     private AssociationField getAssociationField() {
         String associationName = getAssociationName();
-        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = getAssociationFields((Class<AssociationEntity>) parentEntityClass);
+        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = AssociationUtil.getAssociationFields((Class<AssociationEntity>) parentEntityClass);
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(associationName)){
                 return associationField;
@@ -95,14 +95,14 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     }
 
     private String getAssociationName() {
-        String entityName = entityClass.getSimpleName();
+        String entityName = entityInfo.getEntityName();
         String instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
         return "customObject" + instanceNumber + "s";
     }
 
     @Override
     protected void getParentEntity(String field) throws Exception {
-        String entityName = entityClass.getSimpleName();
+        String entityName = entityInfo.getEntityName();
 
         if (entityName.toLowerCase().contains("person")) {
             getPersonCustomObjectParentEntityClass(entityName);

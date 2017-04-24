@@ -98,10 +98,10 @@ public abstract class AbstractService {
      * Create thread pool for processing entityClass attachment changes
      *
      * @param command    - command line action to perform
-     * @param entityInfo - entityClass name
+     * @param entityInfo - enum representing the entity
      * @param filePath   - CSV file with attachment data
      * @return ConcurrencyService thread pool service
-     * @throws Exception if error when opening session, loading entityClass data, or reading CSV
+     * @throws Exception if error when opening session, loading entity data, or reading CSV
      */
     protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
         final BullhornRestApi bullhornRestApi = connectionUtil.connect();
