@@ -16,6 +16,7 @@ import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
@@ -327,7 +328,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void addAssociationsToNote(Note note, Class type, List<Integer> associationIdList) {
         for (Integer associationId : associationIdList) {
             try {
-                if (Candidate.class.equals(type) || ClientContact.class.equals(type) || Lead.class.equals(type)) {
+                if (Candidate.class.equals(type) || ClientContact.class.equals(type) || CorporateUser.class.equals(type) || Lead.class.equals(type)) {
                     addNoteEntity(note, "User", associationId);
                 } else if (JobOrder.class.equals(type)) {
                     addNoteEntity(note, "JobPosting", associationId);
