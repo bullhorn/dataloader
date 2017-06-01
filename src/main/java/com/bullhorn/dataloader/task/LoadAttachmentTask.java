@@ -134,7 +134,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
             throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
         }
 
-        if (isNewEntity) {
+        if (isNewEntity || dataMap.containsKey(StringConsts.RELATIVE_FILE_PATH)) {
             try {
                 byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(StringConsts.RELATIVE_FILE_PATH)));
                 String fileStr = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
