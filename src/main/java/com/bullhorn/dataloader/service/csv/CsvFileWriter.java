@@ -79,7 +79,7 @@ public class CsvFileWriter {
     public synchronized void writeRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {
             CsvWriter csvWriter = getOrCreateSuccessCsvWriter();
-            if (result.getBullhornId() > -1) {
+            if (result.getBullhornId() != null && result.getBullhornId() > -1) {
                 csvWriter.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
                     ArrayUtil.prepend(result.getAction().toString(), data)));
             } else {

@@ -50,6 +50,20 @@ public class CsvFileWriterTest {
     }
 
     @Test
+    public void testNullBullhornIdRecord() throws IOException {
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/ClientContactTest.csv", headers);
+        csvFileWriter.writeRow(success, Result.Update(null));
+
+        File successFile = new File("results/ClientContactTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
+        File failureFile = new File("results/ClientContactTest_load_" + StringConsts.TIMESTAMP + "_failure.csv");
+        Assert.assertTrue(successFile.isFile());
+        Assert.assertFalse(failureFile.exists());
+
+        // clean up test files
+        successFile.deleteOnExit();
+    }
+
+    @Test
     public void testFailureRecordsOnly() throws IOException {
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", headers);
         csvFileWriter.writeRow(failure, Result.Failure(new Exception("You have chosen poorly")));
