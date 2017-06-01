@@ -44,7 +44,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <sdk-rest.version>1.2.8</sdk-rest.version>
         <surefire.version>2.19.1</surefire.version>
-        <tika-parsers.version>1.13</tika-parsers.version>
+        <tika-parsers.version>1.14</tika-parsers.version>
     </properties>
 
     <dependencies>
