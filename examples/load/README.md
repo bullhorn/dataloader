@@ -33,12 +33,11 @@ These example CSV files reference several reference only entities that must exis
     * Enable leadAndOpportunityEnabled
     
 * Custom Objects
-    * Setup ClientCorporation Custom Object
-    * Setup JobOrder Custom Object
-    * Setup Opportunity Custom Object
-    * Setup Person Custom Object
-    * Setup ClientContact Custom Object
-    * Setup Placement Custom Object
+    * Enable ClientCorporation Custom Object Instance 1
+    * Enable JobOrder Custom Object Instance 1
+    * Enable Opportunity Custom Object Instance 1
+    * Enable Person Custom Object Instance 1
+    * Enable Placement Custom Object Instance 1
     
 * Action Entitlements
     * Enable View for all Entities
