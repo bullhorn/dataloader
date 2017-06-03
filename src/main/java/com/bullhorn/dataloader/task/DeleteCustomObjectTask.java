@@ -9,6 +9,7 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
@@ -27,14 +28,14 @@ import java.util.Map;
 public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
 
     public DeleteCustomObjectTask(Command command,
-                                Integer rowNumber,
-                                EntityInfo entityInfo,
-                                Map<String, String> dataMap,
-                                CsvFileWriter csvWriter,
-                                PropertyFileUtil propertyFileUtil,
-                                BullhornRestApi bullhornRestApi,
-                                PrintUtil printUtil,
-                                ActionTotals actionTotals) {
+                                  Integer rowNumber,
+                                  EntityInfo entityInfo,
+                                  Map<String, String> dataMap,
+                                  CsvFileWriter csvWriter,
+                                  PropertyFileUtil propertyFileUtil,
+                                  BullhornRestApi bullhornRestApi,
+                                  PrintUtil printUtil,
+                                  ActionTotals actionTotals) {
         super(command, rowNumber, entityInfo, dataMap, null, null, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
@@ -55,15 +56,23 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     }
 
     protected Result handle() throws Exception {
+        if (!dataMap.containsKey(StringConsts.ID)) {
+            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+        }
+
         entityID = Integer.parseInt(dataMap.get("id"));
         String parentEntityField = getParentEntityField();
-        Integer parentEntityID = Integer.parseInt(dataMap.get(parentEntityField));
-
         getParentEntity(parentEntityField);
-        deleteCustomObject(parentEntityID);
+        deleteCustomObject(parentEntity.getId());
         return Result.Delete(entityID);
     }
 
+    /**
+     * This peforms a disassociate call, which will not hard delete the custom object, only remove
+     * it from it's association to the parent entity.
+     *
+     * @param parentEntityID The id of the parentEntity
+     */
     private void deleteCustomObject(Integer parentEntityID) {
         AssociationField associationField = getAssociationField();
         CrudResponse response = bullhornRestApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
@@ -72,22 +81,23 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
 
     private String getParentEntityField() throws IOException {
         String parentField = "";
-        for (String field : dataMap.keySet()){
-            if (field.contains(".") && !field.contains("_")){
+        for (String field : dataMap.keySet()) {
+            if (field.contains(".") && !field.contains("_")) {
                 parentField = field;
             }
         }
-        if (parentField ==""){
+        if (parentField.equals("")) {
             throw new IOException("No association entities found in csv for " + entityInfo.getEntityName() + ". CustomObjectInstances require a parent entity in the csv.");
         }
         return parentField;
     }
 
+    // TODO: Move to Association Util
     private AssociationField getAssociationField() {
         String associationName = getAssociationName();
         List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = AssociationUtil.getAssociationFields((Class<AssociationEntity>) parentEntityClass);
         for (AssociationField associationField : associationFieldList) {
-            if (associationField.getAssociationFieldName().equalsIgnoreCase(associationName)){
+            if (associationField.getAssociationFieldName().equalsIgnoreCase(associationName)) {
                 return associationField;
             }
         }
@@ -98,16 +108,5 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
         String entityName = entityInfo.getEntityName();
         String instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
         return "customObject" + instanceNumber + "s";
-    }
-
-    @Override
-    protected void getParentEntity(String field) throws Exception {
-        String entityName = entityInfo.getEntityName();
-
-        if (entityName.toLowerCase().contains("person")) {
-            getPersonCustomObjectParentEntityClass(entityName);
-        } else {
-            getParentEntityClass(field);
-        }
     }
 }

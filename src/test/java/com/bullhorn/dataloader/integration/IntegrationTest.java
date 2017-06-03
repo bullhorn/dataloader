@@ -158,16 +158,6 @@ public class IntegrationTest {
 
         // TODO: UPDATE ATTACHMENTS
 
-        // region ~TEMPORARY_WORKAROUND~
-        // Deleting custom objects is broken right now. https://jira.bullhorn.com/browse/BH-43509
-        // Taking out the deleting of custom objects until the bug is fixed.
-        for (File file : resultsDir.listFiles()) {
-            if (file.getName().contains("CustomObject")) {
-                file.delete();
-            }
-        }
-        // endregion
-
         // region ~FIXME~
         // Deleting Placement records is failing!
         for (File file : resultsDir.listFiles()) {
