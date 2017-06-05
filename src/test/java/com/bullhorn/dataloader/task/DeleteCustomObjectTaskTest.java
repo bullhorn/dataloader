@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
@@ -8,38 +9,48 @@ import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.model.response.crud.DeleteResponse;
+import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
+import com.bullhornsdk.data.model.entity.association.standard.ClientCorporationAssociations;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.enums.ChangeType;
+import com.google.common.collect.Sets;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeleteCustomObjectTaskTest {
 
-    private PropertyFileUtil propertyFileUtil;
-    private CsvFileWriter csvFileWriter;
+    private PropertyFileUtil propertyFileUtilMock;
+    private CsvFileWriter csvFileWriterMock;
+    private BullhornRestApi bullhornRestApiMock;
+    private PrintUtil printUtilMock;
+    private ActionTotals actionTotalsMock;
+    private ArgumentCaptor<Result> resultArgumentCaptor;
     private Map<String, String> dataMap;
-    private BullhornRestApi bullhornRestApi;
-    private PrintUtil printUtil;
-    private ActionTotals actionTotals;
-
-    private DeleteCustomObjectTask task;
 
     @Before
     public void setup() throws Exception {
-        propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
-        csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        bullhornRestApi = Mockito.mock(BullhornRestApi.class);
-        actionTotals = Mockito.mock(ActionTotals.class);
-        printUtil = Mockito.mock(PrintUtil.class);
+        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
+        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
+        actionTotalsMock = Mockito.mock(ActionTotals.class);
+        printUtilMock = Mockito.mock(PrintUtil.class);
+
+        // Capture arguments to the writeRow method - this is our output from the run
+        resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
 
         dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
@@ -48,42 +59,94 @@ public class DeleteCustomObjectTaskTest {
     }
 
     @Test
-    public void run_Success() throws IOException {
-        dataMap.put("clientCorporation.id", "1");
+    public void run_Success_ClientCorporation() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("clientCorporation.externalID", "ext-1");
 
-        task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        when(bullhornRestApi.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
-        Result expectedResult = Result.Delete(1);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class, 100));
+        when(bullhornRestApiMock.disassociateWithEntity(eq(ClientCorporation.class), eq(100), eq(ClientCorporationAssociations.getInstance().customObject1s()), eq(Sets.newHashSet(1)))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 100));
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
         task.run();
 
-        Mockito.verify(csvFileWriter, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void run_PersonSuccess() throws IOException {
-        dataMap.put("person.id", "1");
+    public void run_Success_Person() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("person.customText1", "ext-1");
         dataMap.put("person._subtype", "Candidate");
 
-        task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        when(bullhornRestApi.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
-        Result expectedResult = Result.Delete(1);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        when(bullhornRestApiMock.search(eq(Candidate.class), eq("customText1:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 100));
+        when(bullhornRestApiMock.disassociateWithEntity(eq(Candidate.class), eq(100), eq(CandidateAssociations.getInstance().customObject2s()), eq(Sets.newHashSet(1)))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 100));
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
         task.run();
 
-        Mockito.verify(csvFileWriter, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+    }
+
+    @Test
+    public void run_Fail_MissingIdColumn() throws IOException {
+        dataMap.remove("id");
+
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Cannot Perform Delete: missing 'id' column.");
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
     }
 
     @Test
     public void run_Fail_NoAssociationField() throws IOException {
-        task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        when(bullhornRestApi.deleteEntity(any(), anyInt())).thenReturn(new DeleteResponse());
-        Result expectedResult = Result.Failure(new IOException("No association entities found in csv for ClientCorporationCustomObjectInstance2. CustomObjectInstances require a parent entity in the csv."),1);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "java.io.IOException: No association entities found in csv for ClientCorporationCustomObjectInstance1. CustomObjectInstances require a parent entity in the csv.");
 
         task.run();
 
-        Mockito.verify(csvFileWriter, Mockito.times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
     }
 
+    @Test
+    public void run_Fail_NoParentFound() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("clientCorporation.externalID", "ext-1");
+
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper());
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot find To-One Association: 'clientCorporation.externalID' with value: 'ext-1'");
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+    }
+
+    @Test
+    public void run_Fail_CannotDisassociate() throws IOException, InstantiationException, IllegalAccessException {
+        dataMap.put("clientCorporation.externalID", "ext-1");
+
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class, 100));
+        when(bullhornRestApiMock.disassociateWithEntity(any(), any(), any(), any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, null, "externalID", "Flagrant Error"));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making UPDATE REST call:\n" +
+            "\tError occurred on field externalID due to the following: Flagrant Error\n");
+
+        task.run();
+
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
+        final Result actualResult = resultArgumentCaptor.getValue();
+        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+    }
 
 }
