@@ -305,6 +305,8 @@ public abstract class AbstractService {
     // TODO: Move out to utility class
     private CsvReader getCsvReader(String filePath) throws IOException {
         final CsvReader csvReader = new CsvReader(filePath);
+        // Turn the SafetySwitch off because it limits the maximum length of any column to 100,000 characters
+        csvReader.setSafetySwitch(false);
         csvReader.readHeaders();
         if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()) {
             StringBuilder sb = getDuplicates(csvReader);
