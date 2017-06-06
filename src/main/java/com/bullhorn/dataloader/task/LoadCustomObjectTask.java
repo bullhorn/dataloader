@@ -244,7 +244,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                 String parentEntityField = dataMap.keySet().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
                 entityExistFieldsMap.put(parentEntityField, dataMap.get(parentEntityField));
             } catch (Exception e) {
-                throw new IOException("Parent entity must be included within csv.");
+                throw new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity.");
             }
         }
         return entityExistFieldsMap;

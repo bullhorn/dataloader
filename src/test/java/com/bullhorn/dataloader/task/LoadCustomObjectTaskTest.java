@@ -486,7 +486,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void parentEntityIsNotInCsvTest() throws IOException {
         task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = Result.Failure(new IOException("Parent entity must be included within csv."));
+        Result expectedResult = Result.Failure(new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity."));
         dataMap.remove("clientCorporation.id");
 
         task.run();
