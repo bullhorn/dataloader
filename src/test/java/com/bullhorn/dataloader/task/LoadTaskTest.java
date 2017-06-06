@@ -25,6 +25,7 @@ import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.standard.Skill;
+import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.csvreader.CsvReader;
 import org.apache.logging.log4j.Level;
@@ -306,6 +307,8 @@ public class LoadTaskTest {
         dataMap.put("opportunities.externalID", "6");
         dataMap.put("placements.customText1", "7");
 
+        methodMap = concurrencyService.createMethodMap(Note.class);
+
         doReturn(Optional.empty()).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
 
         // Mock out all existing reference entities
@@ -335,9 +338,15 @@ public class LoadTaskTest {
         placement.setCustomText1("7");
         when(bullhornRestApiMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
 
-        // Do not mock out any existing note entities
-        when(bullhornRestApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        Note expected = new Note();
+        expected.setCandidates(new OneToMany<>(new Candidate(1001), new Candidate(1002)));
+        expected.setClientContacts(new OneToMany<>(new ClientContact(1003)));
+        expected.setLeads(new OneToMany<>(new Lead(1004)));
+        expected.setJobOrders(new OneToMany<>(new JobOrder(1005)));
+        expected.setOpportunities(new OneToMany<>(new Opportunity(1006)));
+        expected.setPlacements(new OneToMany<>(new Placement(1007)));
 
+        when(bullhornRestApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
@@ -346,7 +355,7 @@ public class LoadTaskTest {
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
 
-        verify(bullhornRestApiMock, times(8)).insertEntity(any());
+        verify(bullhornRestApiMock, times(1)).insertEntity(any());
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -361,7 +370,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
@@ -442,15 +451,7 @@ public class LoadTaskTest {
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
 
         verify(bullhornRestApiMock, times(1)).updateEntity(any(Note.class));
-        verify(bullhornRestApiMock, times(7)).insertEntity(any(NoteEntity.class));
 
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Candidate entity 1001 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Candidate entity 1002 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to ClientContact entity 1003 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Lead entity 1004 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to JobOrder entity 1005 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Opportunity entity 1006 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Placement entity 1007 already exists.");
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 

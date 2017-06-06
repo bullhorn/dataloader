@@ -13,16 +13,8 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
-import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
-import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
-import com.bullhornsdk.data.model.entity.core.standard.Lead;
-import com.bullhornsdk.data.model.entity.core.standard.Note;
-import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
-import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
@@ -30,6 +22,7 @@ import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
+import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.parameter.QueryParams;
 import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
@@ -147,7 +140,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 entityID = entity.getId();
             }
         } else {
-            entity = (B)entityInfo.getEntityClass().newInstance();
+            entity = (B) entityInfo.getEntityClass().newInstance();
         }
     }
 
@@ -214,11 +207,33 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
     }
 
-    protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException, Exception {
+    protected void handleAssociations(String field) throws Exception {
         boolean isOneToMany = verifyIfOneToMany(field);
         if (!isOneToMany) {
             handleOneToOne(field);
+        } else if (entityInfo == EntityInfo.NOTE) {
+            prepopulateNoteAssociation(field);
         }
+    }
+
+    private void prepopulateNoteAssociation(String field) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        String toManyEntityName = field.substring(0, field.indexOf("."));
+
+        List<Integer> associationIdList = getNewAssociationIdList(field, associationMap.get(field));
+        Method method = methodMap.get(toManyEntityName.toLowerCase());
+        if (method == null) {
+            throw new RestApiException("Row " + rowNumber + ": To-Many Association: '" + toManyEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+        }
+        Class associationClass = associationMap.get(field).getAssociationType();
+        List<B> associationList = new ArrayList<>();
+        for (Integer associationId : associationIdList) {
+            B associationInstance = (B) associationClass.newInstance();
+            associationInstance.setId(associationId);
+            associationList.add(associationInstance);
+        }
+        OneToMany oneToMany = new OneToMany();
+        oneToMany.setData(associationList);
+        method.invoke(entity, oneToMany);
     }
 
     private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException, RestApiException {
@@ -300,9 +315,11 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        for (String associationName : associationMap.keySet()) {
-            if (dataMap.get(associationName) != null && !dataMap.get(associationName).equals("")) {
-                addAssociationToEntity(associationName, associationMap.get(associationName));
+        if (entityInfo != EntityInfo.NOTE) {
+            for (String associationName : associationMap.keySet()) {
+                if (dataMap.get(associationName) != null && !dataMap.get(associationName).equals("")) {
+                    addAssociationToEntity(associationName, associationMap.get(associationName));
+                }
             }
         }
     }
@@ -310,11 +327,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         try {
-            if (entityInfo == EntityInfo.NOTE) {
-                addAssociationsToNote((Note) entity, associationField.getAssociationType(), newAssociationIdList);
-            } else {
-                bullhornRestApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
-            }
+            bullhornRestApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
         } catch (RestApiException e) {
             // Provide a simpler duplication error message with all of the essential data
             if (e.getMessage().contains("an association between " + entityInfo.getEntityName()) && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
@@ -323,37 +336,6 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 throw e;
             }
         }
-    }
-
-    protected void addAssociationsToNote(Note note, Class type, List<Integer> associationIdList) {
-        for (Integer associationId : associationIdList) {
-            try {
-                if (Candidate.class.equals(type) || ClientContact.class.equals(type) || CorporateUser.class.equals(type) || Lead.class.equals(type)) {
-                    addNoteEntity(note, "User", associationId);
-                } else if (JobOrder.class.equals(type)) {
-                    addNoteEntity(note, "JobPosting", associationId);
-                } else if (Opportunity.class.equals(type)) {
-                    addNoteEntity(note, "Opportunity", associationId);
-                } else if (Placement.class.equals(type)) {
-                    addNoteEntity(note, "Placement", associationId);
-                }
-            } catch (RestApiException e) {
-                // Provide a simpler duplication error message with all of the essential data
-                if (e.getMessage().contains("error persisting an entity of type: NoteEntity") && e.getMessage().contains("\"type\" : \"DUPLICATE_VALUE\"")) {
-                    printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName() + " entity " + entityID + " to " + type.getSimpleName() + " entity " + associationId + " already exists.");
-                } else {
-                    throw e;
-                }
-            }
-        }
-    }
-
-    protected void addNoteEntity(Note noteAdded, String targetEntityName, Integer targetEntityID) {
-        NoteEntity noteEntity = new NoteEntity();
-        noteEntity.setNote(noteAdded);
-        noteEntity.setTargetEntityID(targetEntityID);
-        noteEntity.setTargetEntityName(targetEntityName);
-        bullhornRestApi.insertEntity(noteEntity);
     }
 
     protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
