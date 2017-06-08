@@ -79,13 +79,13 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     @Override
     protected boolean validField(String field) {
-        if (field.contains("_")){
+        if (field.contains("_")) {
             return false;
         }
         return super.validField(field);
     }
 
-        @Override
+    @Override
     protected void insertOrUpdateEntity() throws IOException {
         try {
             CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) parentEntity);
@@ -225,9 +225,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     protected void getPersonCustomObjectParentEntityClass(String entityName) throws Exception {
         String personSubtype = dataMap.get("person._subtype");
-        if ("candidate".equalsIgnoreCase(personSubtype)){
+        if ("candidate".equalsIgnoreCase(personSubtype)) {
             parentEntityClass = (Class<B>) Candidate.class;
-        } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)){
+        } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)) {
             parentEntityClass = (Class<B>) ClientContact.class;
         } else if (personSubtype == null) {
             throw new Exception("Row " + rowNumber + ": The required field person._subType is missing. This field must be included to load " + entityName);
@@ -239,14 +239,14 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     @Override
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = super.getEntityExistFieldsMap();
-        if (!entityExistFieldsMap.isEmpty() && !entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))){
+        if (!entityExistFieldsMap.isEmpty() && !entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))) {
             try {
                 String parentEntityField = dataMap.keySet().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
                 entityExistFieldsMap.put(parentEntityField, dataMap.get(parentEntityField));
-            } catch (Exception e){
-                throw new IOException("Parent entity must be included within csv.");
+            } catch (Exception e) {
+                throw new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity.");
             }
         }
-        return  entityExistFieldsMap;
+        return entityExistFieldsMap;
     }
 }

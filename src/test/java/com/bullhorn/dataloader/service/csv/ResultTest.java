@@ -67,6 +67,17 @@ public class ResultTest {
     }
 
     @Test
+    public void testNullBullhornId() {
+        final Result result = Result.Update(null);
+
+        Assert.assertEquals(result.isSuccess(), true);
+        Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
+        Assert.assertEquals(result.getAction(), Result.Action.UPDATE);
+        Assert.assertEquals(result.getBullhornId().intValue(), -1);
+        Assert.assertEquals(result.getFailureText(), "");
+    }
+
+    @Test
     public void testInsertEnumToString() {
         final Result result = Result.Insert(99);
 

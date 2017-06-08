@@ -27,7 +27,6 @@ import java.util.Map;
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
-    private static final Logger log = LogManager.getLogger(DeleteTask.class);
     private Integer bullhornID;
 
     public DeleteTask(Command command,

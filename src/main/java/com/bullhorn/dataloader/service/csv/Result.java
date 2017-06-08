@@ -120,8 +120,13 @@ public class Result {
 
     /**
      * Will be set if the record was processed successfully. Valid values are 1 to n.
+     *
+     * @return -1 if the value is invalid or not present
      */
     public Integer getBullhornId() {
+        if (bullhornId == null) {
+            return -1;
+        }
         return bullhornId;
     }
 

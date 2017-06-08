@@ -34,8 +34,8 @@ public class CsvFileWriter {
      * Returns the correctly formatted filePath for the results file
      *
      * @param inputFilePath The path of the input CSV to read
-     * @param command The command used to process the CSV file
-     * @param status Success or Failure
+     * @param command       The command used to process the CSV file
+     * @param status        Success or Failure
      * @return The path to the results file
      */
     public static String getResultsFilePath(String inputFilePath, Command command, Result.Status status) {
@@ -79,12 +79,8 @@ public class CsvFileWriter {
     public synchronized void writeRow(String[] data, Result result) throws IOException {
         if (result.isSuccess()) {
             CsvWriter csvWriter = getOrCreateSuccessCsvWriter();
-            if (result.getBullhornId() != null && result.getBullhornId() > -1) {
-                csvWriter.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
-                    ArrayUtil.prepend(result.getAction().toString(), data)));
-            } else {
-                csvWriter.writeRecord(ArrayUtil.prepend(result.getAction().toString(), data));
-            }
+            csvWriter.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
+                ArrayUtil.prepend(result.getAction().toString(), data)));
             csvWriter.flush();
         } else {
             CsvWriter csvWriter = getOrCreateFailureCsvWriter();
@@ -111,7 +107,8 @@ public class CsvFileWriter {
         return successCsv;
     }
 
-    private CsvWriter getOrCreateFailureCsvWriter() throws IOException {if (failureCsv == null) {
+    private CsvWriter getOrCreateFailureCsvWriter() throws IOException {
+        if (failureCsv == null) {
             FileWriter fileWriter = new FileWriter(failureFilePath);
             failureCsv = new CsvWriter(fileWriter, ',');
             failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
