@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
@@ -26,7 +27,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.standard.Skill;
 import com.bullhornsdk.data.model.enums.ChangeType;
-import com.csvreader.CsvReader;
 import org.apache.logging.log4j.Level;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -64,7 +64,7 @@ public class LoadTaskTest {
 
     private ExecutorService executorServiceMock;
     private PrintUtil printUtilMock;
-    private CsvReader csvReaderMock;
+    private CsvFileReader csvFileReaderMock;
     private CsvFileWriter csvFileWriterMock;
     private BullhornRestApi bullhornRestApiMock;
     private PropertyFileUtil propertyFileUtilMock_CandidateID;
@@ -83,7 +83,7 @@ public class LoadTaskTest {
     @Before
     public void setup() throws Exception {
         executorServiceMock = mock(ExecutorService.class);
-        csvReaderMock = mock(CsvReader.class);
+        csvFileReaderMock = mock(CsvFileReader.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
         bullhornRestApiMock = mock(BullhornRestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
@@ -101,7 +101,7 @@ public class LoadTaskTest {
         doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
         doReturn(";").when(propertyFileUtilMock_CandidateExternalID).getListDelimiter();
 
-        concurrencyService = new ConcurrencyService(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        concurrencyService = new ConcurrencyService(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, csvFileReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
 
         methodMap = concurrencyService.createMethodMap(Candidate.class);
         countryNameToIdMap = new LinkedHashMap<>();

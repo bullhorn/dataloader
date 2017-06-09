@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
@@ -26,7 +27,6 @@ import com.bullhornsdk.data.model.response.list.ClientContactListWrapper;
 import com.bullhornsdk.data.model.response.list.ClientCorporationListWrapper;
 import com.bullhornsdk.data.model.response.list.customobject.ClientCorporationCustomObjectInstance2ListWrapper;
 import com.bullhornsdk.data.model.response.list.customobject.PersonCustomObjectInstance2ListWrapper;
-import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
@@ -53,11 +53,10 @@ public class LoadCustomObjectTaskTest {
 
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
-    private ValidationUtil validationUtilMock;
+    private CsvFileReader csvFileReaderMock;
     private CsvFileWriter csvFileWriterMock;
     private BullhornRestApi bullhornRestApiMock;
     private ActionTotals actionTotalsMock;
-    private CsvReader csvReaderMock;
     private ExecutorService executorServiceMock;
 
     private LoadCustomObjectTask task;
@@ -69,18 +68,17 @@ public class LoadCustomObjectTaskTest {
     public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        validationUtilMock = Mockito.mock(ValidationUtil.class);
+        csvFileReaderMock = Mockito.mock(CsvFileReader.class);
         csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        csvReaderMock = Mockito.mock(CsvReader.class);
         executorServiceMock = Mockito.mock(ExecutorService.class);
 
         List<String> existField = Arrays.asList(new String[]{"text1"});
         Mockito.doReturn(Optional.ofNullable(existField)).when(propertyFileUtilMock).getEntityExistFields(any());
         Mockito.doReturn(";").when(propertyFileUtilMock).getListDelimiter();
 
-        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, csvReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, csvFileReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         methodMap = concurrencyService.createMethodMap(ClientCorporationCustomObjectInstance2.class);
 
         dataMap = new LinkedHashMap<>();

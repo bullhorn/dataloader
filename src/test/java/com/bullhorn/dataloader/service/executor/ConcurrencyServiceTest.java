@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service.executor;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -18,7 +19,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.response.list.CountryListWrapper;
-import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,13 +64,11 @@ public class ConcurrencyServiceTest {
     @Test
     public void runLoadProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
-        csvReader.readHeaders();
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/Candidate.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -108,13 +106,11 @@ public class ConcurrencyServiceTest {
     @Test
     public void runCustomObjectLoadProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadCustomObjectTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
-        csvReader.readHeaders();
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
             EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -143,13 +139,11 @@ public class ConcurrencyServiceTest {
     @Test
     public void runDeleteProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(DeleteTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
-        csvReader.readHeaders();
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/Candidate.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -175,13 +169,11 @@ public class ConcurrencyServiceTest {
     @Test
     public void runDeleteProcessTest_CustomObject() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(DeleteTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
-        csvReader.readHeaders();
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/ClientCorporationCustomObjectInstance1.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE,
             EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -206,41 +198,13 @@ public class ConcurrencyServiceTest {
     }
 
     @Test
-    public void getCSVMapTestWithInvalidHeaderCount() throws IOException, InterruptedException {
-        boolean errorThrown = false;
-        CsvReader csvReader = new CsvReader("src/test/resources/ClientCorporation_Invalid.csv");
-        csvReader.readHeaders();
-        final ConcurrencyService service = new ConcurrencyService(
-            Command.DELETE_ATTACHMENTS,
-            EntityInfo.CLIENT_CORPORATION,
-            csvReader,
-            csvFileWriterMock,
-            executorServiceMock,
-            propertyFileUtilMock,
-            bullhornRestApiMock,
-            printUtilMock,
-            actionTotalsMock);
-        try {
-            service.getCsvDataMap();
-        }
-        catch (IOException e) {
-            errorThrown = true;
-        }
-        Assert.assertTrue(errorThrown);
-
-    }
-
-    @Test
     public void EntityAttachmentConcurrencyServiceTestLoadAttachments() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(LoadAttachmentTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
-        csvReader.readHeaders();
-
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/CandidateAttachments.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD_ATTACHMENTS,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -275,13 +239,11 @@ public class ConcurrencyServiceTest {
     @Test
     public void runConvertAttachmentsProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(ConvertAttachmentTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/CandidateAttachments.csv");
-        csvReader.readHeaders();
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/CandidateAttachments.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.CONVERT_ATTACHMENTS,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -309,13 +271,11 @@ public class ConcurrencyServiceTest {
     @Test
     public void runDeleteAttachmentsProcessTest() throws IOException, InterruptedException {
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(DeleteAttachmentTask.class);
-
-        CsvReader csvReader = new CsvReader("src/test/resources/CandidateAttachments_success.csv");
-        csvReader.readHeaders();
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/CandidateAttachments_success.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.DELETE_ATTACHMENTS,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -342,13 +302,11 @@ public class ConcurrencyServiceTest {
 
     @Test
     public void testGetActionTotals() throws IOException {
-        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
-        csvReader.readHeaders();
-
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/Candidate.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,
@@ -363,13 +321,11 @@ public class ConcurrencyServiceTest {
 
     @Test
     public void testGetBullhornData() throws IOException {
-        CsvReader csvReader = new CsvReader("src/test/resources/Candidate.csv");
-        csvReader.readHeaders();
-
+        CsvFileReader csvFileReader = new CsvFileReader("src/test/resources/Candidate.csv");
         final ConcurrencyService service = new ConcurrencyService(
             Command.LOAD,
             EntityInfo.CANDIDATE,
-            csvReader,
+            csvFileReader,
             csvFileWriterMock,
             executorServiceMock,
             propertyFileUtilMock,

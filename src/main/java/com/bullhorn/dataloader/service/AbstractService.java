@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
@@ -12,8 +13,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.csvreader.CsvReader;
-import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,14 +105,14 @@ public abstract class AbstractService {
     protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
         final BullhornRestApi bullhornRestApi = connectionUtil.connect();
         final ExecutorService executorService = getExecutorService(propertyFileUtil);
-        final CsvReader csvReader = getCsvReader(filePath);
-        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
+        final CsvFileReader csvFileReader = new CsvFileReader(filePath);
+        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         ConcurrencyService concurrencyService = new ConcurrencyService(
             command,
             entityInfo,
-            csvReader,
+            csvFileReader,
             csvFileWriter,
             executorService,
             propertyFileUtil,
@@ -125,6 +124,7 @@ public abstract class AbstractService {
         return concurrencyService;
     }
 
+    // TODO: Move out to utility class
     /**
      * Given a file or directory, this method will determine all valid CSV files that can be used by DataLoader and
      * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
@@ -264,7 +264,6 @@ public abstract class AbstractService {
                     return false;
                 }
             }
-            ;
         }
 
         return true;
@@ -300,31 +299,5 @@ public abstract class AbstractService {
         } else {
             return bestMatch;
         }
-    }
-
-    // TODO: Move out to utility class
-    private CsvReader getCsvReader(String filePath) throws IOException {
-        final CsvReader csvReader = new CsvReader(filePath);
-        // Turn the SafetySwitch off because it limits the maximum length of any column to 100,000 characters
-        csvReader.setSafetySwitch(false);
-        csvReader.readHeaders();
-        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()) {
-            StringBuilder sb = getDuplicates(csvReader);
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + sb.toString());
-        }
-        return csvReader;
-    }
-
-    // TODO: Move out to utility class
-    private StringBuilder getDuplicates(CsvReader csvReader) throws IOException {
-        List<String> nonDupe = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        for (String header : csvReader.getHeaders()) {
-            if (nonDupe.contains(header)) {
-                sb.append("\t" + header + "\n");
-            }
-            nonDupe.add(header);
-        }
-        return sb;
     }
 }

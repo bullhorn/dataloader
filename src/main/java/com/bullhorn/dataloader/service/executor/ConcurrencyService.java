@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service.executor;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
@@ -19,14 +20,12 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -39,7 +38,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
 
     private final ExecutorService executorService;
     private final EntityInfo entityInfo;
-    private final CsvReader csvReader;
+    private final CsvFileReader csvFileReader;
     private final CsvFileWriter csvWriter;
     private final PropertyFileUtil propertyFileUtil;
     private final BullhornRestApi bullhornRestApi;
@@ -50,8 +49,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
 
     public ConcurrencyService(Command command,
                               EntityInfo entityInfo,
-                              CsvReader csvReader,
-                              CsvFileWriter csvWriter,
+                              CsvFileReader csvFileReader,
+                              CsvFileWriter csvFileWriter,
                               ExecutorService executorService,
                               PropertyFileUtil propertyFileUtil,
                               BullhornRestApi bullhornRestApi,
@@ -59,8 +58,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
                               ActionTotals actionTotals) {
         this.command = command;
         this.entityInfo = entityInfo;
-        this.csvReader = csvReader;
-        this.csvWriter = csvWriter;
+        this.csvFileReader = csvFileReader;
+        this.csvWriter = csvFileWriter;
         this.executorService = executorService;
         this.propertyFileUtil = propertyFileUtil;
         this.bullhornRestApi = bullhornRestApi;
@@ -69,8 +68,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runConvertAttachmentsProcess() throws IOException, InterruptedException {
-        while (csvReader.readRecord()) {
-            Map<String, String> dataMap = getCsvDataMap();
+        while (csvFileReader.readRecord()) {
+            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
             ConvertAttachmentTask task = new ConvertAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             executorService.execute(task);
         }
@@ -82,8 +81,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     public void runLoadProcess() throws IOException, InterruptedException {
         Map<String, Method> methodMap = createMethodMap(entityInfo.getBullhornEntityInfo().getType());
         Map<String, Integer> countryNameToIdMap = createCountryNameToIdMap(methodMap);
-        while (csvReader.readRecord()) {
-            Map<String, String> dataMap = getCsvDataMap();
+        while (csvFileReader.readRecord()) {
+            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
             AbstractTask task = getLoadTask(methodMap, countryNameToIdMap, dataMap);
             executorService.execute(task);
         }
@@ -101,8 +100,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runDeleteProcess() throws IOException, InterruptedException {
-        while (csvReader.readRecord()) {
-            Map<String, String> dataMap = getCsvDataMap();
+        while (csvFileReader.readRecord()) {
+            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
             AbstractTask task = getDeleteTask(dataMap);
             executorService.execute(task);
         }
@@ -121,8 +120,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
         Map<String, Method> methodMap = createMethodMap(FileMeta.class);
-        while (csvReader.readRecord()) {
-            Map<String, String> dataMap = getCsvDataMap();
+        while (csvFileReader.readRecord()) {
+            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
             LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entityInfo, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             executorService.execute(task);
         }
@@ -132,8 +131,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runDeleteAttachmentsProcess() throws IOException, InterruptedException {
-        while (csvReader.readRecord()) {
-            Map<String, String> dataMap = getCsvDataMap();
+        while (csvFileReader.readRecord()) {
+            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
             DeleteAttachmentTask task = new DeleteAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             executorService.execute(task);
         }
@@ -174,24 +173,6 @@ public class ConcurrencyService<B extends BullhornEntity> {
                 }
             }
         }
-    }
-
-    // TODO: Move to a CsvFileReader class
-    /**
-     * creates is a mapping of name to value pairs for a single row in the CSV file
-     */
-    protected Map<String, String> getCsvDataMap() throws IOException {
-        Map<String, String> dataMap = new LinkedHashMap<>();
-
-        if (csvReader.getHeaderCount() != csvReader.getValues().length) {
-            throw new IOException("Header column count " + csvReader.getHeaderCount() + " is not equal to row column count " + csvReader.getValues().length);
-        }
-
-        for (int i = 0; i < csvReader.getHeaderCount(); i++) {
-            dataMap.put(csvReader.getHeader(i), csvReader.getValues()[i]);
-        }
-
-        return dataMap;
     }
 
     public ActionTotals getActionTotals() {

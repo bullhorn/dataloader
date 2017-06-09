@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
@@ -10,7 +11,6 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,35 +37,28 @@ public class ConvertAttachmentTaskTest {
 
     private Map<String, String> dataMap;
     private Map<String, String> dataMap2;
-    private ExecutorService executorService;
-    private Map<String, Method> methodMap;
     private ArgumentCaptor<Result> resultArgumentCaptor;
-    private Map<String, Integer> countryNameToIdMap;
     private CsvFileWriter csvFileWriter;
-    private CsvReader csvReader;
     private BullhornRestApi bullhornRestApi;
     private PrintUtil printUtil;
     private ActionTotals actionTotalsMock;
     private ConvertAttachmentTask task;
-    private PropertyFileUtil candidateIdProperties;
     private PropertyFileUtil candidateExternalIdProperties;
 
     @Before
     public void setup() throws Exception {
-        executorService = Mockito.mock(ExecutorService.class);
-        csvReader = Mockito.mock(CsvReader.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornRestApi = Mockito.mock(BullhornRestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
         printUtil = Mockito.mock(PrintUtil.class);
         candidateExternalIdProperties = Mockito.mock(PropertyFileUtil.class);
 
-        dataMap = new LinkedHashMap<String, String>();
+        dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
         dataMap.put("relativeFilePath", TestUtils.getResourceFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "1");
 
-        dataMap2 = new LinkedHashMap<String, String>();
+        dataMap2 = new LinkedHashMap<>();
         dataMap2.put("candidate.externalID", "2016Ext");
         dataMap2.put("isResume", "1");
 
