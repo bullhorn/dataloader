@@ -13,18 +13,16 @@ import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Responsible for executing tasks to process rows in a CSV input file.
  */
-public class ConcurrencyService<B extends BullhornEntity> {
+public class ConcurrencyService {
 
     private final ExecutorService executorService;
     private final EntityInfo entityInfo;
@@ -79,7 +77,8 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runLoadProcess() throws IOException, InterruptedException {
-        Map<String, Method> methodMap = createMethodMap(entityInfo.getBullhornEntityInfo().getType());
+        // TODO: Stop passing in the method map, since we already pass in entityInfo
+        Map<String, Method> methodMap = entityInfo.getSetterMethodMap();
         Map<String, Integer> countryNameToIdMap = createCountryNameToIdMap(methodMap);
         while (csvFileReader.readRecord()) {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
@@ -91,6 +90,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
         printUtil.printActionTotals(command, actionTotals);
     }
 
+    // TODO: Remove this method once CustomObjects PUT calls work
     private AbstractTask getLoadTask(Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, Map<String, String> dataMap) {
         if (entityInfo.isCustomObject()){
             return new LoadCustomObjectTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
@@ -119,7 +119,7 @@ public class ConcurrencyService<B extends BullhornEntity> {
     }
 
     public void runLoadAttachmentsProcess() throws IOException, InterruptedException {
-        Map<String, Method> methodMap = createMethodMap(FileMeta.class);
+        Map<String, Method> methodMap = MethodUtil.getSetterMethodMap(FileMeta.class);
         while (csvFileReader.readRecord()) {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
             LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entityInfo, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
@@ -150,29 +150,6 @@ public class ConcurrencyService<B extends BullhornEntity> {
             return countryNameToIdMap;
         }
         return null;
-    }
-
-    // TODO: Pull out into Utility
-    public Map<String, Method> createMethodMap(Class entity) {
-        Map<String, Method> methodMap = new HashMap();
-        for (Method method : Arrays.asList(entity.getMethods())) {
-            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                methodMap.put(method.getName().substring(3).toLowerCase(), method);
-            }
-        }
-        addAddressMethodsIfNeeded(methodMap);
-        return methodMap;
-    }
-
-    // TODO: Pull out into Utility
-    private void addAddressMethodsIfNeeded(Map<String, Method> methodMap) {
-        if (methodMap.containsKey("address")) {
-            for (Method method : Arrays.asList(Address.class.getMethods())) {
-                if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                    methodMap.put(method.getName().substring(3).toLowerCase(), method);
-                }
-            }
-        }
     }
 
     public ActionTotals getActionTotals() {

@@ -3,11 +3,9 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -49,7 +47,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -62,9 +59,7 @@ import static org.mockito.Mockito.when;
 
 public class LoadTaskTest {
 
-    private ExecutorService executorServiceMock;
     private PrintUtil printUtilMock;
-    private CsvFileReader csvFileReaderMock;
     private CsvFileWriter csvFileWriterMock;
     private BullhornRestApi bullhornRestApiMock;
     private PropertyFileUtil propertyFileUtilMock_CandidateID;
@@ -78,12 +73,9 @@ public class LoadTaskTest {
 
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private ActionTotals actionTotalsMock;
-    private ConcurrencyService concurrencyService;
 
     @Before
     public void setup() throws Exception {
-        executorServiceMock = mock(ExecutorService.class);
-        csvFileReaderMock = mock(CsvFileReader.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
         bullhornRestApiMock = mock(BullhornRestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
@@ -101,9 +93,7 @@ public class LoadTaskTest {
         doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
         doReturn(";").when(propertyFileUtilMock_CandidateExternalID).getListDelimiter();
 
-        concurrencyService = new ConcurrencyService(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, csvFileReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-
-        methodMap = concurrencyService.createMethodMap(Candidate.class);
+        methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         countryNameToIdMap = new LinkedHashMap<>();
         countryNameToIdMap.put("United States", 1);
         countryNameToIdMap.put("Canada", 2216);
@@ -143,7 +133,7 @@ public class LoadTaskTest {
     @Test
     public void insertAttachmentToDescriptionClientCorporationTest() throws Exception {
         ClientCorporation corporation = new ClientCorporation();
-        methodMap = concurrencyService.createMethodMap(ClientCorporation.class);
+        methodMap = EntityInfo.CLIENT_CORPORATION.getSetterMethodMap();
 
         // ClientCorporation uses companyDescription field instead of description
         Assert.assertNull(corporation.getCompanyDescription());
@@ -182,7 +172,7 @@ public class LoadTaskTest {
     public void getDescriptionMethodWithDescriptionSubstringMethodInMapTest() {
         // ClientCorporation uses companyDescription field instead of description
         String expected = "companydescription";
-        methodMap = concurrencyService.createMethodMap(ClientCorporation.class);
+        methodMap = EntityInfo.CLIENT_CORPORATION.getSetterMethodMap();
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
 
         String actual = task.getDescriptionMethod();
@@ -194,7 +184,7 @@ public class LoadTaskTest {
     public void getDescriptionMethodWithNoDescriptionMethodInMapTest() {
         // Placement does not have a description field
         String expected = "";
-        methodMap = concurrencyService.createMethodMap(Placement.class);
+        methodMap = EntityInfo.PLACEMENT.getSetterMethodMap();
 
         LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         String actual = task.getDescriptionMethod();
@@ -225,7 +215,7 @@ public class LoadTaskTest {
         doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_ClientCorporationExternalID).getEntityExistFields("ClientCorporation");
         doReturn(";").when(propertyFileUtilMock_ClientCorporationExternalID).getListDelimiter();
 
-        methodMap = concurrencyService.createMethodMap(ClientCorporation.class);
+        methodMap = EntityInfo.CLIENT_CORPORATION.getSetterMethodMap();
 
         dataMap.clear();
         dataMap.put("id", "1");
@@ -396,7 +386,7 @@ public class LoadTaskTest {
         dataMap.put("opportunities.externalID", "6");
         dataMap.put("placements.customText1", "7");
 
-        methodMap = concurrencyService.createMethodMap(Note.class);
+        methodMap = EntityInfo.NOTE.getSetterMethodMap();
 
         List<String> idExistField = Collections.singletonList("id");
         doReturn(Optional.of(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Note");
@@ -497,7 +487,7 @@ public class LoadTaskTest {
         dataMap.put("city", "Successville");
         List<String> idExistField = Collections.singletonList("id");
         doReturn(Optional.of(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("CandidateEducation");
-        methodMap = concurrencyService.createMethodMap(CandidateEducation.class);
+        methodMap = EntityInfo.CANDIDATE_EDUCATION.getSetterMethodMap();
         when(bullhornRestApiMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CandidateEducation.class, 1));
         when(bullhornRestApiMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CandidateEducation.class, 1));
         when(bullhornRestApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
@@ -772,10 +762,10 @@ public class LoadTaskTest {
         dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
         methodMap.clear();
-        methodMap = concurrencyService.createMethodMap(Note.class);
+        methodMap = EntityInfo.NOTE.getSetterMethodMap();
         when(bullhornRestApiMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
 
-        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoteID, bullhornRestApiMock,printUtilMock, actionTotalsMock);
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.NOTE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_NoteID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         task.findEntity("id", "id", Note.class, Integer.class);
 
         verify(bullhornRestApiMock, times(1)).search(any(), any(), any(), any());
@@ -806,7 +796,7 @@ public class LoadTaskTest {
 
     @Test(expected = RestApiException.class)
     public void getWhereStatement_integer() {
-        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID,bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        LoadTask task = new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CONTACT, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         String actual = task.getWhereStatement("id", "99", int.class);
 
         Assert.assertEquals("id=99", actual);
@@ -919,7 +909,7 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void getDateQueryTest(){
+    public void getDateQueryTest() {
         String dateFormatString = "MM/dd/yyyy";
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
@@ -951,6 +941,6 @@ public class LoadTaskTest {
     /**
      * Used by the convertStringToClass_Double tests above
      */
-    public void convertStringToClassTest_DoubleTestMethod(Double test){
+    public void convertStringToClassTest_DoubleTestMethod(Double test) {
     }
 }

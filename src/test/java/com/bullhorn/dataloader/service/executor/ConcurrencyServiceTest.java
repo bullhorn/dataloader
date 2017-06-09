@@ -14,8 +14,6 @@ import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance1;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.response.list.CountryListWrapper;
@@ -79,7 +77,7 @@ public class ConcurrencyServiceTest {
         final Map<String, String> expectedDataMap = new LinkedHashMap<>();
         expectedDataMap.put("id", "1");
 
-        Map<String, Method> methodMap = service.createMethodMap(Candidate.class);
+        Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         CountryListWrapper listWrapper = new CountryListWrapper();
         List<Country> countryList = new ArrayList<>();
         Country usa = new Country();
@@ -122,7 +120,7 @@ public class ConcurrencyServiceTest {
         expectedDataMap.put("clientCorporation.id", "1");
         expectedDataMap.put("text1", "test");
 
-        Map<String, Method> methodMap = service.createMethodMap(ClientCorporationCustomObjectInstance1.class);
+        Map<String, Method> methodMap = EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1.getSetterMethodMap();
 
         final LoadCustomObjectTask expectedTask = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, expectedDataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
@@ -217,7 +215,7 @@ public class ConcurrencyServiceTest {
         expectedDataMap.put("relativeFilePath", "src/test/resources/testResume/Test Resume.doc");
         expectedDataMap.put("isResume", "1");
 
-        Map<String, Method> methodMap = new HashMap();
+        Map<String, Method> methodMap = new HashMap<>();
         for (Method method : Arrays.asList(FileMeta.class.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 methodMap.put(method.getName().substring(3).toLowerCase(), method);

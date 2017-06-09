@@ -2,15 +2,12 @@ package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
@@ -43,7 +40,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -53,11 +49,9 @@ public class LoadCustomObjectTaskTest {
 
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
-    private CsvFileReader csvFileReaderMock;
     private CsvFileWriter csvFileWriterMock;
     private BullhornRestApi bullhornRestApiMock;
     private ActionTotals actionTotalsMock;
-    private ExecutorService executorServiceMock;
 
     private LoadCustomObjectTask task;
 
@@ -68,18 +62,15 @@ public class LoadCustomObjectTaskTest {
     public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        csvFileReaderMock = Mockito.mock(CsvFileReader.class);
         csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        executorServiceMock = Mockito.mock(ExecutorService.class);
 
         List<String> existField = Arrays.asList(new String[]{"text1"});
         Mockito.doReturn(Optional.ofNullable(existField)).when(propertyFileUtilMock).getEntityExistFields(any());
         Mockito.doReturn(";").when(propertyFileUtilMock).getListDelimiter();
 
-        ConcurrencyService concurrencyService = new ConcurrencyService(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, csvFileReaderMock, csvFileWriterMock, executorServiceMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
-        methodMap = concurrencyService.createMethodMap(ClientCorporationCustomObjectInstance2.class);
+        methodMap = EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2.getSetterMethodMap();
 
         dataMap = new LinkedHashMap<>();
         dataMap.put("clientCorporation.id", "1");
@@ -476,6 +467,7 @@ public class LoadCustomObjectTaskTest {
         } catch (RestApiException e) {
             actualException = e;
         } catch (Exception e) {
+            Assert.assertNotNull(e);
         }
 
         Assert.assertEquals(actualException.getMessage(), expectedException.getMessage());
