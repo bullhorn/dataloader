@@ -46,7 +46,6 @@ public class DeleteAttachmentsServiceTest {
         Mockito.doReturn(999L).when(timerMock).getDurationMillis();
         Mockito.doReturn(bullhornRestApiMock).when(concurrencyServiceMock).getBullhornRestApi();
         Mockito.doNothing().when(concurrencyServiceMock).runDeleteAttachmentsProcess();
-        Mockito.doThrow(new RuntimeException("should not be called")).when(deleteAttachmentsService).getExecutorService(Mockito.any());
     }
 
     @Test

@@ -11,12 +11,12 @@ import java.util.Set;
 
 public class BullhornRestApiExtension {
 
-    static String CHANGETYPE_UPDATE = "UPDATE";
-    static String FIELDNAME_ID = "id";
-    static Integer QUERYPARAM_MAX_COUNT = 500;
-    static String ENTITY_JOBSUBMISSION = "JobSubmission";
-    static String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
-    static String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
+    static final String CHANGETYPE_UPDATE = "UPDATE";
+    static final String FIELDNAME_ID = "id";
+    static final Integer QUERYPARAM_MAX_COUNT = 500;
+    static final String ENTITY_JOBSUBMISSION = "JobSubmission";
+    static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
+    static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
     static public <C extends CrudResponse> C postDelete(BullhornRestApi bullhornRestApi, C crudResponse) {
 

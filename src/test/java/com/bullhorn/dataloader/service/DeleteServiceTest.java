@@ -55,7 +55,6 @@ public class DeleteServiceTest {
         Mockito.doReturn(bullhornRestApiMock).when(concurrencyServiceMock).getBullhornRestApi();
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
         Mockito.doNothing().when(concurrencyServiceMock).runDeleteProcess();
-        Mockito.doThrow(new RuntimeException("should not be called")).when(deleteService).getExecutorService(Mockito.any());
     }
 
     @Test

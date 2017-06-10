@@ -47,7 +47,6 @@ public class LoadAttachmentsServiceTest {
         Mockito.doReturn(999L).when(timerMock).getDurationMillis();
         Mockito.doReturn(bullhornRestApiMock).when(concurrencyServiceMock).getBullhornRestApi();
         Mockito.doNothing().when(concurrencyServiceMock).runLoadAttachmentsProcess();
-        Mockito.doThrow(new RuntimeException("should not be called")).when(loadAttachmentsService).getExecutorService(Mockito.any());
     }
 
     @Test

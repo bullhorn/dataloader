@@ -11,22 +11,18 @@ import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Base class for all command line actions.
@@ -59,36 +55,6 @@ public abstract class AbstractService {
         this.timer = timer;
     }
 
-    // TODO: Move out to utility class
-    /**
-     * Create a thread pool executor service for processing entities
-     *
-     * @param propertyFileUtil - properties for the thread pool
-     * @return java.util.concurrent.ExecutorService
-     */
-    protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
-        final BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
-        final int timeToLive = 10;
-
-        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), timeToLive, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Gets task pool size limit on basis of system memory
-     *
-     * @return task pool size limit
-     */
-    protected int getTaskPoolSize() {
-        final long sixteenGigabyte = 16456252;
-        final long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
-
-        if (memorySize < sixteenGigabyte) {
-            return 1000;
-        }
-        return 10000;
-    }
-
     /**
      * Create thread pool for processing entityClass attachment changes
      *
@@ -100,24 +66,12 @@ public abstract class AbstractService {
      */
     protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
         final BullhornRestApi bullhornRestApi = connectionUtil.connect();
-        final ExecutorService executorService = getExecutorService(propertyFileUtil);
+        final ExecutorService executorService = ThreadPoolUtil.getExecutorService(propertyFileUtil.getNumThreads());
         final CsvFileReader csvFileReader = new CsvFileReader(filePath);
         final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        ConcurrencyService concurrencyService = new ConcurrencyService(
-            command,
-            entityInfo,
-            csvFileReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornRestApi,
-            printUtil,
-            actionTotals
-        );
-
-        return concurrencyService;
+        return new ConcurrencyService(command, entityInfo, csvFileReader, csvFileWriter, executorService, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

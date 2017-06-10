@@ -51,7 +51,6 @@ public class ConvertAttachmentsServiceTest {
         Mockito.doReturn(999L).when(timerMock).getDurationMillis();
         Mockito.doReturn(bullhornRestApiMock).when(concurrencyServiceMock).getBullhornRestApi();
         Mockito.doNothing().when(concurrencyServiceMock).runConvertAttachmentsProcess();
-        Mockito.doThrow(new RuntimeException("should not be called")).when(convertAttachmentsService).getExecutorService(Mockito.any());
     }
 
     @Test

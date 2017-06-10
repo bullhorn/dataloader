@@ -57,7 +57,6 @@ public class LoadServiceTest {
         Mockito.doReturn(999L).when(timerMock).getDurationMillis();
         Mockito.doReturn(bullhornRestApi).when(concurrencyServiceMock).getBullhornRestApi();
         Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
-        Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).getExecutorService(Mockito.any());
     }
 
     @Test
