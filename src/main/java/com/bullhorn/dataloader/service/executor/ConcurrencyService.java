@@ -37,7 +37,7 @@ public class ConcurrencyService {
     private final ExecutorService executorService;
     private final EntityInfo entityInfo;
     private final CsvFileReader csvFileReader;
-    private final CsvFileWriter csvWriter;
+    private final CsvFileWriter csvFileWriter;
     private final PropertyFileUtil propertyFileUtil;
     private final BullhornRestApi bullhornRestApi;
     private final Command command;
@@ -57,7 +57,7 @@ public class ConcurrencyService {
         this.command = command;
         this.entityInfo = entityInfo;
         this.csvFileReader = csvFileReader;
-        this.csvWriter = csvFileWriter;
+        this.csvFileWriter = csvFileWriter;
         this.executorService = executorService;
         this.propertyFileUtil = propertyFileUtil;
         this.bullhornRestApi = bullhornRestApi;
@@ -68,7 +68,7 @@ public class ConcurrencyService {
     public void runConvertAttachmentsProcess() throws IOException, InterruptedException {
         while (csvFileReader.readRecord()) {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-            ConvertAttachmentTask task = new ConvertAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            ConvertAttachmentTask task = new ConvertAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -93,9 +93,9 @@ public class ConcurrencyService {
     // TODO: Remove this method once CustomObjects PUT calls work
     private AbstractTask getLoadTask(Map<String, Method> methodMap, Map<String, Integer> countryNameToIdMap, Map<String, String> dataMap) {
         if (entityInfo.isCustomObject()){
-            return new LoadCustomObjectTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            return new LoadCustomObjectTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         } else {
-            return new LoadTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            return new LoadTask(command, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         }
     }
 
@@ -112,9 +112,9 @@ public class ConcurrencyService {
 
     private AbstractTask getDeleteTask(Map<String, String> dataMap) {
         if (entityInfo.isCustomObject()){
-            return new DeleteCustomObjectTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            return new DeleteCustomObjectTask(command, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         } else {
-            return new DeleteTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            return new DeleteTask(command, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         }
     }
 
@@ -122,7 +122,7 @@ public class ConcurrencyService {
         Map<String, Method> methodMap = MethodUtil.getSetterMethodMap(FileMeta.class);
         while (csvFileReader.readRecord()) {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-            LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entityInfo, dataMap, methodMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            LoadAttachmentTask task = new LoadAttachmentTask(command, rowNumber++, entityInfo, dataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
@@ -133,7 +133,7 @@ public class ConcurrencyService {
     public void runDeleteAttachmentsProcess() throws IOException, InterruptedException {
         while (csvFileReader.readRecord()) {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-            DeleteAttachmentTask task = new DeleteAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            DeleteAttachmentTask task = new DeleteAttachmentTask(command, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             executorService.execute(task);
         }
         executorService.shutdown();
