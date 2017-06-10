@@ -19,11 +19,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
 
 public class DeleteServiceTest {
 
@@ -221,35 +216,5 @@ public class DeleteServiceTest {
 
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
-    }
-
-    @Test
-    public void testGetDeletableCsvFilesFromPath() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(filePath);
-
-        Set<Map.Entry<EntityInfo, List<String>>> sortedSet = actualMap.entrySet();
-        Assert.assertEquals(2, sortedSet.size());
-        Iterator<Map.Entry<EntityInfo, List<String>>> iter = sortedSet.iterator();
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE_WORK_HISTORY);
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE);
-    }
-
-    @Test
-    public void testGetDeletableCsvFilesFromPath_badFile() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath("bad_file.csv");
-        Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    @Test
-    public void testGetDeletableCsvFilesFromPath_badDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath("bad_directory/");
-        Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    @Test
-    public void testGetDeletableCsvFilesFromPath_emptyDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = deleteService.getDeletableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"));
-        Assert.assertTrue(actualMap.isEmpty());
     }
 }

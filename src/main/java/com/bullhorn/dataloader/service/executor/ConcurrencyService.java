@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service.executor;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.csv.CsvFileReader;
 import com.bullhorn.dataloader.service.csv.CsvFileWriter;
 import com.bullhorn.dataloader.task.AbstractTask;

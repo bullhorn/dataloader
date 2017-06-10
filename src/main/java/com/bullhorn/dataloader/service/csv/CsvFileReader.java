@@ -4,7 +4,12 @@ import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * An extension to the CsvFileReader that adds our extra functionality, like duplicate checking and returning the CSV file

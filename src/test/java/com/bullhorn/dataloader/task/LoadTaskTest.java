@@ -124,7 +124,7 @@ public class LoadTaskTest {
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock));
         task.entity = candidate;
 
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
         task.insertAttachmentToDescription();
 
         Assert.assertNotNull(candidate.getDescription());
@@ -140,7 +140,7 @@ public class LoadTaskTest {
 
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock));
         task.entity = corporation;
-        when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(task.getAttachmentFilePath("ClientCorporation", "11")).thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
         task.insertAttachmentToDescription();
 
         Assert.assertNotNull(corporation.getCompanyDescription());
@@ -932,7 +932,7 @@ public class LoadTaskTest {
         when(bullhornRestApiMock.insertEntity(any())).thenThrow(exception);
 
         LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, bullhornRestApiMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn("src/test/resources/convertedAttachments/Candidate/11.html");
+        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
         task.run();
 
         verify(task, times(1)).checkForRequiredFieldsError(exception);

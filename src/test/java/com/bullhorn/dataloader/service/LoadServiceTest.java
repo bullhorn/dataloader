@@ -18,15 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import static org.mockito.Matchers.any;
 
@@ -264,65 +256,5 @@ public class LoadServiceTest {
 
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
-    }
-
-    @Test
-    public void testGetValidCsvFilesFromPath_file() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv");
-        final File file = new File(filePath);
-        final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-        expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(file.getAbsolutePath()));
-
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getValidCsvFiles(filePath, EntityInfo.loadOrderComparator);
-
-        Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
-        Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-
-        File candidateFile = new File(TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv"));
-        File candidateWorkHistoryFile = new File(TestUtils.getResourceFilePath("loadFromDirectory/CandidateWorkHistory.csv"));
-        File clientCorporationFile1 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_1.csv"));
-        File clientCorporationFile2 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_2.csv"));
-
-        expectedMap.put(EntityInfo.CLIENT_CORPORATION, Arrays.asList(clientCorporationFile1.getAbsolutePath(), clientCorporationFile2.getAbsolutePath()));
-        expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(candidateFile.getAbsolutePath()));
-        expectedMap.put(EntityInfo.CANDIDATE_WORK_HISTORY, Arrays.asList(candidateWorkHistoryFile.getAbsolutePath()));
-
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(filePath);
-
-        Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
-        Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
-        Assert.assertEquals(actualMap.values().toArray()[1], expectedMap.values().toArray()[1]);
-        Assert.assertEquals(actualMap.values().toArray()[2], expectedMap.values().toArray()[2]);
-
-        Set<Map.Entry<EntityInfo, List<String>>> sortedSet = actualMap.entrySet();
-        Assert.assertEquals(3, sortedSet.size());
-        Iterator<Map.Entry<EntityInfo, List<String>>> iter = sortedSet.iterator();
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CLIENT_CORPORATION);
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE);
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE_WORK_HISTORY);
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath_badFile() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath("bad_file.csv");
-        Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath_badDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath("bad_directory/");
-        Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath_emptyDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"));
-        Assert.assertTrue(actualMap.isEmpty());
     }
 }

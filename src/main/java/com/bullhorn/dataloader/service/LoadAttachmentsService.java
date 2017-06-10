@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -35,7 +36,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
         }
 
         String filePath = args[1];
-        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
         try {
             printUtil.printAndLog("Loading " + entityInfo + " attachments from: " + filePath + "...");
@@ -61,7 +62,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
             return false;
         }
 
-        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
         if (entityInfo == null) {
             printUtil.printAndLog("Could not determine entity from file name: " + filePath);
             return false;
