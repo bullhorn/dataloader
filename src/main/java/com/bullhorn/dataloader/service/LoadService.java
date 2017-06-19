@@ -53,7 +53,7 @@ public class LoadService extends AbstractService implements Action {
                     try {
                         printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                         timer.start();
-                        ActionTotals actionTotals = processRunnerUtil.runLoadProcess(entityInfo, filePath);
+                        ActionTotals actionTotals = processRunnerUtil.runLoadProcess(entityInfo, fileName);
                         printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
                         completeUtil.complete(Command.LOAD, fileName, entityInfo, actionTotals, timer);
                     } catch (Exception e) {
