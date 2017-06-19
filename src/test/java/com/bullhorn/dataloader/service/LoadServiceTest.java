@@ -69,7 +69,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, directoryPath);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
         Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
@@ -83,7 +83,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, directoryPath);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(3)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
         Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
@@ -96,7 +96,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(4)).runLoadProcess(EntityInfo.OPPORTUNITY, filePath);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(4)).runLoadProcess(Mockito.eq(EntityInfo.OPPORTUNITY), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");

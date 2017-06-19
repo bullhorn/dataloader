@@ -60,23 +60,26 @@ public class DeleteServiceTest {
     @Test
     public void testRun_directoryOneFile() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
+        final String expectedFileName = filePath + "/ClientContact.csv";
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, expectedFileName);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
     }
 
     @Test
     public void testRun_directoryFourFiles() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
+        final String expectedCandidateFileName = filePath + "/Candidate_Valid_File.csv";
+        final String expectedCandidateWorkHistoryFileName = filePath + "/CandidateWorkHistory.csv";
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, filePath);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, expectedCandidateFileName);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
         Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
     }
 
