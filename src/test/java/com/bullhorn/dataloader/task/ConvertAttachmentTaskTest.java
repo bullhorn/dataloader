@@ -10,7 +10,6 @@ import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,10 +18,8 @@ import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
@@ -37,35 +34,28 @@ public class ConvertAttachmentTaskTest {
 
     private Map<String, String> dataMap;
     private Map<String, String> dataMap2;
-    private ExecutorService executorService;
-    private Map<String, Method> methodMap;
     private ArgumentCaptor<Result> resultArgumentCaptor;
-    private Map<String, Integer> countryNameToIdMap;
     private CsvFileWriter csvFileWriter;
-    private CsvReader csvReader;
     private BullhornRestApi bullhornRestApi;
     private PrintUtil printUtil;
     private ActionTotals actionTotalsMock;
     private ConvertAttachmentTask task;
-    private PropertyFileUtil candidateIdProperties;
     private PropertyFileUtil candidateExternalIdProperties;
 
     @Before
     public void setup() throws Exception {
-        executorService = Mockito.mock(ExecutorService.class);
-        csvReader = Mockito.mock(CsvReader.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
         bullhornRestApi = Mockito.mock(BullhornRestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
         printUtil = Mockito.mock(PrintUtil.class);
         candidateExternalIdProperties = Mockito.mock(PropertyFileUtil.class);
 
-        dataMap = new LinkedHashMap<String, String>();
+        dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
         dataMap.put("relativeFilePath", TestUtils.getResourceFilePath("testResume/TestResume.doc"));
         dataMap.put("isResume", "1");
 
-        dataMap2 = new LinkedHashMap<String, String>();
+        dataMap2 = new LinkedHashMap<>();
         dataMap2.put("candidate.externalID", "2016Ext");
         dataMap2.put("isResume", "1");
 
@@ -74,7 +64,7 @@ public class ConvertAttachmentTaskTest {
 
     @Test
     public void convertAttachmentToHtmlTest() throws Exception {
-        task = Mockito.spy(new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock));
+        task = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock);
 
         String result = task.convertAttachmentToHtml();
 
@@ -122,7 +112,7 @@ public class ConvertAttachmentTaskTest {
         dataMap.put("isResume", "0");
         String expectedResult = "convertedAttachments/ClientContact/1.html";
 
-        task = Mockito.spy(new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CLIENT_CONTACT, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock));
+        task = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, 1, EntityInfo.CLIENT_CONTACT, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock);
 
         String actualResult = task.getConvertedAttachmentPath();
 

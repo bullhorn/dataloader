@@ -15,13 +15,16 @@ import org.json.JSONObject;
  */
 public class CompleteUtil {
 
+    final private ConnectionUtil connectionUtil;
     final private HttpClient httpClient;
     final private PropertyFileUtil propertyFileUtil;
     final private PrintUtil printUtil;
 
-    public CompleteUtil(HttpClient httpClient,
+    public CompleteUtil(ConnectionUtil connectionUtil,
+                        HttpClient httpClient,
                         PropertyFileUtil propertyFileUtil,
                         PrintUtil printUtil) {
+        this.connectionUtil = connectionUtil;
         this.httpClient = httpClient;
         this.propertyFileUtil = propertyFileUtil;
         this.printUtil = printUtil;
@@ -31,8 +34,8 @@ public class CompleteUtil {
                          String fileName,
                          EntityInfo entityInfo,
                          ActionTotals actionTotals,
-                         long durationMSec,
-                         BullhornRestApi bullhornRestApi) {
+                         Timer timer) {
+        BullhornRestApi bullhornRestApi = connectionUtil.getSession();
         String restUrl = bullhornRestApi.getRestUrl() + "services/dataLoader/complete";
         String bhRestToken = bullhornRestApi.getBhRestToken();
         Integer totalRecords = actionTotals.getAllActionsTotal();
@@ -50,7 +53,7 @@ public class CompleteUtil {
             jsonObject.put("totalRecords", totalRecords);
             jsonObject.put("successRecords", successRecords);
             jsonObject.put("failureRecords", failureRecords);
-            jsonObject.put("durationMsec", durationMSec);
+            jsonObject.put("durationMsec", timer.getDurationMillis());
             jsonObject.put("numThreads", propertyFileUtil.getNumThreads());
             String jsonString = jsonObject.toString();
             StringRequestEntity stringRequestEntity = new StringRequestEntity(jsonString, "application/json", "UTF-8");

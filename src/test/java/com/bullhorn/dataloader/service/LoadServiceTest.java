@@ -3,12 +3,11 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -18,28 +17,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
-import static org.mockito.Matchers.any;
 
 public class LoadServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private BullhornRestApi bullhornRestApi;
     private CompleteUtil completeUtilMock;
-    private ConcurrencyService concurrencyServiceMock;
     private ConnectionUtil connectionUtilMock;
     private InputStream inputStreamFake;
     private LoadService loadService;
     private PrintUtil printUtilMock;
+    private ProcessRunnerUtil processRunnerUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private Timer timerMock;
     private ValidationUtil validationUtil;
@@ -47,25 +35,18 @@ public class LoadServiceTest {
     @Before
     public void setup() throws Exception {
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        bullhornRestApi = Mockito.mock(BullhornRestApi.class);
         completeUtilMock = Mockito.mock(CompleteUtil.class);
         connectionUtilMock = Mockito.mock(ConnectionUtil.class);
         inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
         printUtilMock = Mockito.mock(PrintUtil.class);
+        processRunnerUtilMock = Mockito.mock(ProcessRunnerUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         timerMock = Mockito.mock(Timer.class);
         validationUtil = new ValidationUtil(printUtilMock);
 
-        // TODO: Stop spying on service and mocking the ConcurrencyService that we don't inject
-        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamFake, timerMock));
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamFake, timerMock);
 
-        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
-        Mockito.doReturn(actionTotalsMock).when(concurrencyServiceMock).getActionTotals();
-        Mockito.doReturn(999L).when(timerMock).getDurationMillis();
-        Mockito.doReturn(bullhornRestApi).when(concurrencyServiceMock).getBullhornRestApi();
-        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
-        Mockito.doThrow(new RuntimeException("should not be called")).when(loadService).getExecutorService(Mockito.any());
+        Mockito.doReturn(actionTotalsMock).when(processRunnerUtilMock).runLoadProcess(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -75,33 +56,37 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornRestApi);
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test
     public void testRun_directoryOneFile() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
+        final String filePath = directoryPath + "/ClientContact.csv";
+        final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
 
     @Test
     public void testRun_directory_oneFile_withWait() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
+        final String filePath = directoryPath + "/ClientContact.csv";
+        final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
         Mockito.doReturn(1).when(propertyFileUtilMock).getWaitTimeMsecBetweenFilesInDirectory();
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runLoadProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(3)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -111,7 +96,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(4)).runLoadProcess(Mockito.eq(EntityInfo.OPPORTUNITY), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
@@ -126,7 +111,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(4)).runLoadProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(4)).runLoadProcess(Mockito.any(), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
@@ -137,17 +122,14 @@ public class LoadServiceTest {
     @Test
     public void testRun_directory_fourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = Mockito.spy(new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamFake, timerMock));
-        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(loadService).createConcurrencyService(any(), any(), Mockito.anyString());
-        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.never()).runLoadProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.never()).runLoadProcess(Mockito.any(), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(5)).printAndLog(Mockito.anyString());
     }
 
@@ -264,65 +246,5 @@ public class LoadServiceTest {
 
         Assert.assertFalse(actualResult);
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
-    }
-
-    @Test
-    public void testGetValidCsvFilesFromPath_file() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv");
-        final File file = new File(filePath);
-        final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-        expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(file.getAbsolutePath()));
-
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getValidCsvFiles(filePath, EntityInfo.loadOrderComparator);
-
-        Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
-        Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-
-        File candidateFile = new File(TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv"));
-        File candidateWorkHistoryFile = new File(TestUtils.getResourceFilePath("loadFromDirectory/CandidateWorkHistory.csv"));
-        File clientCorporationFile1 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_1.csv"));
-        File clientCorporationFile2 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_2.csv"));
-
-        expectedMap.put(EntityInfo.CLIENT_CORPORATION, Arrays.asList(clientCorporationFile1.getAbsolutePath(), clientCorporationFile2.getAbsolutePath()));
-        expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(candidateFile.getAbsolutePath()));
-        expectedMap.put(EntityInfo.CANDIDATE_WORK_HISTORY, Arrays.asList(candidateWorkHistoryFile.getAbsolutePath()));
-
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(filePath);
-
-        Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
-        Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
-        Assert.assertEquals(actualMap.values().toArray()[1], expectedMap.values().toArray()[1]);
-        Assert.assertEquals(actualMap.values().toArray()[2], expectedMap.values().toArray()[2]);
-
-        Set<Map.Entry<EntityInfo, List<String>>> sortedSet = actualMap.entrySet();
-        Assert.assertEquals(3, sortedSet.size());
-        Iterator<Map.Entry<EntityInfo, List<String>>> iter = sortedSet.iterator();
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CLIENT_CORPORATION);
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE);
-        Assert.assertEquals(iter.next().getKey(), EntityInfo.CANDIDATE_WORK_HISTORY);
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath_badFile() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath("bad_file.csv");
-        Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath_badDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath("bad_directory/");
-        Assert.assertTrue(actualMap.isEmpty());
-    }
-
-    @Test
-    public void testGetLoadableCsvFilesFromPath_emptyDirectory() throws Exception {
-        final SortedMap<EntityInfo, List<String>> actualMap = loadService.getLoadableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"));
-        Assert.assertTrue(actualMap.isEmpty());
     }
 }

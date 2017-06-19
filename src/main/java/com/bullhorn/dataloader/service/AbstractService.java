@@ -1,50 +1,35 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
-import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
-import com.csvreader.CsvReader;
-import com.google.common.collect.Sets;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.management.ManagementFactory;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
-import java.util.TreeMap;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Base class for all command line actions.
+ * Base class for all command line actions that convert user input to a process that executes and reports results.
  * <p>
  * Contains common functionality.
  */
 public abstract class AbstractService {
 
-    final protected ConnectionUtil connectionUtil;
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
     final protected CompleteUtil completeUtil;
+    final protected ConnectionUtil connectionUtil;
+    final protected ProcessRunnerUtil processRunnerUtil;
     final protected InputStream inputStream;
     final protected Timer timer;
 
@@ -53,6 +38,7 @@ public abstract class AbstractService {
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
                            ConnectionUtil connectionUtil,
+                           ProcessRunnerUtil processRunnerUtil,
                            InputStream inputStream,
                            Timer timer) throws IOException {
         this.printUtil = printUtil;
@@ -60,173 +46,9 @@ public abstract class AbstractService {
         this.validationUtil = validationUtil;
         this.completeUtil = completeUtil;
         this.connectionUtil = connectionUtil;
+        this.processRunnerUtil = processRunnerUtil;
         this.inputStream = inputStream;
         this.timer = timer;
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Create a thread pool executor service for processing entities
-     *
-     * @param propertyFileUtil - properties for the thread pool
-     * @return java.util.concurrent.ExecutorService
-     */
-    protected ExecutorService getExecutorService(PropertyFileUtil propertyFileUtil) {
-        final BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
-        final int timeToLive = 10;
-
-        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), timeToLive, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Gets task pool size limit on basis of system memory
-     *
-     * @return task pool size limit
-     */
-    protected int getTaskPoolSize() {
-        final long sixteenGigabyte = 16456252;
-        final long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
-
-        if (memorySize < sixteenGigabyte) {
-            return 1000;
-        }
-        return 10000;
-    }
-
-    /**
-     * Create thread pool for processing entityClass attachment changes
-     *
-     * @param command    - command line action to perform
-     * @param entityInfo - enum representing the entity
-     * @param filePath   - CSV file with attachment data
-     * @return ConcurrencyService thread pool service
-     * @throws Exception if error when opening session, loading entity data, or reading CSV
-     */
-    protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
-        final BullhornRestApi bullhornRestApi = connectionUtil.connect();
-        final ExecutorService executorService = getExecutorService(propertyFileUtil);
-        final CsvReader csvReader = getCsvReader(filePath);
-        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvReader.getHeaders());
-        ActionTotals actionTotals = new ActionTotals();
-
-        ConcurrencyService concurrencyService = new ConcurrencyService(
-            command,
-            entityInfo,
-            csvReader,
-            csvFileWriter,
-            executorService,
-            propertyFileUtil,
-            bullhornRestApi,
-            printUtil,
-            actionTotals
-        );
-
-        return concurrencyService;
-    }
-
-    /**
-     * Given a file or directory, this method will determine all valid CSV files that can be used by DataLoader and
-     * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
-     * argument, this list will be either empty or contain exactly one matching entity to filename.
-     *
-     * @param filePath   any file or directory
-     * @param comparator specifies how the sorted map should be sorted by entity
-     * @return a Map of entity enums to lists of valid files.
-     */
-    protected SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, Comparator<EntityInfo> comparator) {
-        File file = new File(filePath);
-        if (file.isDirectory()) {
-            return getValidCsvFilesFromDirectory(file, comparator);
-        } else {
-            return getValidCsvFilesFromFilePath(filePath, comparator);
-        }
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Given a directory, this method searches the directory for all valid CSV files and returns the map.
-     * Multiple files for a single entity will be sorted alphabetically.
-     */
-    private SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<EntityInfo> comparator) {
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
-
-        String[] fileNames = directory.list();
-        Arrays.sort(fileNames);
-        for (String fileName : fileNames) {
-            String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
-            if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
-                EntityInfo entityInfo = extractEntityFromFileName(fileName);
-                if (entityInfo != null) {
-                    if (!entityToFileListMap.containsKey(entityInfo)) {
-                        entityToFileListMap.put(entityInfo, new ArrayList<>());
-                    }
-                    List<String> files = entityToFileListMap.get(entityInfo);
-                    files.add(absoluteFilePath);
-                }
-            }
-        }
-
-        return entityToFileListMap;
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Given an individual file path, this method constructs the entity to file map and returns it.
-     */
-    private SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath, Comparator<EntityInfo> comparator) {
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
-
-        if (validationUtil.isValidCsvFile(filePath, false)) {
-            EntityInfo entityInfo = extractEntityFromFileName(filePath);
-            if (entityInfo != null) {
-                entityToFileListMap.put(entityInfo, Arrays.asList(filePath));
-            }
-        }
-
-        return entityToFileListMap;
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Returns the list of loadable csv files in load order
-     *
-     * @param filePath The given file or directory
-     * @return the subset of getValidCsvFiles that are loadable
-     */
-    protected SortedMap<EntityInfo, List<String>> getLoadableCsvFilesFromPath(String filePath) {
-        SortedMap<EntityInfo, List<String>> loadableEntityToFileListMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, EntityInfo.loadOrderComparator);
-        for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            EntityInfo entityInfo = entityFileEntry.getKey();
-            if (entityInfo.isLoadable()) {
-                loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
-            }
-        }
-
-        return loadableEntityToFileListMap;
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Returns the list of deletable csv files in delete order
-     *
-     * @param filePath The given file or directory
-     * @return the subset of getValidCsvFiles that are deletable
-     */
-    protected SortedMap<EntityInfo, List<String>> getDeletableCsvFilesFromPath(String filePath) {
-        SortedMap<EntityInfo, List<String>> deletableEntityToFileListMap = new TreeMap<>(EntityInfo.deleteOrderComparator);
-
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, EntityInfo.deleteOrderComparator);
-        for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            EntityInfo entityInfo = entityFileEntry.getKey();
-            if (entityInfo.isDeletable()) {
-                deletableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
-            }
-        }
-
-        return deletableEntityToFileListMap;
     }
 
     /**
@@ -264,67 +86,8 @@ public abstract class AbstractService {
                     return false;
                 }
             }
-            ;
         }
 
         return true;
-    }
-
-    // TODO: Move out to utility class
-    /**
-     * Extractions entity type from a file path.
-     * <p>
-     * The file name must start with the name of the entity
-     *
-     * @param fileName path from which to extract entity name
-     * @return the SDK-Rest entity, or null if not found
-     */
-    protected EntityInfo extractEntityFromFileName(String fileName) {
-        File file = new File(fileName);
-
-        String upperCaseFileName = file.getName().toUpperCase();
-        EntityInfo bestMatch = null;
-        for (EntityInfo entityInfo : EntityInfo.values()) {
-            if (upperCaseFileName.startsWith(entityInfo.getEntityName().toUpperCase())) {
-                if (bestMatch == null) {
-                    bestMatch = entityInfo;
-                } else if (bestMatch.getEntityName().length() < entityInfo.getEntityName().length()) {
-                    // longer name is better
-                    bestMatch = entityInfo;
-                }
-            }
-        }
-
-        if (bestMatch == null) {
-            return null;
-        } else {
-            return bestMatch;
-        }
-    }
-
-    // TODO: Move out to utility class
-    private CsvReader getCsvReader(String filePath) throws IOException {
-        final CsvReader csvReader = new CsvReader(filePath);
-        // Turn the SafetySwitch off because it limits the maximum length of any column to 100,000 characters
-        csvReader.setSafetySwitch(false);
-        csvReader.readHeaders();
-        if (Arrays.asList(csvReader.getHeaders()).size() != Sets.newHashSet(csvReader.getHeaders()).size()) {
-            StringBuilder sb = getDuplicates(csvReader);
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + sb.toString());
-        }
-        return csvReader;
-    }
-
-    // TODO: Move out to utility class
-    private StringBuilder getDuplicates(CsvReader csvReader) throws IOException {
-        List<String> nonDupe = new ArrayList<>();
-        StringBuilder sb = new StringBuilder();
-        for (String header : csvReader.getHeaders()) {
-            if (nonDupe.contains(header)) {
-                sb.append("\t" + header + "\n");
-            }
-            nonDupe.add(header);
-        }
-        return sb;
     }
 }

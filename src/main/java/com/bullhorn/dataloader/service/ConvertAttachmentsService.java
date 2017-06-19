@@ -2,10 +2,12 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -14,7 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Handles loading attachments
+ * Handles converting attachments
+ * <p>
+ * Takes the user's command line arguments and converts attachments from doc/pdf to html.
  */
 public class ConvertAttachmentsService extends AbstractService implements Action {
 
@@ -23,9 +27,10 @@ public class ConvertAttachmentsService extends AbstractService implements Action
                                      ValidationUtil validationUtil,
                                      CompleteUtil completeUtil,
                                      ConnectionUtil connectionUtil,
+                                     ProcessRunnerUtil processRunnerUtil,
                                      InputStream inputStream,
                                      Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
     }
 
     @Override
@@ -35,15 +40,14 @@ public class ConvertAttachmentsService extends AbstractService implements Action
         }
 
         String filePath = args[1];
-        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
         try {
             printUtil.printAndLog("Converting " + entityInfo + " attachments from: " + filePath + "...");
-            ConcurrencyService concurrencyService = createConcurrencyService(Command.CONVERT_ATTACHMENTS, entityInfo, filePath);
             timer.start();
-            concurrencyService.runConvertAttachmentsProcess();
+            ActionTotals actionTotals = processRunnerUtil.runConvertAttachmentsProcess(entityInfo, filePath);
             printUtil.printAndLog("Finished converting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
-            completeUtil.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, concurrencyService.getActionTotals(), timer.getDurationMillis(), concurrencyService.getBullhornRestApi());
+            completeUtil.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to convert " + entityInfo + " attachments");
             printUtil.printAndLog(e);
@@ -61,7 +65,7 @@ public class ConvertAttachmentsService extends AbstractService implements Action
             return false;
         }
 
-        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
         if (entityInfo == null) {
             printUtil.printAndLog("Could not determine entity from file name: " + filePath);
             return false;

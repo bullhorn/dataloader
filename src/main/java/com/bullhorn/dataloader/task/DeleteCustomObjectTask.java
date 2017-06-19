@@ -31,12 +31,12 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
                                   Integer rowNumber,
                                   EntityInfo entityInfo,
                                   Map<String, String> dataMap,
-                                  CsvFileWriter csvWriter,
+                                  CsvFileWriter csvFileWriter,
                                   PropertyFileUtil propertyFileUtil,
                                   BullhornRestApi bullhornRestApi,
                                   PrintUtil printUtil,
                                   ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, null, null, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, null, null, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

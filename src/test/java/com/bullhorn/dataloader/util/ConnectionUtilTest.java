@@ -23,7 +23,7 @@ public class ConnectionUtilTest {
 
         ConnectionUtil connectionUtil = new ConnectionUtil(propertyFileUtilMock);
         try {
-            connectionUtil.connect();
+            connectionUtil.getSession();
         } catch (RestApiException e) {
             actualException = e;
         }

@@ -26,7 +26,7 @@ public class TemplateUtilTest {
 
     @Before
     public void setup() throws Exception {
-        templateUtil = Mockito.spy(new TemplateUtil(bullhornRestApi));
+        templateUtil = new TemplateUtil(bullhornRestApi);
 
         headers = new ArrayList<>();
         dataTypes = new ArrayList<>();

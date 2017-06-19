@@ -15,8 +15,6 @@ import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -33,12 +31,12 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
                       Integer rowNumber,
                       EntityInfo entityInfo,
                       Map<String, String> dataMap,
-                      CsvFileWriter csvWriter,
+                      CsvFileWriter csvFileWriter,
                       PropertyFileUtil propertyFileUtil,
                       BullhornRestApi bullhornRestApi,
                       PrintUtil printUtil,
                       ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

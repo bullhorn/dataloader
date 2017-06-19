@@ -57,26 +57,26 @@ public class DeleteAttachmentTaskTest {
         dataMap = new LinkedHashMap<String, String>();
         dataMap.put("id", "1");
         dataMap.put("Candidate.externalID", "1");
-        dataMap.put("relativeFilePath", "testResume/Test Resume.doc");
+        dataMap.put("relativeFilePath", "testResume/TestResume.doc");
         dataMap.put("isResume", "0");
         dataMap.put("parentEntityID", "1");
 
         dataMap2 = new LinkedHashMap<String, String>();
         dataMap2.put("Candidate.externalID", "1");
-        dataMap2.put("relativeFilePath", "testResume/Test Resume.doc");
+        dataMap2.put("relativeFilePath", "testResume/TestResume.doc");
         dataMap2.put("isResume", "0");
         dataMap2.put("parentEntityID", "1");
 
         dataMap3 = new LinkedHashMap<String, String>();
         dataMap3.put("id", "1");
         dataMap3.put("Candidate.externalID", "1");
-        dataMap3.put("relativeFilePath", "testResume/Test Resume.doc");
+        dataMap3.put("relativeFilePath", "testResume/TestResume.doc");
         dataMap3.put("isResume", "0");
     }
 
     @Test
     public void testDeleteAttachmentSuccess() throws Exception {
-        final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
+        final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Delete(0);
         task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         final StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
@@ -93,7 +93,7 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void testDeleteAttachmentFailure() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0", "1"};
+        final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
         task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         when(bullhornRestApi.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
@@ -108,7 +108,7 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void testDeleteAttachmentMissingID() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "testResume/Test Resume.doc", "0", "1"};
+        final String[] expectedValues = {"1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'id' column required for deleteAttachments"));
         task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 
@@ -122,7 +122,7 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void testDeleteAttachmentMissingParentEntityID() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "1", "testResume/Test Resume.doc", "0"};
+        final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'parentEntityID' column required for deleteAttachments"));
         task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 

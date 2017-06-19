@@ -53,7 +53,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected EntityInfo entityInfo;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
-    protected CsvFileWriter csvWriter;
+    protected CsvFileWriter csvFileWriter;
     protected PropertyFileUtil propertyFileUtil;
     protected BullhornRestApi bullhornRestApi;
     protected PrintUtil printUtil;
@@ -63,7 +63,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                         Integer rowNumber,
                         EntityInfo entityInfo,
                         Map<String, String> dataMap,
-                        CsvFileWriter csvWriter,
+                        CsvFileWriter csvFileWriter,
                         PropertyFileUtil propertyFileUtil,
                         BullhornRestApi bullhornRestApi,
                         PrintUtil printUtil,
@@ -72,7 +72,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.rowNumber = rowNumber;
         this.entityInfo = entityInfo;
         this.dataMap = dataMap;
-        this.csvWriter = csvWriter;
+        this.csvFileWriter = csvFileWriter;
         this.propertyFileUtil = propertyFileUtil;
         this.bullhornRestApi = bullhornRestApi;
         this.printUtil = printUtil;
@@ -87,7 +87,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         int attempts = 0;
         while (attempts < 3) {
             try {
-                csvWriter.writeRow(dataMap.values().toArray(new String[0]), result);
+                csvFileWriter.writeRow(dataMap.values().toArray(new String[0]), result);
                 updateActionTotals(result);
                 updateRowProcessedCounts();
                 break;

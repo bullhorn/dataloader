@@ -27,12 +27,12 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
                                 Integer rowNumber,
                                 EntityInfo entityInfo,
                                 Map<String, String> dataMap,
-                                CsvFileWriter csvWriter,
+                                CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(method, rowNumber, entityInfo, dataMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(method, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -26,10 +27,11 @@ public class ActionFactoryTest {
         InputStream inputStreamMock = Mockito.mock(InputStream.class);
         PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
         PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        ProcessRunnerUtil processRunnerUtil = Mockito.mock(ProcessRunnerUtil.class);
         Timer timerMock = Mockito.mock(Timer.class);
         ValidationUtil validationUtilMock = Mockito.mock(ValidationUtil.class);
 
-        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, connectionUtilMock, inputStreamMock, timerMock);
+        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, connectionUtilMock, processRunnerUtil, inputStreamMock, timerMock);
     }
 
     @Test

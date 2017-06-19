@@ -48,12 +48,12 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                                 Map<String, String> dataMap,
                                 Map<String, Method> methodMap,
                                 Map<String, Integer> countryNameToIdMap,
-                                CsvFileWriter csvWriter,
+                                CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(command, rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     @Override

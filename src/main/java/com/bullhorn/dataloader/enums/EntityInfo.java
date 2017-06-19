@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.enums;
 
+import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhornsdk.data.model.entity.core.customobject.CustomObjectInstance;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
@@ -11,9 +12,12 @@ import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
 import com.bullhornsdk.data.model.entity.core.type.HardDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.SoftDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
+import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 
+import java.lang.reflect.Method;
 import java.util.Comparator;
+import java.util.Map;
 
 /**
  * The list of all entities in SDK-REST supported by DataLoader.
@@ -248,5 +252,22 @@ public enum EntityInfo {
             || JobOrder.class.isAssignableFrom(getEntityClass())
             || Opportunity.class.isAssignableFrom(getEntityClass())
             || Placement.class.isAssignableFrom(getEntityClass()));
+    }
+
+    /**
+     * Returns the setter methods that exist on the SDK-REST entity class as a map of field name to method
+     *
+     * @return A map of field name to setter methods that can invoked generically using `method.invoke`
+     */
+    public Map<String, Method> getSetterMethodMap() {
+        Map<String, Method> methodMap = MethodUtil.getSetterMethodMap(getEntityClass());
+
+        // Add individual address setters for any entity that has an address field, since address is a composite
+        // field, not a direct field or an associated record.
+        if (methodMap.containsKey("address")) {
+            methodMap.putAll(MethodUtil.getSetterMethodMap(Address.class));
+        }
+
+        return methodMap;
     }
 }

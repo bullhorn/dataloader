@@ -2,10 +2,12 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -15,6 +17,8 @@ import java.io.InputStream;
 
 /**
  * Handles deleting attachments
+ * <p>
+ * Takes the user's command line arguments and runs a delete attachments process
  */
 public class DeleteAttachmentsService extends AbstractService implements Action {
 
@@ -23,9 +27,10 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
                                     ValidationUtil validationUtil,
                                     CompleteUtil completeUtil,
                                     ConnectionUtil connectionUtil,
+                                    ProcessRunnerUtil processRunnerUtil,
                                     InputStream inputStream,
                                     Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
     }
 
     @Override
@@ -35,15 +40,14 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
         }
 
         String filePath = args[1];
-        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
         try {
             printUtil.printAndLog("Deleting " + entityInfo + " attachments from: " + filePath + "...");
-            ConcurrencyService concurrencyService = createConcurrencyService(Command.DELETE_ATTACHMENTS, entityInfo, filePath);
             timer.start();
-            concurrencyService.runDeleteAttachmentsProcess();
+            ActionTotals actionTotals = processRunnerUtil.runDeleteAttachmentsProcess(entityInfo, filePath);
             printUtil.printAndLog("Finished deleting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
-            completeUtil.complete(Command.DELETE_ATTACHMENTS, filePath, entityInfo, concurrencyService.getActionTotals(), timer.getDurationMillis(), concurrencyService.getBullhornRestApi());
+            completeUtil.complete(Command.DELETE_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to delete " + entityInfo + " attachments");
             printUtil.printAndLog(e);
@@ -61,7 +65,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
             return false;
         }
 
-        EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
         if (entityInfo == null) {
             printUtil.printAndLog("Could not determine entity from file name: " + filePath);
             return false;

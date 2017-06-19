@@ -55,7 +55,7 @@ public class LoadAttachmentTaskTest {
     private Map<String, String> dataMap3;
     private LoadAttachmentTask task;
 
-    private Map<String, Method> methodMap = new HashMap();
+    private Map<String, Method> methodMap = new HashMap<>();
 
     private String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
 

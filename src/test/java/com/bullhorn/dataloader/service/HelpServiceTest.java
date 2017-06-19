@@ -15,7 +15,7 @@ public class HelpServiceTest {
     @Before
     public void setup() throws Exception {
         printUtilMock = Mockito.mock(PrintUtil.class);
-        helpService = Mockito.spy(new HelpService(printUtilMock));
+        helpService = new HelpService(printUtilMock);
     }
 
     @Test

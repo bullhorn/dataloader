@@ -1,2 +1,2 @@
-id
-1
+id,firstName,lastName,email
+1,John,Smith,j.smith@example.com

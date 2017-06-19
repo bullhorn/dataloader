@@ -6,6 +6,7 @@ import org.apache.commons.lang.WordUtils;
 import java.util.List;
 import java.util.Map;
 
+// TODO: pull this out into the ValidationUtil and simplify down to a single class
 public class PropertyValidation {
 
     public PropertyValidation() {
