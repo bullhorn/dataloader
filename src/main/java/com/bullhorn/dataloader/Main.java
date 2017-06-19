@@ -3,9 +3,12 @@ package com.bullhorn.dataloader;
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.util.PreLoaderUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -30,9 +33,12 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            CompleteUtil completeUtil = new CompleteUtil(httpClient, propertyFileUtil, printUtil);
             ConnectionUtil connectionUtil = new ConnectionUtil(propertyFileUtil);
-            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, System.in, timer);
+            PreLoaderUtil preLoaderUtil = new PreLoaderUtil(connectionUtil);
+            CompleteUtil completeUtil = new CompleteUtil(connectionUtil, httpClient, propertyFileUtil, printUtil);
+            ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
+            ProcessRunnerUtil processRunnerUtil = new ProcessRunnerUtil(connectionUtil, preLoaderUtil, printUtil, propertyFileUtil, threadPoolUtil);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
 

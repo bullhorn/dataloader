@@ -1,17 +1,11 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileReader;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
-import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
@@ -22,20 +16,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
-import java.util.concurrent.ExecutorService;
 
 /**
- * Base class for all command line actions.
+ * Base class for all command line actions that convert user input to a process that executes and reports results.
  * <p>
  * Contains common functionality.
  */
 public abstract class AbstractService {
 
-    final protected ConnectionUtil connectionUtil;
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
     final protected CompleteUtil completeUtil;
+    final protected ConnectionUtil connectionUtil;
+    final protected ProcessRunnerUtil processRunnerUtil;
     final protected InputStream inputStream;
     final protected Timer timer;
 
@@ -44,6 +38,7 @@ public abstract class AbstractService {
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
                            ConnectionUtil connectionUtil,
+                           ProcessRunnerUtil processRunnerUtil,
                            InputStream inputStream,
                            Timer timer) throws IOException {
         this.printUtil = printUtil;
@@ -51,27 +46,9 @@ public abstract class AbstractService {
         this.validationUtil = validationUtil;
         this.completeUtil = completeUtil;
         this.connectionUtil = connectionUtil;
+        this.processRunnerUtil = processRunnerUtil;
         this.inputStream = inputStream;
         this.timer = timer;
-    }
-
-    /**
-     * Create thread pool for processing entityClass attachment changes
-     *
-     * @param command    - command line action to perform
-     * @param entityInfo - enum representing the entity
-     * @param filePath   - CSV file with attachment data
-     * @return ConcurrencyService thread pool service
-     * @throws Exception if error when opening session, loading entity data, or reading CSV
-     */
-    protected ConcurrencyService createConcurrencyService(Command command, EntityInfo entityInfo, String filePath) throws Exception {
-        final BullhornRestApi bullhornRestApi = connectionUtil.connect();
-        final ExecutorService executorService = ThreadPoolUtil.getExecutorService(propertyFileUtil.getNumThreads());
-        final CsvFileReader csvFileReader = new CsvFileReader(filePath);
-        final CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
-        ActionTotals actionTotals = new ActionTotals();
-
-        return new ConcurrencyService(command, entityInfo, csvFileReader, csvFileWriter, executorService, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

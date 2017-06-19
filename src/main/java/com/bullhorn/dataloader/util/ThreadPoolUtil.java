@@ -12,19 +12,24 @@ import java.util.concurrent.TimeUnit;
  */
 public class ThreadPoolUtil {
 
-    static final int KEEP_ALIVE_TIME = 10;
-    static final long SIXTEEN_GIGABYTES = 16456252;
+    private static final int KEEP_ALIVE_TIME = 10;
+    private static final long SIXTEEN_GIGABYTES = 16456252;
+
+    private PropertyFileUtil propertyFileUtil;
+
+    public ThreadPoolUtil(PropertyFileUtil propertyFileUtil) {
+        this.propertyFileUtil = propertyFileUtil;
+    }
 
     /**
      * Creates a thread pool executor service for running parallel tasks
      *
-     * @param numThreads The number of parallel tasks to allow at one time
      * @return The service for executing tasks as a pool of threads
      */
-    public static ExecutorService getExecutorService(Integer numThreads) {
-        final BlockingQueue taskPoolSize = new ArrayBlockingQueue(getTaskPoolSize());
+    public ExecutorService getExecutorService() {
+        final BlockingQueue<Runnable> taskPoolSize = new ArrayBlockingQueue<>(getTaskPoolSize());
 
-        return new ThreadPoolExecutor(numThreads, numThreads, KEEP_ALIVE_TIME, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
+        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), KEEP_ALIVE_TIME, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     /**
@@ -32,7 +37,7 @@ public class ThreadPoolUtil {
      *
      * @return task pool size limit
      */
-    public static int getTaskPoolSize() {
+    public int getTaskPoolSize() {
         final long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
 
         if (memorySize < SIXTEEN_GIGABYTES) {

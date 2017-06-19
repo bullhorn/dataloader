@@ -3,12 +3,11 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -22,39 +21,28 @@ import java.io.InputStream;
 
 public class DeleteServiceTest {
 
-    private PrintUtil printUtilMock;
-    private PropertyFileUtil propertyFileUtilMock;
-    private ValidationUtil validationUtil;
-    private CompleteUtil completeUtilMock;
-    private ConnectionUtil connectionUtilMock;
-    private InputStream inputStreamFake;
-    private Timer timerMock;
-    private ConcurrencyService concurrencyServiceMock;
-    private BullhornRestApi bullhornRestApiMock;
     private ActionTotals actionTotalsMock;
+    private CompleteUtil completeUtilMock;
     private DeleteService deleteService;
+    private PrintUtil printUtilMock;
+    private ProcessRunnerUtil processRunnerUtilMock;
+    private Timer timerMock;
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        validationUtil = new ValidationUtil(printUtilMock);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        connectionUtilMock = Mockito.mock(ConnectionUtil.class);
-        inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
-        timerMock = Mockito.mock(Timer.class);
-        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
+        completeUtilMock = Mockito.mock(CompleteUtil.class);
+        ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        InputStream inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
+        printUtilMock = Mockito.mock(PrintUtil.class);
+        processRunnerUtilMock = Mockito.mock(ProcessRunnerUtil.class);
+        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        timerMock = Mockito.mock(Timer.class);
+        ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        deleteService = Mockito.spy(new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, inputStreamFake, timerMock));
+        deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamFake, timerMock);
 
-        concurrencyServiceMock = Mockito.mock(ConcurrencyService.class);
-        Mockito.doReturn(concurrencyServiceMock).when(deleteService).createConcurrencyService(Mockito.any(), Mockito.any(), Mockito.anyString());
-        Mockito.doReturn(actionTotalsMock).when(concurrencyServiceMock).getActionTotals();
-        Mockito.doReturn(999L).when(timerMock).getDurationMillis();
-        Mockito.doReturn(bullhornRestApiMock).when(concurrencyServiceMock).getBullhornRestApi();
-        Mockito.doNothing().when(concurrencyServiceMock).runLoadProcess();
-        Mockito.doNothing().when(concurrencyServiceMock).runDeleteProcess();
+        Mockito.doReturn(actionTotalsMock).when(processRunnerUtilMock).runDeleteProcess(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -64,9 +52,9 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runDeleteProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, 999L, bullhornRestApiMock);
+        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -76,7 +64,7 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(1)).runDeleteProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
     }
 
@@ -87,7 +75,8 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(concurrencyServiceMock, Mockito.times(2)).runDeleteProcess();
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
+        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, filePath);
         Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
     }
 

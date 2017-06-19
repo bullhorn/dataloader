@@ -67,6 +67,7 @@ public class CsvFileReader extends CsvReader {
      * @throws IOException In case the column/row counts don't match
      */
     public Map<String, String> getRecordDataMap() throws IOException {
+        // TODO: Build up a Row object which has a rowNumber and cells, and return it as the data object
         if (getHeaderCount() != getValues().length) {
             throw new IOException("Header column count " + getHeaderCount() + " is not equal to row column count " + getValues().length);
         }

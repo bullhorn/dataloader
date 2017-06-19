@@ -31,6 +31,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+// TODO: Remove all 'static org.mockito' imports
 public class DeleteCustomObjectTaskTest {
 
     private PropertyFileUtil propertyFileUtilMock;

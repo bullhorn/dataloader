@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.service.executor.BullhornRestApi;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -23,9 +24,10 @@ public class TemplateService extends AbstractService implements Action {
                            ValidationUtil validationUtil,
                            CompleteUtil completeUtil,
                            ConnectionUtil connectionUtil,
+                           ProcessRunnerUtil processRunnerUtil,
                            InputStream inputStream,
                            Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
     }
 
     @Override
@@ -33,7 +35,7 @@ public class TemplateService extends AbstractService implements Action {
         BullhornRestApi bullhornRestApi;
 
         try {
-            bullhornRestApi = connectionUtil.connect();
+            bullhornRestApi = connectionUtil.getSession();
         } catch (Exception e) {
             printUtil.printAndLog("Failed to create REST session.");
             printUtil.printAndLog(e);

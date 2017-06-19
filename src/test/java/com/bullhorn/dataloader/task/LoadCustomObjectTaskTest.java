@@ -317,7 +317,7 @@ public class LoadCustomObjectTaskTest {
     @Test
     public void runTest_Failure() throws IOException {
         //setup
-        task = Mockito.spy(new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock));
+        task = new LoadCustomObjectTask(Command.LOAD, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, methodMap, null, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new NullPointerException());
 
         //test

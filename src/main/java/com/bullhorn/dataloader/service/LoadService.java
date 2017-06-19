@@ -2,11 +2,12 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.ConcurrencyService;
+import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.validation.ValidationUtil;
@@ -21,6 +22,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Load (Insert/Update) service implementation
+ * <p>
+ * Takes the user's command line arguments and runs a load process
  */
 public class LoadService extends AbstractService implements Action {
 
@@ -29,9 +32,10 @@ public class LoadService extends AbstractService implements Action {
                        ValidationUtil validationUtil,
                        CompleteUtil completeUtil,
                        ConnectionUtil connectionUtil,
+                       ProcessRunnerUtil processRunnerUtil,
                        InputStream inputStream,
                        Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
     }
 
     @Override
@@ -48,11 +52,10 @@ public class LoadService extends AbstractService implements Action {
                 for (String fileName : entityFileEntry.getValue()) {
                     try {
                         printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
-                        ConcurrencyService concurrencyService = createConcurrencyService(Command.LOAD, entityInfo, fileName);
                         timer.start();
-                        concurrencyService.runLoadProcess();
+                        ActionTotals actionTotals = processRunnerUtil.runLoadProcess(entityInfo, filePath);
                         printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
-                        completeUtil.complete(Command.LOAD, fileName, entityInfo, concurrencyService.getActionTotals(), timer.getDurationMillis(), concurrencyService.getBullhornRestApi());
+                        completeUtil.complete(Command.LOAD, fileName, entityInfo, actionTotals, timer);
                     } catch (Exception e) {
                         printUtil.printAndLog("FAILED to load: " + entityInfo.getEntityName() + " records");
                         printUtil.printAndLog(e);
