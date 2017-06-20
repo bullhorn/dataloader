@@ -91,8 +91,9 @@ public class LoadTaskTest {
         dataMap = new LinkedHashMap<>();
         dataMap.put("externalID", "11");
         dataMap.put("customDate1", "2016-08-30");
-        dataMap.put("firstName", "Load");
-        dataMap.put("lastName", "Test");
+        dataMap.put("firstName", "Data");
+        dataMap.put("lastName", "Loader");
+        dataMap.put("email", "dloader@bullhorn.com");
         dataMap.put("primarySkills.id", "1");
         dataMap.put("address.address1", "test");
         dataMap.put("address.countryName", "United States");
@@ -180,7 +181,8 @@ public class LoadTaskTest {
 
     @Test
     public void run_InsertSuccess() throws Exception {
-        when(bullhornRestApiMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
+        when(propertyFileUtilMock.getEntityExistFields("Candidate")).thenReturn(Optional.of(Arrays.asList("firstName", "lastName", "email")));
+        when(bullhornRestApiMock.search(eq(Candidate.class), eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
         when(bullhornRestApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
         when(bullhornRestApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
         when(bullhornRestApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
