@@ -106,7 +106,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     private String getEntityAssociatedPropertyName(String property) {
-        return getCamelCasedClassToString() + "." + property;
+        return WordUtils.uncapitalize(entityInfo.getEntityName()) + "." + property;
     }
 
     private <F extends FileEntity> void createFileMeta() {

@@ -12,6 +12,7 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import org.apache.commons.lang.WordUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.AutoDetectParser;
@@ -94,7 +95,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
     }
 
     private String getExternalId() {
-        return dataMap.get(getCamelCasedClassToString() + ".externalID");
+        return dataMap.get(WordUtils.uncapitalize(entityInfo.getEntityName()) + ".externalID");
     }
 
     public String convertAttachmentToHtml() throws IOException, SAXException, TikaException {

@@ -342,9 +342,4 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
         return addressFields.indexOf(field.toLowerCase()) > -1;
     }
-
-    // TODO: Remove this and refactor calling code
-    protected String getCamelCasedClassToString() {
-        return entityInfo.getEntityName().substring(0, 1).toLowerCase() + entityInfo.getEntityName().substring(1);
-    }
 }
