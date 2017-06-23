@@ -153,16 +153,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
-            try {
-                CrudResponse response = bullhornRestApi.insertEntity((CreateEntity) entity);
-                checkForRestSdkErrorMessages(response);
-                entityID = response.getChangedEntityId();
-                entity.setId(entityID);
-                if (entity.getClass() == ClientCorporation.class) {
-                    setDefaultContactExternalId(entityID);
-                }
-            } catch (RestApiException e) {
-                checkForRequiredFieldsError(e);
+            CrudResponse response = bullhornRestApi.insertEntity((CreateEntity) entity);
+            checkForRestSdkErrorMessages(response);
+            entityID = response.getChangedEntityId();
+            entity.setId(entityID);
+            if (entity.getClass() == ClientCorporation.class) {
+                setDefaultContactExternalId(entityID);
             }
         } else {
             CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) entity);

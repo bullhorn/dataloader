@@ -900,23 +900,6 @@ public class LoadTaskTest {
         Assert.assertEquals(expectedResult, actualResult);
     }
 
-    @Test
-    public void insertMissingRequiredFieldExceptionTest() throws Exception {
-        when(bullhornRestApiMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
-        when(bullhornRestApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornRestApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(bullhornRestApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(bullhornRestApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: Opportunity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"Candidate\"}");
-        when(bullhornRestApiMock.insertEntity(any())).thenThrow(exception);
-
-        LoadTask task = spy(new LoadTask(Command.LOAD, 1, EntityInfo.CANDIDATE, dataMap, methodMap, countryNameToIdMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock));
-        when(task.getAttachmentFilePath("Candidate", "11")).thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
-        task.run();
-
-        verify(task, times(1)).checkForRequiredFieldsError(exception);
-    }
-
     /**
      * Used by the convertStringToClass_Double tests above
      */

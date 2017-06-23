@@ -292,7 +292,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    // TODO: Move out to utility class
+    // TODO: Move to the BullhornRestApi
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
@@ -301,15 +301,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                 sb.append("\n");
             }
             throw new RestApiException("Row " + rowNumber + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
-        }
-    }
-
-    // TODO: Move out to utility class
-    protected void checkForRequiredFieldsError(RestApiException e) {
-        if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
-            throw new RestApiException("Missing required fields for " + entityInfo.getEntityName() + ".");
-        } else {
-            throw e;
         }
     }
 
