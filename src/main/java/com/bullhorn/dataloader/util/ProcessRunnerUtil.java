@@ -66,7 +66,6 @@ public class ProcessRunnerUtil {
                 // TODO: Remove the need for this once CustomObjects PUT calls work
                 task = new LoadCustomObjectTask(rowNumber++, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             } else {
-                // TODO: Use the methodMap from the entityInfo object and stop passing it
                 // TODO: Combine the rowNumber and dataMap into the row object
                 // TODO: Move the countryNameToIdMap into a PreloadUtil and DI it
                 task = new LoadTask(rowNumber++, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
