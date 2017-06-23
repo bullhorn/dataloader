@@ -78,7 +78,7 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentSuccess() throws Exception {
         final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Delete(0);
-        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         final StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
         fileApiResponse.setFileId(0);
         when(bullhornRestApi.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
@@ -95,7 +95,7 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentFailure() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
-        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         when(bullhornRestApi.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
         task.run();
@@ -110,7 +110,7 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentMissingID() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'id' column required for deleteAttachments"));
-        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 
         task.run();
 
@@ -124,7 +124,7 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentMissingParentEntityID() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'parentEntityID' column required for deleteAttachments"));
-        task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap3, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 
         task.run();
 

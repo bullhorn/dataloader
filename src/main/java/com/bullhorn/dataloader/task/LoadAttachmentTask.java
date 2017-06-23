@@ -44,8 +44,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private boolean isNewEntity = true;
     private Map<String, Method> methodMap;
 
-    public LoadAttachmentTask(Command command,
-                              Integer rowNumber,
+    public LoadAttachmentTask(Integer rowNumber,
                               EntityInfo entityInfo,
                               Map<String, String> dataMap,
                               Map<String, Method> methodMap,
@@ -54,7 +53,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                               BullhornRestApi bullhornRestApi,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         this.methodMap = methodMap;
     }
 

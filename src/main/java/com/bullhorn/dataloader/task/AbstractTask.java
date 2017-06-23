@@ -48,7 +48,6 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
-    protected Command command;
     protected Integer rowNumber;
     protected EntityInfo entityInfo;
     protected Integer bullhornParentId;
@@ -59,8 +58,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
 
-    public AbstractTask(Command command,
-                        Integer rowNumber,
+    public AbstractTask(Integer rowNumber,
                         EntityInfo entityInfo,
                         Map<String, String> dataMap,
                         CsvFileWriter csvFileWriter,
@@ -68,7 +66,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                         BullhornRestApi bullhornRestApi,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
-        this.command = command;
         this.rowNumber = rowNumber;
         this.entityInfo = entityInfo;
         this.dataMap = dataMap;

@@ -27,8 +27,7 @@ import java.util.Map;
  */
 public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
 
-    public DeleteCustomObjectTask(Command command,
-                                  Integer rowNumber,
+    public DeleteCustomObjectTask(Integer rowNumber,
                                   EntityInfo entityInfo,
                                   Map<String, String> dataMap,
                                   CsvFileWriter csvFileWriter,
@@ -36,7 +35,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
                                   BullhornRestApi bullhornRestApi,
                                   PrintUtil printUtil,
                                   ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, null, null, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, null, null, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

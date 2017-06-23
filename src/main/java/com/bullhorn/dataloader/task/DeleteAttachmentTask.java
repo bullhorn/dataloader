@@ -23,8 +23,7 @@ import java.util.Map;
  */
 public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
-    public DeleteAttachmentTask(Command method,
-                                Integer rowNumber,
+    public DeleteAttachmentTask(Integer rowNumber,
                                 EntityInfo entityInfo,
                                 Map<String, String> dataMap,
                                 CsvFileWriter csvFileWriter,
@@ -32,7 +31,7 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
                                 BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(method, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

@@ -42,8 +42,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected String parentField;
     protected Boolean parentEntityUpdateDone = false;
 
-    public LoadCustomObjectTask(Command command,
-                                Integer rowNumber,
+    public LoadCustomObjectTask(Integer rowNumber,
                                 EntityInfo entityInfo,
                                 Map<String, String> dataMap,
                                 Map<String, Method> methodMap,
@@ -53,7 +52,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                                 BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     @Override

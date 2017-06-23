@@ -27,8 +27,7 @@ import java.util.Map;
 public class DeleteTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     private Integer bullhornID;
 
-    public DeleteTask(Command command,
-                      Integer rowNumber,
+    public DeleteTask(Integer rowNumber,
                       EntityInfo entityInfo,
                       Map<String, String> dataMap,
                       CsvFileWriter csvFileWriter,
@@ -36,7 +35,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
                       BullhornRestApi bullhornRestApi,
                       PrintUtil printUtil,
                       ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

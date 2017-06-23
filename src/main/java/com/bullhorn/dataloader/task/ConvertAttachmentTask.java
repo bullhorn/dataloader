@@ -32,8 +32,7 @@ import java.util.Map;
  */
 public class ConvertAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
-    public ConvertAttachmentTask(Command command,
-                                 Integer rowNumber,
+    public ConvertAttachmentTask(Integer rowNumber,
                                  EntityInfo entityInfo,
                                  Map<String, String> dataMap,
                                  CsvFileWriter csvFileWriter,
@@ -41,7 +40,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
                                  BullhornRestApi bullhornRestApi,
                                  PrintUtil printUtil,
                                  ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     @Override

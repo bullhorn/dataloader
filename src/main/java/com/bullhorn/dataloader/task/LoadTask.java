@@ -60,8 +60,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     private Map<String, Address> addressMap = new HashMap<>();
     protected boolean isNewEntity = true;
 
-    public LoadTask(Command command,
-                    Integer rowNumber,
+    public LoadTask(Integer rowNumber,
                     EntityInfo entityInfo,
                     Map<String, String> dataMap,
                     Map<String, Method> methodMap,
@@ -71,7 +70,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                     BullhornRestApi bullhornRestApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
         this.methodMap = methodMap;
         this.countryNameToIdMap = countryNameToIdMap;
     }

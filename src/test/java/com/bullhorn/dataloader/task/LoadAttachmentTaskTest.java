@@ -104,7 +104,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentSuccessTest() throws Exception {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Insert(0);
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornRestApi, printUtilMock, actionTotals);
         final FileContent mockedFileContent = Mockito.mock(FileContent.class);
         final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
@@ -125,7 +125,7 @@ public class LoadAttachmentTaskTest {
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for loadAttachments"));
         when(bullhornRestApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap3, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
@@ -143,7 +143,7 @@ public class LoadAttachmentTaskTest {
         when(bullhornRestApi.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(bullhornRestApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, bullhornRestApi, printUtilMock, actionTotals);
         task.run();
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
 
@@ -161,7 +161,7 @@ public class LoadAttachmentTaskTest {
         when(bullhornRestApi.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(bullhornRestApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
@@ -175,7 +175,7 @@ public class LoadAttachmentTaskTest {
         final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
         PropertyFileUtil propertyFileUtilMock_Empty = Mockito.mock(PropertyFileUtil.class);
         Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, bullhornRestApi, printUtilMock, actionTotals);
 
         task.run();
 
@@ -191,7 +191,7 @@ public class LoadAttachmentTaskTest {
         PropertyFileUtil propertyFileUtilMock_Incorrect = Mockito.mock(PropertyFileUtil.class);
         List<String> existFields = Arrays.asList(new String[]{"bogus"});
         Mockito.doReturn(Optional.ofNullable(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, bullhornRestApi, printUtilMock, actionTotals);
 
         task.run();
 
@@ -219,7 +219,7 @@ public class LoadAttachmentTaskTest {
         when(bullhornRestApi.getFileMetaData(anyObject(), anyInt())).thenReturn(fileList);
         when(bullhornRestApi.getFileContent(anyObject(), anyInt(), anyInt())).thenReturn(mockedFileContent);
 
-        task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, 1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
+        task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_CandidateExternalID, bullhornRestApi, printUtilMock, actionTotals);
         task.run();
 
         verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());

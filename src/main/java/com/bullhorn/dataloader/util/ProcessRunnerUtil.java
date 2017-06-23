@@ -69,13 +69,12 @@ public class ProcessRunnerUtil {
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
                 // TODO: Remove the need for this once CustomObjects PUT calls work
-                task = new LoadCustomObjectTask(Command.LOAD, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new LoadCustomObjectTask(rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             } else {
-                // TODO: Stop sending over the command, since the task knows this already
                 // TODO: Use the methodMap from the entityInfo object and stop passing it
                 // TODO: Combine the rowNumber and dataMap into the row object
                 // TODO: Move the countryNameToIdMap into a PreloadUtil and DI it
-                task = new LoadTask(Command.LOAD, rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new LoadTask(rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             }
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -104,9 +103,9 @@ public class ProcessRunnerUtil {
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
                 // TODO: Remove the need for this once CustomObjects DELETE calls work
-                task = new DeleteCustomObjectTask(Command.DELETE, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new DeleteCustomObjectTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             } else {
-                task = new DeleteTask(Command.DELETE, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new DeleteTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             }
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -135,7 +134,7 @@ public class ProcessRunnerUtil {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
 
             // Create an individual task for the row
-            LoadAttachmentTask task = new LoadAttachmentTask(Command.LOAD_ATTACHMENTS, rowNumber++, entityInfo, dataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            LoadAttachmentTask task = new LoadAttachmentTask(rowNumber++, entityInfo, dataMap, methodMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -161,7 +160,7 @@ public class ProcessRunnerUtil {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
 
             // Create an individual task for the row
-            ConvertAttachmentTask task = new ConvertAttachmentTask(Command.CONVERT_ATTACHMENTS, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            ConvertAttachmentTask task = new ConvertAttachmentTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -187,7 +186,7 @@ public class ProcessRunnerUtil {
             Map<String, String> dataMap = csvFileReader.getRecordDataMap();
 
             // Create an individual task for the row
-            DeleteAttachmentTask task = new DeleteAttachmentTask(Command.DELETE_ATTACHMENTS, rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+            DeleteAttachmentTask task = new DeleteAttachmentTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);

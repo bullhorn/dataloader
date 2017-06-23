@@ -63,7 +63,7 @@ public class DeleteCustomObjectTaskTest {
     public void run_Success_ClientCorporation() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("clientCorporation.externalID", "ext-1");
 
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class, 100));
         when(bullhornRestApiMock.disassociateWithEntity(eq(ClientCorporation.class), eq(100), eq(ClientCorporationAssociations.getInstance().customObject1s()), eq(Sets.newHashSet(1)))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 100));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
@@ -80,7 +80,7 @@ public class DeleteCustomObjectTaskTest {
         dataMap.put("person.customText1", "ext-1");
         dataMap.put("person._subtype", "Candidate");
 
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(bullhornRestApiMock.search(eq(Candidate.class), eq("customText1:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 100));
         when(bullhornRestApiMock.disassociateWithEntity(eq(Candidate.class), eq(100), eq(CandidateAssociations.getInstance().customObject2s()), eq(Sets.newHashSet(1)))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 100));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
@@ -96,7 +96,7 @@ public class DeleteCustomObjectTaskTest {
     public void run_Fail_MissingIdColumn() throws IOException {
         dataMap.remove("id");
 
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Cannot Perform Delete: missing 'id' column.");
 
         task.run();
@@ -108,7 +108,7 @@ public class DeleteCustomObjectTaskTest {
 
     @Test
     public void run_Fail_NoAssociationField() throws IOException {
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "java.io.IOException: No association entities found in csv for ClientCorporationCustomObjectInstance1. CustomObjectInstances require a parent entity in the csv.");
 
         task.run();
@@ -122,7 +122,7 @@ public class DeleteCustomObjectTaskTest {
     public void run_Fail_NoParentFound() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("clientCorporation.externalID", "ext-1");
 
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper());
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot find To-One Association: 'clientCorporation.externalID' with value: 'ext-1'");
 
@@ -137,7 +137,7 @@ public class DeleteCustomObjectTaskTest {
     public void run_Fail_CannotDisassociate() throws IOException, InstantiationException, IllegalAccessException {
         dataMap.put("clientCorporation.externalID", "ext-1");
 
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(Command.DELETE, 1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
+        DeleteCustomObjectTask task = new DeleteCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, dataMap, csvFileWriterMock, propertyFileUtilMock, bullhornRestApiMock, printUtilMock, actionTotalsMock);
         when(bullhornRestApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class, 100));
         when(bullhornRestApiMock.disassociateWithEntity(any(), any(), any(), any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, null, "externalID", "Flagrant Error"));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making UPDATE REST call:\n" +
