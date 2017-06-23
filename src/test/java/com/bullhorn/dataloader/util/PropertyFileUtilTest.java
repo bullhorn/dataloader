@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;

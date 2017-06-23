@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.csv.Result;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.util.validation;
+package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import org.apache.commons.lang.WordUtils;

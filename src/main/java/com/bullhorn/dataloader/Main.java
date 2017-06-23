@@ -7,11 +7,11 @@ import com.bullhorn.dataloader.util.PreLoaderUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.PropertyValidation;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.httpclient.HttpClient;
 
 public class Main {

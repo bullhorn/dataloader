@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.csv.CsvFileWriter;
+import com.bullhorn.dataloader.csv.Result;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;

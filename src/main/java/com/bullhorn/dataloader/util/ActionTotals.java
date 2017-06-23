@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.service.csv.Result;
+import com.bullhorn.dataloader.csv.Result;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;

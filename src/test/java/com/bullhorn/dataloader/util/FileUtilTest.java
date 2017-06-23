@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

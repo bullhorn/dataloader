@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.csv;
+package com.bullhorn.dataloader.csv;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;

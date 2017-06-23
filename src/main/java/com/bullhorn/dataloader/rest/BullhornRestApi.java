@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.rest;
 
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;

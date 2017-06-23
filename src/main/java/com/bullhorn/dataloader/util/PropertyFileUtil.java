@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.enums.Property;
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;

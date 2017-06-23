@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;

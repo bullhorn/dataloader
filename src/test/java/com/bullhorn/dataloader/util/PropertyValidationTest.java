@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.util.validation;
+package com.bullhorn.dataloader.util;
 
 import org.junit.Assert;
 import org.junit.Before;

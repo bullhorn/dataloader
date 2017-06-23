@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;

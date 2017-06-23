@@ -10,7 +10,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

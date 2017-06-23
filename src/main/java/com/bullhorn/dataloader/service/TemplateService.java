@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -9,7 +9,7 @@ import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;

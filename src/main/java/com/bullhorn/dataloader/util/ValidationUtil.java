@@ -1,6 +1,5 @@
-package com.bullhorn.dataloader.util.validation;
+package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.util.PrintUtil;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;

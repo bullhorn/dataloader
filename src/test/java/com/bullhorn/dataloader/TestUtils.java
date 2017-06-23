@@ -1,8 +1,8 @@
 package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.csv.CsvFileWriter;
+import com.bullhorn.dataloader.csv.Result;
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;

@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
 
 import java.io.File;
 import java.util.ArrayList;

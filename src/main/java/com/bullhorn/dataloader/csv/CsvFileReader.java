@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.csv;
+package com.bullhorn.dataloader.csv;
 
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;

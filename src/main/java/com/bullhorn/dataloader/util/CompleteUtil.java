@@ -1,9 +1,9 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.csv.Result;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApi;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;

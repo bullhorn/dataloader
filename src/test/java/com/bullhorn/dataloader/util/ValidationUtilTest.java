@@ -1,7 +1,6 @@
-package com.bullhorn.dataloader.util.validation;
+package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -3,7 +3,7 @@ package com.bullhorn.dataloader.util;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;

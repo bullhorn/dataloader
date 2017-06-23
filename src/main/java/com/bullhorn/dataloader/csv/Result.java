@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.csv;
+package com.bullhorn.dataloader.csv;
 
 /**
  * Represents the result of processing a record using the REST API.

@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
