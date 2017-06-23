@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.rest.BullhornRestApiExtension;
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
@@ -33,7 +34,8 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            ConnectionUtil connectionUtil = new ConnectionUtil(propertyFileUtil);
+            BullhornRestApiExtension bullhornRestApiExtension = new BullhornRestApiExtension();
+            ConnectionUtil connectionUtil = new ConnectionUtil(bullhornRestApiExtension, propertyFileUtil);
             PreLoaderUtil preLoaderUtil = new PreLoaderUtil(connectionUtil);
             CompleteUtil completeUtil = new CompleteUtil(connectionUtil, httpClient, propertyFileUtil, printUtil);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);

@@ -14,22 +14,22 @@ import java.util.Set;
  */
 public class BullhornRestApiExtension {
 
-    static final String CHANGETYPE_UPDATE = "UPDATE";
-    static final String FIELDNAME_ID = "id";
-    static final Integer QUERYPARAM_MAX_COUNT = 500;
-    static final String ENTITY_JOBSUBMISSION = "JobSubmission";
-    static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
-    static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
+    private static final String CHANGETYPE_UPDATE = "UPDATE";
+    private static final String FIELDNAME_ID = "id";
+    private static final Integer QUERYPARAM_MAX_COUNT = 500;
+    private static final String ENTITY_JOBSUBMISSION = "JobSubmission";
+    private static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
+    private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
     /**
      * Performs additional checks after a record has been deleted. For deleted job records, deletes the job submission
      * history as well.
      *
      * @param bullhornRestApi The BullhornRestApi
-     * @param crudResponse The response from the BullhornRestApi
+     * @param crudResponse    The response from the BullhornRestApi
      * @return The updated crud response after additional behavior
      */
-    static public <C extends CrudResponse> C postDelete(BullhornRestApi bullhornRestApi, C crudResponse) {
+    <C extends CrudResponse> C postDelete(BullhornRestApi bullhornRestApi, C crudResponse) {
 
         if (null != crudResponse &&                                                         // CrudResponse is not null
             crudResponse.getMessages().isEmpty() &&                                         // and has no errors
@@ -50,7 +50,7 @@ public class BullhornRestApiExtension {
      * @param jobSubmissionId The ID of the JobSubmission that was deleted
      * @return CrudResponse with up to 1 error message if any deletes failed.
      */
-    static private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(BullhornRestApi bullhornRestApi, Integer jobSubmissionId) {
+    private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(BullhornRestApi bullhornRestApi, Integer jobSubmissionId) {
 
         C crudResponse = null;
 

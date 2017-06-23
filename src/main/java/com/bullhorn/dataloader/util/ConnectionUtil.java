@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.util;
 
 
 import com.bullhorn.dataloader.rest.BullhornRestApi;
+import com.bullhorn.dataloader.rest.BullhornRestApiExtension;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 
 /**
@@ -12,10 +13,12 @@ import com.bullhornsdk.data.api.BullhornRestCredentials;
  */
 public class ConnectionUtil {
 
+    final private BullhornRestApiExtension bullhornRestApiExtension;
     final private PropertyFileUtil propertyFileUtil;
     private BullhornRestApi bullhornRestApi = null;
 
-    public ConnectionUtil(PropertyFileUtil propertyFileUtil) {
+    public ConnectionUtil(BullhornRestApiExtension bullhornRestApiExtension, PropertyFileUtil propertyFileUtil) {
+        this.bullhornRestApiExtension = bullhornRestApiExtension;
         this.propertyFileUtil = propertyFileUtil;
     }
 
@@ -25,7 +28,8 @@ public class ConnectionUtil {
      */
     public BullhornRestApi getSession() {
         if (bullhornRestApi == null) {
-            bullhornRestApi = new BullhornRestApi(getBullhornRestCredentials(propertyFileUtil));
+            BullhornRestCredentials bullhornRestCredentials = getBullhornRestCredentials(propertyFileUtil);
+            bullhornRestApi = new BullhornRestApi(bullhornRestCredentials, bullhornRestApiExtension);
         }
         return bullhornRestApi;
     }

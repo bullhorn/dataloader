@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 
+import com.bullhorn.dataloader.rest.BullhornRestApiExtension;
 import com.bullhornsdk.data.exception.RestApiException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -9,10 +10,12 @@ import org.mockito.Mockito;
 
 public class ConnectionUtilTest {
 
+    private BullhornRestApiExtension bullhornRestApiExtensionMock;
     private PropertyFileUtil propertyFileUtilMock;
 
     @Before
     public void setup() {
+        bullhornRestApiExtensionMock = Mockito.mock(BullhornRestApiExtension.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
     }
 
@@ -21,7 +24,7 @@ public class ConnectionUtilTest {
         RestApiException expectedException = new RestApiException("Failed to create rest session");
         RestApiException actualException = null;
 
-        ConnectionUtil connectionUtil = new ConnectionUtil(propertyFileUtilMock);
+        ConnectionUtil connectionUtil = new ConnectionUtil(bullhornRestApiExtensionMock, propertyFileUtilMock);
         try {
             connectionUtil.getSession();
         } catch (RestApiException e) {

@@ -14,13 +14,16 @@ import com.bullhornsdk.data.model.response.crud.CrudResponse;
  */
 public class BullhornRestApi extends StandardBullhornData {
 
-    public BullhornRestApi(BullhornRestCredentials bullhornRestCredentials) {
+    private final BullhornRestApiExtension bullhornRestApiExtension;
+
+    public BullhornRestApi(BullhornRestCredentials bullhornRestCredentials, BullhornRestApiExtension bullhornRestApiExtension) {
         super(bullhornRestCredentials);
+        this.bullhornRestApiExtension = bullhornRestApiExtension;
     }
 
     @Override
     public <C extends CrudResponse, T extends DeleteEntity> C deleteEntity(Class<T> type, Integer id) {
         C crudResponse = super.deleteEntity(type, id);
-        return BullhornRestApiExtension.postDelete(this, crudResponse);
+        return bullhornRestApiExtension.postDelete(this, crudResponse);
     }
 }

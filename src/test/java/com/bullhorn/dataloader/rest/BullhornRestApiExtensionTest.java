@@ -20,10 +20,12 @@ import static org.mockito.Matchers.eq;
 public class BullhornRestApiExtensionTest {
 
     private BullhornRestApi bullhornRestApiMock;
+    private BullhornRestApiExtension bullhornRestApiExtension;
 
     @Before
     public void setup() {
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
+        bullhornRestApiExtension = new BullhornRestApiExtension();
     }
 
     @Test
@@ -35,7 +37,7 @@ public class BullhornRestApiExtensionTest {
         Mockito.when(bullhornRestApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
         Mockito.when(bullhornRestApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
-        CrudResponse actualCrudResponse = BullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse_jsArg);
+        CrudResponse actualCrudResponse = bullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse_jsArg);
 
         Assert.assertTrue(actualCrudResponse.getMessages().isEmpty());
     }
@@ -49,7 +51,7 @@ public class BullhornRestApiExtensionTest {
         Mockito.when(bullhornRestApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
         Mockito.when(bullhornRestApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
-        CrudResponse actualCrudResponse = BullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse_jsArg);
+        CrudResponse actualCrudResponse = bullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse_jsArg);
 
         Assert.assertTrue(actualCrudResponse.isError());
     }
@@ -58,7 +60,7 @@ public class BullhornRestApiExtensionTest {
     public void testPostDelete_Not_JobSubmission() throws InstantiationException, IllegalAccessException {
         CrudResponse crudResponse = getDeleteCrudResponse("Candidate", 1, "UPDATE", null);
 
-        CrudResponse actualCrudResponse = BullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse);
+        CrudResponse actualCrudResponse = bullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse);
 
         Assert.assertThat(crudResponse, new ReflectionEquals(actualCrudResponse));
         Assert.assertTrue(!actualCrudResponse.isError());
