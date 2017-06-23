@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.util;
 
+/**
+ * Utility for low level array related methods used in DataLoader
+ */
 public class ArrayUtil {
 
     /**

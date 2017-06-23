@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -21,27 +20,27 @@ import java.io.InputStream;
 public class DeleteAttachmentsServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private CompleteUtil completeUtilMock;
+    private CompleteCall completeCallMock;
     private DeleteAttachmentsService deleteAttachmentsService;
     private PrintUtil printUtilMock;
-    private ProcessRunnerUtil processRunnerUtilMock;
+    private ProcessRunner processRunnerMock;
     private Timer timerMock;
 
     @Before
     public void setup() throws Exception {
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        completeCallMock = Mockito.mock(CompleteCall.class);
+        RestSession restSessionMock = Mockito.mock(RestSession.class);
         InputStream inputStreamMock = Mockito.mock(InputStream.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
-        processRunnerUtilMock = Mockito.mock(ProcessRunnerUtil.class);
+        processRunnerMock = Mockito.mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         timerMock = Mockito.mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        deleteAttachmentsService = new DeleteAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamMock, timerMock);
+        deleteAttachmentsService = new DeleteAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
-        Mockito.doReturn(actionTotalsMock).when(processRunnerUtilMock).runDeleteAttachmentsProcess(Mockito.any(), Mockito.any());
+        Mockito.doReturn(actionTotalsMock).when(processRunnerMock).runDeleteAttachmentsProcess(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -51,9 +50,9 @@ public class DeleteAttachmentsServiceTest {
 
         deleteAttachmentsService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.DELETE_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.DELETE_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test(expected = IllegalStateException.class)

@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.rest.BullhornRestApi;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 public class TemplateUtil<B extends BullhornEntity> {
 
     private final Set<String> compositeTypes = Sets.newHashSet("address");
-    private BullhornRestApi bullhornRestApi;
+    private RestApi restApi;
 
-    public TemplateUtil(BullhornRestApi bullhornRestApi) {
-        this.bullhornRestApi = bullhornRestApi;
+    public TemplateUtil(RestApi restApi) {
+        this.restApi = restApi;
     }
 
     public void writeExampleEntityCsv(String entity) throws IOException, ClassNotFoundException {
@@ -40,7 +40,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private Set<Field> getMetaFieldSet(String entity) {
-        MetaData<B> metaData = bullhornRestApi.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
+        MetaData<B> metaData = restApi.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
         Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
         Set<Field> associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
         addAssociatedFields(metaFieldSet, associationFields);

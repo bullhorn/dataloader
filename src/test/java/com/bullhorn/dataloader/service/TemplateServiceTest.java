@@ -1,11 +1,10 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -26,23 +25,23 @@ import java.util.Collections;
 
 public class TemplateServiceTest {
 
-    private ConnectionUtil connectionUtilMock;
+    private RestSession restSessionMock;
     private PrintUtil printUtilMock;
     private TemplateService templateService;
 
     @Before
     public void setup() throws Exception {
-        BullhornRestApi bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
-        CompleteUtil completeUtilMock = Mockito.mock(CompleteUtil.class);
-        connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        RestApi restApiMock = Mockito.mock(RestApi.class);
+        CompleteCall completeCallMock = Mockito.mock(CompleteCall.class);
+        restSessionMock = Mockito.mock(RestSession.class);
         InputStream inputStreamMock = Mockito.mock(InputStream.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
-        ProcessRunnerUtil processRunnerUtilMock = Mockito.mock(ProcessRunnerUtil.class);
+        ProcessRunner processRunnerMock = Mockito.mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         Timer timerMock = Mockito.mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamMock, timerMock);
+        templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
         // Mock out candidate meta data
         StandardMetaData<Candidate> metaData = new StandardMetaData<>();
@@ -53,8 +52,8 @@ public class TemplateServiceTest {
         field.setType("SCALAR");
         metaData.setFields(Collections.singletonList(field));
 
-        Mockito.when(connectionUtilMock.getSession()).thenReturn(bullhornRestApiMock);
-        Mockito.when(bullhornRestApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
+        Mockito.when(restSessionMock.getRestApi()).thenReturn(restApiMock);
+        Mockito.when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
     }
 
     @Test
@@ -83,7 +82,7 @@ public class TemplateServiceTest {
 
     @Test
     public void testRun_BadConnection() throws Exception {
-        Mockito.when(connectionUtilMock.getSession()).thenThrow(new RestApiException());
+        Mockito.when(restSessionMock.getRestApi()).thenThrow(new RestApiException());
 
         templateService.run(new String[] {Command.TEMPLATE.getMethodName(), "Candidate"});
 

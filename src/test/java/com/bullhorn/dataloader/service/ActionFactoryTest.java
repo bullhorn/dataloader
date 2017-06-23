@@ -1,10 +1,9 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -22,16 +21,16 @@ public class ActionFactoryTest {
 
     @Before
     public void setup() throws Exception {
-        CompleteUtil completeUtilMock = Mockito.mock(CompleteUtil.class);
-        ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        CompleteCall completeCallMock = Mockito.mock(CompleteCall.class);
         InputStream inputStreamMock = Mockito.mock(InputStream.class);
         PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
+        ProcessRunner processRunnerMock = Mockito.mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        ProcessRunnerUtil processRunnerUtil = Mockito.mock(ProcessRunnerUtil.class);
+        RestSession restSessionMock = Mockito.mock(RestSession.class);
         Timer timerMock = Mockito.mock(Timer.class);
         ValidationUtil validationUtilMock = Mockito.mock(ValidationUtil.class);
 
-        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, connectionUtilMock, processRunnerUtil, inputStreamMock, timerMock);
+        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
     }
 
     @Test

@@ -1,9 +1,12 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
@@ -12,6 +15,9 @@ import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
 import com.bullhorn.dataloader.task.LoadTask;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,28 +28,28 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class ProcessRunnerUtilTest {
+public class ProcessRunnerTest {
 
-    private BullhornRestApi bullhornRestApiMock;
+    private RestApi restApiMock;
     private ExecutorService executorServiceMock;
-    private PreloadUtil preloadUtilMock;
+    private Preloader preloaderMock;
     private PrintUtil printUtilMock;
-    private ProcessRunnerUtil processRunnerUtil;
+    private ProcessRunner processRunner;
     private PropertyFileUtil propertyFileUtilMock;
 
     @Before
     public void setup() throws InterruptedException {
-        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
-        ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        restApiMock = Mockito.mock(RestApi.class);
+        RestSession restSessionMock = Mockito.mock(RestSession.class);
         executorServiceMock = Mockito.mock(ExecutorService.class);
-        preloadUtilMock = Mockito.mock(PreloadUtil.class);
+        preloaderMock = Mockito.mock(Preloader.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = Mockito.mock(ThreadPoolUtil.class);
 
-        processRunnerUtil = new ProcessRunnerUtil(connectionUtilMock, preloadUtilMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);
+        processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);
 
-        Mockito.when(connectionUtilMock.getSession()).thenReturn(bullhornRestApiMock);
+        Mockito.when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         Mockito.when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);
         Mockito.when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
     }
@@ -53,7 +59,7 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("Candidate.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runLoadProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CANDIDATE, filePath);
 
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
@@ -68,9 +74,9 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("ClientCorporationCustomObjectInstance1.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runLoadProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
+        ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        Mockito.verify(preloadUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -84,9 +90,9 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("Candidate.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runDeleteProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloadUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -100,9 +106,9 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("ClientCorporationCustomObjectInstance1.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runDeleteProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
+        ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        Mockito.verify(preloadUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -116,9 +122,9 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("CandidateAttachments.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloadUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -132,9 +138,9 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("CandidateAttachments.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloadUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -148,9 +154,9 @@ public class ProcessRunnerUtilTest {
         String filePath = TestUtils.getResourceFilePath("CandidateAttachments_success.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunnerUtil.runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloadUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());

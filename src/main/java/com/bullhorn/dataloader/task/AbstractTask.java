@@ -1,10 +1,10 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -53,7 +53,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvFileWriter;
     protected PropertyFileUtil propertyFileUtil;
-    protected BullhornRestApi bullhornRestApi;
+    protected RestApi restApi;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
 
@@ -62,7 +62,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                         Map<String, String> dataMap,
                         CsvFileWriter csvFileWriter,
                         PropertyFileUtil propertyFileUtil,
-                        BullhornRestApi bullhornRestApi,
+                        RestApi restApi,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
         this.rowNumber = rowNumber;
@@ -70,7 +70,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.dataMap = dataMap;
         this.csvFileWriter = csvFileWriter;
         this.propertyFileUtil = propertyFileUtil;
-        this.bullhornRestApi = bullhornRestApi;
+        this.restApi = restApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
     }
@@ -121,13 +121,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornRestApi.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
+        return (List<B>) restApi.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
     }
 
     protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornRestApi.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
+        return (List<B>) restApi.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
@@ -158,12 +158,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornRestApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        return (List<B>) restApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornRestApi.query((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        return (List<B>) restApi.query((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected String getWhereStatement(String field, String value, Class fieldType) {
@@ -288,7 +288,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    // TODO: Move to the BullhornRestApi
+    // TODO: Move to the RestApi
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();

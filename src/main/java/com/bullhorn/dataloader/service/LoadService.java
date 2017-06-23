@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -30,12 +29,12 @@ public class LoadService extends AbstractService implements Action {
     public LoadService(PrintUtil printUtil,
                        PropertyFileUtil propertyFileUtil,
                        ValidationUtil validationUtil,
-                       CompleteUtil completeUtil,
-                       ConnectionUtil connectionUtil,
-                       ProcessRunnerUtil processRunnerUtil,
+                       CompleteCall completeCall,
+                       RestSession restSession,
+                       ProcessRunner processRunner,
                        InputStream inputStream,
                        Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
     }
 
     @Override
@@ -53,9 +52,9 @@ public class LoadService extends AbstractService implements Action {
                     try {
                         printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                         timer.start();
-                        ActionTotals actionTotals = processRunnerUtil.runLoadProcess(entityInfo, fileName);
+                        ActionTotals actionTotals = processRunner.runLoadProcess(entityInfo, fileName);
                         printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
-                        completeUtil.complete(Command.LOAD, fileName, entityInfo, actionTotals, timer);
+                        completeCall.complete(Command.LOAD, fileName, entityInfo, actionTotals, timer);
                     } catch (Exception e) {
                         printUtil.printAndLog("FAILED to load: " + entityInfo.getEntityName() + " records");
                         printUtil.printAndLog(e);

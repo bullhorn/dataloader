@@ -1,37 +1,36 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.rest;
 
 
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.rest.BullhornRestApiExtension;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 
 /**
  * Dependency Injected Wrapper for obtaining the SDK-REST BullhornData class using DataLoader's properties
  * <p>
- * Contains all logic surrounding the creation of a REST Connection and returning the BullhornRestApi object.
- * Creates a single instance of the BullhornRestApi, so that the cost of authenticating is only paid once per session.
+ * Contains all logic surrounding the creation of a REST Connection and returning the RestApi object.
+ * Creates a single instance of the RestApi, so that the cost of authenticating is only paid once per session.
  */
-public class ConnectionUtil {
+public class RestSession {
 
-    final private BullhornRestApiExtension bullhornRestApiExtension;
+    final private RestApiExtension restApiExtension;
     final private PropertyFileUtil propertyFileUtil;
-    private BullhornRestApi bullhornRestApi = null;
+    private RestApi restApi = null;
 
-    public ConnectionUtil(BullhornRestApiExtension bullhornRestApiExtension, PropertyFileUtil propertyFileUtil) {
-        this.bullhornRestApiExtension = bullhornRestApiExtension;
+    public RestSession(RestApiExtension restApiExtension, PropertyFileUtil propertyFileUtil) {
+        this.restApiExtension = restApiExtension;
         this.propertyFileUtil = propertyFileUtil;
     }
 
     /**
      * Authenticates and creates the Bullhorn REST API Session
-     * @return A new BullhornRestApi object
+     * @return A new RestApi object
      */
-    public BullhornRestApi getSession() {
-        if (bullhornRestApi == null) {
+    public RestApi getRestApi() {
+        if (restApi == null) {
             BullhornRestCredentials bullhornRestCredentials = getBullhornRestCredentials(propertyFileUtil);
-            bullhornRestApi = new BullhornRestApi(bullhornRestCredentials, bullhornRestApiExtension);
+            restApi = new RestApi(bullhornRestCredentials, restApiExtension);
         }
-        return bullhornRestApi;
+        return restApi;
     }
 
     /**

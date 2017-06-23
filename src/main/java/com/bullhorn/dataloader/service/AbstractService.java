@@ -1,10 +1,9 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -27,26 +26,26 @@ public abstract class AbstractService {
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ValidationUtil validationUtil;
-    final protected CompleteUtil completeUtil;
-    final protected ConnectionUtil connectionUtil;
-    final protected ProcessRunnerUtil processRunnerUtil;
+    final protected CompleteCall completeCall;
+    final protected RestSession restSession;
+    final protected ProcessRunner processRunner;
     final protected InputStream inputStream;
     final protected Timer timer;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
-                           CompleteUtil completeUtil,
-                           ConnectionUtil connectionUtil,
-                           ProcessRunnerUtil processRunnerUtil,
+                           CompleteCall completeCall,
+                           RestSession restSession,
+                           ProcessRunner processRunner,
                            InputStream inputStream,
                            Timer timer) throws IOException {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
-        this.completeUtil = completeUtil;
-        this.connectionUtil = connectionUtil;
-        this.processRunnerUtil = processRunnerUtil;
+        this.completeCall = completeCall;
+        this.restSession = restSession;
+        this.processRunner = processRunner;
         this.inputStream = inputStream;
         this.timer = timer;
     }

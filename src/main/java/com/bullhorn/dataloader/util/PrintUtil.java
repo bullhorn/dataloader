@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

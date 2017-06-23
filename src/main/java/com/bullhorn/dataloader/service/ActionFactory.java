@@ -1,10 +1,9 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -20,26 +19,26 @@ public class ActionFactory {
     final private PrintUtil printUtil;
     final private ValidationUtil validationUtil;
     final private PropertyFileUtil propertyFileUtil;
-    final private CompleteUtil completeUtil;
-    final private ConnectionUtil connectionUtil;
-    final private ProcessRunnerUtil processRunnerUtil;
+    final private CompleteCall completeCall;
+    final private RestSession restSession;
+    final private ProcessRunner processRunner;
     final private InputStream inputStream;
     final private Timer timer;
 
     public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ValidationUtil validationUtil,
-                         CompleteUtil completeUtil,
-                         ConnectionUtil connectionUtil,
-                         ProcessRunnerUtil processRunnerUtil,
+                         CompleteCall completeCall,
+                         RestSession restSession,
+                         ProcessRunner processRunner,
                          InputStream inputStream,
                          Timer timer) {
         this.printUtil = printUtil;
         this.validationUtil = validationUtil;
         this.propertyFileUtil = propertyFileUtil;
-        this.completeUtil = completeUtil;
-        this.connectionUtil = connectionUtil;
-        this.processRunnerUtil = processRunnerUtil;
+        this.completeCall = completeCall;
+        this.restSession = restSession;
+        this.processRunner = processRunner;
         this.inputStream = inputStream;
         this.timer = timer;
     }
@@ -55,17 +54,17 @@ public class ActionFactory {
         if (command.equals(Command.HELP)) {
             action = new HelpService(printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE)) {
-            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
         }
         return action;
     }

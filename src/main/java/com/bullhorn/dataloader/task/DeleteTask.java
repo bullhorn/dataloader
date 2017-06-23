@@ -1,10 +1,10 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -31,10 +31,10 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
                       Map<String, String> dataMap,
                       CsvFileWriter csvFileWriter,
                       PropertyFileUtil propertyFileUtil,
-                      BullhornRestApi bullhornRestApi,
+                      RestApi restApi,
                       PrintUtil printUtil,
                       ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**
@@ -65,7 +65,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
                 " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
-        CrudResponse response = bullhornRestApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
+        CrudResponse response = restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
         checkForRestSdkErrorMessages(response);
         return Result.Delete(bullhornID);
     }

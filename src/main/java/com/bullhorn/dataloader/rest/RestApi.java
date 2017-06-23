@@ -9,21 +9,21 @@ import com.bullhornsdk.data.model.response.crud.CrudResponse;
  * Extension of the standard SDK-REST BullhornData class for interacting with Bullhorn's REST API
  * <p>
  * Contains any extra REST behavior needed by DataLoader that is outside of SDK-REST.
- * This class is responsible for overriding behavior where needed and calling the BullhornRestApiExtension to handle
+ * This class is responsible for overriding behavior where needed and calling the RestApiExtension to handle
  * the implementation details.
  */
-public class BullhornRestApi extends StandardBullhornData {
+public class RestApi extends StandardBullhornData {
 
-    private final BullhornRestApiExtension bullhornRestApiExtension;
+    private final RestApiExtension restApiExtension;
 
-    public BullhornRestApi(BullhornRestCredentials bullhornRestCredentials, BullhornRestApiExtension bullhornRestApiExtension) {
+    public RestApi(BullhornRestCredentials bullhornRestCredentials, RestApiExtension restApiExtension) {
         super(bullhornRestCredentials);
-        this.bullhornRestApiExtension = bullhornRestApiExtension;
+        this.restApiExtension = restApiExtension;
     }
 
     @Override
     public <C extends CrudResponse, T extends DeleteEntity> C deleteEntity(Class<T> type, Integer id) {
         C crudResponse = super.deleteEntity(type, id);
-        return bullhornRestApiExtension.postDelete(this, crudResponse);
+        return restApiExtension.postDelete(this, crudResponse);
     }
 }

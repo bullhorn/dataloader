@@ -1,10 +1,10 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -27,10 +27,10 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
                                 Map<String, String> dataMap,
                                 CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
-                                BullhornRestApi bullhornRestApi,
+                                RestApi restApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**
@@ -59,6 +59,6 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
         if (!dataMap.containsKey(StringConsts.ID) || dataMap.get(StringConsts.ID).isEmpty()) {
             throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
         }
-        return bullhornRestApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
+        return restApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
     }
 }

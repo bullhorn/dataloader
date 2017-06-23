@@ -17,15 +17,15 @@ import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 
-public class BullhornRestApiExtensionTest {
+public class RestApiExtensionTest {
 
-    private BullhornRestApi bullhornRestApiMock;
-    private BullhornRestApiExtension bullhornRestApiExtension;
+    private RestApi restApiMock;
+    private RestApiExtension restApiExtension;
 
     @Before
     public void setup() {
-        bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
-        bullhornRestApiExtension = new BullhornRestApiExtension();
+        restApiMock = Mockito.mock(RestApi.class);
+        restApiExtension = new RestApiExtension();
     }
 
     @Test
@@ -34,10 +34,10 @@ public class BullhornRestApiExtensionTest {
         List<JobSubmissionHistory> jshList = TestUtils.getListWrapper(JobSubmissionHistory.class, 1, 2, 3).getData();
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
         CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", null);
-        Mockito.when(bullhornRestApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
-        Mockito.when(bullhornRestApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
+        Mockito.when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
+        Mockito.when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
-        CrudResponse actualCrudResponse = bullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse_jsArg);
+        CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse_jsArg);
 
         Assert.assertTrue(actualCrudResponse.getMessages().isEmpty());
     }
@@ -48,10 +48,10 @@ public class BullhornRestApiExtensionTest {
         List<JobSubmissionHistory> jshList = TestUtils.getListWrapper(JobSubmissionHistory.class, 1, 2, 3).getData();
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
         CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", "This text makes it fail.");
-        Mockito.when(bullhornRestApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
-        Mockito.when(bullhornRestApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
+        Mockito.when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
+        Mockito.when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
-        CrudResponse actualCrudResponse = bullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse_jsArg);
+        CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse_jsArg);
 
         Assert.assertTrue(actualCrudResponse.isError());
     }
@@ -60,11 +60,11 @@ public class BullhornRestApiExtensionTest {
     public void testPostDelete_Not_JobSubmission() throws InstantiationException, IllegalAccessException {
         CrudResponse crudResponse = getDeleteCrudResponse("Candidate", 1, "UPDATE", null);
 
-        CrudResponse actualCrudResponse = bullhornRestApiExtension.postDelete(bullhornRestApiMock, crudResponse);
+        CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse);
 
         Assert.assertThat(crudResponse, new ReflectionEquals(actualCrudResponse));
         Assert.assertTrue(!actualCrudResponse.isError());
-        Mockito.verify(bullhornRestApiMock, Mockito.never()).deleteEntity(eq(JobSubmissionHistory.class), any());
+        Mockito.verify(restApiMock, Mockito.never()).deleteEntity(eq(JobSubmissionHistory.class), any());
     }
 
     private CrudResponse getDeleteCrudResponse(String changedEntityType, Integer changedEntityId, String changeType, String message) {

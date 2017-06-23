@@ -9,14 +9,14 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
 
-public class BullhornRestApiTest {
+public class RestApiTest {
     private BullhornRestCredentials bullhornRestCredentials;
-    private BullhornRestApiExtension bullhornRestApiExtensionMock;
+    private RestApiExtension restApiExtensionMock;
 
     @Before
     public void setup() {
         bullhornRestCredentials = new BullhornRestCredentials();
-        bullhornRestApiExtensionMock = Mockito.mock(BullhornRestApiExtension.class);
+        restApiExtensionMock = Mockito.mock(RestApiExtension.class);
     }
 
     @Test
@@ -25,7 +25,7 @@ public class BullhornRestApiTest {
         RestApiException actualException = null;
 
         try {
-            new BullhornRestApi(bullhornRestCredentials, bullhornRestApiExtensionMock);
+            new RestApi(bullhornRestCredentials, restApiExtensionMock);
         } catch (RestApiException e) {
             actualException = e;
         }
@@ -36,13 +36,13 @@ public class BullhornRestApiTest {
 
     @Test
     public void testDeleteEntity() {
-        BullhornRestApi bullhornRestApiPartialMock = Mockito.mock(BullhornRestApi.class);
-        Whitebox.setInternalState(bullhornRestApiPartialMock, "bullhornRestApiExtension", bullhornRestApiExtensionMock);
-        Mockito.when(bullhornRestApiPartialMock.deleteEntity(Mockito.any(), Mockito.any())).thenCallRealMethod();
+        RestApi restApiPartialMock = Mockito.mock(RestApi.class);
+        Whitebox.setInternalState(restApiPartialMock, "restApiExtension", restApiExtensionMock);
+        Mockito.when(restApiPartialMock.deleteEntity(Mockito.any(), Mockito.any())).thenCallRealMethod();
 
-        bullhornRestApiPartialMock.deleteEntity(Candidate.class, 1);
+        restApiPartialMock.deleteEntity(Candidate.class, 1);
 
-        Mockito.verify(bullhornRestApiPartialMock, Mockito.times(1)).deleteEntity(Mockito.eq(Candidate.class), Mockito.eq(1));
-        Mockito.verify(bullhornRestApiExtensionMock, Mockito.times(1)).postDelete(Mockito.eq(bullhornRestApiPartialMock), Mockito.any());
+        Mockito.verify(restApiPartialMock, Mockito.times(1)).deleteEntity(Mockito.eq(Candidate.class), Mockito.eq(1));
+        Mockito.verify(restApiExtensionMock, Mockito.times(1)).postDelete(Mockito.eq(restApiPartialMock), Mockito.any());
     }
 }

@@ -1,10 +1,10 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -49,10 +49,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                               Map<String, Method> methodMap,
                               CsvFileWriter csvFileWriter,
                               PropertyFileUtil propertyFileUtil,
-                              BullhornRestApi bullhornRestApi,
+                              RestApi restApi,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
         this.methodMap = methodMap;
     }
 
@@ -94,7 +94,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                 propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityInfo.getEntityClass()));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
-            List<S> searchList = bullhornRestApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+            List<S> searchList = restApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {
@@ -110,7 +110,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private <F extends FileEntity> void createFileMeta() {
         fileMeta = new StandardFileMeta();
 
-        List<FileMeta> allFileMetas = bullhornRestApi.getFileMetaData((Class<F>) entityInfo.getEntityClass(), bullhornParentId);
+        List<FileMeta> allFileMetas = restApi.getFileMetaData((Class<F>) entityInfo.getEntityClass(), bullhornParentId);
 
         for (FileMeta curFileMeta : allFileMetas) {
             if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(StringConsts.ID))
@@ -143,7 +143,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
             }
         } else {
             // for update, grab original fileContent because it is required for an update
-            FileContent fileContent = bullhornRestApi.getFileContent((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta.getId());
+            FileContent fileContent = restApi.getFileContent((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta.getId());
             fileMeta.setFileContent(fileContent.getFileContent());
         }
 
@@ -168,10 +168,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
 
     private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
-            FileWrapper fileWrapper = bullhornRestApi.addFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
+            FileWrapper fileWrapper = restApi.addFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
             return Result.Insert(fileWrapper.getId());
         } else {
-            FileWrapper fileWrapper = bullhornRestApi.updateFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
+            FileWrapper fileWrapper = restApi.updateFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
             return Result.Update(fileWrapper.getId());
         }
     }

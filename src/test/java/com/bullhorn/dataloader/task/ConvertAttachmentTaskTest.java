@@ -2,10 +2,10 @@ package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
@@ -35,7 +35,7 @@ public class ConvertAttachmentTaskTest {
     private Map<String, String> dataMap2;
     private ArgumentCaptor<Result> resultArgumentCaptor;
     private CsvFileWriter csvFileWriter;
-    private BullhornRestApi bullhornRestApi;
+    private RestApi restApi;
     private PrintUtil printUtil;
     private ActionTotals actionTotalsMock;
     private ConvertAttachmentTask task;
@@ -44,7 +44,7 @@ public class ConvertAttachmentTaskTest {
     @Before
     public void setup() throws Exception {
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        bullhornRestApi = Mockito.mock(BullhornRestApi.class);
+        restApi = Mockito.mock(RestApi.class);
         actionTotalsMock = Mockito.mock(ActionTotals.class);
         printUtil = Mockito.mock(PrintUtil.class);
         candidateExternalIdProperties = Mockito.mock(PropertyFileUtil.class);
@@ -63,7 +63,7 @@ public class ConvertAttachmentTaskTest {
 
     @Test
     public void convertAttachmentToHtmlTest() throws Exception {
-        task = new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock);
+        task = new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
 
         String result = task.convertAttachmentToHtml();
 
@@ -73,7 +73,7 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void run_Success() throws IOException {
         Result expectedResult = Result.Convert();
-        task = Mockito.spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock));
+        task = Mockito.spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
         doNothing().when(task).writeHtmlToFile(anyString());
 
         task.run();
@@ -92,7 +92,7 @@ public class ConvertAttachmentTaskTest {
         dataMap.put("isResume", "0");
 
         Result expectedResult = Result.Skip();
-        task = Mockito.spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock));
+        task = Mockito.spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
         doNothing().when(task).writeHtmlToFile(anyString());
 
         task.run();
@@ -111,7 +111,7 @@ public class ConvertAttachmentTaskTest {
         dataMap.put("isResume", "0");
         String expectedResult = "convertedAttachments/ClientContact/1.html";
 
-        task = new ConvertAttachmentTask(1, EntityInfo.CLIENT_CONTACT, dataMap, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock);
+        task = new ConvertAttachmentTask(1, EntityInfo.CLIENT_CONTACT, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
 
         String actualResult = task.getConvertedAttachmentPath();
 
@@ -121,9 +121,9 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void convertAttachmentNoRelativeFilePathTest() throws Exception {
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for convertAttachments"));
-        when(bullhornRestApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
+        when(restApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
-        task = new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, candidateExternalIdProperties, bullhornRestApi, printUtil, actionTotalsMock);
+        task = new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
         task.run();
 
         verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());

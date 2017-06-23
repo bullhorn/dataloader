@@ -1,9 +1,12 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -13,18 +16,18 @@ import org.json.JSONObject;
 /**
  * Utility class for sending DataLoader complete call to REST
  */
-public class CompleteUtil {
+public class CompleteCall {
 
-    final private ConnectionUtil connectionUtil;
+    final private RestSession restSession;
     final private HttpClient httpClient;
     final private PropertyFileUtil propertyFileUtil;
     final private PrintUtil printUtil;
 
-    public CompleteUtil(ConnectionUtil connectionUtil,
+    public CompleteCall(RestSession restSession,
                         HttpClient httpClient,
                         PropertyFileUtil propertyFileUtil,
                         PrintUtil printUtil) {
-        this.connectionUtil = connectionUtil;
+        this.restSession = restSession;
         this.httpClient = httpClient;
         this.propertyFileUtil = propertyFileUtil;
         this.printUtil = printUtil;
@@ -35,9 +38,9 @@ public class CompleteUtil {
                          EntityInfo entityInfo,
                          ActionTotals actionTotals,
                          Timer timer) {
-        BullhornRestApi bullhornRestApi = connectionUtil.getSession();
-        String restUrl = bullhornRestApi.getRestUrl() + "services/dataLoader/complete";
-        String bhRestToken = bullhornRestApi.getBhRestToken();
+        RestApi restApi = restSession.getRestApi();
+        String restUrl = restApi.getRestUrl() + "services/dataLoader/complete";
+        String bhRestToken = restApi.getBhRestToken();
         Integer totalRecords = actionTotals.getAllActionsTotal();
         Integer failureRecords = actionTotals.getActionTotal(Result.Action.FAILURE);
         Integer successRecords = totalRecords - failureRecords;

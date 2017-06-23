@@ -1,8 +1,7 @@
-package com.bullhorn.dataloader.util;
+package com.bullhorn.dataloader.rest;
 
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
@@ -15,13 +14,13 @@ import java.util.Map;
 /**
  * Pre-loads data into memory prior to performing a process in order to avoid the cost of lookup calls.
  */
-public class PreloadUtil {
+public class Preloader {
 
-    final private ConnectionUtil connectionUtil;
+    final private RestSession restSession;
     private Map<String, Integer> countryNameToIdMap = null;
 
-    public PreloadUtil(ConnectionUtil connectionUtil) {
-        this.connectionUtil = connectionUtil;
+    public Preloader(RestSession restSession) {
+        this.restSession = restSession;
     }
 
     /**
@@ -32,7 +31,7 @@ public class PreloadUtil {
      *
      * @param entityInfo The type of entity to be loaded
      */
-    void preload(EntityInfo entityInfo) {
+    public void preload(EntityInfo entityInfo) {
         Map<String, Method> methodMap = entityInfo.getSetterMethodMap();
         if (methodMap.containsKey("countryid")) {
             getCountryNameToIdMap();
@@ -58,9 +57,9 @@ public class PreloadUtil {
      * @return A map of name to internal country ID (bullhorn specific id)
      */
     private Map<String, Integer> createCountryNameToIdMap() {
-        BullhornRestApi bullhornRestApi = connectionUtil.getSession();
+        RestApi restApi = restSession.getRestApi();
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
-        List<Country> countryList = bullhornRestApi.queryForAllRecords(Country.class, "id IS NOT null", Sets.newHashSet("id", "name"), ParamFactory.queryParams()).getData();
+        List<Country> countryList = restApi.queryForAllRecords(Country.class, "id IS NOT null", Sets.newHashSet("id", "name"), ParamFactory.queryParams()).getData();
         countryList.forEach(n -> countryNameToIdMap.put(n.getName().trim(), n.getId()));
         return countryNameToIdMap;
     }

@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -22,12 +21,12 @@ import java.io.InputStream;
 public class LoadServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private CompleteUtil completeUtilMock;
-    private ConnectionUtil connectionUtilMock;
+    private CompleteCall completeCallMock;
+    private RestSession restSessionMock;
     private InputStream inputStreamFake;
     private LoadService loadService;
     private PrintUtil printUtilMock;
-    private ProcessRunnerUtil processRunnerUtilMock;
+    private ProcessRunner processRunnerMock;
     private PropertyFileUtil propertyFileUtilMock;
     private Timer timerMock;
     private ValidationUtil validationUtil;
@@ -35,18 +34,18 @@ public class LoadServiceTest {
     @Before
     public void setup() throws Exception {
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        completeCallMock = Mockito.mock(CompleteCall.class);
+        restSessionMock = Mockito.mock(RestSession.class);
         inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
         printUtilMock = Mockito.mock(PrintUtil.class);
-        processRunnerUtilMock = Mockito.mock(ProcessRunnerUtil.class);
+        processRunnerMock = Mockito.mock(ProcessRunner.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         timerMock = Mockito.mock(Timer.class);
         validationUtil = new ValidationUtil(printUtilMock);
 
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamFake, timerMock);
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        Mockito.doReturn(actionTotalsMock).when(processRunnerUtilMock).runLoadProcess(Mockito.any(), Mockito.any());
+        Mockito.doReturn(actionTotalsMock).when(processRunnerMock).runLoadProcess(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -56,9 +55,9 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -69,9 +68,9 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
+        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -83,10 +82,10 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         Mockito.verify(printUtilMock, Mockito.times(3)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
+        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -96,7 +95,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(4)).runLoadProcess(Mockito.eq(EntityInfo.OPPORTUNITY), Mockito.any());
+        Mockito.verify(processRunnerMock, Mockito.times(4)).runLoadProcess(Mockito.eq(EntityInfo.OPPORTUNITY), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
@@ -111,7 +110,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(4)).runLoadProcess(Mockito.any(), Mockito.any());
+        Mockito.verify(processRunnerMock, Mockito.times(4)).runLoadProcess(Mockito.any(), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
         Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
@@ -122,14 +121,14 @@ public class LoadServiceTest {
     @Test
     public void testRun_directory_fourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamFake, timerMock);
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.never()).runLoadProcess(Mockito.any(), Mockito.any());
+        Mockito.verify(processRunnerMock, Mockito.never()).runLoadProcess(Mockito.any(), Mockito.any());
         Mockito.verify(printUtilMock, Mockito.times(5)).printAndLog(Mockito.anyString());
     }
 

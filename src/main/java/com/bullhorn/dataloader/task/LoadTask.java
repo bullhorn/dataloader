@@ -1,12 +1,12 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
-import com.bullhorn.dataloader.util.PreloadUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -55,7 +55,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected B entity;
     protected Integer entityID;
     protected Map<String, Method> methodMap;
-    protected PreloadUtil preloadUtil;
+    protected Preloader preloader;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
     protected boolean isNewEntity = true;
@@ -63,14 +63,14 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     public LoadTask(Integer rowNumber,
                     EntityInfo entityInfo,
                     Map<String, String> dataMap,
-                    PreloadUtil preloadUtil,
+                    Preloader preloader,
                     CsvFileWriter csvFileWriter,
                     PropertyFileUtil propertyFileUtil,
-                    BullhornRestApi bullhornRestApi,
+                    RestApi restApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        this.preloadUtil = preloadUtil;
+        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        this.preloader = preloader;
         this.methodMap = entityInfo.getSetterMethodMap();
     }
 
@@ -151,7 +151,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
-            CrudResponse response = bullhornRestApi.insertEntity((CreateEntity) entity);
+            CrudResponse response = restApi.insertEntity((CreateEntity) entity);
             checkForRestSdkErrorMessages(response);
             entityID = response.getChangedEntityId();
             entity.setId(entityID);
@@ -159,7 +159,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 setDefaultContactExternalId(entityID);
             }
         } else {
-            CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) entity);
+            CrudResponse response = restApi.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
         }
     }
@@ -170,12 +170,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             ClientCorporation clientCorporation = clientCorporations.get(0);
             if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
                 final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
-                List<ClientContact> clientContacts = bullhornRestApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+                List<ClientContact> clientContacts = restApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
                 if (!clientContacts.isEmpty()) {
                     ClientContact clientContact = clientContacts.get(0);
                     String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
                     clientContact.setExternalID(defaultContactExternalId);
-                    CrudResponse response = bullhornRestApi.updateEntity(clientContact);
+                    CrudResponse response = restApi.updateEntity(clientContact);
                     checkForRestSdkErrorMessages(response);
                 }
             }
@@ -267,7 +267,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
         if (fieldName.contains("country")) {
             // Allow for the use of a country name or internal Bullhorn ID
-            Map<String, Integer> countryNameToIdMap = preloadUtil.getCountryNameToIdMap();
+            Map<String, Integer> countryNameToIdMap = preloader.getCountryNameToIdMap();
             if (countryNameToIdMap.containsKey(dataMap.get(field))) {
                 methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
             } else {
@@ -308,7 +308,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             if (entityInfo == EntityInfo.NOTE) {
                 addAssociationsToNote((Note) entity, associationField.getAssociationType(), newAssociationIdList);
             } else {
-                bullhornRestApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
+                restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
             }
         } catch (RestApiException e) {
             // Provide a simpler duplication error message with all of the essential data
@@ -348,7 +348,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         noteEntity.setNote(noteAdded);
         noteEntity.setTargetEntityID(targetEntityID);
         noteEntity.setTargetEntityName(targetEntityName);
-        bullhornRestApi.insertEntity(noteEntity);
+        restApi.insertEntity(noteEntity);
     }
 
     protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
@@ -411,12 +411,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             String where = getQueryStatement(valueSet, field, associationClass);
             SearchParams searchParams = ParamFactory.searchParams();
             searchParams.setCount(COUNT_PARAMETER);
-            list = (List<B>) bullhornRestApi.search((Class<S>) associationClass, where, null, searchParams).getData();
+            list = (List<B>) restApi.search((Class<S>) associationClass, where, null, searchParams).getData();
         } else {
             String where = getWhereStatement(valueSet, field, associationClass);
             QueryParams queryParams = ParamFactory.queryParams();
             queryParams.setCount(COUNT_PARAMETER);
-            list = (List<B>) bullhornRestApi.query((Class<Q>) associationClass, where, null, queryParams).getData();
+            list = (List<B>) restApi.query((Class<Q>) associationClass, where, null, queryParams).getData();
         }
 
         return list;

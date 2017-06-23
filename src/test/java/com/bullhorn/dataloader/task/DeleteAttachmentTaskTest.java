@@ -1,10 +1,10 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -36,7 +36,7 @@ public class DeleteAttachmentTaskTest {
     private Map<String, String> dataMap;
     private Map<String, String> dataMap2;
     private Map<String, String> dataMap3;
-    private BullhornRestApi bullhornRestApi;
+    private RestApi restApi;
     private PrintUtil printUtil;
     private ActionTotals actionTotals;
 
@@ -46,7 +46,7 @@ public class DeleteAttachmentTaskTest {
     public void setup() throws Exception {
         propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
         csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        bullhornRestApi = Mockito.mock(BullhornRestApi.class);
+        restApi = Mockito.mock(RestApi.class);
         actionTotals = Mockito.mock(ActionTotals.class);
         printUtil = Mockito.mock(PrintUtil.class);
 
@@ -77,10 +77,10 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentSuccess() throws Exception {
         final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Delete(0);
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
         final StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
         fileApiResponse.setFileId(0);
-        when(bullhornRestApi.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
+        when(restApi.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
 
         task.run();
 
@@ -94,8 +94,8 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentFailure() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        when(bullhornRestApi.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        when(restApi.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
         task.run();
 
@@ -109,7 +109,7 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentMissingID() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "testResume/TestResume.doc", "0", "1"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'id' column required for deleteAttachments"));
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
         task.run();
 
@@ -123,7 +123,7 @@ public class DeleteAttachmentTaskTest {
     public void testDeleteAttachmentMissingParentEntityID() throws ExecutionException, IOException {
         final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0"};
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'parentEntityID' column required for deleteAttachments"));
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap3, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap3, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
         task.run();
 

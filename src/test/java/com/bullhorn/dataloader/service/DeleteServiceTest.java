@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -22,27 +21,27 @@ import java.io.InputStream;
 public class DeleteServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private CompleteUtil completeUtilMock;
+    private CompleteCall completeCallMock;
     private DeleteService deleteService;
     private PrintUtil printUtilMock;
-    private ProcessRunnerUtil processRunnerUtilMock;
+    private ProcessRunner processRunnerMock;
     private Timer timerMock;
 
     @Before
     public void setup() throws Exception {
         actionTotalsMock = Mockito.mock(ActionTotals.class);
-        completeUtilMock = Mockito.mock(CompleteUtil.class);
-        ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
+        completeCallMock = Mockito.mock(CompleteCall.class);
+        RestSession restSessionMock = Mockito.mock(RestSession.class);
         InputStream inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
         printUtilMock = Mockito.mock(PrintUtil.class);
-        processRunnerUtilMock = Mockito.mock(ProcessRunnerUtil.class);
+        processRunnerMock = Mockito.mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         timerMock = Mockito.mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, connectionUtilMock, processRunnerUtilMock, inputStreamFake, timerMock);
+        deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        Mockito.doReturn(actionTotalsMock).when(processRunnerUtilMock).runDeleteProcess(Mockito.any(), Mockito.any());
+        Mockito.doReturn(actionTotalsMock).when(processRunnerMock).runDeleteProcess(Mockito.any(), Mockito.any());
     }
 
     @Test
@@ -52,9 +51,9 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeUtilMock, Mockito.times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -65,7 +64,7 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, expectedFileName);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, expectedFileName);
         Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
     }
 
@@ -78,8 +77,8 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, expectedCandidateFileName);
-        Mockito.verify(processRunnerUtilMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, expectedCandidateFileName);
+        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
         Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
     }
 

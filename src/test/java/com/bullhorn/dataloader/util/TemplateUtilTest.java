@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.rest.BullhornRestApi;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import org.junit.Assert;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class TemplateUtilTest {
 
     TemplateUtil templateUtil;
-    private BullhornRestApi bullhornRestApi;
+    private RestApi restApi;
     private Set<Field> metaFieldSet;
     private Set<Field> associationFields;
     private ArrayList<String> headers;
@@ -26,13 +26,13 @@ public class TemplateUtilTest {
 
     @Before
     public void setup() throws Exception {
-        templateUtil = new TemplateUtil(bullhornRestApi);
+        templateUtil = new TemplateUtil(restApi);
 
         headers = new ArrayList<>();
         dataTypes = new ArrayList<>();
         metaFieldSet = new HashSet<>();
 
-        bullhornRestApi = Mockito.mock(BullhornRestApi.class);
+        restApi = Mockito.mock(RestApi.class);
 
         setUpMetaFieldSet();
         setUpAssociationFields();

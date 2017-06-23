@@ -1,13 +1,12 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
@@ -25,12 +24,12 @@ public class ConvertAttachmentsService extends AbstractService implements Action
     public ConvertAttachmentsService(PrintUtil printUtil,
                                      PropertyFileUtil propertyFileUtil,
                                      ValidationUtil validationUtil,
-                                     CompleteUtil completeUtil,
-                                     ConnectionUtil connectionUtil,
-                                     ProcessRunnerUtil processRunnerUtil,
+                                     CompleteCall completeCall,
+                                     RestSession restSession,
+                                     ProcessRunner processRunner,
                                      InputStream inputStream,
                                      Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
     }
 
     @Override
@@ -45,9 +44,9 @@ public class ConvertAttachmentsService extends AbstractService implements Action
         try {
             printUtil.printAndLog("Converting " + entityInfo + " attachments from: " + filePath + "...");
             timer.start();
-            ActionTotals actionTotals = processRunnerUtil.runConvertAttachmentsProcess(entityInfo, filePath);
+            ActionTotals actionTotals = processRunner.runConvertAttachmentsProcess(entityInfo, filePath);
             printUtil.printAndLog("Finished converting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
-            completeUtil.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
+            completeCall.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to convert " + entityInfo + " attachments");
             printUtil.printAndLog(e);

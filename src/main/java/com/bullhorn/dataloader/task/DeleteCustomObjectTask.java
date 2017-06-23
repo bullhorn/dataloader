@@ -1,12 +1,12 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.csv.CsvFileWriter;
-import com.bullhorn.dataloader.csv.Result;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
-import com.bullhorn.dataloader.util.PreloadUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -30,13 +30,13 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     public DeleteCustomObjectTask(Integer rowNumber,
                                   EntityInfo entityInfo,
                                   Map<String, String> dataMap,
-                                  PreloadUtil preloadUtil,
+                                  Preloader preloader,
                                   CsvFileWriter csvFileWriter,
                                   PropertyFileUtil propertyFileUtil,
-                                  BullhornRestApi bullhornRestApi,
+                                  RestApi restApi,
                                   PrintUtil printUtil,
                                   ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**
@@ -75,7 +75,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
      */
     private void deleteCustomObject(Integer parentEntityID) {
         AssociationField associationField = getAssociationField();
-        CrudResponse response = bullhornRestApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
+        CrudResponse response = restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
         checkForRestSdkErrorMessages(response);
     }
 
