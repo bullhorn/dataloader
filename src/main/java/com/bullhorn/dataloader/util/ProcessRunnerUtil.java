@@ -32,14 +32,14 @@ import java.util.concurrent.TimeUnit;
 public class ProcessRunnerUtil {
 
     final protected ConnectionUtil connectionUtil;
-    final protected PreLoaderUtil preLoaderUtil;
+    final protected PreloaderUtil preloaderUtil;
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ThreadPoolUtil threadPoolUtil;
 
-    public ProcessRunnerUtil(ConnectionUtil connectionUtil, PreLoaderUtil preLoaderUtil, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
+    public ProcessRunnerUtil(ConnectionUtil connectionUtil, PreloaderUtil preloaderUtil, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
         this.connectionUtil = connectionUtil;
-        this.preLoaderUtil = preLoaderUtil;
+        this.preloaderUtil = preloaderUtil;
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.threadPoolUtil = threadPoolUtil;
@@ -56,7 +56,7 @@ public class ProcessRunnerUtil {
         Map<String, Method> methodMap = entityInfo.getSetterMethodMap();
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
         if (methodMap.containsKey("countryid")) {
-            countryNameToIdMap = preLoaderUtil.getCountryNameToIdMap();
+            countryNameToIdMap = preloaderUtil.getCountryNameToIdMap();
         }
 
         // Loop over each row in the file

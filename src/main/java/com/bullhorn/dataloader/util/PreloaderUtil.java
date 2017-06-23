@@ -13,12 +13,12 @@ import java.util.Map;
 /**
  * Pre-loads data into memory prior to performing a process in order to avoid the cost of lookup calls.
  */
-public class PreLoaderUtil {
+public class PreloaderUtil {
 
     final protected ConnectionUtil connectionUtil;
     Map<String, Integer> countryNameToIdMap = null;
 
-    public PreLoaderUtil(ConnectionUtil connectionUtil) {
+    public PreloaderUtil(ConnectionUtil connectionUtil) {
         this.connectionUtil = connectionUtil;
     }
 

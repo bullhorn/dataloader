@@ -26,7 +26,7 @@ public class ProcessRunnerUtilTest {
 
     private BullhornRestApi bullhornRestApiMock;
     private ExecutorService executorServiceMock;
-    private PreLoaderUtil preLoaderUtilMock;
+    private PreloaderUtil preloaderUtilMock;
     private PrintUtil printUtilMock;
     private ProcessRunnerUtil processRunnerUtil;
     private PropertyFileUtil propertyFileUtilMock;
@@ -36,12 +36,12 @@ public class ProcessRunnerUtilTest {
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
         executorServiceMock = Mockito.mock(ExecutorService.class);
-        preLoaderUtilMock = Mockito.mock(PreLoaderUtil.class);
+        preloaderUtilMock = Mockito.mock(PreloaderUtil.class);
         printUtilMock = Mockito.mock(PrintUtil.class);
         propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = Mockito.mock(ThreadPoolUtil.class);
 
-        processRunnerUtil = new ProcessRunnerUtil(connectionUtilMock, preLoaderUtilMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);
+        processRunnerUtil = new ProcessRunnerUtil(connectionUtilMock, preloaderUtilMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);
 
         Mockito.when(connectionUtilMock.getSession()).thenReturn(bullhornRestApiMock);
         Mockito.when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);
@@ -55,7 +55,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runLoadProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.times(1)).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.times(1)).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -71,7 +71,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runLoadProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -87,7 +87,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runDeleteProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -103,7 +103,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runDeleteProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -119,7 +119,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -135,7 +135,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -151,7 +151,7 @@ public class ProcessRunnerUtilTest {
 
         ActionTotals actualTotals = processRunnerUtil.runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preLoaderUtilMock, Mockito.never()).getCountryNameToIdMap();
+        Mockito.verify(preloaderUtilMock, Mockito.never()).getCountryNameToIdMap();
         Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
         Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
         Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());

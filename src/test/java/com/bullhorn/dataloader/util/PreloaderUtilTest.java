@@ -15,17 +15,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PreLoaderUtilTest {
+public class PreloaderUtilTest {
 
     private BullhornRestApi bullhornRestApiMock;
-    private PreLoaderUtil preLoaderUtil;
+    private PreloaderUtil preloaderUtil;
 
     @Before
     public void setup() throws IOException, InterruptedException {
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
 
-        preLoaderUtil = new PreLoaderUtil(connectionUtilMock);
+        preloaderUtil = new PreloaderUtil(connectionUtilMock);
 
         Mockito.when(connectionUtilMock.getSession()).thenReturn(bullhornRestApiMock);
     }
@@ -45,7 +45,7 @@ public class PreLoaderUtilTest {
         Map<String, Integer> expectedMap = new HashMap<>();
         expectedMap.put("USA", 1);
 
-        Map<String, Integer> actualMap = preLoaderUtil.getCountryNameToIdMap();
+        Map<String, Integer> actualMap = preloaderUtil.getCountryNameToIdMap();
 
         Assert.assertThat(actualMap, new ReflectionEquals(expectedMap));
     }
