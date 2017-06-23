@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.csv.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.util.PreloadUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -44,14 +45,13 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     public LoadCustomObjectTask(Integer rowNumber,
                                 EntityInfo entityInfo,
                                 Map<String, String> dataMap,
-                                Map<String, Method> methodMap,
-                                Map<String, Integer> countryNameToIdMap,
+                                PreloadUtil preloadUtil,
                                 CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 BullhornRestApi bullhornRestApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     @Override

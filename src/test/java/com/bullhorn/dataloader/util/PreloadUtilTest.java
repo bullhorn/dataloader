@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.response.list.CountryListWrapper;
@@ -15,23 +16,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PreloaderUtilTest {
+public class PreloadUtilTest {
 
     private BullhornRestApi bullhornRestApiMock;
-    private PreloaderUtil preloaderUtil;
+    private PreloadUtil preloadUtil;
 
     @Before
     public void setup() throws IOException, InterruptedException {
         bullhornRestApiMock = Mockito.mock(BullhornRestApi.class);
         ConnectionUtil connectionUtilMock = Mockito.mock(ConnectionUtil.class);
 
-        preloaderUtil = new PreloaderUtil(connectionUtilMock);
-
-        Mockito.when(connectionUtilMock.getSession()).thenReturn(bullhornRestApiMock);
-    }
-
-    @Test
-    public void getCountryNameToIdMapTest() throws IOException, InterruptedException {
         CountryListWrapper countryListWrapper = new CountryListWrapper();
         List<Country> countryList = new ArrayList<>();
         Country usa = new Country();
@@ -40,12 +34,30 @@ public class PreloaderUtilTest {
         countryList.add(usa);
         countryListWrapper.setData(countryList);
 
-        Mockito.when(bullhornRestApiMock.queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(countryListWrapper);
+        preloadUtil = new PreloadUtil(connectionUtilMock);
 
+        Mockito.when(connectionUtilMock.getSession()).thenReturn(bullhornRestApiMock);
+        Mockito.when(bullhornRestApiMock.queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(countryListWrapper);
+    }
+
+    @Test
+    public void preloadCandidateWorkHistory() throws IOException, InterruptedException {
+        preloadUtil.preload(EntityInfo.CANDIDATE_WORK_HISTORY);
+        Mockito.verify(bullhornRestApiMock, Mockito.never()).queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void preloadCandidate() throws IOException, InterruptedException {
+        preloadUtil.preload(EntityInfo.CANDIDATE);
+        Mockito.verify(bullhornRestApiMock, Mockito.times(1)).queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    public void getCountryNameToIdMapTest() throws IOException, InterruptedException {
         Map<String, Integer> expectedMap = new HashMap<>();
         expectedMap.put("USA", 1);
 
-        Map<String, Integer> actualMap = preloaderUtil.getCountryNameToIdMap();
+        Map<String, Integer> actualMap = preloadUtil.getCountryNameToIdMap();
 
         Assert.assertThat(actualMap, new ReflectionEquals(expectedMap));
     }

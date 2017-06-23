@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.PreloadUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -29,12 +30,13 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     public DeleteCustomObjectTask(Integer rowNumber,
                                   EntityInfo entityInfo,
                                   Map<String, String> dataMap,
+                                  PreloadUtil preloadUtil,
                                   CsvFileWriter csvFileWriter,
                                   PropertyFileUtil propertyFileUtil,
                                   BullhornRestApi bullhornRestApi,
                                   PrintUtil printUtil,
                                   ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, null, null, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(rowNumber, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
     }
 
     /**

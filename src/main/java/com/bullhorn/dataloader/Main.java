@@ -4,7 +4,7 @@ import com.bullhorn.dataloader.rest.BullhornRestApiExtension;
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.util.CompleteUtil;
 import com.bullhorn.dataloader.util.ConnectionUtil;
-import com.bullhorn.dataloader.util.PreloaderUtil;
+import com.bullhorn.dataloader.util.PreloadUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -36,10 +36,10 @@ public class Main {
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
             BullhornRestApiExtension bullhornRestApiExtension = new BullhornRestApiExtension();
             ConnectionUtil connectionUtil = new ConnectionUtil(bullhornRestApiExtension, propertyFileUtil);
-            PreloaderUtil preloaderUtil = new PreloaderUtil(connectionUtil);
+            PreloadUtil preloadUtil = new PreloadUtil(connectionUtil);
             CompleteUtil completeUtil = new CompleteUtil(connectionUtil, httpClient, propertyFileUtil, printUtil);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
-            ProcessRunnerUtil processRunnerUtil = new ProcessRunnerUtil(connectionUtil, preloaderUtil, printUtil, propertyFileUtil, threadPoolUtil);
+            ProcessRunnerUtil processRunnerUtil = new ProcessRunnerUtil(connectionUtil, preloadUtil, printUtil, propertyFileUtil, threadPoolUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);

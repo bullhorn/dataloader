@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.BullhornRestApi;
 import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.PreloadUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -54,7 +55,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected B entity;
     protected Integer entityID;
     protected Map<String, Method> methodMap;
-    private Map<String, Integer> countryNameToIdMap;
+    protected PreloadUtil preloadUtil;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
     protected boolean isNewEntity = true;
@@ -62,16 +63,15 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     public LoadTask(Integer rowNumber,
                     EntityInfo entityInfo,
                     Map<String, String> dataMap,
-                    Map<String, Method> methodMap,
-                    Map<String, Integer> countryNameToIdMap,
+                    PreloadUtil preloadUtil,
                     CsvFileWriter csvFileWriter,
                     PropertyFileUtil propertyFileUtil,
                     BullhornRestApi bullhornRestApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
         super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        this.methodMap = methodMap;
-        this.countryNameToIdMap = countryNameToIdMap;
+        this.preloadUtil = preloadUtil;
+        this.methodMap = entityInfo.getSetterMethodMap();
     }
 
     @Override
@@ -267,6 +267,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
         if (fieldName.contains("country")) {
             // Allow for the use of a country name or internal Bullhorn ID
+            Map<String, Integer> countryNameToIdMap = preloadUtil.getCountryNameToIdMap();
             if (countryNameToIdMap.containsKey(dataMap.get(field))) {
                 methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
             } else {

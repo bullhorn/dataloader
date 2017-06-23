@@ -18,7 +18,6 @@ import com.bullhornsdk.data.model.file.FileMeta;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -32,14 +31,14 @@ import java.util.concurrent.TimeUnit;
 public class ProcessRunnerUtil {
 
     final protected ConnectionUtil connectionUtil;
-    final protected PreloaderUtil preloaderUtil;
+    final protected PreloadUtil preloadUtil;
     final protected PrintUtil printUtil;
     final protected PropertyFileUtil propertyFileUtil;
     final protected ThreadPoolUtil threadPoolUtil;
 
-    public ProcessRunnerUtil(ConnectionUtil connectionUtil, PreloaderUtil preloaderUtil, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
+    public ProcessRunnerUtil(ConnectionUtil connectionUtil, PreloadUtil preloadUtil, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
         this.connectionUtil = connectionUtil;
-        this.preloaderUtil = preloaderUtil;
+        this.preloadUtil = preloadUtil;
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.threadPoolUtil = threadPoolUtil;
@@ -52,12 +51,8 @@ public class ProcessRunnerUtil {
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        // TODO: Stop passing in the method map into the Task, since we already pass in entityInfo
-        Map<String, Method> methodMap = entityInfo.getSetterMethodMap();
-        Map<String, Integer> countryNameToIdMap = new HashMap<>();
-        if (methodMap.containsKey("countryid")) {
-            countryNameToIdMap = preloaderUtil.getCountryNameToIdMap();
-        }
+        // Preload any necessary data prior to loading this entity type
+        preloadUtil.preload(entityInfo);
 
         // Loop over each row in the file
         Integer rowNumber = 1;
@@ -69,12 +64,12 @@ public class ProcessRunnerUtil {
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
                 // TODO: Remove the need for this once CustomObjects PUT calls work
-                task = new LoadCustomObjectTask(rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new LoadCustomObjectTask(rowNumber++, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             } else {
                 // TODO: Use the methodMap from the entityInfo object and stop passing it
                 // TODO: Combine the rowNumber and dataMap into the row object
                 // TODO: Move the countryNameToIdMap into a PreloadUtil and DI it
-                task = new LoadTask(rowNumber++, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new LoadTask(rowNumber++, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             }
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -103,7 +98,7 @@ public class ProcessRunnerUtil {
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
                 // TODO: Remove the need for this once CustomObjects DELETE calls work
-                task = new DeleteCustomObjectTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+                task = new DeleteCustomObjectTask(rowNumber++, entityInfo, dataMap, preloadUtil, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             } else {
                 task = new DeleteTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
             }
