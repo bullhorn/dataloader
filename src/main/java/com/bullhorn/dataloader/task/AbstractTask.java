@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.csv.CsvFileWriter;
 import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;

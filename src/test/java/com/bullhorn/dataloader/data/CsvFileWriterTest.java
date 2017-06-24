@@ -1,6 +1,5 @@
-package com.bullhorn.dataloader.csv;
+package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvReader;

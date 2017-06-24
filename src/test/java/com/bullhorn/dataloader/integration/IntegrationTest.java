@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.integration;
 
 import com.bullhorn.dataloader.Main;
 import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.csv.CsvFileWriter;
+import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.enums.Command;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
