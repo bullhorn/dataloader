@@ -14,9 +14,16 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class DeleteServiceTest {
 
@@ -29,19 +36,19 @@ public class DeleteServiceTest {
 
     @Before
     public void setup() throws Exception {
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        completeCallMock = Mockito.mock(CompleteCall.class);
-        RestSession restSessionMock = Mockito.mock(RestSession.class);
+        actionTotalsMock = mock(ActionTotals.class);
+        completeCallMock = mock(CompleteCall.class);
+        RestSession restSessionMock = mock(RestSession.class);
         InputStream inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        processRunnerMock = Mockito.mock(ProcessRunner.class);
-        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        timerMock = Mockito.mock(Timer.class);
+        printUtilMock = mock(PrintUtil.class);
+        processRunnerMock = mock(ProcessRunner.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
+        timerMock = mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
         deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        Mockito.doReturn(actionTotalsMock).when(processRunnerMock).runDeleteProcess(Mockito.any(), Mockito.any());
+        doReturn(actionTotalsMock).when(processRunnerMock).runDeleteProcess(any(), any());
     }
 
     @Test
@@ -51,9 +58,9 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
+        verify(completeCallMock, times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -64,8 +71,8 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, expectedFileName);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, expectedFileName);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -77,9 +84,9 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE, expectedCandidateFileName);
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
-        Mockito.verify(printUtilMock, Mockito.times(7)).printAndLog(Mockito.anyString());
+        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CANDIDATE, expectedCandidateFileName);
+        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
+        verify(printUtilMock, times(7)).printAndLog(anyString());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -96,7 +103,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
@@ -107,7 +114,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -117,7 +124,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -128,7 +135,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -139,7 +146,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -150,7 +157,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -161,7 +168,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -172,7 +179,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -183,7 +190,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
@@ -194,7 +201,7 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -205,6 +212,6 @@ public class DeleteServiceTest {
         final boolean actualResult = deleteService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 }

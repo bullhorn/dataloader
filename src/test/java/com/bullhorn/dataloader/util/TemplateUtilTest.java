@@ -6,7 +6,6 @@ import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,6 +13,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static org.mockito.Mockito.mock;
 
 public class TemplateUtilTest {
 
@@ -32,7 +33,7 @@ public class TemplateUtilTest {
         dataTypes = new ArrayList<>();
         metaFieldSet = new HashSet<>();
 
-        restApi = Mockito.mock(RestApi.class);
+        restApi = mock(RestApi.class);
 
         setUpMetaFieldSet();
         setUpAssociationFields();

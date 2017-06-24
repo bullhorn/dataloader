@@ -17,11 +17,17 @@ import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
+
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class TemplateServiceTest {
 
@@ -31,14 +37,14 @@ public class TemplateServiceTest {
 
     @Before
     public void setup() throws Exception {
-        RestApi restApiMock = Mockito.mock(RestApi.class);
-        CompleteCall completeCallMock = Mockito.mock(CompleteCall.class);
-        restSessionMock = Mockito.mock(RestSession.class);
-        InputStream inputStreamMock = Mockito.mock(InputStream.class);
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        ProcessRunner processRunnerMock = Mockito.mock(ProcessRunner.class);
-        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        Timer timerMock = Mockito.mock(Timer.class);
+        RestApi restApiMock = mock(RestApi.class);
+        CompleteCall completeCallMock = mock(CompleteCall.class);
+        restSessionMock = mock(RestSession.class);
+        InputStream inputStreamMock = mock(InputStream.class);
+        printUtilMock = mock(PrintUtil.class);
+        ProcessRunner processRunnerMock = mock(ProcessRunner.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
+        Timer timerMock = mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
         templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
@@ -52,8 +58,8 @@ public class TemplateServiceTest {
         field.setType("SCALAR");
         metaData.setFields(Collections.singletonList(field));
 
-        Mockito.when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        Mockito.when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
+        when(restSessionMock.getRestApi()).thenReturn(restApiMock);
+        when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(metaData);
     }
 
     @Test
@@ -64,7 +70,7 @@ public class TemplateServiceTest {
 
         templateService.run(testArgs);
 
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
 
         String fileName = entity + "Example.csv";
         File outputFile = new File(fileName);
@@ -82,11 +88,11 @@ public class TemplateServiceTest {
 
     @Test
     public void testRun_BadConnection() throws Exception {
-        Mockito.when(restSessionMock.getRestApi()).thenThrow(new RestApiException());
+        when(restSessionMock.getRestApi()).thenThrow(new RestApiException());
 
         templateService.run(new String[] {Command.TEMPLATE.getMethodName(), "Candidate"});
 
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("Failed to create REST session.");
+        verify(printUtilMock, times(1)).printAndLog("Failed to create REST session.");
     }
 
     @Test
@@ -96,7 +102,7 @@ public class TemplateServiceTest {
         Boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
@@ -106,7 +112,7 @@ public class TemplateServiceTest {
         Boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -116,7 +122,7 @@ public class TemplateServiceTest {
         Boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -126,7 +132,7 @@ public class TemplateServiceTest {
         Boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -136,6 +142,6 @@ public class TemplateServiceTest {
         Boolean actualResult = templateService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 }

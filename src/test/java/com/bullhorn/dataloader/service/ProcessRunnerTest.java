@@ -22,11 +22,18 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ProcessRunnerTest {
 
@@ -39,19 +46,19 @@ public class ProcessRunnerTest {
 
     @Before
     public void setup() throws InterruptedException {
-        restApiMock = Mockito.mock(RestApi.class);
-        RestSession restSessionMock = Mockito.mock(RestSession.class);
-        executorServiceMock = Mockito.mock(ExecutorService.class);
-        preloaderMock = Mockito.mock(Preloader.class);
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        ThreadPoolUtil threadPoolUtilMock = Mockito.mock(ThreadPoolUtil.class);
+        restApiMock = mock(RestApi.class);
+        RestSession restSessionMock = mock(RestSession.class);
+        executorServiceMock = mock(ExecutorService.class);
+        preloaderMock = mock(Preloader.class);
+        printUtilMock = mock(PrintUtil.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 
         processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);
 
-        Mockito.when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        Mockito.when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);
-        Mockito.when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        when(restSessionMock.getRestApi()).thenReturn(restApiMock);
+        when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);
+        when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
     }
 
     @Test
@@ -61,10 +68,10 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.LOAD), Mockito.eq(actualTotals));
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), LoadTask.class);
     }
@@ -76,11 +83,11 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.LOAD), Mockito.eq(actualTotals));
+        verify(preloaderMock, never()).getCountryNameToIdMap();
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), LoadCustomObjectTask.class);
     }
@@ -92,11 +99,11 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.DELETE), Mockito.eq(actualTotals));
+        verify(preloaderMock, never()).getCountryNameToIdMap();
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), DeleteTask.class);
     }
@@ -108,11 +115,11 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.DELETE), Mockito.eq(actualTotals));
+        verify(preloaderMock, never()).getCountryNameToIdMap();
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), DeleteCustomObjectTask.class);
     }
@@ -124,11 +131,11 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.LOAD_ATTACHMENTS), Mockito.eq(actualTotals));
+        verify(preloaderMock, never()).getCountryNameToIdMap();
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD_ATTACHMENTS), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), LoadAttachmentTask.class);
     }
@@ -140,11 +147,11 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.CONVERT_ATTACHMENTS), Mockito.eq(actualTotals));
+        verify(preloaderMock, never()).getCountryNameToIdMap();
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.CONVERT_ATTACHMENTS), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), ConvertAttachmentTask.class);
     }
@@ -156,11 +163,11 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        Mockito.verify(preloaderMock, Mockito.never()).getCountryNameToIdMap();
-        Mockito.verify(executorServiceMock, Mockito.times(1)).execute(Mockito.any());
-        Mockito.verify(executorServiceMock, Mockito.times(1)).shutdown();
-        Mockito.verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printActionTotals(Mockito.eq(Command.DELETE_ATTACHMENTS), Mockito.eq(actualTotals));
+        verify(preloaderMock, never()).getCountryNameToIdMap();
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE_ATTACHMENTS), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), DeleteAttachmentTask.class);
     }

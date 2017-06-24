@@ -5,7 +5,10 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class HelpServiceTest {
 
@@ -14,7 +17,7 @@ public class HelpServiceTest {
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = Mockito.mock(PrintUtil.class);
+        printUtilMock = mock(PrintUtil.class);
         helpService = new HelpService(printUtilMock);
     }
 
@@ -24,7 +27,7 @@ public class HelpServiceTest {
 
         helpService.run(testArgs);
 
-        Mockito.verify(printUtilMock, Mockito.times(1)).printUsage();
+        verify(printUtilMock, times(1)).printUsage();
     }
 
     @Test

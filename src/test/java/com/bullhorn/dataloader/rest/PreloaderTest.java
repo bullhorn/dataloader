@@ -6,7 +6,6 @@ import com.bullhornsdk.data.model.response.list.CountryListWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
@@ -15,6 +14,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 public class PreloaderTest {
 
     private RestApi restApiMock;
@@ -22,8 +28,8 @@ public class PreloaderTest {
 
     @Before
     public void setup() throws IOException, InterruptedException {
-        restApiMock = Mockito.mock(RestApi.class);
-        RestSession restSessionMock = Mockito.mock(RestSession.class);
+        restApiMock = mock(RestApi.class);
+        RestSession restSessionMock = mock(RestSession.class);
 
         CountryListWrapper countryListWrapper = new CountryListWrapper();
         List<Country> countryList = new ArrayList<>();
@@ -35,20 +41,20 @@ public class PreloaderTest {
 
         preloader = new Preloader(restSessionMock);
 
-        Mockito.when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        Mockito.when(restApiMock.queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any())).thenReturn(countryListWrapper);
+        when(restSessionMock.getRestApi()).thenReturn(restApiMock);
+        when(restApiMock.queryForAllRecords(any(), any(), any(), any())).thenReturn(countryListWrapper);
     }
 
     @Test
     public void preloadCandidateWorkHistory() throws IOException, InterruptedException {
         preloader.preload(EntityInfo.CANDIDATE_WORK_HISTORY);
-        Mockito.verify(restApiMock, Mockito.never()).queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        verify(restApiMock, never()).queryForAllRecords(any(), any(), any(), any());
     }
 
     @Test
     public void preloadCandidate() throws IOException, InterruptedException {
         preloader.preload(EntityInfo.CANDIDATE);
-        Mockito.verify(restApiMock, Mockito.times(1)).queryForAllRecords(Mockito.any(), Mockito.any(), Mockito.any(), Mockito.any());
+        verify(restApiMock, times(1)).queryForAllRecords(any(), any(), any(), any());
     }
 
     @Test

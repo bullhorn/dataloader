@@ -6,7 +6,8 @@ import com.bullhornsdk.data.exception.RestApiException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
+
+import static org.mockito.Mockito.mock;
 
 public class RestSessionTest {
 
@@ -15,8 +16,8 @@ public class RestSessionTest {
 
     @Before
     public void setup() {
-        restApiExtensionMock = Mockito.mock(RestApiExtension.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        restApiExtensionMock = mock(RestApiExtension.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
     }
 
     @Test

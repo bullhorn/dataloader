@@ -14,9 +14,17 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class LoadServiceTest {
 
@@ -33,19 +41,19 @@ public class LoadServiceTest {
 
     @Before
     public void setup() throws Exception {
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        completeCallMock = Mockito.mock(CompleteCall.class);
-        restSessionMock = Mockito.mock(RestSession.class);
+        actionTotalsMock = mock(ActionTotals.class);
+        completeCallMock = mock(CompleteCall.class);
+        restSessionMock = mock(RestSession.class);
         inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        processRunnerMock = Mockito.mock(ProcessRunner.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        timerMock = Mockito.mock(Timer.class);
+        printUtilMock = mock(PrintUtil.class);
+        processRunnerMock = mock(ProcessRunner.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        timerMock = mock(Timer.class);
         validationUtil = new ValidationUtil(printUtilMock);
 
         loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        Mockito.doReturn(actionTotalsMock).when(processRunnerMock).runLoadProcess(Mockito.any(), Mockito.any());
+        doReturn(actionTotalsMock).when(processRunnerMock).runLoadProcess(any(), any());
     }
 
     @Test
@@ -55,9 +63,9 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
+        verify(completeCallMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -68,9 +76,9 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
+        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
+        verify(completeCallMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -78,14 +86,14 @@ public class LoadServiceTest {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         final String filePath = directoryPath + "/ClientContact.csv";
         final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
-        Mockito.doReturn(1).when(propertyFileUtilMock).getWaitTimeMsecBetweenFilesInDirectory();
+        doReturn(1).when(propertyFileUtilMock).getWaitTimeMsecBetweenFilesInDirectory();
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
-        Mockito.verify(printUtilMock, Mockito.times(3)).printAndLog(Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
-        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
+        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        verify(printUtilMock, times(3)).printAndLog(anyString());
+        verify(printUtilMock, times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
+        verify(completeCallMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
     }
 
     @Test
@@ -95,12 +103,12 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(4)).runLoadProcess(Mockito.eq(EntityInfo.OPPORTUNITY), Mockito.any());
-        Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   3. Opportunity records from OpportunityA.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   4. Opportunity records from OpportunityB.csv");
+        verify(processRunnerMock, times(4)).runLoadProcess(eq(EntityInfo.OPPORTUNITY), any());
+        verify(printUtilMock, times(13)).printAndLog(anyString());
+        verify(printUtilMock, times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
+        verify(printUtilMock, times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
+        verify(printUtilMock, times(1)).printAndLog("   3. Opportunity records from OpportunityA.csv");
+        verify(printUtilMock, times(1)).printAndLog("   4. Opportunity records from OpportunityB.csv");
     }
 
     @Test
@@ -110,12 +118,12 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(4)).runLoadProcess(Mockito.any(), Mockito.any());
-        Mockito.verify(printUtilMock, Mockito.times(13)).printAndLog(Mockito.anyString());
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   3. Candidate records from Candidate_Valid_File.csv");
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog("   4. CandidateWorkHistory records from CandidateWorkHistory.csv");
+        verify(processRunnerMock, times(4)).runLoadProcess(any(), any());
+        verify(printUtilMock, times(13)).printAndLog(anyString());
+        verify(printUtilMock, times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
+        verify(printUtilMock, times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
+        verify(printUtilMock, times(1)).printAndLog("   3. Candidate records from Candidate_Valid_File.csv");
+        verify(printUtilMock, times(1)).printAndLog("   4. CandidateWorkHistory records from CandidateWorkHistory.csv");
     }
 
     @Test
@@ -128,8 +136,8 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.never()).runLoadProcess(Mockito.any(), Mockito.any());
-        Mockito.verify(printUtilMock, Mockito.times(5)).printAndLog(Mockito.anyString());
+        verify(processRunnerMock, never()).runLoadProcess(any(), any());
+        verify(printUtilMock, times(5)).printAndLog(anyString());
     }
 
     @Test(expected = IllegalStateException.class)
@@ -146,7 +154,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
@@ -157,7 +165,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -167,7 +175,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -178,7 +186,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -189,7 +197,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -200,7 +208,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -211,7 +219,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -222,7 +230,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
@@ -233,7 +241,7 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -244,6 +252,6 @@ public class LoadServiceTest {
         final boolean actualResult = loadService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 }

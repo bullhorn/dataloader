@@ -13,9 +13,16 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.InputStream;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 public class LoadAttachmentsServiceTest {
 
@@ -29,19 +36,19 @@ public class LoadAttachmentsServiceTest {
 
     @Before
     public void setup() throws Exception {
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        completeCallMock = Mockito.mock(CompleteCall.class);
-        restSessionMock = Mockito.mock(RestSession.class);
-        InputStream inputStreamMock = Mockito.mock(InputStream.class);
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        processRunnerMock = Mockito.mock(ProcessRunner.class);
-        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        timerMock = Mockito.mock(Timer.class);
+        actionTotalsMock = mock(ActionTotals.class);
+        completeCallMock = mock(CompleteCall.class);
+        restSessionMock = mock(RestSession.class);
+        InputStream inputStreamMock = mock(InputStream.class);
+        printUtilMock = mock(PrintUtil.class);
+        processRunnerMock = mock(ProcessRunner.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
+        timerMock = mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
         loadAttachmentsService = new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
-        Mockito.doReturn(actionTotalsMock).when(processRunnerMock).runLoadAttachmentsProcess(Mockito.any(), Mockito.any());
+        doReturn(actionTotalsMock).when(processRunnerMock).runLoadAttachmentsProcess(any(), any());
     }
 
     @Test
@@ -51,9 +58,9 @@ public class LoadAttachmentsServiceTest {
 
         loadAttachmentsService.run(testArgs);
 
-        Mockito.verify(processRunnerMock, Mockito.times(1)).runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
-        Mockito.verify(completeCallMock, Mockito.times(1)).complete(Command.LOAD_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        verify(processRunnerMock, times(1)).runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
+        verify(completeCallMock, times(1)).complete(Command.LOAD_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
     }
 
     @Test(expected = IllegalStateException.class)
@@ -77,7 +84,7 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
-        Mockito.verify(printUtilMock, Mockito.never()).printAndLog(Mockito.anyString());
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
@@ -88,7 +95,7 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -98,7 +105,7 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -109,7 +116,7 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
@@ -120,7 +127,7 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -131,7 +138,7 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(2)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
@@ -142,6 +149,6 @@ public class LoadAttachmentsServiceTest {
         final boolean actualResult = loadAttachmentsService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
-        Mockito.verify(printUtilMock, Mockito.times(1)).printAndLog(Mockito.anyString());
+        verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 }

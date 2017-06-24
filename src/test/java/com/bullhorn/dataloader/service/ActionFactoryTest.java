@@ -10,10 +10,11 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.InputStream;
+
+import static org.mockito.Mockito.mock;
 
 public class ActionFactoryTest {
 
@@ -21,14 +22,14 @@ public class ActionFactoryTest {
 
     @Before
     public void setup() throws Exception {
-        CompleteCall completeCallMock = Mockito.mock(CompleteCall.class);
-        InputStream inputStreamMock = Mockito.mock(InputStream.class);
-        PrintUtil printUtilMock = Mockito.mock(PrintUtil.class);
-        ProcessRunner processRunnerMock = Mockito.mock(ProcessRunner.class);
-        PropertyFileUtil propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        RestSession restSessionMock = Mockito.mock(RestSession.class);
-        Timer timerMock = Mockito.mock(Timer.class);
-        ValidationUtil validationUtilMock = Mockito.mock(ValidationUtil.class);
+        CompleteCall completeCallMock = mock(CompleteCall.class);
+        InputStream inputStreamMock = mock(InputStream.class);
+        PrintUtil printUtilMock = mock(PrintUtil.class);
+        ProcessRunner processRunnerMock = mock(ProcessRunner.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
+        RestSession restSessionMock = mock(RestSession.class);
+        Timer timerMock = mock(Timer.class);
+        ValidationUtil validationUtilMock = mock(ValidationUtil.class);
 
         actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
     }

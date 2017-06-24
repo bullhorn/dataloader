@@ -15,12 +15,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class CompleteCallTest {
 
@@ -37,25 +39,25 @@ public class CompleteCallTest {
 
     @Before
     public void setup() throws IOException {
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        RestApi restApiMock = Mockito.mock(RestApi.class);
-        restSessionMock = Mockito.mock(RestSession.class);
-        httpClientMock = Mockito.mock(HttpClient.class);
+        actionTotalsMock = mock(ActionTotals.class);
+        RestApi restApiMock = mock(RestApi.class);
+        restSessionMock = mock(RestSession.class);
+        httpClientMock = mock(HttpClient.class);
         httpMethodArgumentCaptor = ArgumentCaptor.forClass(HttpMethod.class);
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        timerMock = Mockito.mock(Timer.class);
+        printUtilMock = mock(PrintUtil.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        timerMock = mock(Timer.class);
 
-        Mockito.when(propertyFileUtilMock.getNumThreads()).thenReturn(9);
-        Mockito.when(timerMock.getDurationMillis()).thenReturn(999L);
-        Mockito.when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
-        Mockito.when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(2);
-        Mockito.when(actionTotalsMock.getActionTotal(Result.Action.FAILURE)).thenReturn(3);
-        Mockito.when(actionTotalsMock.getAllActionsTotal()).thenReturn(6);
-        Mockito.when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        Mockito.when(restApiMock.getRestUrl()).thenReturn("http://bullhorn-rest-api/");
-        Mockito.when(restApiMock.getBhRestToken()).thenReturn("12345678-1234-1234-1234-1234567890AB");
-        Mockito.when(httpClientMock.executeMethod(any())).thenReturn(0);
+        when(propertyFileUtilMock.getNumThreads()).thenReturn(9);
+        when(timerMock.getDurationMillis()).thenReturn(999L);
+        when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
+        when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(2);
+        when(actionTotalsMock.getActionTotal(Result.Action.FAILURE)).thenReturn(3);
+        when(actionTotalsMock.getAllActionsTotal()).thenReturn(6);
+        when(restSessionMock.getRestApi()).thenReturn(restApiMock);
+        when(restApiMock.getRestUrl()).thenReturn("http://bullhorn-rest-api/");
+        when(restApiMock.getBhRestToken()).thenReturn("12345678-1234-1234-1234-1234567890AB");
+        when(httpClientMock.executeMethod(any())).thenReturn(0);
 
         completeCall = new CompleteCall(restSessionMock, httpClientMock, propertyFileUtilMock, printUtilMock);
     }
@@ -76,7 +78,7 @@ public class CompleteCallTest {
 
         completeCall.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
 
-        Mockito.verify(httpClientMock).executeMethod(httpMethodArgumentCaptor.capture());
+        verify(httpClientMock).executeMethod(httpMethodArgumentCaptor.capture());
         final HttpMethod httpMethod = httpMethodArgumentCaptor.getValue();
         PostMethod postMethod = (PostMethod) httpMethod;
         Assert.assertEquals(expectedURL, postMethod.getURI().toString());
@@ -90,10 +92,10 @@ public class CompleteCallTest {
     @Test
     public void testComplete_error() throws IOException {
         RestApiException restApiException = new RestApiException("ERROR TEXT");
-        Mockito.when(httpClientMock.executeMethod(any())).thenThrow(restApiException);
+        when(httpClientMock.executeMethod(any())).thenThrow(restApiException);
 
         completeCall.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
 
-        Mockito.verify(printUtilMock).printAndLog(restApiException);
+        verify(printUtilMock).printAndLog(restApiException);
     }
 }

@@ -5,7 +5,6 @@ import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+
+import static org.mockito.Mockito.mock;
 
 public class PropertyFileUtilTest {
 
@@ -32,7 +33,7 @@ public class PropertyFileUtilTest {
         envVars = new HashMap<>();
         systemProperties = new Properties();
         propertyValidation = new PropertyValidation();
-        printUtilMock = Mockito.mock(PrintUtil.class);
+        printUtilMock = mock(PrintUtil.class);
     }
 
     @Test

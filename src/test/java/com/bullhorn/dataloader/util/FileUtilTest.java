@@ -5,7 +5,6 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +16,8 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static org.mockito.Mockito.mock;
+
 public class FileUtilTest {
 
     private PrintUtil printUtilMock;
@@ -24,7 +25,7 @@ public class FileUtilTest {
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = Mockito.mock(PrintUtil.class);
+        printUtilMock = mock(PrintUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
     }
 

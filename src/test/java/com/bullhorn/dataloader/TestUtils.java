@@ -13,7 +13,6 @@ import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +21,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Utilities used in tests
@@ -101,9 +102,9 @@ public class TestUtils {
     public static void verifyActionTotals(ActionTotals actionTotalsMock, Result.Action expectedAction, Integer expectedTotal) {
         for (Result.Action action : Result.Action.values()) {
             if (action == expectedAction) {
-                Mockito.verify(actionTotalsMock, Mockito.times(expectedTotal)).incrementActionTotal(action);
+                verify(actionTotalsMock, times(expectedTotal)).incrementActionTotal(action);
             } else {
-                Mockito.verify(actionTotalsMock, never()).incrementActionTotal(action);
+                verify(actionTotalsMock, never()).incrementActionTotal(action);
             }
         }
     }

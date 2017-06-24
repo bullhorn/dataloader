@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
@@ -26,6 +25,8 @@ import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,11 +44,11 @@ public class ConvertAttachmentTaskTest {
 
     @Before
     public void setup() throws Exception {
-        csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        restApi = Mockito.mock(RestApi.class);
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        printUtil = Mockito.mock(PrintUtil.class);
-        candidateExternalIdProperties = Mockito.mock(PropertyFileUtil.class);
+        csvFileWriter = mock(CsvFileWriter.class);
+        restApi = mock(RestApi.class);
+        actionTotalsMock = mock(ActionTotals.class);
+        printUtil = mock(PrintUtil.class);
+        candidateExternalIdProperties = mock(PropertyFileUtil.class);
 
         dataMap = new LinkedHashMap<>();
         dataMap.put("id", "1");
@@ -73,7 +74,7 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void run_Success() throws IOException {
         Result expectedResult = Result.Convert();
-        task = Mockito.spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
+        task = spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
         doNothing().when(task).writeHtmlToFile(anyString());
 
         task.run();
@@ -92,7 +93,7 @@ public class ConvertAttachmentTaskTest {
         dataMap.put("isResume", "0");
 
         Result expectedResult = Result.Skip();
-        task = Mockito.spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
+        task = spy(new ConvertAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
         doNothing().when(task).writeHtmlToFile(anyString());
 
         task.run();

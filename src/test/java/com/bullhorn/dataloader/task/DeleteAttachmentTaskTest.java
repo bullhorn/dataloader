@@ -13,7 +13,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
@@ -25,6 +24,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,11 +44,11 @@ public class DeleteAttachmentTaskTest {
 
     @Before
     public void setup() throws Exception {
-        propertyFileUtil = Mockito.mock(PropertyFileUtil.class);
-        csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        restApi = Mockito.mock(RestApi.class);
-        actionTotals = Mockito.mock(ActionTotals.class);
-        printUtil = Mockito.mock(PrintUtil.class);
+        propertyFileUtil = mock(PropertyFileUtil.class);
+        csvFileWriter = mock(CsvFileWriter.class);
+        restApi = mock(RestApi.class);
+        actionTotals = mock(ActionTotals.class);
+        printUtil = mock(PrintUtil.class);
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);

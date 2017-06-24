@@ -6,8 +6,14 @@ import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.util.reflection.Whitebox;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RestApiTest {
     private BullhornRestCredentials bullhornRestCredentials;
@@ -16,7 +22,7 @@ public class RestApiTest {
     @Before
     public void setup() {
         bullhornRestCredentials = new BullhornRestCredentials();
-        restApiExtensionMock = Mockito.mock(RestApiExtension.class);
+        restApiExtensionMock = mock(RestApiExtension.class);
     }
 
     @Test
@@ -36,13 +42,13 @@ public class RestApiTest {
 
     @Test
     public void testDeleteEntity() {
-        RestApi restApiPartialMock = Mockito.mock(RestApi.class);
+        RestApi restApiPartialMock = mock(RestApi.class);
         Whitebox.setInternalState(restApiPartialMock, "restApiExtension", restApiExtensionMock);
-        Mockito.when(restApiPartialMock.deleteEntity(Mockito.any(), Mockito.any())).thenCallRealMethod();
+        when(restApiPartialMock.deleteEntity(any(), any())).thenCallRealMethod();
 
         restApiPartialMock.deleteEntity(Candidate.class, 1);
 
-        Mockito.verify(restApiPartialMock, Mockito.times(1)).deleteEntity(Mockito.eq(Candidate.class), Mockito.eq(1));
-        Mockito.verify(restApiExtensionMock, Mockito.times(1)).postDelete(Mockito.eq(restApiPartialMock), Mockito.any());
+        verify(restApiPartialMock, times(1)).deleteEntity(eq(Candidate.class), eq(1));
+        verify(restApiExtensionMock, times(1)).postDelete(eq(restApiPartialMock), any());
     }
 }

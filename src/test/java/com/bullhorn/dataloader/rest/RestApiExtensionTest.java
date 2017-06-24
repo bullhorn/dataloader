@@ -8,7 +8,6 @@ import com.bullhornsdk.data.model.response.crud.Message;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.util.ArrayList;
@@ -16,6 +15,10 @@ import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RestApiExtensionTest {
 
@@ -24,7 +27,7 @@ public class RestApiExtensionTest {
 
     @Before
     public void setup() {
-        restApiMock = Mockito.mock(RestApi.class);
+        restApiMock = mock(RestApi.class);
         restApiExtension = new RestApiExtension();
     }
 
@@ -34,8 +37,8 @@ public class RestApiExtensionTest {
         List<JobSubmissionHistory> jshList = TestUtils.getListWrapper(JobSubmissionHistory.class, 1, 2, 3).getData();
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
         CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", null);
-        Mockito.when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
-        Mockito.when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
+        when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
+        when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
         CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse_jsArg);
 
@@ -48,8 +51,8 @@ public class RestApiExtensionTest {
         List<JobSubmissionHistory> jshList = TestUtils.getListWrapper(JobSubmissionHistory.class, 1, 2, 3).getData();
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
         CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", "This text makes it fail.");
-        Mockito.when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
-        Mockito.when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
+        when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
+        when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
         CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse_jsArg);
 
@@ -64,7 +67,7 @@ public class RestApiExtensionTest {
 
         Assert.assertThat(crudResponse, new ReflectionEquals(actualCrudResponse));
         Assert.assertTrue(!actualCrudResponse.isError());
-        Mockito.verify(restApiMock, Mockito.never()).deleteEntity(eq(JobSubmissionHistory.class), any());
+        verify(restApiMock, never()).deleteEntity(eq(JobSubmissionHistory.class), any());
     }
 
     private CrudResponse getDeleteCrudResponse(String changedEntityType, Integer changedEntityId, String changeType, String message) {

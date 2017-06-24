@@ -19,7 +19,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
@@ -28,10 +27,10 @@ import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-// TODO: Remove all 'static org.mockito' imports
 public class DeleteCustomObjectTaskTest {
 
     private ActionTotals actionTotalsMock;
@@ -45,12 +44,12 @@ public class DeleteCustomObjectTaskTest {
 
     @Before
     public void setup() throws Exception {
-        actionTotalsMock = Mockito.mock(ActionTotals.class);
-        restApiMock = Mockito.mock(RestApi.class);
-        csvFileWriterMock = Mockito.mock(CsvFileWriter.class);
-        preloaderMock = Mockito.mock(Preloader.class);
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
+        actionTotalsMock = mock(ActionTotals.class);
+        restApiMock = mock(RestApi.class);
+        csvFileWriterMock = mock(CsvFileWriter.class);
+        preloaderMock = mock(Preloader.class);
+        printUtilMock = mock(PrintUtil.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
 
         // Capture arguments to the writeRow method - this is our output from the run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);

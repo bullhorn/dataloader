@@ -20,7 +20,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
@@ -37,6 +36,8 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -60,12 +61,12 @@ public class LoadAttachmentTaskTest {
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = Mockito.mock(PrintUtil.class);
-        csvFileWriter = Mockito.mock(CsvFileWriter.class);
-        restApi = Mockito.mock(RestApi.class);
-        actionTotals = Mockito.mock(ActionTotals.class);
-        propertyFileUtilMock_CandidateID = Mockito.mock(PropertyFileUtil.class);
-        propertyFileUtilMock_CandidateExternalID = Mockito.mock(PropertyFileUtil.class);
+        printUtilMock = mock(PrintUtil.class);
+        csvFileWriter = mock(CsvFileWriter.class);
+        restApi = mock(RestApi.class);
+        actionTotals = mock(ActionTotals.class);
+        propertyFileUtilMock_CandidateID = mock(PropertyFileUtil.class);
+        propertyFileUtilMock_CandidateExternalID = mock(PropertyFileUtil.class);
 
         for (Method method : Arrays.asList(FileMeta.class.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
@@ -74,10 +75,10 @@ public class LoadAttachmentTaskTest {
         }
 
         List<String> idExistField = Arrays.asList(new String[]{"id"});
-        Mockito.doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Candidate");
+        doReturn(Optional.ofNullable(idExistField)).when(propertyFileUtilMock_CandidateID).getEntityExistFields("Candidate");
 
         List<String> externalIdExistField = Arrays.asList(new String[]{"externalID"});
-        Mockito.doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
+        doReturn(Optional.ofNullable(externalIdExistField)).when(propertyFileUtilMock_CandidateExternalID).getEntityExistFields("Candidate");
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
@@ -104,8 +105,8 @@ public class LoadAttachmentTaskTest {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Insert(0);
         task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, methodMap, csvFileWriter, propertyFileUtilMock_CandidateID, restApi, printUtilMock, actionTotals);
-        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
-        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final FileContent mockedFileContent = mock(FileContent.class);
+        final FileMeta mockedFileMeta = mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(restApi.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(restApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
@@ -136,8 +137,8 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws Exception {
         final String[] expectedValues = {"1001", relativeFilePath, "0", "1001"};
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
-        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
-        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final FileContent mockedFileContent = mock(FileContent.class);
+        final FileMeta mockedFileMeta = mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(restApi.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(restApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
@@ -154,8 +155,8 @@ public class LoadAttachmentTaskTest {
     public void existPropertyConfiguredCorrectlyTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = Result.Insert(0);
-        final FileContent mockedFileContent = Mockito.mock(FileContent.class);
-        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final FileContent mockedFileContent = mock(FileContent.class);
+        final FileMeta mockedFileMeta = mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(restApi.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(restApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
@@ -172,8 +173,8 @@ public class LoadAttachmentTaskTest {
     public void existPropertyMissingTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
-        PropertyFileUtil propertyFileUtilMock_Empty = Mockito.mock(PropertyFileUtil.class);
-        Mockito.doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
+        PropertyFileUtil propertyFileUtilMock_Empty = mock(PropertyFileUtil.class);
+        doReturn(Optional.ofNullable(null)).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
         task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Empty, restApi, printUtilMock, actionTotals);
 
         task.run();
@@ -187,9 +188,9 @@ public class LoadAttachmentTaskTest {
     public void existPropertyConfiguredIncorrectlyTest() throws Exception {
         final String[] expectedValues = {"2011Ext", relativeFilePath, "1", "extFileId1", "new filename", "1001"};
         final Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'candidateExistField': 'bogus' does not exist on Candidate");
-        PropertyFileUtil propertyFileUtilMock_Incorrect = Mockito.mock(PropertyFileUtil.class);
+        PropertyFileUtil propertyFileUtilMock_Incorrect = mock(PropertyFileUtil.class);
         List<String> existFields = Arrays.asList(new String[]{"bogus"});
-        Mockito.doReturn(Optional.ofNullable(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");
+        doReturn(Optional.ofNullable(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");
         task = new LoadAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, methodMap, csvFileWriter, propertyFileUtilMock_Incorrect, restApi, printUtilMock, actionTotals);
 
         task.run();
@@ -211,7 +212,7 @@ public class LoadAttachmentTaskTest {
         fileList.add(file1);
         StandardFileContent mockedFileContent = new StandardFileContent();
         mockedFileContent.setFileContent("thisisafilecontent");
-        final FileMeta mockedFileMeta = Mockito.mock(FileMeta.class);
+        final FileMeta mockedFileMeta = mock(FileMeta.class);
         final StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(restApi.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         when(restApi.updateFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
