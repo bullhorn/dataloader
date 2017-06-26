@@ -44,6 +44,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private FileMeta fileMeta;
     private boolean isNewEntity = true;
     private Map<String, Method> methodMap;
+    private Integer bullhornParentId;
 
     public LoadAttachmentTask(EntityInfo entityInfo,
                               Row row,
@@ -80,6 +81,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         populateFileMeta();
         Result result = addOrUpdateFile();
         return result;
+    }
+
+    private void addParentEntityIDtoDataMap() {
+        dataMap.put(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField

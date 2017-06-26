@@ -51,7 +51,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected EntityInfo entityInfo;
     protected Integer rowNumber;
     protected Row row;
-    protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvFileWriter;
     protected PropertyFileUtil propertyFileUtil;
@@ -75,10 +74,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.restApi = restApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
-    }
-
-    protected void addParentEntityIDtoDataMap() {
-        dataMap.put(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
     protected void writeToResultCSV(Result result) {
