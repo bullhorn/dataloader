@@ -1,8 +1,10 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -16,8 +18,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.mockito.Matchers.any;
@@ -33,9 +33,6 @@ public class DeleteAttachmentTaskTest {
     private PropertyFileUtil propertyFileUtil;
     private CsvFileWriter csvFileWriter;
     private ArgumentCaptor<Result> resultArgumentCaptor;
-    private Map<String, String> dataMap;
-    private Map<String, String> dataMap2;
-    private Map<String, String> dataMap3;
     private RestApi restApi;
     private PrintUtil printUtil;
     private ActionTotals actionTotals;
@@ -52,39 +49,20 @@ public class DeleteAttachmentTaskTest {
 
         // Capture arguments to the writeRow method - this is our output from the deleteTask run
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
-
-        dataMap = new LinkedHashMap<String, String>();
-        dataMap.put("id", "1");
-        dataMap.put("Candidate.externalID", "1");
-        dataMap.put("relativeFilePath", "testResume/TestResume.doc");
-        dataMap.put("isResume", "0");
-        dataMap.put("parentEntityID", "1");
-
-        dataMap2 = new LinkedHashMap<String, String>();
-        dataMap2.put("Candidate.externalID", "1");
-        dataMap2.put("relativeFilePath", "testResume/TestResume.doc");
-        dataMap2.put("isResume", "0");
-        dataMap2.put("parentEntityID", "1");
-
-        dataMap3 = new LinkedHashMap<String, String>();
-        dataMap3.put("id", "1");
-        dataMap3.put("Candidate.externalID", "1");
-        dataMap3.put("relativeFilePath", "testResume/TestResume.doc");
-        dataMap3.put("isResume", "0");
     }
 
     @Test
     public void testDeleteAttachmentSuccess() throws Exception {
-        final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
+        Row row = TestUtils.createRow("id,Candidate.externalID,relativeFilePath,isResume,parentEntityID", "1,1,testResume/TestResume.doc,0,1");
         final Result expectedResult = Result.Delete(0);
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
         final StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
         fileApiResponse.setFileId(0);
         when(restApi.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
 
         task.run();
 
-        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(row), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
@@ -92,14 +70,14 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void testDeleteAttachmentFailure() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0", "1"};
+        Row row = TestUtils.createRow("id,Candidate.externalID,relativeFilePath,isResume,parentEntityID", "1,1,testResume/TestResume.doc,0,1");
         final Result expectedResult = Result.Failure(new RestApiException("Test"));
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
         when(restApi.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
         task.run();
 
-        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(row), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
@@ -107,13 +85,13 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void testDeleteAttachmentMissingID() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "testResume/TestResume.doc", "0", "1"};
+        Row row = TestUtils.createRow("Candidate.externalID,relativeFilePath,isResume,parentEntityID", "1,testResume/TestResume.doc,0,1");
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'id' column required for deleteAttachments"));
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap2, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
         task.run();
 
-        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(row), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
@@ -121,13 +99,13 @@ public class DeleteAttachmentTaskTest {
 
     @Test
     public void testDeleteAttachmentMissingParentEntityID() throws ExecutionException, IOException {
-        final String[] expectedValues = {"1", "1", "testResume/TestResume.doc", "0"};
+        Row row = TestUtils.createRow("id,Candidate.externalID,relativeFilePath,isResume", "1,1,testResume/TestResume.doc,0");
         final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'parentEntityID' column required for deleteAttachments"));
-        task = new DeleteAttachmentTask(1, EntityInfo.CANDIDATE, dataMap3, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
         task.run();
 
-        verify(csvFileWriter).writeRow(eq(expectedValues), resultArgumentCaptor.capture());
+        verify(csvFileWriter).writeRow(eq(row), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
 
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));

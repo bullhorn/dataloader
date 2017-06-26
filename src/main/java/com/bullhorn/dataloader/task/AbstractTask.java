@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -47,8 +48,9 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
-    protected Integer rowNumber;
     protected EntityInfo entityInfo;
+    protected Integer rowNumber;
+    protected Row row;
     protected Integer bullhornParentId;
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvFileWriter;
@@ -57,17 +59,17 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
 
-    public AbstractTask(Integer rowNumber,
-                        EntityInfo entityInfo,
-                        Map<String, String> dataMap,
+    public AbstractTask(EntityInfo entityInfo,
+                        Row row,
                         CsvFileWriter csvFileWriter,
                         PropertyFileUtil propertyFileUtil,
                         RestApi restApi,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
-        this.rowNumber = rowNumber;
+        this.rowNumber = row.getNumber();
         this.entityInfo = entityInfo;
-        this.dataMap = dataMap;
+        this.row = row;
+        this.dataMap = row.getDataMap();
         this.csvFileWriter = csvFileWriter;
         this.propertyFileUtil = propertyFileUtil;
         this.restApi = restApi;
@@ -83,7 +85,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         int attempts = 0;
         while (attempts < 3) {
             try {
-                csvFileWriter.writeRow(dataMap.values().toArray(new String[0]), result);
+                csvFileWriter.writeRow(row, result);
                 updateActionTotals(result);
                 updateRowProcessedCounts();
                 break;
@@ -153,7 +155,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             }
         }
 
-        return new ArrayList<B>();
+        return new ArrayList<>();
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
@@ -204,6 +206,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
+        // TODO: Simplify the entity exist field data structure to not be an optional
         Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (existFields.isPresent()) {
             for (String existField : existFields.get()) {
@@ -274,6 +277,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return methods.get(0).getReturnType();
     }
 
+    // TODO: Refactor this to use entityInfo.fromString() and Cell
     /**
      * Returns the Bullhorn entity class for the given field on the given entity
      *

@@ -4,6 +4,7 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileReader;
 import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Preloader;
@@ -17,15 +18,11 @@ import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
 import com.bullhorn.dataloader.task.LoadTask;
-import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
-import com.bullhornsdk.data.model.file.FileMeta;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -62,20 +59,14 @@ public class ProcessRunner {
         preloader.preload(entityInfo);
 
         // Loop over each row in the file
-        Integer rowNumber = 1;
         while (csvFileReader.readRecord()) {
-            // Get the data for the row
-            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-
-            // Create an individual task for the row
+            // Create an individual task runner (thread) for the row
+            Row row = csvFileReader.getRow();
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
-                // TODO: Remove the need for this once CustomObjects PUT calls work
-                task = new LoadCustomObjectTask(rowNumber++, entityInfo, dataMap, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+                task = new LoadCustomObjectTask(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
             } else {
-                // TODO: Combine the rowNumber and dataMap into the row object
-                // TODO: Move the countryNameToIdMap into a Preloader and DI it
-                task = new LoadTask(rowNumber++, entityInfo, dataMap, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+                task = new LoadTask(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
             }
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -95,18 +86,14 @@ public class ProcessRunner {
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
-        Integer rowNumber = 1;
         while (csvFileReader.readRecord()) {
-            // Get the data for the row
-            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-
-            // Create an individual task for the row
+            // Create an individual task runner (thread) for the row
+            Row row = csvFileReader.getRow();
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
-                // TODO: Remove the need for this once CustomObjects DELETE calls work
-                task = new DeleteCustomObjectTask(rowNumber++, entityInfo, dataMap, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+                task = new DeleteCustomObjectTask(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
             } else {
-                task = new DeleteTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+                task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
             }
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -125,17 +112,11 @@ public class ProcessRunner {
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        // Use the FileMeta setters, not the setters for the entity that is being loaded
-        Map<String, Method> methodMap = MethodUtil.getSetterMethodMap(FileMeta.class);
-
         // Loop over each row in the file
-        Integer rowNumber = 1;
         while (csvFileReader.readRecord()) {
-            // Get the data for the row
-            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-
-            // Create an individual task for the row
-            LoadAttachmentTask task = new LoadAttachmentTask(rowNumber++, entityInfo, dataMap, methodMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            // Create an individual task runner (thread) for the row
+            Row row = csvFileReader.getRow();
+            LoadAttachmentTask task = new LoadAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -155,13 +136,10 @@ public class ProcessRunner {
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
-        Integer rowNumber = 1;
         while (csvFileReader.readRecord()) {
-            // Get the data for the row
-            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-
-            // Create an individual task for the row
-            ConvertAttachmentTask task = new ConvertAttachmentTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            // Create an individual task runner (thread) for the row
+            Row row = csvFileReader.getRow();
+            ConvertAttachmentTask task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -181,13 +159,10 @@ public class ProcessRunner {
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
-        Integer rowNumber = 1;
         while (csvFileReader.readRecord()) {
-            // Get the data for the row
-            Map<String, String> dataMap = csvFileReader.getRecordDataMap();
-
-            // Create an individual task for the row
-            DeleteAttachmentTask task = new DeleteAttachmentTask(rowNumber++, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            // Create an individual task runner (thread) for the row
+            Row row = csvFileReader.getRow();
+            DeleteAttachmentTask task = new DeleteAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);

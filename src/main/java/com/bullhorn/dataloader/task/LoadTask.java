@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -60,16 +61,15 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     private Map<String, Address> addressMap = new HashMap<>();
     protected boolean isNewEntity = true;
 
-    public LoadTask(Integer rowNumber,
-                    EntityInfo entityInfo,
-                    Map<String, String> dataMap,
+    public LoadTask(EntityInfo entityInfo,
+                    Row row,
                     Preloader preloader,
                     CsvFileWriter csvFileWriter,
                     PropertyFileUtil propertyFileUtil,
                     RestApi restApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
         this.preloader = preloader;
         this.methodMap = entityInfo.getSetterMethodMap();
     }
@@ -422,6 +422,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return list;
     }
 
+    // TODO: Move to AssociationUtil
     protected Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
         String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
         try {

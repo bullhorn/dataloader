@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -20,23 +21,21 @@ import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
 
-    public DeleteCustomObjectTask(Integer rowNumber,
-                                  EntityInfo entityInfo,
-                                  Map<String, String> dataMap,
+    public DeleteCustomObjectTask(EntityInfo entityInfo,
+                                  Row row,
                                   Preloader preloader,
                                   CsvFileWriter csvFileWriter,
                                   PropertyFileUtil propertyFileUtil,
                                   RestApi restApi,
                                   PrintUtil printUtil,
                                   ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        super(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**

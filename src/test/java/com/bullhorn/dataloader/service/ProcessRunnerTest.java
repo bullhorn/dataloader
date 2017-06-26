@@ -37,21 +37,19 @@ import static org.mockito.Mockito.when;
 
 public class ProcessRunnerTest {
 
-    private RestApi restApiMock;
     private ExecutorService executorServiceMock;
     private Preloader preloaderMock;
     private PrintUtil printUtilMock;
     private ProcessRunner processRunner;
-    private PropertyFileUtil propertyFileUtilMock;
 
     @Before
     public void setup() throws InterruptedException {
-        restApiMock = mock(RestApi.class);
+        RestApi restApiMock = mock(RestApi.class);
         RestSession restSessionMock = mock(RestSession.class);
         executorServiceMock = mock(ExecutorService.class);
         preloaderMock = mock(Preloader.class);
         printUtilMock = mock(PrintUtil.class);
-        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 
         processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);

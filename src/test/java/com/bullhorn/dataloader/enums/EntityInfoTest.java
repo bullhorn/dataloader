@@ -1,11 +1,21 @@
 package com.bullhorn.dataloader.enums;
 
+import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 
 public class EntityInfoTest {
+
+    @Test
+    public void testGetBullhornEntityInfo() throws IOException {
+        Assert.assertEquals(BullhornEntityInfo.PLACEMENT, EntityInfo.PLACEMENT.getBullhornEntityInfo());
+        Assert.assertEquals(BullhornEntityInfo.CLIENT_CORPORATION, EntityInfo.CLIENT_CORPORATION.getBullhornEntityInfo());
+        Assert.assertEquals(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1, EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1.getBullhornEntityInfo());
+        Assert.assertEquals(BullhornEntityInfo.SKILL, EntityInfo.SKILL.getBullhornEntityInfo());
+        Assert.assertEquals(BullhornEntityInfo.BUSINESS_SECTOR, EntityInfo.BUSINESS_SECTOR.getBullhornEntityInfo());
+    }
 
     @Test
     public void testIsLoadable() throws IOException {

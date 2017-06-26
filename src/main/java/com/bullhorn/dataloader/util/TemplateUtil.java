@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// TODO: Move to task directory and rename to TemplateTask and Refactor to use ConnectionUtil
 // TODO: Convert to using EntityInfo enum everywhere instead of Entity String Name
 public class TemplateUtil<B extends BullhornEntity> {
 
@@ -56,7 +57,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
-        final HashSet<String> methodSet = getEntityFields(entity);
+        HashSet<String> methodSet = getEntityFields(entity);
 
         for (Field field : metaFieldSet) {
             if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
@@ -77,8 +78,8 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private HashSet<String> getEntityFields(String entity) throws ClassNotFoundException {
-        final HashSet<String> methodSet = new HashSet<>();
-        final Class entityClass = BullhornEntityInfo.getTypeFromName(entity).getType();
+        HashSet<String> methodSet = new HashSet<>();
+        Class entityClass = BullhornEntityInfo.getTypeFromName(entity).getType();
 
         for (Method method : Arrays.asList(entityClass.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3)) && !method.isAnnotationPresent(ReadOnly.class)) {

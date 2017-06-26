@@ -28,7 +28,6 @@ public class LoadAttachmentsServiceTest {
 
     private ActionTotals actionTotalsMock;
     private CompleteCall completeCallMock;
-    private RestSession restSessionMock;
     private LoadAttachmentsService loadAttachmentsService;
     private PrintUtil printUtilMock;
     private ProcessRunner processRunnerMock;
@@ -38,7 +37,7 @@ public class LoadAttachmentsServiceTest {
     public void setup() throws Exception {
         actionTotalsMock = mock(ActionTotals.class);
         completeCallMock = mock(CompleteCall.class);
-        restSessionMock = mock(RestSession.class);
+        RestSession restSessionMock = mock(RestSession.class);
         InputStream inputStreamMock = mock(InputStream.class);
         printUtilMock = mock(PrintUtil.class);
         processRunnerMock = mock(ProcessRunner.class);

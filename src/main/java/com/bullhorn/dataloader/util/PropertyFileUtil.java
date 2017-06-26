@@ -175,7 +175,7 @@ public class PropertyFileUtil {
             }
         }
 
-        List<String> argList = new ArrayList<String>(Arrays.asList(args));
+        List<String> argList = new ArrayList<>(Arrays.asList(args));
         argList.removeAll(consumedArgs);
         remainingArgs = argList.toArray(new String[0]);
 
@@ -258,7 +258,7 @@ public class PropertyFileUtil {
     }
 
     private void logPropertiesEndingWith(Properties properties, String endingText) {
-        List<String> propertyNames = new ArrayList<String>(properties.stringPropertyNames());
+        List<String> propertyNames = new ArrayList<>(properties.stringPropertyNames());
         Collections.sort(propertyNames);
         for (String property : propertyNames) {
             if (property.endsWith(endingText)) {

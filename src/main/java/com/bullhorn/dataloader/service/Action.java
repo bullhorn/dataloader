@@ -10,7 +10,7 @@ public interface Action {
      *
      * @param args command line args pass to main()
      */
-    public void run(String[] args) throws InterruptedException;
+    void run(String[] args) throws InterruptedException;
 
     /**
      * Validate the command line arguments
@@ -18,5 +18,5 @@ public interface Action {
      * @param args command line args pass to main()
      * @return true if the arguments are valid
      */
-    public boolean isValidArguments(String[] args);
+    boolean isValidArguments(String[] args);
 }

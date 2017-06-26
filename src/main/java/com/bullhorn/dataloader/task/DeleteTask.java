@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -26,15 +27,14 @@ import java.util.Map;
 public class DeleteTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     private Integer bullhornID;
 
-    public DeleteTask(Integer rowNumber,
-                      EntityInfo entityInfo,
-                      Map<String, String> dataMap,
+    public DeleteTask(EntityInfo entityInfo,
+                      Row row,
                       CsvFileWriter csvFileWriter,
                       PropertyFileUtil propertyFileUtil,
                       RestApi restApi,
                       PrintUtil printUtil,
                       ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**

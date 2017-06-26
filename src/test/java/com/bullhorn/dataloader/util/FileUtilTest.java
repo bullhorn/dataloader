@@ -20,12 +20,11 @@ import static org.mockito.Mockito.mock;
 
 public class FileUtilTest {
 
-    private PrintUtil printUtilMock;
     private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = mock(PrintUtil.class);
+        PrintUtil printUtilMock = mock(PrintUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
     }
 

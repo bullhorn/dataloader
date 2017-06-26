@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -42,16 +43,15 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected String parentField;
     protected Boolean parentEntityUpdateDone = false;
 
-    public LoadCustomObjectTask(Integer rowNumber,
-                                EntityInfo entityInfo,
-                                Map<String, String> dataMap,
+    public LoadCustomObjectTask(EntityInfo entityInfo,
+                                Row row,
                                 Preloader preloader,
                                 CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
                                 RestApi restApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        super(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     @Override
@@ -139,11 +139,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
             } else {
                 entityID = matchingCustomObjectList.get(0).getId();
                 entity.setId(entityID);
-                if (!parentEntityUpdateDone) {
-                    isNewEntity = false;
-                } else {
-                    isNewEntity = true;
-                }
+                isNewEntity = parentEntityUpdateDone;
             }
         }
     }

@@ -27,10 +27,8 @@ import static org.mockito.Mockito.when;
 public class CompleteCallTest {
 
     private ActionTotals actionTotalsMock;
-    private RestSession restSessionMock;
     private HttpClient httpClientMock;
     private PrintUtil printUtilMock;
-    private PropertyFileUtil propertyFileUtilMock;
     private Timer timerMock;
 
     private ArgumentCaptor<HttpMethod> httpMethodArgumentCaptor;
@@ -41,11 +39,11 @@ public class CompleteCallTest {
     public void setup() throws IOException {
         actionTotalsMock = mock(ActionTotals.class);
         RestApi restApiMock = mock(RestApi.class);
-        restSessionMock = mock(RestSession.class);
+        RestSession restSessionMock = mock(RestSession.class);
         httpClientMock = mock(HttpClient.class);
         httpMethodArgumentCaptor = ArgumentCaptor.forClass(HttpMethod.class);
         printUtilMock = mock(PrintUtil.class);
-        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         timerMock = mock(Timer.class);
 
         when(propertyFileUtilMock.getNumThreads()).thenReturn(9);

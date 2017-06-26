@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -24,22 +25,20 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 /**
  * Responsible for converting a single row from a CSV input file.
  */
 public class ConvertAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
-    public ConvertAttachmentTask(Integer rowNumber,
-                                 EntityInfo entityInfo,
-                                 Map<String, String> dataMap,
+    public ConvertAttachmentTask(EntityInfo entityInfo,
+                                 Row row,
                                  CsvFileWriter csvFileWriter,
                                  PropertyFileUtil propertyFileUtil,
                                  RestApi restApi,
                                  PrintUtil printUtil,
                                  ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     @Override

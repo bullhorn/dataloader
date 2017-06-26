@@ -32,7 +32,7 @@ public class CsvFileReaderTest {
         IOException actualException = null;
         try {
             csvFileReader.readRecord();
-            csvFileReader.getRecordDataMap();
+            csvFileReader.getRow();
         } catch (IOException e) {
             actualException = e;
         }

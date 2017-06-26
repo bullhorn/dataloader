@@ -3,8 +3,10 @@ package com.bullhorn.dataloader.task;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -43,17 +45,15 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private boolean isNewEntity = true;
     private Map<String, Method> methodMap;
 
-    public LoadAttachmentTask(Integer rowNumber,
-                              EntityInfo entityInfo,
-                              Map<String, String> dataMap,
-                              Map<String, Method> methodMap,
+    public LoadAttachmentTask(EntityInfo entityInfo,
+                              Row row,
                               CsvFileWriter csvFileWriter,
                               PropertyFileUtil propertyFileUtil,
                               RestApi restApi,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
-        this.methodMap = methodMap;
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        this.methodMap = MethodUtil.getSetterMethodMap(FileMeta.class);
     }
 
     @Override

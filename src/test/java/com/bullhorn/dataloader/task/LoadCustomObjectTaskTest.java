@@ -1,8 +1,10 @@
 package com.bullhorn.dataloader.task;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -32,12 +34,10 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.mockito.Matchers.any;
@@ -60,10 +60,8 @@ public class LoadCustomObjectTaskTest {
 
     private LoadCustomObjectTask task;
 
-    private Map<String, String> dataMap;
-    private Map<String, Method> methodMap;
-
     @Before
+    @SuppressWarnings("unchecked")
     public void setup() throws Exception {
         actionTotalsMock = mock(ActionTotals.class);
         restApiMock = mock(RestApi.class);
@@ -72,17 +70,9 @@ public class LoadCustomObjectTaskTest {
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
 
-        List<String> existField = Arrays.asList("text1");
-        doReturn(Optional.ofNullable(existField)).when(propertyFileUtilMock).getEntityExistFields(any());
+        List<String> existField = Collections.singletonList("text1");
+        doReturn(Optional.of(existField)).when(propertyFileUtilMock).getEntityExistFields(any());
         doReturn(";").when(propertyFileUtilMock).getListDelimiter();
-
-        methodMap = EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2.getSetterMethodMap();
-
-        dataMap = new LinkedHashMap<>();
-        dataMap.put("clientCorporation.id", "1");
-        dataMap.put("text1", "Test");
-        dataMap.put("text2", "Skip");
-        dataMap.put("date1", "2016-08-30");
 
         StandardMetaData meta = new StandardMetaData();
         List<Field> fields = new ArrayList<>();
@@ -104,8 +94,8 @@ public class LoadCustomObjectTaskTest {
 
     @Test
     public void runTest_Insert() throws IOException {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
@@ -113,44 +103,34 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper2 = new ClientCorporationCustomObjectInstance2ListWrapper();
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
-        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Collections.singletonList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
         when(restApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
-
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
-        listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
+        listWrapper.setData(Collections.singletonList(new ClientCorporation(1)));
         ClientCorporationListWrapper listWrapper2 = new ClientCorporationListWrapper();
         ClientCorporation clientCorporation = new ClientCorporation(1);
         OneToMany<ClientCorporationCustomObjectInstance2> oneToMany = new OneToMany<>();
         clientCorporationCustomObjectInstance2.setText1("Test");
-        clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        clientCorporationCustomObjectInstance2List = Collections.singletonList(clientCorporationCustomObjectInstance2);
         oneToMany.setData(clientCorporationCustomObjectInstance2List);
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
         clientCorporation.setCustomObject2s(oneToMany);
-        listWrapper2.setData(Arrays.asList(clientCorporation));
+        listWrapper2.setData(Collections.singletonList(clientCorporation));
         when(restApiMock.search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
 
         doReturn(new CreateResponse()).when(restApiMock).updateEntity(any());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void runTest_ClientContactInsert() throws IOException {
-        //setup
-        dataMap = new LinkedHashMap<>();
-        dataMap.put("person.id", "1");
-        dataMap.put("person._subtype", "cLiEnT CoNtAcT");
-        dataMap.put("text1", "Test");
-        dataMap.put("text2", "Skip");
-        dataMap.put("date1", "2016-08-30");
-
-        task = new LoadCustomObjectTask(1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("person.id,person._subtype,text1,text2,date1", "1,cLiEnT CoNtAcT,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -158,43 +138,34 @@ public class LoadCustomObjectTaskTest {
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper2 = new PersonCustomObjectInstance2ListWrapper();
         PersonCustomObjectInstance2 personCustomObjectInstance2 = new PersonCustomObjectInstance2();
         personCustomObjectInstance2.setId(1);
-        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
+        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Collections.singletonList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
         when(restApiMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientContactListWrapper listWrapper = new ClientContactListWrapper();
-        listWrapper.setData(Arrays.asList(new ClientContact(1)));
+        listWrapper.setData(Collections.singletonList(new ClientContact(1)));
         ClientContactListWrapper listWrapper2 = new ClientContactListWrapper();
         ClientContact clientContact = new ClientContact(1);
         OneToMany<PersonCustomObjectInstance2> oneToMany = new OneToMany<>();
         personCustomObjectInstance2.setText1("Test");
-        personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
+        personCustomObjectInstance2List = Collections.singletonList(personCustomObjectInstance2);
         oneToMany.setData(personCustomObjectInstance2List);
         oneToMany.setTotal(personCustomObjectInstance2List.size());
         clientContact.setCustomObject2s(oneToMany);
-        listWrapper2.setData(Arrays.asList(clientContact));
+        listWrapper2.setData(Collections.singletonList(clientContact));
         when(restApiMock.search(eq(ClientContact.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
 
         doReturn(new CreateResponse()).when(restApiMock).updateEntity(any());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void runTest_CandidateInsert() throws IOException {
-        //setup
-        dataMap = new LinkedHashMap<>();
-        dataMap.put("person.id", "1");
-        dataMap.put("person._subtype", "Candidate");
-        dataMap.put("text1", "Test");
-        dataMap.put("text2", "Skip");
-        dataMap.put("date1", "2016-08-30");
-
-        task = new LoadCustomObjectTask(1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("person.id,person._subtype,text1,text2,date1", "1,Candidate,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Insert(1);
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -202,43 +173,35 @@ public class LoadCustomObjectTaskTest {
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper2 = new PersonCustomObjectInstance2ListWrapper();
         PersonCustomObjectInstance2 personCustomObjectInstance2 = new PersonCustomObjectInstance2();
         personCustomObjectInstance2.setId(1);
-        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
+        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Collections.singletonList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
         when(restApiMock.query(eq(PersonCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
 
         CandidateListWrapper listWrapper = new CandidateListWrapper();
-        listWrapper.setData(Arrays.asList(new Candidate(1)));
+        listWrapper.setData(Collections.singletonList(new Candidate(1)));
         CandidateListWrapper listWrapper2 = new CandidateListWrapper();
         Candidate candidate = new Candidate(1);
         OneToMany<PersonCustomObjectInstance2> oneToMany = new OneToMany<>();
         personCustomObjectInstance2.setText1("Test");
-        personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
+        personCustomObjectInstance2List = Collections.singletonList(personCustomObjectInstance2);
         oneToMany.setData(personCustomObjectInstance2List);
         oneToMany.setTotal(personCustomObjectInstance2List.size());
         candidate.setCustomObject2s(oneToMany);
-        listWrapper2.setData(Arrays.asList(candidate));
+        listWrapper2.setData(Collections.singletonList(candidate));
         when(restApiMock.search(eq(Candidate.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any())).thenReturn(listWrapper, listWrapper2);
 
         doReturn(new CreateResponse()).when(restApiMock).updateEntity(any());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void runTest_PersonSubTypeNotValid() throws IOException {
-        //setup
-        dataMap = new LinkedHashMap<>();
-        dataMap.put("person.id", "1");
-        dataMap.put("text1", "Test");
-        dataMap.put("text2", "Skip");
-        dataMap.put("date1", "2016-08-30");
-
-        task = new LoadCustomObjectTask(1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+    public void runTest_PersonSubTypeNotIncluded() throws IOException {
+        Row row = TestUtils.createRow("person.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new Exception("Row 1: The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -246,28 +209,19 @@ public class LoadCustomObjectTaskTest {
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper2 = new PersonCustomObjectInstance2ListWrapper();
         PersonCustomObjectInstance2 personCustomObjectInstance2 = new PersonCustomObjectInstance2();
         personCustomObjectInstance2.setId(1);
-        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
+        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Collections.singletonList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
         when(restApiMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void runTest_PersonSubTypeNotIncluded() throws IOException {
-        //setup
-        dataMap = new LinkedHashMap<>();
-        dataMap.put("person.id", "1");
-        dataMap.put("person._subtype", "Potato");
-        dataMap.put("text1", "Test");
-        dataMap.put("text2", "Skip");
-        dataMap.put("date1", "2016-08-30");
-
-        task = new LoadCustomObjectTask(1, EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+    public void runTest_PersonSubTypeNotValid() throws IOException {
+        Row row = TestUtils.createRow("person.id,person._subtype,text1,text2,date1", "1,Potato,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new Exception("Row 1: The person._subType field must be either Candidate or ClientContact"));
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
@@ -275,27 +229,25 @@ public class LoadCustomObjectTaskTest {
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper2 = new PersonCustomObjectInstance2ListWrapper();
         PersonCustomObjectInstance2 personCustomObjectInstance2 = new PersonCustomObjectInstance2();
         personCustomObjectInstance2.setId(1);
-        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Arrays.asList(personCustomObjectInstance2);
+        List<PersonCustomObjectInstance2> personCustomObjectInstance2List = Collections.singletonList(personCustomObjectInstance2);
         customObjectListWrapper2.setData(personCustomObjectInstance2List);
         when(restApiMock.query(eq(PersonCustomObjectInstance2.class), eq("text1='Test' AND person.id=1"), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper2);
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void runTest_Update() throws IOException {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Update(1);
 
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper = new ClientCorporationCustomObjectInstance2ListWrapper();
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
-        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Collections.singletonList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper.setData(clientCorporationCustomObjectInstance2List);
         when(restApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), eq("text1='Test' AND clientCorporation.id=1"), any(), any())).thenReturn(customObjectListWrapper);
 
@@ -308,41 +260,38 @@ public class LoadCustomObjectTaskTest {
         oneToMany.setData(clientCorporationCustomObjectInstance2List);
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
         clientCorporation.setCustomObject2s(oneToMany);
-        listWrapper.setData(Arrays.asList(clientCorporation));
+        listWrapper.setData(Collections.singletonList(clientCorporation));
         doReturn(listWrapper).when(restApiMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
         doReturn(new CreateResponse()).when(restApiMock).updateEntity(any());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void runTest_Failure() throws IOException {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new NullPointerException());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void getCustomObjectIdTest_Pass() throws Exception {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         ((ClientCorporationCustomObjectInstance2) task.entity).setText1("test");
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
         clientCorporationCustomObjectInstance2.setText1("test");
-        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Collections.singletonList(clientCorporationCustomObjectInstance2);
         OneToMany oneToMany = new OneToMany();
         oneToMany.setData(clientCorporationCustomObjectInstance2List);
         oneToMany.setTotal(clientCorporationCustomObjectInstance2List.size());
@@ -353,17 +302,16 @@ public class LoadCustomObjectTaskTest {
 
         task.parentField = "clientCorporation.id";
 
-        //test
         task.getCustomObjectId();
 
-        //verify
         Assert.assertTrue(1 == task.entityID);
     }
 
     @Test
-    public void getCustomObjectIdTest_ThrowDupe() throws Exception {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+    @SuppressWarnings("unchecked")
+    public void getCustomObjectIdTest_ThrowDuplicateWarning() throws Exception {
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
         RestApiException expectedException = new RestApiException("Row 1: Found duplicate.");
 
@@ -385,7 +333,6 @@ public class LoadCustomObjectTaskTest {
 
         task.parentField = "clientCorporation.id";
 
-        //test
         RestApiException actualException = null;
         try {
             task.getCustomObjectId();
@@ -393,14 +340,14 @@ public class LoadCustomObjectTaskTest {
             actualException = e;
         }
 
-        //verify
+        assert actualException != null;
         Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
     }
 
     @Test
     public void noPermissionToInsertCustomObjectTest() throws IOException {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         String cleanedExceptionMessage = "ClientCorporation Custom Object 2 is not set up.";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
@@ -409,12 +356,12 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper2 = new ClientCorporationCustomObjectInstance2ListWrapper();
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
-        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Collections.singletonList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
         when(restApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
-        listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
+        listWrapper.setData(Collections.singletonList(new ClientCorporation(1)));
         doReturn(listWrapper).when(restApiMock).search(eq(ClientCorporation.class), eq("id:1"), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
         String noPermissionException = "{\n" +
@@ -424,17 +371,15 @@ public class LoadCustomObjectTaskTest {
             "}";
         doThrow(new RestApiException(noPermissionException)).when(restApiMock).updateEntity(any());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void checkIfCouldUpdateCustomObjectTest_ThrowRandom() throws IOException {
-        //setup
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         String cleanedExceptionMessage = "bogus";
         Result expectedResult = Result.Failure(new RestApiException(cleanedExceptionMessage));
 
@@ -443,27 +388,26 @@ public class LoadCustomObjectTaskTest {
         ClientCorporationCustomObjectInstance2ListWrapper customObjectListWrapper2 = new ClientCorporationCustomObjectInstance2ListWrapper();
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
         clientCorporationCustomObjectInstance2.setId(1);
-        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Arrays.asList(clientCorporationCustomObjectInstance2);
+        List<ClientCorporationCustomObjectInstance2> clientCorporationCustomObjectInstance2List = Collections.singletonList(clientCorporationCustomObjectInstance2);
         customObjectListWrapper2.setData(clientCorporationCustomObjectInstance2List);
         when(restApiMock.query(eq(ClientCorporationCustomObjectInstance2.class), any(), any(), any())).thenReturn(customObjectListWrapper, customObjectListWrapper, customObjectListWrapper2);
 
         ClientCorporationListWrapper listWrapper = new ClientCorporationListWrapper();
-        listWrapper.setData(Arrays.asList(new ClientCorporation(1)));
+        listWrapper.setData(Collections.singletonList(new ClientCorporation(1)));
         doReturn(listWrapper).when(restApiMock).search(eq(ClientCorporation.class), any(), eq(Sets.newHashSet("id", "customObject2s(*)")), any());
 
         String noPermissionException = "bogus";
         doThrow(new RestApiException(noPermissionException)).when(restApiMock).updateEntity(any());
 
-        //test
         task.run();
 
-        //verify
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void getParentEntityTest_Exception() throws InvocationTargetException, IllegalAccessException {
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+    public void getParentEntityTest_Exception() throws InvocationTargetException, IllegalAccessException, IOException {
+        Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         RestApiException expectedException = new RestApiException("Row 1: To-One Association: 'candidate' does not exist on ClientCorporationCustomObjectInstance2");
         task.entity = new ClientCorporationCustomObjectInstance2();
 
@@ -481,9 +425,9 @@ public class LoadCustomObjectTaskTest {
 
     @Test
     public void parentEntityIsNotInCsvTest() throws IOException {
-        task = new LoadCustomObjectTask(1, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, dataMap, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Row row = TestUtils.createRow("text1,text2,date1", "Test,Skip,2016-08-30");
+        task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Result expectedResult = Result.Failure(new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity."));
-        dataMap.remove("clientCorporation.id");
 
         task.run();
 

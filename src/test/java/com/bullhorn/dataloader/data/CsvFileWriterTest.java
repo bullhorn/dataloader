@@ -1,9 +1,11 @@
 package com.bullhorn.dataloader.data;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvReader;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -12,13 +14,18 @@ import java.io.IOException;
 
 public class CsvFileWriterTest {
 
-    private String[] headers = {"name", "quest", "favoriteColor"};
-    private String[] success = {"Sir Lancelot of Camelot", "To seek the Holy Grail", "Blue"};
-    private String[] failure = {"Sir Galahad of Camelot", "I seek the Grail", " Blue. No, yel..."};
+    private Row successRow;
+    private Row failureRow;
+
+    @Before
+    public void setup() throws IOException {
+        successRow = TestUtils.createRow("name,quest,favoriteColor", "Sir Lancelot of Camelot,To seek the Holy Grail,Blue");
+        failureRow = TestUtils.createRow("name,quest,favoriteColor", "Sir Galahad of Camelot,I seek the Grail,Blue. No - yel...");
+    }
 
     @Test
     public void testNoRecords() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", headers);
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
 
         File resultsDir = new File("results/");
         File successFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
@@ -30,8 +37,8 @@ public class CsvFileWriterTest {
 
     @Test
     public void testSuccessRecordsOnly() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, "path/to/CandidateTest.csv", headers);
-        csvFileWriter.writeRow(success, Result.Insert(-1));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        csvFileWriter.writeRow(successRow, Result.Insert(-1));
 
         File successFile = new File("results/CandidateTest_delete_" + StringConsts.TIMESTAMP + "_success.csv");
         File failureFile = new File("results/CandidateTest_delete_" + StringConsts.TIMESTAMP + "_failure.csv");
@@ -51,8 +58,8 @@ public class CsvFileWriterTest {
 
     @Test
     public void testNullBullhornIdRecord() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/ClientContactTest.csv", headers);
-        csvFileWriter.writeRow(success, Result.Update(null));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/ClientContactTest.csv", successRow.getHeaders().toArray(new String[0]));
+        csvFileWriter.writeRow(successRow, Result.Update(null));
 
         File successFile = new File("results/ClientContactTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
         File failureFile = new File("results/ClientContactTest_load_" + StringConsts.TIMESTAMP + "_failure.csv");
@@ -65,8 +72,8 @@ public class CsvFileWriterTest {
 
     @Test
     public void testFailureRecordsOnly() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", headers);
-        csvFileWriter.writeRow(failure, Result.Failure(new Exception("You have chosen poorly")));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
         File successFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
         File failureFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_failure.csv");
@@ -86,9 +93,9 @@ public class CsvFileWriterTest {
 
     @Test
     public void testSuccessAndFailureRecords() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE_ATTACHMENTS, "path/to/CandidateTest.csv", headers);
-        csvFileWriter.writeRow(success, Result.Insert(1));
-        csvFileWriter.writeRow(failure, Result.Failure(new Exception("You have chosen poorly")));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        csvFileWriter.writeRow(successRow, Result.Insert(1));
+        csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
         File successFile = new File("results/CandidateTest_deleteAttachments_" + StringConsts.TIMESTAMP + "_success.csv");
         File failureFile = new File("results/CandidateTest_deleteAttachments_" + StringConsts.TIMESTAMP + "_failure.csv");
@@ -102,9 +109,9 @@ public class CsvFileWriterTest {
 
     @Test
     public void testLoadAttachments() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, "path/to/CandidateTest.csv", headers);
-        csvFileWriter.writeRow(success, Result.Insert(1));
-        csvFileWriter.writeRow(failure, Result.Failure(new Exception("You have chosen poorly")));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        csvFileWriter.writeRow(successRow, Result.Insert(1));
+        csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
         File successFile = new File("results/CandidateTest_loadAttachments_" + StringConsts.TIMESTAMP + "_success.csv");
         File failureFile = new File("results/CandidateTest_loadAttachments_" + StringConsts.TIMESTAMP + "_failure.csv");
@@ -118,9 +125,9 @@ public class CsvFileWriterTest {
 
     @Test
     public void testConvertAttachments() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, "path/to/CandidateTest.csv", headers);
-        csvFileWriter.writeRow(success, Result.Insert(1));
-        csvFileWriter.writeRow(failure, Result.Failure(new Exception("You have chosen poorly")));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        csvFileWriter.writeRow(successRow, Result.Insert(1));
+        csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
         File successFile = new File("results/CandidateTest_convertAttachments_" + StringConsts.TIMESTAMP + "_success.csv");
         File failureFile = new File("results/CandidateTest_convertAttachments_" + StringConsts.TIMESTAMP + "_failure.csv");
@@ -131,5 +138,4 @@ public class CsvFileWriterTest {
         successFile.deleteOnExit();
         failureFile.deleteOnExit();
     }
-
 }
