@@ -49,7 +49,6 @@ import java.util.stream.Collectors;
 public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
     protected EntityInfo entityInfo;
-    protected Integer rowNumber;
     protected Row row;
     protected Map<String, String> dataMap;
     protected CsvFileWriter csvFileWriter;
@@ -65,7 +64,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                         RestApi restApi,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
-        this.rowNumber = row.getNumber();
         this.entityInfo = entityInfo;
         this.row = row;
         this.dataMap = row.getDataMap();
@@ -137,7 +135,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Row " + row.getNumber() + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -173,7 +171,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(fieldType)) {
             return field + "=" + getDateQuery(value);
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Row " + row.getNumber() + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -236,7 +234,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             if (StringUtils.isEmpty(value)) {
-                throw new DateTimeException("Row " + rowNumber + ": Cannot set date value to null");
+                throw new DateTimeException("Row " + row.getNumber() + ": Cannot set date value to null");
             }
             return (DateTime) formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
@@ -266,7 +264,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         String getMethodName = "get" + fieldName;
         List<Method> methods = Arrays.asList(fieldType.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
-            throw new RestApiException("Row " + rowNumber + ": '" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
+            throw new RestApiException("Row " + row.getNumber() + ": '" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
         }
 
         return methods.get(0).getReturnType();
@@ -295,7 +293,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                 sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
                 sb.append("\n");
             }
-            throw new RestApiException("Row " + rowNumber + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
+            throw new RestApiException("Row " + row.getNumber() + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
         }
     }
 
@@ -311,11 +309,11 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
         Method method = methodMap.get(field.toLowerCase());
         if (method == null) {
-            throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("Row " + row.getNumber() + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
         if (isAddressField(field) && methodMap.containsKey("address")) {
-            throw new RestApiException("Row " + rowNumber + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
+            throw new RestApiException("Row " + row.getNumber() + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
         }
 
         if (value != null) {

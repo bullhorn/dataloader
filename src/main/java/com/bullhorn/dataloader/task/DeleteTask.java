@@ -55,13 +55,13 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
 
     private <D extends DeleteEntity> Result handle() throws IOException {
         if (!dataMap.containsKey(StringConsts.ID)) {
-            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+            throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
         bullhornID = Integer.parseInt(dataMap.get(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
-            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
+            throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
@@ -88,7 +88,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
+            throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " records are not deletable.");
         }
     }

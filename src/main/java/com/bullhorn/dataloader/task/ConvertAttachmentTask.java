@@ -104,7 +104,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
         try {
             stream = new FileInputStream(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
         } catch (NullPointerException e) {
-            throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for convertAttachments");
+            throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for convertAttachments");
         }
         parser.parse(stream, handler, metadata);
         return handler.toString();

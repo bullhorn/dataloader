@@ -56,7 +56,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
 
     protected Result handle() throws Exception {
         if (!dataMap.containsKey(StringConsts.ID)) {
-            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+            throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
         entityID = Integer.parseInt(dataMap.get("id"));
