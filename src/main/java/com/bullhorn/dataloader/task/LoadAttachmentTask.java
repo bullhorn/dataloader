@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
@@ -76,25 +77,25 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         }
 
         getAndSetBullhornID(entityExistFields.get());
-        addParentEntityIDtoDataMap();
+        addParentEntityIDtoRow();
         createFileMeta();
         populateFileMeta();
         Result result = addOrUpdateFile();
         return result;
     }
 
-    private void addParentEntityIDtoDataMap() {
-        dataMap.put(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
+    private void addParentEntityIDtoRow() {
+        row.addCell(new Cell(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString()));
     }
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
-            bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(StringConsts.ID)));
+            bullhornParentId = Integer.parseInt(row.getValue(getEntityAssociatedPropertyName(StringConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
-                String propertyValue = dataMap.get(getEntityAssociatedPropertyName(property));
+                String propertyValue = row.getValue(getEntityAssociatedPropertyName(property));
                 Class fieldType = getFieldType(entityInfo.getEntityClass(), WordUtils.uncapitalize(entityInfo.getEntityClass().getSimpleName()) + "ExistField", property);
                 propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityInfo.getEntityClass()));
             }
@@ -118,8 +119,8 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         List<FileMeta> allFileMetas = restApi.getFileMetaData((Class<F>) entityInfo.getEntityClass(), bullhornParentId);
 
         for (FileMeta curFileMeta : allFileMetas) {
-            if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(StringConsts.ID))
-                || curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(StringConsts.EXTERNAL_ID))
+            if (curFileMeta.getId().toString().equalsIgnoreCase(row.getValue(StringConsts.ID))
+                || curFileMeta.getExternalID().equalsIgnoreCase(row.getValue(StringConsts.EXTERNAL_ID))
                 ) {
                 isNewEntity = false;
                 fileMeta = curFileMeta;
@@ -132,19 +133,19 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         File attachmentFile;
 
         try {
-            attachmentFile = new File(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+            attachmentFile = new File(row.getValue(StringConsts.RELATIVE_FILE_PATH));
         } catch (NullPointerException e) {
             throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
         }
 
-        if (isNewEntity || dataMap.containsKey(StringConsts.RELATIVE_FILE_PATH)) {
+        if (isNewEntity || row.hasValue(StringConsts.RELATIVE_FILE_PATH)) {
             try {
-                byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(StringConsts.RELATIVE_FILE_PATH)));
+                byte[] encoded = Files.readAllBytes(Paths.get(row.getValue(StringConsts.RELATIVE_FILE_PATH)));
                 String fileStr = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
-                throw new RestApiException("Row " + row.getNumber() + ": Unable to set fileContent on insert for: " + dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+                throw new RestApiException("Row " + row.getNumber() + ": Unable to set fileContent on insert for: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));
             }
         } else {
             // for update, grab original fileContent because it is required for an update
@@ -159,9 +160,9 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         }
 
         // set values from csv file
-        for (String field : dataMap.keySet()) {
+        for (String field : row.getNames()) {
             if (validField(field)) {
-                populateFieldOnEntity(field, dataMap.get(field), fileMeta, methodMap);
+                populateFieldOnEntity(field, row.getValue(field), fileMeta, methodMap);
             }
         }
 

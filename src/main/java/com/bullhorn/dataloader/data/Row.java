@@ -62,16 +62,16 @@ public class Row {
     }
 
     /**
-     * Gets just the string headers for the row
+     * Gets just the string headers (the names of the cells) for the row
      *
      * @return the ordered list of headers, as they appear in the spreadsheet
      */
-    public List<String> getHeaders() {
-        List<String> headers = new ArrayList<>();
+    public List<String> getNames() {
+        List<String> names = new ArrayList<>();
         for (Cell cell : cells) {
-            headers.add(cell.getName());
+            names.add(cell.getName());
         }
-        return headers;
+        return names;
     }
 
     /**
@@ -85,17 +85,5 @@ public class Row {
             values.add(cell.getValue());
         }
         return values;
-    }
-
-    /**
-     * TODO: Remove Me
-     * Temporary old style data array that is being replaced piecemeal
-     */
-    public Map<String, String> getDataMap() {
-        Map<String, String> dataMap = new LinkedHashMap<>();
-        for (Cell cell : cells) {
-            dataMap.put(cell.getName(), cell.getValue());
-        }
-        return dataMap;
     }
 }

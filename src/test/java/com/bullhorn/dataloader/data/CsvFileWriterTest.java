@@ -25,7 +25,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testNoRecords() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
 
         File resultsDir = new File("results/");
         File successFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
@@ -37,7 +37,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testSuccessRecordsOnly() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(successRow, Result.Insert(-1));
 
         File successFile = new File("results/CandidateTest_delete_" + StringConsts.TIMESTAMP + "_success.csv");
@@ -58,7 +58,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testNullBullhornIdRecord() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/ClientContactTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/ClientContactTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(successRow, Result.Update(null));
 
         File successFile = new File("results/ClientContactTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
@@ -72,7 +72,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testFailureRecordsOnly() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
         File successFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
@@ -93,7 +93,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testSuccessAndFailureRecords() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(successRow, Result.Insert(1));
         csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
@@ -109,7 +109,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testLoadAttachments() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(successRow, Result.Insert(1));
         csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 
@@ -125,7 +125,7 @@ public class CsvFileWriterTest {
 
     @Test
     public void testConvertAttachments() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getHeaders().toArray(new String[0]));
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(successRow, Result.Insert(1));
         csvFileWriter.writeRow(failureRow, Result.Failure(new Exception("You have chosen poorly")));
 

@@ -52,12 +52,12 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
     }
 
     private <F extends FileEntity> FileApiResponse deleteFile() throws IOException {
-        if (!dataMap.containsKey(StringConsts.PARENT_ENTITY_ID) || dataMap.get(StringConsts.PARENT_ENTITY_ID).isEmpty()) {
+        if (!row.hasValue(StringConsts.PARENT_ENTITY_ID) || row.getValue(StringConsts.PARENT_ENTITY_ID).isEmpty()) {
             throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.PARENT_ENTITY_ID + "' column required for deleteAttachments");
         }
-        if (!dataMap.containsKey(StringConsts.ID) || dataMap.get(StringConsts.ID).isEmpty()) {
+        if (!row.hasValue(StringConsts.ID) || row.getValue(StringConsts.ID).isEmpty()) {
             throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
         }
-        return restApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
+        return restApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(row.getValue(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(row.getValue(StringConsts.ID)));
     }
 }

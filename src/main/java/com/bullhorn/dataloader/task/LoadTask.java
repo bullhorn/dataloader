@@ -97,7 +97,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
         String descriptionMethod = getDescriptionMethod();
         if (!"".equals(descriptionMethod)) {
-            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), dataMap.get("externalID"));
+            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), row.getValue("externalID"));
             File convertedAttachment = new File(attachmentFilePath);
             if (convertedAttachment.exists()) {
                 String description = FileUtils.readFileToString(convertedAttachment);
@@ -183,7 +183,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void handleData() throws Exception {
-        for (String field : dataMap.keySet()) {
+        for (String field : row.getNames()) {
             if (validField(field)) {
                 if (field.contains(".")) {
                     handleAssociations(field);
@@ -205,7 +205,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
-        populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
+        populateFieldOnEntity(field, row.getValue(field), entity, methodMap);
     }
 
     protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException, Exception {
@@ -240,7 +240,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
         List<B> list;
-        String value = dataMap.get(field);
+        String value = row.getValue(field);
 
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
             list = searchForEntity(fieldName, value, fieldType, toOneEntityClass, null);
@@ -268,10 +268,10 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         if (fieldName.contains("country")) {
             // Allow for the use of a country name or internal Bullhorn ID
             Map<String, Integer> countryNameToIdMap = preloader.getCountryNameToIdMap();
-            if (countryNameToIdMap.containsKey(dataMap.get(field))) {
-                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
+            if (countryNameToIdMap.containsKey(row.getValue(field))) {
+                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(row.getValue(field)));
             } else {
-                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), Integer.valueOf(dataMap.get(field)));
+                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), Integer.valueOf(row.getValue(field)));
             }
         } else {
             Method method = methodMap.get(fieldName);
@@ -279,7 +279,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 throw new RestApiException("Row " + row.getNumber() + ": Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
             }
 
-            method.invoke(addressMap.get(toOneEntityName), dataMap.get(field));
+            method.invoke(addressMap.get(toOneEntityName), row.getValue(field));
         }
     }
 
@@ -296,7 +296,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         for (String associationName : associationMap.keySet()) {
-            if (dataMap.get(associationName) != null && !dataMap.get(associationName).equals("")) {
+            if (row.getValue(associationName) != null && !row.getValue(associationName).equals("")) {
                 addAssociationToEntity(associationName, associationMap.get(associationName));
             }
         }
@@ -355,7 +355,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
 
-        Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
+        Set<String> valueSet = Sets.newHashSet(row.getValue(field).split(propertyFileUtil.getListDelimiter()));
         Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
 

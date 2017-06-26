@@ -54,11 +54,11 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
     }
 
     private <D extends DeleteEntity> Result handle() throws IOException {
-        if (!dataMap.containsKey(StringConsts.ID)) {
+        if (!row.hasValue(StringConsts.ID)) {
             throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        bullhornID = Integer.parseInt(dataMap.get(StringConsts.ID));
+        bullhornID = Integer.parseInt(row.getValue(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
             throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +

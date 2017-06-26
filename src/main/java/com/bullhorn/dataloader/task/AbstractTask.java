@@ -48,9 +48,9 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
+
     protected EntityInfo entityInfo;
     protected Row row;
-    protected Map<String, String> dataMap;
     protected CsvFileWriter csvFileWriter;
     protected PropertyFileUtil propertyFileUtil;
     protected RestApi restApi;
@@ -66,7 +66,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                         ActionTotals actionTotals) {
         this.entityInfo = entityInfo;
         this.row = row;
-        this.dataMap = row.getDataMap();
         this.csvFileWriter = csvFileWriter;
         this.propertyFileUtil = propertyFileUtil;
         this.restApi = restApi;
@@ -203,7 +202,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (existFields.isPresent()) {
             for (String existField : existFields.get()) {
-                entityExistFieldsMap.put(existField, dataMap.get(existField));
+                entityExistFieldsMap.put(existField, row.getValue(existField));
             }
         }
 

@@ -55,11 +55,11 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     }
 
     protected Result handle() throws Exception {
-        if (!dataMap.containsKey(StringConsts.ID)) {
+        if (!row.hasValue(StringConsts.ID)) {
             throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        entityID = Integer.parseInt(dataMap.get("id"));
+        entityID = Integer.parseInt(row.getValue("id"));
         String parentEntityField = getParentEntityField();
         getParentEntity(parentEntityField);
         deleteCustomObject(parentEntity.getId());
@@ -80,7 +80,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
 
     private String getParentEntityField() throws IOException {
         String parentField = "";
-        for (String field : dataMap.keySet()) {
+        for (String field : row.getNames()) {
             if (field.contains(".") && !field.contains("_")) {
                 parentField = field;
             }

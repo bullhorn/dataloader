@@ -53,7 +53,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
     }
 
     private boolean isResume() {
-        String isResumeValue = dataMap.get("isResume");
+        String isResumeValue = row.getValue("isResume");
         return Boolean.valueOf(isResumeValue) || isResumeValue.equalsIgnoreCase("1") || isResumeValue.equalsIgnoreCase("Yes");
     }
 
@@ -92,7 +92,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
     }
 
     private String getExternalId() {
-        return dataMap.get(WordUtils.uncapitalize(entityInfo.getEntityName()) + ".externalID");
+        return row.getValue(WordUtils.uncapitalize(entityInfo.getEntityName()) + ".externalID");
     }
 
     public String convertAttachmentToHtml() throws IOException, SAXException, TikaException {
@@ -102,7 +102,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
         Metadata metadata = new Metadata();
         InputStream stream;
         try {
-            stream = new FileInputStream(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+            stream = new FileInputStream(row.getValue(StringConsts.RELATIVE_FILE_PATH));
         } catch (NullPointerException e) {
             throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for convertAttachments");
         }

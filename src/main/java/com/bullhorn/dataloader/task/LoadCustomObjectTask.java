@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
@@ -114,22 +115,23 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
-        Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
-        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        Row scrubbedRow = getRowWithoutUnusedFields();
+        String where = scrubbedRow.getNames().stream().map(n -> getWhereStatement(n, (String) row.getValue(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
         List<B> matchingCustomObjectList = (List<B>) restApi.query((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
         return matchingCustomObjectList;
     }
 
-    private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
-        Map<String, String> scrubbedDataMap = new HashMap<>(dataMap);
+    private Row getRowWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
+        Row scrubbedRow = new Row(row.getNumber());
         MetaData meta = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.BASIC, null);
-        for (String fieldName : dataMap.keySet()) {
-            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
-            if ((!fieldIsInMeta && !fieldName.contains(".")) || (fieldName.contains("_"))) {
-                scrubbedDataMap.remove(fieldName);
+
+        for (Cell cell : row.getCells()) {
+            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(cell.getName()));
+            if ((fieldIsInMeta || cell.isAssociation()) && (!cell.getName().contains("_"))) {
+                scrubbedRow.addCell(cell);
             }
         }
-        return scrubbedDataMap;
+        return scrubbedRow;
     }
 
     private void checkForDuplicates(List<B> matchingCustomObjectList) throws Exception {
@@ -181,7 +183,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected B getCustomObjectParent(String field, String fieldName, Class<B> parentEntityClass) {
         parentField = field;
         List<B> list;
-        String value = dataMap.get(field);
+        String value = row.getValue(field);
         Class fieldType = getFieldType(parentEntityClass, field, fieldName);
 
         if (SearchEntity.class.isAssignableFrom(parentEntityClass)) {
@@ -218,7 +220,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected void getPersonCustomObjectParentEntityClass(String entityName) throws Exception {
-        String personSubtype = dataMap.get("person._subtype");
+        String personSubtype = row.getValue("person._subtype");
         if ("candidate".equalsIgnoreCase(personSubtype)) {
             parentEntityClass = (Class<B>) Candidate.class;
         } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)) {
@@ -235,8 +237,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         Map<String, String> entityExistFieldsMap = super.getEntityExistFieldsMap();
         if (!entityExistFieldsMap.isEmpty() && !entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))) {
             try {
-                String parentEntityField = dataMap.keySet().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
-                entityExistFieldsMap.put(parentEntityField, dataMap.get(parentEntityField));
+                String parentEntityField = row.getNames().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
+                entityExistFieldsMap.put(parentEntityField, row.getValue(parentEntityField));
             } catch (Exception e) {
                 throw new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity.");
             }

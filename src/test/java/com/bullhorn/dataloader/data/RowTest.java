@@ -49,22 +49,22 @@ public class RowTest {
     }
 
     @Test
-    public void testGetHeadersValid() {
+    public void testGetNamesValid() {
         Row row = new Row(1);
         row.addCell(new Cell("id", "1"));
         row.addCell(new Cell("firstName", "John"));
         row.addCell(new Cell("lastName", "Smith"));
 
         List<String> expected = Arrays.asList(new String[] {"id", "firstName", "lastName"});
-        Assert.assertEquals(row.getHeaders(), expected);
+        Assert.assertEquals(row.getNames(), expected);
     }
 
     @Test
-    public void testGetHeadersEmpty() {
+    public void testGetNamesEmpty() {
         Row row = new Row(1);
 
         List<String> expected = Arrays.asList(new String[] {});
-        Assert.assertEquals(row.getHeaders(), expected);
+        Assert.assertEquals(row.getNames(), expected);
     }
 
     @Test
