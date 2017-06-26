@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.executor;
+package com.bullhorn.dataloader.rest;
 
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
 import com.bullhornsdk.data.model.parameter.QueryParams;
@@ -10,26 +10,26 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Handles implementation details for extensions to the BullhornRestApi.
+ * Handles implementation details for extensions to the RestApi.
  */
-public class BullhornRestApiExtension {
+public class RestApiExtension {
 
-    static final String CHANGETYPE_UPDATE = "UPDATE";
-    static final String FIELDNAME_ID = "id";
-    static final Integer QUERYPARAM_MAX_COUNT = 500;
-    static final String ENTITY_JOBSUBMISSION = "JobSubmission";
-    static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
-    static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
+    private static final String CHANGETYPE_UPDATE = "UPDATE";
+    private static final String FIELDNAME_ID = "id";
+    private static final Integer QUERYPARAM_MAX_COUNT = 500;
+    private static final String ENTITY_JOBSUBMISSION = "JobSubmission";
+    private static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
+    private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
     /**
      * Performs additional checks after a record has been deleted. For deleted job records, deletes the job submission
      * history as well.
      *
-     * @param bullhornRestApi The BullhornRestApi
-     * @param crudResponse The response from the BullhornRestApi
+     * @param restApi The RestApi
+     * @param crudResponse    The response from the RestApi
      * @return The updated crud response after additional behavior
      */
-    static public <C extends CrudResponse> C postDelete(BullhornRestApi bullhornRestApi, C crudResponse) {
+    <C extends CrudResponse> C postDelete(RestApi restApi, C crudResponse) {
 
         if (null != crudResponse &&                                                         // CrudResponse is not null
             crudResponse.getMessages().isEmpty() &&                                         // and has no errors
@@ -37,7 +37,7 @@ public class BullhornRestApiExtension {
             RESPONSETYPE_DELETERESPONSE.equals(crudResponse.getClass().getSimpleName()) &&  // when we tried to delete, then it was a soft delete
             ENTITY_JOBSUBMISSION.equals(crudResponse.getChangedEntityType())                // and we soft deleted a Job Submission record
             ) {
-            crudResponse = deleteJobSubmissionHistoryRecords(bullhornRestApi, crudResponse.getChangedEntityId());
+            crudResponse = deleteJobSubmissionHistoryRecords(restApi, crudResponse.getChangedEntityId());
         }
 
         return crudResponse;
@@ -46,11 +46,11 @@ public class BullhornRestApiExtension {
     /**
      * Given a jobSubmissionId, delete all associated JobSubmissionHistory records for it.
      *
-     * @param bullhornRestApi The BullhornRestApi object
+     * @param restApi The RestApi object
      * @param jobSubmissionId The ID of the JobSubmission that was deleted
      * @return CrudResponse with up to 1 error message if any deletes failed.
      */
-    static private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(BullhornRestApi bullhornRestApi, Integer jobSubmissionId) {
+    private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(RestApi restApi, Integer jobSubmissionId) {
 
         C crudResponse = null;
 
@@ -73,11 +73,11 @@ public class BullhornRestApiExtension {
         queryParams.setUseDefaultQueryFilter(false);
 
         // List of JobSubmissionHistory records to hard-delete
-        @SuppressWarnings("unchecked") List<JobSubmissionHistory> jobSubmissionHistories = bullhornRestApi.queryForList(jshClass, whereClause, fieldSet, queryParams);
+        @SuppressWarnings("unchecked") List<JobSubmissionHistory> jobSubmissionHistories = restApi.queryForList(jshClass, whereClause, fieldSet, queryParams);
 
         for (JobSubmissionHistory jsh : jobSubmissionHistories) {
             // Hard Delete JobSubmissionHistory record
-            crudResponse = bullhornRestApi.deleteEntity(JobSubmissionHistory.class, jsh.getId());
+            crudResponse = restApi.deleteEntity(JobSubmissionHistory.class, jsh.getId());
 
             // Stop processing if there are any errors
             if (!crudResponse.getMessages().isEmpty()) {

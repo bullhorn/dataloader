@@ -1,11 +1,12 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -55,25 +56,22 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected B entity;
     protected Integer entityID;
     protected Map<String, Method> methodMap;
-    private Map<String, Integer> countryNameToIdMap;
+    protected Preloader preloader;
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
     protected boolean isNewEntity = true;
 
-    public LoadTask(Command command,
-                    Integer rowNumber,
-                    EntityInfo entityInfo,
-                    Map<String, String> dataMap,
-                    Map<String, Method> methodMap,
-                    Map<String, Integer> countryNameToIdMap,
+    public LoadTask(EntityInfo entityInfo,
+                    Row row,
+                    Preloader preloader,
                     CsvFileWriter csvFileWriter,
                     PropertyFileUtil propertyFileUtil,
-                    BullhornRestApi bullhornRestApi,
+                    RestApi restApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        this.methodMap = methodMap;
-        this.countryNameToIdMap = countryNameToIdMap;
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        this.preloader = preloader;
+        this.methodMap = entityInfo.getSetterMethodMap();
     }
 
     @Override
@@ -99,7 +97,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
         String descriptionMethod = getDescriptionMethod();
         if (!"".equals(descriptionMethod)) {
-            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), dataMap.get("externalID"));
+            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), row.getValue("externalID"));
             File convertedAttachment = new File(attachmentFilePath);
             if (convertedAttachment.exists()) {
                 String description = FileUtils.readFileToString(convertedAttachment);
@@ -138,7 +136,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         List<B> existingEntityList = findEntityList(entityExistFieldsMap);
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
-                throw new RestApiException("Row " + rowNumber + ": Cannot Perform Update - Multiple Records Exist. Found " +
+                throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Update - Multiple Records Exist. Found " +
                     existingEntityList.size() + " " + entityInfo.getEntityName() +
                     " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
             } else {
@@ -153,19 +151,15 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
-            try {
-                CrudResponse response = bullhornRestApi.insertEntity((CreateEntity) entity);
-                checkForRestSdkErrorMessages(response);
-                entityID = response.getChangedEntityId();
-                entity.setId(entityID);
-                if (entity.getClass() == ClientCorporation.class) {
-                    setDefaultContactExternalId(entityID);
-                }
-            } catch (RestApiException e) {
-                checkForRequiredFieldsError(e);
+            CrudResponse response = restApi.insertEntity((CreateEntity) entity);
+            checkForRestSdkErrorMessages(response);
+            entityID = response.getChangedEntityId();
+            entity.setId(entityID);
+            if (entity.getClass() == ClientCorporation.class) {
+                setDefaultContactExternalId(entityID);
             }
         } else {
-            CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) entity);
+            CrudResponse response = restApi.updateEntity((UpdateEntity) entity);
             checkForRestSdkErrorMessages(response);
         }
     }
@@ -176,12 +170,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             ClientCorporation clientCorporation = clientCorporations.get(0);
             if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
                 final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
-                List<ClientContact> clientContacts = bullhornRestApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+                List<ClientContact> clientContacts = restApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
                 if (!clientContacts.isEmpty()) {
                     ClientContact clientContact = clientContacts.get(0);
                     String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
                     clientContact.setExternalID(defaultContactExternalId);
-                    CrudResponse response = bullhornRestApi.updateEntity(clientContact);
+                    CrudResponse response = restApi.updateEntity(clientContact);
                     checkForRestSdkErrorMessages(response);
                 }
             }
@@ -189,7 +183,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void handleData() throws Exception {
-        for (String field : dataMap.keySet()) {
+        for (String field : row.getNames()) {
             if (validField(field)) {
                 if (field.contains(".")) {
                     handleAssociations(field);
@@ -211,7 +205,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
-        populateFieldOnEntity(field, dataMap.get(field), entity, methodMap);
+        populateFieldOnEntity(field, row.getValue(field), entity, methodMap);
     }
 
     protected void handleAssociations(String field) throws InvocationTargetException, IllegalAccessException, Exception {
@@ -230,7 +224,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         } else {
             Method method = methodMap.get(toOneEntityName.toLowerCase());
             if (method == null) {
-                throw new RestApiException("Row " + rowNumber + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+                throw new RestApiException("Row " + row.getNumber() + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
             }
 
             Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
@@ -246,7 +240,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
         List<B> list;
-        String value = dataMap.get(field);
+        String value = row.getValue(field);
 
         if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
             list = searchForEntity(fieldName, value, fieldType, toOneEntityClass, null);
@@ -261,9 +255,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected void validateListFromRestCall(String field, List<B> list, String value) {
         if (list == null || list.isEmpty()) {
-            throw new RestApiException("Row " + rowNumber + ": Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
+            throw new RestApiException("Row " + row.getNumber() + ": Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
         } else if (list.size() > 1) {
-            throw new RestApiException("Row " + rowNumber + ": Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
+            throw new RestApiException("Row " + row.getNumber() + ": Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
         }
     }
 
@@ -273,18 +267,19 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
         if (fieldName.contains("country")) {
             // Allow for the use of a country name or internal Bullhorn ID
-            if (countryNameToIdMap.containsKey(dataMap.get(field))) {
-                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(dataMap.get(field)));
+            Map<String, Integer> countryNameToIdMap = preloader.getCountryNameToIdMap();
+            if (countryNameToIdMap.containsKey(row.getValue(field))) {
+                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), countryNameToIdMap.get(row.getValue(field)));
             } else {
-                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), Integer.valueOf(dataMap.get(field)));
+                methodMap.get("countryid").invoke(addressMap.get(toOneEntityName), Integer.valueOf(row.getValue(field)));
             }
         } else {
             Method method = methodMap.get(fieldName);
             if (method == null) {
-                throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
+                throw new RestApiException("Row " + row.getNumber() + ": Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
             }
 
-            method.invoke(addressMap.get(toOneEntityName), dataMap.get(field));
+            method.invoke(addressMap.get(toOneEntityName), row.getValue(field));
         }
     }
 
@@ -301,7 +296,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         for (String associationName : associationMap.keySet()) {
-            if (dataMap.get(associationName) != null && !dataMap.get(associationName).equals("")) {
+            if (row.getValue(associationName) != null && !row.getValue(associationName).equals("")) {
                 addAssociationToEntity(associationName, associationMap.get(associationName));
             }
         }
@@ -313,7 +308,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             if (entityInfo == EntityInfo.NOTE) {
                 addAssociationsToNote((Note) entity, associationField.getAssociationType(), newAssociationIdList);
             } else {
-                bullhornRestApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
+                restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
             }
         } catch (RestApiException e) {
             // Provide a simpler duplication error message with all of the essential data
@@ -353,14 +348,14 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         noteEntity.setNote(noteAdded);
         noteEntity.setTargetEntityID(targetEntityID);
         noteEntity.setTargetEntityName(targetEntityName);
-        bullhornRestApi.insertEntity(noteEntity);
+        restApi.insertEntity(noteEntity);
     }
 
     protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
 
-        Set<String> valueSet = Sets.newHashSet(dataMap.get(field).split(propertyFileUtil.getListDelimiter()));
+        Set<String> valueSet = Sets.newHashSet(row.getValue(field).split(propertyFileUtil.getListDelimiter()));
         Method method = getGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
 
@@ -369,10 +364,10 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
             if (existingAssociations.size() > valueSet.size()) {
                 String duplicateAssociations = existingAssociationSet.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                throw new RestApiException("Row " + rowNumber + ": Found " + existingAssociations.size() + " duplicate To-Many Associations: '" + field + "' with value:\n" + duplicateAssociations);
+                throw new RestApiException("Row " + row.getNumber() + ": Found " + existingAssociations.size() + " duplicate To-Many Associations: '" + field + "' with value:\n" + duplicateAssociations);
             } else {
                 String missingAssociations = valueSet.stream().filter(n -> !existingAssociationSet.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                throw new RestApiException("Row " + rowNumber + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+                throw new RestApiException("Row " + row.getNumber() + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
             }
         }
 
@@ -416,17 +411,18 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             String where = getQueryStatement(valueSet, field, associationClass);
             SearchParams searchParams = ParamFactory.searchParams();
             searchParams.setCount(COUNT_PARAMETER);
-            list = (List<B>) bullhornRestApi.search((Class<S>) associationClass, where, null, searchParams).getData();
+            list = (List<B>) restApi.search((Class<S>) associationClass, where, null, searchParams).getData();
         } else {
             String where = getWhereStatement(valueSet, field, associationClass);
             QueryParams queryParams = ParamFactory.queryParams();
             queryParams.setCount(COUNT_PARAMETER);
-            list = (List<B>) bullhornRestApi.query((Class<Q>) associationClass, where, null, queryParams).getData();
+            list = (List<B>) restApi.query((Class<Q>) associationClass, where, null, queryParams).getData();
         }
 
         return list;
     }
 
+    // TODO: Move to AssociationUtil
     protected Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
         String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
         try {

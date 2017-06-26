@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -16,23 +16,20 @@ import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.response.file.FileApiResponse;
 
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
 
-    public DeleteAttachmentTask(Command method,
-                                Integer rowNumber,
-                                EntityInfo entityInfo,
-                                Map<String, String> dataMap,
+    public DeleteAttachmentTask(EntityInfo entityInfo,
+                                Row row,
                                 CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
-                                BullhornRestApi bullhornRestApi,
+                                RestApi restApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(method, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**
@@ -55,12 +52,12 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
     }
 
     private <F extends FileEntity> FileApiResponse deleteFile() throws IOException {
-        if (!dataMap.containsKey(StringConsts.PARENT_ENTITY_ID) || dataMap.get(StringConsts.PARENT_ENTITY_ID).isEmpty()) {
-            throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.PARENT_ENTITY_ID + "' column required for deleteAttachments");
+        if (!row.hasValue(StringConsts.PARENT_ENTITY_ID) || row.getValue(StringConsts.PARENT_ENTITY_ID).isEmpty()) {
+            throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.PARENT_ENTITY_ID + "' column required for deleteAttachments");
         }
-        if (!dataMap.containsKey(StringConsts.ID) || dataMap.get(StringConsts.ID).isEmpty()) {
-            throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
+        if (!row.hasValue(StringConsts.ID) || row.getValue(StringConsts.ID).isEmpty()) {
+            throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
         }
-        return bullhornRestApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(dataMap.get(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(dataMap.get(StringConsts.ID)));
+        return restApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(row.getValue(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(row.getValue(StringConsts.ID)));
     }
 }

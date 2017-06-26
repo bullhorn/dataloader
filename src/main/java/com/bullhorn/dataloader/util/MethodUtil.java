@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Utility for low level method related methods used in DataLoader
+ */
 public class MethodUtil {
 
     /**

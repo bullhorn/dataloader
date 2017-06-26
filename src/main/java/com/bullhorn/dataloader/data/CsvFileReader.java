@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.csv;
+package com.bullhorn.dataloader.data;
 
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
@@ -6,9 +6,7 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -17,10 +15,12 @@ import java.util.Set;
  */
 public class CsvFileReader extends CsvReader {
 
+    private Integer rowNumber = 0;
+
     /**
      * Constructor which also reads headers and ensures there are no duplicates
      *
-     * @param filePath The path to the CSV file
+     * @param filePath the path to the CSV file
      */
     public CsvFileReader(String filePath) throws IOException {
         super(filePath);
@@ -28,10 +28,16 @@ public class CsvFileReader extends CsvReader {
         checkForDuplicateHeaders();
     }
 
+    @Override
+    public boolean readRecord() throws IOException {
+        rowNumber++;
+        return super.readRecord();
+    }
+
     /**
      * Ensures that user's don't accidentally have duplicate columns
      *
-     * @throws IOException If there are duplicates
+     * @throws IOException if there are duplicates
      */
     private void checkForDuplicateHeaders() throws IOException {
         List<String> headers = Arrays.asList(getHeaders());
@@ -58,25 +64,24 @@ public class CsvFileReader extends CsvReader {
     }
 
     /**
-     * Returns the data for the current row in the format of a data map, mapping from column name to cell value.
+     * Returns the data for the current row in the format of a row object.
      *
      * First, call csvFileReader.readRecord() to read the next row, and then call this method instead of getValues() to
-     * return the data map instead of the string array of values.
+     * return the Row object instead of the raw string array of values.
      *
-     * @return The data map that is used to load the record values
-     * @throws IOException In case the column/row counts don't match
+     * @return the row of data from the spreadsheet
+     * @throws IOException in case the column/row counts don't match
      */
-    public Map<String, String> getRecordDataMap() throws IOException {
-        // TODO: Build up a Row object which has a rowNumber and cells, and return it as the data object
+    public Row getRow() throws IOException {
         if (getHeaderCount() != getValues().length) {
             throw new IOException("Header column count " + getHeaderCount() + " is not equal to row column count " + getValues().length);
         }
 
-        Map<String, String> dataMap = new LinkedHashMap<>();
+        Row row = new Row(rowNumber);
         for (int i = 0; i < getHeaderCount(); i++) {
-            dataMap.put(getHeader(i), getValues()[i]);
+            Cell cell = new Cell(getHeader(i), getValues()[i]);
+            row.addCell(cell);
         }
-
-        return dataMap;
+        return row;
     }
 }

@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.csv;
+package com.bullhorn.dataloader.data;
 
 import com.bullhorn.dataloader.TestUtils;
 import org.junit.Assert;
@@ -32,7 +32,7 @@ public class CsvFileReaderTest {
         IOException actualException = null;
         try {
             csvFileReader.readRecord();
-            csvFileReader.getRecordDataMap();
+            csvFileReader.getRow();
         } catch (IOException e) {
             actualException = e;
         }

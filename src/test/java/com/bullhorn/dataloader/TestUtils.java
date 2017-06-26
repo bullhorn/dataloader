@@ -1,9 +1,11 @@
 package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.util.ActionTotals;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
@@ -13,7 +15,6 @@ import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,6 +23,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Utilities used in tests
@@ -45,7 +48,7 @@ public class TestUtils {
      * Given an entity type and list of ids, this method constructs the listWrapper returned by SDK-REST
      *
      * @param entityClass The type of entity to create a list wrapper for
-     * @param idList The array of IDs to assign to new entity objects
+     * @param idList      The array of IDs to assign to new entity objects
      * @return The listWrapper from the SDK-REST that contains the entities
      */
     public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, Integer... idList) throws IllegalAccessException, InstantiationException {
@@ -61,7 +64,7 @@ public class TestUtils {
     /**
      * Convenience method for mocking a CreateResponse from SDK-REST
      *
-     * @param changeType INSERT, UPDATE, or DELETE
+     * @param changeType      INSERT, UPDATE, or DELETE
      * @param changedEntityId The id of the entity that has been inserted
      * @return A new create response object
      */
@@ -75,10 +78,10 @@ public class TestUtils {
     /**
      * Version of getResponse that returns an error
      *
-     * @param changeType INSERT, UPDATE, or DELETE
+     * @param changeType      INSERT, UPDATE, or DELETE
      * @param changedEntityId The id of the entity that has been inserted
-     * @param propertyName The property with an error
-     * @param errorMessage The error message for the property
+     * @param propertyName    The property with an error
+     * @param errorMessage    The error message for the property
      * @return A new create response object
      */
     public static AbstractCrudResponse getResponse(ChangeType changeType, Integer changedEntityId, String propertyName, String errorMessage) {
@@ -95,15 +98,15 @@ public class TestUtils {
      * all other totals have not been called at all.
      *
      * @param actionTotalsMock The mocked action totals object
-     * @param expectedAction Which one out of the many actions are expected to be incremented
-     * @param expectedTotal The number of rows that are expected to be in the total
+     * @param expectedAction   Which one out of the many actions are expected to be incremented
+     * @param expectedTotal    The number of rows that are expected to be in the total
      */
     public static void verifyActionTotals(ActionTotals actionTotalsMock, Result.Action expectedAction, Integer expectedTotal) {
         for (Result.Action action : Result.Action.values()) {
             if (action == expectedAction) {
-                Mockito.verify(actionTotalsMock, Mockito.times(expectedTotal)).incrementActionTotal(action);
+                verify(actionTotalsMock, times(expectedTotal)).incrementActionTotal(action);
             } else {
-                Mockito.verify(actionTotalsMock, never()).incrementActionTotal(action);
+                verify(actionTotalsMock, never()).incrementActionTotal(action);
             }
         }
     }
@@ -123,9 +126,9 @@ public class TestUtils {
     /**
      * Given a directory, this will replace all instances of the given text string with another text string for files with the given extension.
      *
-     * @param directory The directory to recurse through
+     * @param directory   The directory to recurse through
      * @param replaceText The text to find
-     * @param findText The text to replace the foundText with
+     * @param findText    The text to replace the foundText with
      * @throws IOException In case the directory is null
      */
     public static void replaceTextInFiles(File directory, String replaceText, String findText) throws IOException {
@@ -149,7 +152,7 @@ public class TestUtils {
      * checking that success files exist in the results directory and failure files do not.
      *
      * @param directory The directory to recurse through
-     * @param command The command used when running DataLoader
+     * @param command   The command used when running DataLoader
      * @throws IOException In case the directory is null
      */
     public static void checkResultsFiles(File directory, Command command) throws IOException {
@@ -169,7 +172,7 @@ public class TestUtils {
     /**
      * Given a file, this will check that a success and not a failure results file have been created.
      *
-     * @param file The file to check
+     * @param file    The file to check
      * @param command The command used when running DataLoader
      * @throws IOException In case the file is null
      */
@@ -182,5 +185,29 @@ public class TestUtils {
 
         Assert.assertTrue("Verify " + successFilePath + " Exists Failed!", successFile.exists());
         Assert.assertFalse("Verify " + failureFilePath + " Does not Exist Failed!", failureFile.exists());
+    }
+
+    /**
+     * Given a comma separated list of headers and values, just as you would see in the CSV file itself, this
+     * convenience method constructs the Row object that represents that data.
+     *
+     * @param headers comma separated header list, like: "firstName,lastName,email"
+     * @param values  comma separated values list, like: "John,Smith,jsmith@bullhorn.com"
+     * @return the row object that contains these values
+     */
+    public static Row createRow(String headers, String values) throws IOException {
+        String[] headerArray = headers.split(",");
+        String[] valuesArray = values.split(",");
+        if (headerArray.length != valuesArray.length) {
+            throw new IOException("Test Setup Failure - Create Row called with headers/values mismatching in length: " +
+                headerArray.length + " headers, " + valuesArray.length + " values.");
+        }
+
+        Row row = new Row(1);
+        for (int i = 0; i < headerArray.length; i++) {
+            Cell cell = new Cell(headerArray[i], valuesArray[i]);
+            row.addCell(cell);
+        }
+        return row;
     }
 }

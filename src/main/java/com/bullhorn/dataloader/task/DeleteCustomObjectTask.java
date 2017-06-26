@@ -1,11 +1,12 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -20,23 +21,21 @@ import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
 
-    public DeleteCustomObjectTask(Command command,
-                                  Integer rowNumber,
-                                  EntityInfo entityInfo,
-                                  Map<String, String> dataMap,
+    public DeleteCustomObjectTask(EntityInfo entityInfo,
+                                  Row row,
+                                  Preloader preloader,
                                   CsvFileWriter csvFileWriter,
                                   PropertyFileUtil propertyFileUtil,
-                                  BullhornRestApi bullhornRestApi,
+                                  RestApi restApi,
                                   PrintUtil printUtil,
                                   ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, null, null, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**
@@ -56,11 +55,11 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
     }
 
     protected Result handle() throws Exception {
-        if (!dataMap.containsKey(StringConsts.ID)) {
-            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+        if (!row.hasValue(StringConsts.ID)) {
+            throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        entityID = Integer.parseInt(dataMap.get("id"));
+        entityID = Integer.parseInt(row.getValue("id"));
         String parentEntityField = getParentEntityField();
         getParentEntity(parentEntityField);
         deleteCustomObject(parentEntity.getId());
@@ -75,13 +74,13 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
      */
     private void deleteCustomObject(Integer parentEntityID) {
         AssociationField associationField = getAssociationField();
-        CrudResponse response = bullhornRestApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
+        CrudResponse response = restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
         checkForRestSdkErrorMessages(response);
     }
 
     private String getParentEntityField() throws IOException {
         String parentField = "";
-        for (String field : dataMap.keySet()) {
+        for (String field : row.getNames()) {
             if (field.contains(".") && !field.contains("_")) {
                 parentField = field;
             }

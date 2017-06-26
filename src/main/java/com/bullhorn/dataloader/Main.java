@@ -1,17 +1,18 @@
 package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApiExtension;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.service.ActionFactory;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
-import com.bullhorn.dataloader.util.PreLoaderUtil;
+import com.bullhorn.dataloader.service.ProcessRunner;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.PropertyValidation;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.validation.PropertyValidation;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.httpclient.HttpClient;
 
 public class Main {
@@ -33,12 +34,13 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            ConnectionUtil connectionUtil = new ConnectionUtil(propertyFileUtil);
-            PreLoaderUtil preLoaderUtil = new PreLoaderUtil(connectionUtil);
-            CompleteUtil completeUtil = new CompleteUtil(connectionUtil, httpClient, propertyFileUtil, printUtil);
+            RestApiExtension restApiExtension = new RestApiExtension();
+            RestSession restSession = new RestSession(restApiExtension, propertyFileUtil);
+            Preloader preloader = new Preloader(restSession);
+            CompleteCall completeCall = new CompleteCall(restSession, httpClient, propertyFileUtil, printUtil);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
-            ProcessRunnerUtil processRunnerUtil = new ProcessRunnerUtil(connectionUtil, preLoaderUtil, printUtil, propertyFileUtil, threadPoolUtil);
-            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, System.in, timer);
+            ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil, threadPoolUtil);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
 

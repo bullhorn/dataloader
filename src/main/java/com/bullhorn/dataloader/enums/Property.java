@@ -21,7 +21,7 @@ public enum Property {
 
     private final String propertyName;
 
-    private Property(String propertyName) {
+    Property(String propertyName) {
         this.propertyName = propertyName;
     }
 

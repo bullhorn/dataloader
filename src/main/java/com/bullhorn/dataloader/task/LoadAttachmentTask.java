@@ -1,11 +1,13 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -43,19 +45,17 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private FileMeta fileMeta;
     private boolean isNewEntity = true;
     private Map<String, Method> methodMap;
+    private Integer bullhornParentId;
 
-    public LoadAttachmentTask(Command command,
-                              Integer rowNumber,
-                              EntityInfo entityInfo,
-                              Map<String, String> dataMap,
-                              Map<String, Method> methodMap,
+    public LoadAttachmentTask(EntityInfo entityInfo,
+                              Row row,
                               CsvFileWriter csvFileWriter,
                               PropertyFileUtil propertyFileUtil,
-                              BullhornRestApi bullhornRestApi,
+                              RestApi restApi,
                               PrintUtil printUtil,
                               ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
-        this.methodMap = methodMap;
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+        this.methodMap = MethodUtil.getSetterMethodMap(FileMeta.class);
     }
 
     @Override
@@ -72,51 +72,55 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private Result handle() throws Exception {
         Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (!entityExistFields.isPresent()) {
-            throw new IllegalArgumentException("Row " + rowNumber + ": Properties file is missing the '" +
+            throw new IllegalArgumentException("Row " + row.getNumber() + ": Properties file is missing the '" +
                 WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
         }
 
         getAndSetBullhornID(entityExistFields.get());
-        addParentEntityIDtoDataMap();
+        addParentEntityIDtoRow();
         createFileMeta();
         populateFileMeta();
         Result result = addOrUpdateFile();
         return result;
     }
 
+    private void addParentEntityIDtoRow() {
+        row.addCell(new Cell(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString()));
+    }
+
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
     private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
-            bullhornParentId = Integer.parseInt(dataMap.get(getEntityAssociatedPropertyName(StringConsts.ID)));
+            bullhornParentId = Integer.parseInt(row.getValue(getEntityAssociatedPropertyName(StringConsts.ID)));
         } else {
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
-                String propertyValue = dataMap.get(getEntityAssociatedPropertyName(property));
+                String propertyValue = row.getValue(getEntityAssociatedPropertyName(property));
                 Class fieldType = getFieldType(entityInfo.getEntityClass(), WordUtils.uncapitalize(entityInfo.getEntityClass().getSimpleName()) + "ExistField", property);
                 propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityInfo.getEntityClass()));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
-            List<S> searchList = bullhornRestApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+            List<S> searchList = restApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {
-                throw new RestApiException("Row " + rowNumber + ": Parent Entity not found.");
+                throw new RestApiException("Row " + row.getNumber() + ": Parent Entity not found.");
             }
         }
     }
 
     private String getEntityAssociatedPropertyName(String property) {
-        return getCamelCasedClassToString() + "." + property;
+        return WordUtils.uncapitalize(entityInfo.getEntityName()) + "." + property;
     }
 
     private <F extends FileEntity> void createFileMeta() {
         fileMeta = new StandardFileMeta();
 
-        List<FileMeta> allFileMetas = bullhornRestApi.getFileMetaData((Class<F>) entityInfo.getEntityClass(), bullhornParentId);
+        List<FileMeta> allFileMetas = restApi.getFileMetaData((Class<F>) entityInfo.getEntityClass(), bullhornParentId);
 
         for (FileMeta curFileMeta : allFileMetas) {
-            if (curFileMeta.getId().toString().equalsIgnoreCase(dataMap.get(StringConsts.ID))
-                || curFileMeta.getExternalID().equalsIgnoreCase(dataMap.get(StringConsts.EXTERNAL_ID))
+            if (curFileMeta.getId().toString().equalsIgnoreCase(row.getValue(StringConsts.ID))
+                || curFileMeta.getExternalID().equalsIgnoreCase(row.getValue(StringConsts.EXTERNAL_ID))
                 ) {
                 isNewEntity = false;
                 fileMeta = curFileMeta;
@@ -129,23 +133,23 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         File attachmentFile;
 
         try {
-            attachmentFile = new File(dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+            attachmentFile = new File(row.getValue(StringConsts.RELATIVE_FILE_PATH));
         } catch (NullPointerException e) {
-            throw new IOException("Row " + rowNumber + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
+            throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
         }
 
-        if (isNewEntity || dataMap.containsKey(StringConsts.RELATIVE_FILE_PATH)) {
+        if (isNewEntity || row.hasValue(StringConsts.RELATIVE_FILE_PATH)) {
             try {
-                byte[] encoded = Files.readAllBytes(Paths.get(dataMap.get(StringConsts.RELATIVE_FILE_PATH)));
+                byte[] encoded = Files.readAllBytes(Paths.get(row.getValue(StringConsts.RELATIVE_FILE_PATH)));
                 String fileStr = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
-                throw new RestApiException("Row " + rowNumber + ": Unable to set fileContent on insert for: " + dataMap.get(StringConsts.RELATIVE_FILE_PATH));
+                throw new RestApiException("Row " + row.getNumber() + ": Unable to set fileContent on insert for: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));
             }
         } else {
             // for update, grab original fileContent because it is required for an update
-            FileContent fileContent = bullhornRestApi.getFileContent((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta.getId());
+            FileContent fileContent = restApi.getFileContent((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta.getId());
             fileMeta.setFileContent(fileContent.getFileContent());
         }
 
@@ -156,9 +160,9 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         }
 
         // set values from csv file
-        for (String field : dataMap.keySet()) {
+        for (String field : row.getNames()) {
             if (validField(field)) {
-                populateFieldOnEntity(field, dataMap.get(field), fileMeta, methodMap);
+                populateFieldOnEntity(field, row.getValue(field), fileMeta, methodMap);
             }
         }
 
@@ -170,10 +174,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
 
     private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
-            FileWrapper fileWrapper = bullhornRestApi.addFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
+            FileWrapper fileWrapper = restApi.addFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
             return Result.Insert(fileWrapper.getId());
         } else {
-            FileWrapper fileWrapper = bullhornRestApi.updateFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
+            FileWrapper fileWrapper = restApi.updateFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
             return Result.Update(fileWrapper.getId());
         }
     }

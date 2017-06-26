@@ -1,16 +1,15 @@
 package com.bullhorn.dataloader.service;
 
+import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ActionTotals;
-import com.bullhorn.dataloader.util.CompleteUtil;
-import com.bullhorn.dataloader.util.ConnectionUtil;
+import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ProcessRunnerUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
+import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,12 +24,12 @@ public class LoadAttachmentsService extends AbstractService implements Action {
     public LoadAttachmentsService(PrintUtil printUtil,
                                   PropertyFileUtil propertyFileUtil,
                                   ValidationUtil validationUtil,
-                                  CompleteUtil completeUtil,
-                                  ConnectionUtil connectionUtil,
-                                  ProcessRunnerUtil processRunnerUtil,
+                                  CompleteCall completeCall,
+                                  RestSession restSession,
+                                  ProcessRunner processRunner,
                                   InputStream inputStream,
                                   Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, connectionUtil, processRunnerUtil, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
     }
 
     @Override
@@ -45,9 +44,9 @@ public class LoadAttachmentsService extends AbstractService implements Action {
         try {
             printUtil.printAndLog("Loading " + entityInfo + " attachments from: " + filePath + "...");
             timer.start();
-            ActionTotals actionTotals = processRunnerUtil.runLoadAttachmentsProcess(entityInfo, filePath);
+            ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
             printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHMS());
-            completeUtil.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
+            completeCall.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to load " + entityInfo + " attachments");
             printUtil.printAndLog(e);

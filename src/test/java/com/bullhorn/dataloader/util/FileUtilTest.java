@@ -2,11 +2,9 @@ package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.validation.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,14 +16,15 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import static org.mockito.Mockito.mock;
+
 public class FileUtilTest {
 
-    private PrintUtil printUtilMock;
     private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws Exception {
-        printUtilMock = Mockito.mock(PrintUtil.class);
+        PrintUtil printUtilMock = mock(PrintUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
     }
 

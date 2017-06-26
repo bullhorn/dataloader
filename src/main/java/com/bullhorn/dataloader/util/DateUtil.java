@@ -3,6 +3,9 @@ package com.bullhorn.dataloader.util;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * Utility for low level date related methods used in DataLoader
+ */
 public class DateUtil {
 
     private static String timestamp = null;

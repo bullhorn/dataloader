@@ -1,4 +1,4 @@
-package com.bullhorn.dataloader.service.csv;
+package com.bullhorn.dataloader.data;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.util.ArrayUtil;
@@ -9,6 +9,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.
@@ -70,23 +71,27 @@ public class CsvFileWriter {
 
     /**
      * Given the input for a row record and the output from REST, this method will output the results of the operation
-     * to the results files.
+     * to the results files. Prepends columns to the result files: id,action for success, failureText for failure.
      *
-     * @param data   The original CSV record
-     * @param result The resulting status from REST
-     * @throws IOException When writing to disk
+     * @param row    the original CSV record
+     * @param result the resulting status from REST
+     * @throws IOException when writing to disk
      */
-    public synchronized void writeRow(String[] data, Result result) throws IOException {
+    public synchronized void writeRow(Row row, Result result) throws IOException {
+        CsvWriter csvWriter;
+        List<String> values = row.getValues();
+
         if (result.isSuccess()) {
-            CsvWriter csvWriter = getOrCreateSuccessCsvWriter();
-            csvWriter.writeRecord(ArrayUtil.prepend(result.getBullhornId().toString(),
-                ArrayUtil.prepend(result.getAction().toString(), data)));
-            csvWriter.flush();
+            csvWriter = getOrCreateSuccessCsvWriter();
+            values.add(0, result.getAction().toString());
+            values.add(0, result.getBullhornId().toString());
         } else {
-            CsvWriter csvWriter = getOrCreateFailureCsvWriter();
-            csvWriter.writeRecord(ArrayUtil.prepend(result.getFailureText(), data));
-            csvWriter.flush();
+            csvWriter = getOrCreateFailureCsvWriter();
+            values.add(0, result.getFailureText());
         }
+
+        csvWriter.writeRecord(values.toArray(new String[0]));
+        csvWriter.flush();
     }
 
     private CsvWriter getOrCreateSuccessCsvWriter() throws IOException {

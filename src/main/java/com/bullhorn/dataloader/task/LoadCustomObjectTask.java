@@ -1,11 +1,13 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.Preloader;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -42,18 +44,15 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected String parentField;
     protected Boolean parentEntityUpdateDone = false;
 
-    public LoadCustomObjectTask(Command command,
-                                Integer rowNumber,
-                                EntityInfo entityInfo,
-                                Map<String, String> dataMap,
-                                Map<String, Method> methodMap,
-                                Map<String, Integer> countryNameToIdMap,
+    public LoadCustomObjectTask(EntityInfo entityInfo,
+                                Row row,
+                                Preloader preloader,
                                 CsvFileWriter csvFileWriter,
                                 PropertyFileUtil propertyFileUtil,
-                                BullhornRestApi bullhornRestApi,
+                                RestApi restApi,
                                 PrintUtil printUtil,
                                 ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, methodMap, countryNameToIdMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     @Override
     protected void insertOrUpdateEntity() throws IOException {
         try {
-            CrudResponse response = bullhornRestApi.updateEntity((UpdateEntity) parentEntity);
+            CrudResponse response = restApi.updateEntity((UpdateEntity) parentEntity);
             checkForRestSdkErrorMessages(response);
             parentEntityUpdateDone = true;
         } catch (RestApiException e) {
@@ -116,36 +115,33 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
-        Map<String, String> scrubbedDataMap = getDataMapWithoutUnusedFields();
-        String where = scrubbedDataMap.keySet().stream().map(n -> getWhereStatement(n, (String) dataMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
-        List<B> matchingCustomObjectList = (List<B>) bullhornRestApi.query((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        Row scrubbedRow = getRowWithoutUnusedFields();
+        String where = scrubbedRow.getNames().stream().map(n -> getWhereStatement(n, (String) row.getValue(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        List<B> matchingCustomObjectList = (List<B>) restApi.query((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
         return matchingCustomObjectList;
     }
 
-    private Map<String, String> getDataMapWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
-        Map<String, String> scrubbedDataMap = new HashMap<>(dataMap);
-        MetaData meta = bullhornRestApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.BASIC, null);
-        for (String fieldName : dataMap.keySet()) {
-            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(fieldName));
-            if ((!fieldIsInMeta && !fieldName.contains(".")) || (fieldName.contains("_"))) {
-                scrubbedDataMap.remove(fieldName);
+    private Row getRowWithoutUnusedFields() throws InvocationTargetException, IllegalAccessException {
+        Row scrubbedRow = new Row(row.getNumber());
+        MetaData meta = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.BASIC, null);
+
+        for (Cell cell : row.getCells()) {
+            boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(cell.getName()));
+            if ((fieldIsInMeta || cell.isAssociation()) && (!cell.getName().contains("_"))) {
+                scrubbedRow.addCell(cell);
             }
         }
-        return scrubbedDataMap;
+        return scrubbedRow;
     }
 
     private void checkForDuplicates(List<B> matchingCustomObjectList) throws Exception {
         if (!matchingCustomObjectList.isEmpty()) {
             if (matchingCustomObjectList.size() > 1) {
-                throw new RestApiException("Row " + rowNumber + ": Found duplicate.");
+                throw new RestApiException("Row " + row.getNumber() + ": Found duplicate.");
             } else {
                 entityID = matchingCustomObjectList.get(0).getId();
                 entity.setId(entityID);
-                if (!parentEntityUpdateDone) {
-                    isNewEntity = false;
-                } else {
-                    isNewEntity = true;
-                }
+                isNewEntity = parentEntityUpdateDone;
             }
         }
     }
@@ -187,7 +183,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     protected B getCustomObjectParent(String field, String fieldName, Class<B> parentEntityClass) {
         parentField = field;
         List<B> list;
-        String value = dataMap.get(field);
+        String value = row.getValue(field);
         Class fieldType = getFieldType(parentEntityClass, field, fieldName);
 
         if (SearchEntity.class.isAssignableFrom(parentEntityClass)) {
@@ -218,21 +214,21 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String parentEntityName = entityInfo.getEntityName().substring(0, entityInfo.getEntityName().indexOf("CustomObjectInstance"));
         if (!toOneEntityName.equalsIgnoreCase(parentEntityName)) {
-            throw new RestApiException("Row " + rowNumber + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("Row " + row.getNumber() + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
         }
         parentEntityClass = BullhornEntityInfo.getTypeFromName(toOneEntityName).getType();
     }
 
     protected void getPersonCustomObjectParentEntityClass(String entityName) throws Exception {
-        String personSubtype = dataMap.get("person._subtype");
+        String personSubtype = row.getValue("person._subtype");
         if ("candidate".equalsIgnoreCase(personSubtype)) {
             parentEntityClass = (Class<B>) Candidate.class;
         } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)) {
             parentEntityClass = (Class<B>) ClientContact.class;
         } else if (personSubtype == null) {
-            throw new Exception("Row " + rowNumber + ": The required field person._subType is missing. This field must be included to load " + entityName);
+            throw new Exception("Row " + row.getNumber() + ": The required field person._subType is missing. This field must be included to load " + entityName);
         } else {
-            throw new Exception("Row " + rowNumber + ": The person._subType field must be either Candidate or ClientContact");
+            throw new Exception("Row " + row.getNumber() + ": The person._subType field must be either Candidate or ClientContact");
         }
     }
 
@@ -241,8 +237,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         Map<String, String> entityExistFieldsMap = super.getEntityExistFieldsMap();
         if (!entityExistFieldsMap.isEmpty() && !entityExistFieldsMap.keySet().stream().anyMatch(n -> n.contains("."))) {
             try {
-                String parentEntityField = dataMap.keySet().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
-                entityExistFieldsMap.put(parentEntityField, dataMap.get(parentEntityField));
+                String parentEntityField = row.getNames().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
+                entityExistFieldsMap.put(parentEntityField, row.getValue(parentEntityField));
             } catch (Exception e) {
                 throw new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity.");
             }

@@ -3,10 +3,12 @@ package com.bullhorn.dataloader.util;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ThreadPoolUtilTest {
 
@@ -15,8 +17,8 @@ public class ThreadPoolUtilTest {
 
     @Before
     public void setup() {
-        propertyFileUtilMock = Mockito.mock(PropertyFileUtil.class);
-        Mockito.when(propertyFileUtilMock.getNumThreads()).thenReturn(10);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        when(propertyFileUtilMock.getNumThreads()).thenReturn(10);
         threadPoolUtil = new ThreadPoolUtil(propertyFileUtilMock);
     }
 

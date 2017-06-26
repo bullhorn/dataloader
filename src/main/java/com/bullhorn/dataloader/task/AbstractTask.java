@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -48,46 +48,36 @@ import java.util.stream.Collectors;
 
 public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
     protected static AtomicInteger rowProcessedCount = new AtomicInteger(0);
-    protected Command command;
-    protected Integer rowNumber;
+
     protected EntityInfo entityInfo;
-    protected Integer bullhornParentId;
-    protected Map<String, String> dataMap;
+    protected Row row;
     protected CsvFileWriter csvFileWriter;
     protected PropertyFileUtil propertyFileUtil;
-    protected BullhornRestApi bullhornRestApi;
+    protected RestApi restApi;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
 
-    public AbstractTask(Command command,
-                        Integer rowNumber,
-                        EntityInfo entityInfo,
-                        Map<String, String> dataMap,
+    public AbstractTask(EntityInfo entityInfo,
+                        Row row,
                         CsvFileWriter csvFileWriter,
                         PropertyFileUtil propertyFileUtil,
-                        BullhornRestApi bullhornRestApi,
+                        RestApi restApi,
                         PrintUtil printUtil,
                         ActionTotals actionTotals) {
-        this.command = command;
-        this.rowNumber = rowNumber;
         this.entityInfo = entityInfo;
-        this.dataMap = dataMap;
+        this.row = row;
         this.csvFileWriter = csvFileWriter;
         this.propertyFileUtil = propertyFileUtil;
-        this.bullhornRestApi = bullhornRestApi;
+        this.restApi = restApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
-    }
-
-    protected void addParentEntityIDtoDataMap() {
-        dataMap.put(StringConsts.PARENT_ENTITY_ID, bullhornParentId.toString());
     }
 
     protected void writeToResultCSV(Result result) {
         int attempts = 0;
         while (attempts < 3) {
             try {
-                csvFileWriter.writeRow(dataMap.values().toArray(new String[0]), result);
+                csvFileWriter.writeRow(row, result);
                 updateActionTotals(result);
                 updateRowProcessedCounts();
                 break;
@@ -125,13 +115,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornRestApi.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
+        return (List<B>) restApi.search((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams()).getData();
     }
 
     protected <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) bullhornRestApi.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
+        return (List<B>) restApi.query((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams()).getData();
     }
 
     protected String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
@@ -144,7 +134,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Row " + row.getNumber() + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -157,17 +147,17 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             }
         }
 
-        return new ArrayList<B>();
+        return new ArrayList<>();
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getQueryStatement(n, entityExistFieldsMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornRestApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+        return (List<B>) restApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> entityExistFieldsMap) {
         String query = entityExistFieldsMap.keySet().stream().map(n -> getWhereStatement(n, entityExistFieldsMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
-        return (List<B>) bullhornRestApi.query((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        return (List<B>) restApi.query((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
     }
 
     protected String getWhereStatement(String field, String value, Class fieldType) {
@@ -180,7 +170,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(fieldType)) {
             return field + "=" + getDateQuery(value);
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Row " + row.getNumber() + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -208,10 +198,11 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
+        // TODO: Simplify the entity exist field data structure to not be an optional
         Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (existFields.isPresent()) {
             for (String existField : existFields.get()) {
-                entityExistFieldsMap.put(existField, dataMap.get(existField));
+                entityExistFieldsMap.put(existField, row.getValue(existField));
             }
         }
 
@@ -242,7 +233,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             if (StringUtils.isEmpty(value)) {
-                throw new DateTimeException("Row " + rowNumber + ": Cannot set date value to null");
+                throw new DateTimeException("Row " + row.getNumber() + ": Cannot set date value to null");
             }
             return (DateTime) formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
@@ -272,12 +263,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         String getMethodName = "get" + fieldName;
         List<Method> methods = Arrays.asList(fieldType.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
-            throw new RestApiException("Row " + rowNumber + ": '" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
+            throw new RestApiException("Row " + row.getNumber() + ": '" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
         }
 
         return methods.get(0).getReturnType();
     }
 
+    // TODO: Refactor this to use entityInfo.fromString() and Cell
     /**
      * Returns the Bullhorn entity class for the given field on the given entity
      *
@@ -292,7 +284,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    // TODO: Move out to utility class
+    // TODO: Move to the RestApi
     protected void checkForRestSdkErrorMessages(CrudResponse response) {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
@@ -300,16 +292,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                 sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
                 sb.append("\n");
             }
-            throw new RestApiException("Row " + rowNumber + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
-        }
-    }
-
-    // TODO: Move out to utility class
-    protected void checkForRequiredFieldsError(RestApiException e) {
-        if (e.getMessage().indexOf("\"type\" : \"DUPLICATE_VALUE\"") > -1 && e.getMessage().indexOf("\"propertyName\" : null") > -1) {
-            throw new RestApiException("Missing required fields for " + entityInfo.getEntityName() + ".");
-        } else {
-            throw e;
+            throw new RestApiException("Row " + row.getNumber() + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
         }
     }
 
@@ -325,11 +308,11 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
         Method method = methodMap.get(field.toLowerCase());
         if (method == null) {
-            throw new RestApiException("Row " + rowNumber + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("Row " + row.getNumber() + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
         if (isAddressField(field) && methodMap.containsKey("address")) {
-            throw new RestApiException("Row " + rowNumber + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
+            throw new RestApiException("Row " + row.getNumber() + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
         }
 
         if (value != null) {
@@ -341,10 +324,5 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     private boolean isAddressField(String field) {
         List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
         return addressFields.indexOf(field.toLowerCase()) > -1;
-    }
-
-    // TODO: Remove this and refactor calling code
-    protected String getCamelCasedClassToString() {
-        return entityInfo.getEntityName().substring(0, 1).toLowerCase() + entityInfo.getEntityName().substring(1);
     }
 }

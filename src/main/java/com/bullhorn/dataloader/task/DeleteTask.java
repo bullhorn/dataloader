@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.task;
 
-import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.service.csv.CsvFileWriter;
-import com.bullhorn.dataloader.service.csv.Result;
-import com.bullhorn.dataloader.service.executor.BullhornRestApi;
-import com.bullhorn.dataloader.util.ActionTotals;
+import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -27,16 +27,14 @@ import java.util.Map;
 public class DeleteTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     private Integer bullhornID;
 
-    public DeleteTask(Command command,
-                      Integer rowNumber,
-                      EntityInfo entityInfo,
-                      Map<String, String> dataMap,
+    public DeleteTask(EntityInfo entityInfo,
+                      Row row,
                       CsvFileWriter csvFileWriter,
                       PropertyFileUtil propertyFileUtil,
-                      BullhornRestApi bullhornRestApi,
+                      RestApi restApi,
                       PrintUtil printUtil,
                       ActionTotals actionTotals) {
-        super(command, rowNumber, entityInfo, dataMap, csvFileWriter, propertyFileUtil, bullhornRestApi, printUtil, actionTotals);
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
     /**
@@ -56,18 +54,18 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
     }
 
     private <D extends DeleteEntity> Result handle() throws IOException {
-        if (!dataMap.containsKey(StringConsts.ID)) {
-            throw new IllegalArgumentException("Row " + rowNumber + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+        if (!row.hasValue(StringConsts.ID)) {
+            throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        bullhornID = Integer.parseInt(dataMap.get(StringConsts.ID));
+        bullhornID = Integer.parseInt(row.getValue(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
-            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
+            throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
-        CrudResponse response = bullhornRestApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
+        CrudResponse response = restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
         checkForRestSdkErrorMessages(response);
         return Result.Delete(bullhornID);
     }
@@ -90,7 +88,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else {
-            throw new RestApiException("Row " + rowNumber + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
+            throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " records are not deletable.");
         }
     }
