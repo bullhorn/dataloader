@@ -859,12 +859,23 @@ public class LoadTaskTest {
     }
 
     // TODO: Move to query builder
-    @Test(expected = DateTimeException.class)
-    public void convertStringToClassTest_DateTimeException() throws Exception {
+    @Test
+    public void convertStringToClassTest_EmptyDateTime() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        task.convertStringToClass(methodMap.get("dateadded"), "");
+        Object convertedString = task.convertStringToClass(methodMap.get("dateadded"), "");
+        Assert.assertEquals(null, convertedString);
+    }
+
+    // TODO: Move to query builder
+    @Test
+    public void convertStringToClassTest_UnknownValue() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
+        Object convertedString = task.convertStringToClass(methodMap.get("tearsheets"), "");
+        Assert.assertEquals(null, convertedString);
     }
 
     // TODO: Move to query builder

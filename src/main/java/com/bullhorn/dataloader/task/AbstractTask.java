@@ -232,17 +232,16 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             return Boolean.parseBoolean(value);
         } else if (DateTime.class.equals(convertToClass)) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            if (StringUtils.isEmpty(value)) {
-                throw new DateTimeException("Row " + row.getNumber() + ": Cannot set date value to null");
+            if (!StringUtils.isEmpty(value)) {
+                return formatter.parseDateTime(value);
             }
-            return (DateTime) formatter.parseDateTime(value);
         } else if (BigDecimal.class.equals(convertToClass)) {
             DecimalFormat decimalFormat = new DecimalFormat();
             decimalFormat.setParseBigDecimal(true);
             if (StringUtils.isEmpty(value)) {
-                return (BigDecimal) decimalFormat.parse(String.valueOf(0.0));
+                return decimalFormat.parse(String.valueOf(0.0));
             }
-            return (BigDecimal) decimalFormat.parse(value);
+            return decimalFormat.parse(value);
         }
         return null;
     }
