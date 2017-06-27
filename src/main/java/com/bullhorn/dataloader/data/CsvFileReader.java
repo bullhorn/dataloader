@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class CsvFileReader extends CsvReader {
 
-    private Integer rowNumber = 0;
+    private Integer rowNumber = -1; // Row 0 is the header row
 
     /**
      * Constructor which also reads headers and ensures there are no duplicates
