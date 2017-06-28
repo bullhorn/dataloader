@@ -17,14 +17,13 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +34,6 @@ public class DeleteTaskTest {
     private RestApi restApiMock;
     private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
-    private ArgumentCaptor<Result> resultArgumentCaptor;
 
     @Before
     public void setup() throws Exception {
@@ -44,119 +42,100 @@ public class DeleteTaskTest {
         restApiMock = mock(RestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
         printUtilMock = mock(PrintUtil.class);
-
-        // Capture arguments to the writeRow method - this is our output from the deleteTask run
-        resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
     }
 
     @Test
     public void run_Success_Candidate() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.searchForList(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
+        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_Success_Appointment() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.APPOINTMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.queryForList(eq(Appointment.class), eq("isDeleted=false AND id=1"), any(), any())).thenReturn(TestUtils.getList(Appointment.class, 1));
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
+        DeleteTask task = new DeleteTask(EntityInfo.APPOINTMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.searchForList(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
+        DeleteTask task = new DeleteTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_Success_Placement() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getList(Placement.class, 1));
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
+        DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_AlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.searchForList(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
 
+        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_AlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getList(Placement.class));
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
 
+        DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_NonDeletableEntityFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: ClientCorporation records are not deletable.");
 
+        DeleteTask task = new DeleteTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: ClientCorporation records are not deletable.");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void run_IdColumnFailure() throws IOException {
         Row row = new Row(1);
-        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Cannot Perform Delete: missing 'id' column.");
 
+        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Cannot Perform Delete: missing 'id' column.");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
