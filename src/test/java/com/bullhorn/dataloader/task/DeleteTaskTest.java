@@ -53,7 +53,7 @@ public class DeleteTaskTest {
     public void run_Success_Candidate() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
         task.run();
@@ -67,7 +67,7 @@ public class DeleteTaskTest {
     public void run_Success_Appointment() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.APPOINTMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.query(eq(Appointment.class), eq("isDeleted=false AND id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Appointment.class, 1));
+        when(restApiMock.queryForList(eq(Appointment.class), eq("isDeleted=false AND id=1"), any(), any())).thenReturn(TestUtils.getList(Appointment.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
         task.run();
@@ -81,7 +81,7 @@ public class DeleteTaskTest {
     public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
+        when(restApiMock.searchForList(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
         task.run();
@@ -95,7 +95,7 @@ public class DeleteTaskTest {
     public void run_Success_Placement() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Placement.class, 1));
+        when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getList(Placement.class, 1));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
         task.run();
@@ -109,7 +109,7 @@ public class DeleteTaskTest {
     public void run_AlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
 
         task.run();
@@ -123,7 +123,7 @@ public class DeleteTaskTest {
     public void run_AlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Placement.class));
+        when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getList(Placement.class));
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
 
         task.run();

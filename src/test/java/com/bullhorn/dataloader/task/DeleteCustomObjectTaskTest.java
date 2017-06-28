@@ -58,7 +58,7 @@ public class DeleteCustomObjectTaskTest {
         Row row = TestUtils.createRow("id,text1,text2,clientCorporation.externalID", "1,Test,Skip,ext-1");
 
         DeleteCustomObjectTask task = new DeleteCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class, 100));
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getList(ClientCorporation.class, 100));
         when(restApiMock.disassociateWithEntity(eq(ClientCorporation.class), eq(100), eq(ClientCorporationAssociations.getInstance().customObject1s()), eq(Sets.newHashSet(1)))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 100));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -74,7 +74,7 @@ public class DeleteCustomObjectTaskTest {
         Row row = TestUtils.createRow("id,text1,text2,person.customText1,person._subtype", "1,Test,Skip,ext-1,Candidate");
 
         DeleteCustomObjectTask task = new DeleteCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Candidate.class), eq("customText1:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 100));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("customText1:\"ext-1\""), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 100));
         when(restApiMock.disassociateWithEntity(eq(Candidate.class), eq(100), eq(CandidateAssociations.getInstance().customObject2s()), eq(Sets.newHashSet(1)))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 100));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
 
@@ -118,7 +118,7 @@ public class DeleteCustomObjectTaskTest {
         Row row = TestUtils.createRow("id,text1,text2,clientCorporation.externalID", "1,Test,Skip,ext-1");
 
         DeleteCustomObjectTask task = new DeleteCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper());
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getList());
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot find To-One Association: 'clientCorporation.externalID' with value: 'ext-1'");
 
         task.run();

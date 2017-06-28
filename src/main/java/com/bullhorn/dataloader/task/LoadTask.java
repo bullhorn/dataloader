@@ -168,7 +168,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             ClientCorporation clientCorporation = clientCorporations.get(0);
             if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
                 final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
-                List<ClientContact> clientContacts = restApi.query(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+                List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams());
                 if (!clientContacts.isEmpty()) {
                     ClientContact clientContact = clientContacts.get(0);
                     String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
@@ -408,12 +408,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             String where = getQueryStatement(valueSet, field, associationClass);
             SearchParams searchParams = ParamFactory.searchParams();
             searchParams.setCount(COUNT_PARAMETER);
-            list = (List<B>) restApi.search((Class<S>) associationClass, where, null, searchParams).getData();
+            list = (List<B>) restApi.searchForList((Class<S>) associationClass, where, null, searchParams);
         } else {
             String where = getWhereStatement(valueSet, field, associationClass);
             QueryParams queryParams = ParamFactory.queryParams();
             queryParams.setCount(COUNT_PARAMETER);
-            list = (List<B>) restApi.query((Class<Q>) associationClass, where, null, queryParams).getData();
+            list = (List<B>) restApi.queryForList((Class<Q>) associationClass, where, null, queryParams);
         }
 
         return list;

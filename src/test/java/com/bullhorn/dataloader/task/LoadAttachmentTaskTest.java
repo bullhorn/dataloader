@@ -79,7 +79,7 @@ public class LoadAttachmentTaskTest {
         FileContent mockedFileContent = mock(FileContent.class);
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-        when(restApi.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
+        when(restApi.searchForList(eq(Candidate.class), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
         when(restApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task.run();
@@ -95,7 +95,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentNoRelativeFilePathTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
         Result expectedResult = Result.Failure(new IOException("Missing the 'relativeFilePath' column required for loadAttachments"));
-        when(restApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
+        when(restApi.searchForList(eq(Candidate.class), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtilMock_CandidateExternalID, restApi, printUtilMock, actionTotals);
         task.run();
@@ -110,7 +110,7 @@ public class LoadAttachmentTaskTest {
     public void loadAttachmentFailureTest() throws Exception {
         Row row = TestUtils.createRow("candidate.id,relativeFilePath,isResume", "1001," + relativeFilePath + ",0");
         Result expectedResult = Result.Failure(new RestApiException("Test"));
-        when(restApi.search(anyObject(), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
+        when(restApi.searchForList(eq(Candidate.class), eq("id:1001"), anySet(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
         when(restApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtilMock_CandidateID, restApi, printUtilMock, actionTotals);
@@ -129,7 +129,7 @@ public class LoadAttachmentTaskTest {
         FileContent mockedFileContent = mock(FileContent.class);
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-        when(restApi.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
+        when(restApi.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
         when(restApi.addFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtilMock_CandidateExternalID, restApi, printUtilMock, actionTotals);
@@ -186,7 +186,7 @@ public class LoadAttachmentTaskTest {
         mockedFileContent.setFileContent("thisisafilecontent");
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-        when(restApi.search(anyObject(), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
+        when(restApi.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
         when(restApi.updateFile(anyObject(), anyInt(), any(FileMeta.class))).thenReturn(fileWrapper);
         when(restApi.getFileMetaData(anyObject(), anyInt())).thenReturn(fileList);
         when(restApi.getFileContent(anyObject(), anyInt(), anyInt())).thenReturn(mockedFileContent);

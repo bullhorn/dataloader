@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anySet;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -32,21 +31,21 @@ import static org.mockito.Mockito.when;
 public class ConvertAttachmentTaskTest {
 
     private ArgumentCaptor<Result> resultArgumentCaptor;
-    private CsvFileWriter csvFileWriter;
-    private RestApi restApi;
-    private PrintUtil printUtil;
+    private CsvFileWriter csvFileWriterMock;
+    private RestApi restApiMock;
+    private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
     private ConvertAttachmentTask task;
-    private PropertyFileUtil candidateExternalIdProperties;
+    private PropertyFileUtil propertyFileUtilMock;
     private String resumeFilePath;
 
     @Before
     public void setup() throws Exception {
-        csvFileWriter = mock(CsvFileWriter.class);
-        restApi = mock(RestApi.class);
+        csvFileWriterMock = mock(CsvFileWriter.class);
+        restApiMock = mock(RestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
-        printUtil = mock(PrintUtil.class);
-        candidateExternalIdProperties = mock(PropertyFileUtil.class);
+        printUtilMock = mock(PrintUtil.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
         resumeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
         resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
     }
@@ -54,7 +53,7 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void convertAttachmentToHtmlTest() throws Exception {
         Row row = TestUtils.createRow("id,relativeFilePath,isResume", "1," + resumeFilePath + ",1");
-        task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
+        task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         String result = task.convertAttachmentToHtml();
         Assert.assertNotNull(result);
     }
@@ -63,12 +62,12 @@ public class ConvertAttachmentTaskTest {
     public void run_Success() throws IOException {
         Row row = TestUtils.createRow("id,relativeFilePath,isResume", "1," + resumeFilePath + ",1");
         Result expectedResult = Result.Convert();
-        task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
+        task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock));
         doNothing().when(task).writeHtmlToFile(anyString());
 
         task.run();
 
-        verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.CONVERT, 1);
@@ -78,12 +77,12 @@ public class ConvertAttachmentTaskTest {
     public void run_Success_Skip() throws IOException {
         Row row = TestUtils.createRow("id,relativeFilePath,isResume", "1," + resumeFilePath + ",0");
         Result expectedResult = Result.Skip();
-        task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock));
+        task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock));
         doNothing().when(task).writeHtmlToFile(anyString());
 
         task.run();
 
-        verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.SKIP, 1);
@@ -94,7 +93,7 @@ public class ConvertAttachmentTaskTest {
         Row row = TestUtils.createRow("clientContact.externalID,relativeFilePath,isResume", "1," + resumeFilePath + ",0");
         String expectedResult = "convertedAttachments/ClientContact/1.html";
 
-        task = new ConvertAttachmentTask(EntityInfo.CLIENT_CONTACT, row, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
+        task = new ConvertAttachmentTask(EntityInfo.CLIENT_CONTACT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
 
         String actualResult = task.getConvertedAttachmentPath();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
@@ -104,12 +103,12 @@ public class ConvertAttachmentTaskTest {
     public void convertAttachmentNoRelativeFilePathTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
         final Result expectedResult = Result.Failure(new IOException("Missing the 'relativeFilePath' column required for convertAttachments"));
-        when(restApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
-        task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2016Ext\""), any(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
+        task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
 
         task.run();
 
-        verify(csvFileWriter).writeRow(any(), resultArgumentCaptor.capture());
+        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(expectedResult, new ReflectionEquals(actualResult));
     }

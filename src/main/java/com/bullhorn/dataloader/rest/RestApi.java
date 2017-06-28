@@ -59,17 +59,11 @@ public class RestApi {
 
     // region Lookup Calls
     // The search/query calls that DataLoader uses to lookup existing data
-    // TODO: Use searchForList everywhere instead since we don't use the ListWrapper functionality
-    public <T extends SearchEntity, L extends ListWrapper<T>> L search(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
-        return bullhornData.search(type, query, fieldSet, params);
+    public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
+        return bullhornData.searchForList(type, query, fieldSet, params);
     }
 
-    // TODO: Use queryForList everywhere instead since we don't use the ListWrapper functionality
-    public <T extends QueryEntity, L extends ListWrapper<T>> L query(Class<T> type, String where, Set<String> fieldSet, QueryParams params) {
-        return bullhornData.query(type, where, fieldSet, params);
-    }
-
-    <T extends QueryEntity> List<T> queryForList(Class<T> type, String where, Set<String> fieldSet, QueryParams params) {
+    public <T extends QueryEntity> List<T> queryForList(Class<T> type, String where, Set<String> fieldSet, QueryParams params) {
         return bullhornData.queryForList(type, where, fieldSet, params);
     }
 

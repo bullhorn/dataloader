@@ -52,15 +52,9 @@ public class RestApiTest {
     }
 
     @Test
-    public void testSearch() {
-        restApi.search(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
-        verify(bullhornDataMock, times(1)).search(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
-    }
-
-    @Test
-    public void testQuery() {
-        restApi.query(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
-        verify(bullhornDataMock, times(1)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+    public void testSearchForList() {
+        restApi.searchForList(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
+        verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
     }
 
     @Test

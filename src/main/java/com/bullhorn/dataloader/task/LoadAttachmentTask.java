@@ -100,7 +100,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                 propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityInfo.getEntityClass()));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
-            List<S> searchList = restApi.search((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams()).getData();
+            List<S> searchList = restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {

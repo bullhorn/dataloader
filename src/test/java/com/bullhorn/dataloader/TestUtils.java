@@ -10,8 +10,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
-import com.bullhornsdk.data.model.response.list.ListWrapper;
-import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
@@ -39,9 +37,8 @@ public class TestUtils {
      * @return The listWrapper from the SDK-REST that contains the entities
      */
     @SafeVarargs
-    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(B... entityList) throws IllegalAccessException, InstantiationException {
-        List<B> list = new ArrayList<>(Arrays.asList(entityList));
-        return new StandardListWrapper<>(list);
+    public static <B extends BullhornEntity> List<B> getList(B... entityList) throws IllegalAccessException, InstantiationException {
+        return new ArrayList<>(Arrays.asList(entityList));
     }
 
     /**
@@ -51,14 +48,14 @@ public class TestUtils {
      * @param idList      The array of IDs to assign to new entity objects
      * @return The listWrapper from the SDK-REST that contains the entities
      */
-    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, Integer... idList) throws IllegalAccessException, InstantiationException {
+    public static <B extends BullhornEntity> List<B> getList(Class<B> entityClass, Integer... idList) throws IllegalAccessException, InstantiationException {
         List<B> list = new ArrayList<>();
         for (Integer id : idList) {
             B entity = entityClass.newInstance();
             entity.setId(id);
             list.add(entity);
         }
-        return new StandardListWrapper<>(list);
+        return list;
     }
 
     /**
