@@ -2,11 +2,12 @@ package com.bullhorn.dataloader.rest;
 
 
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
+import com.bullhornsdk.data.api.StandardBullhornData;
 
 /**
  * Dependency Injected Wrapper for obtaining the SDK-REST BullhornData class using DataLoader's properties
- * <p>
  * Contains all logic surrounding the creation of a REST Connection and returning the RestApi object.
  * Creates a single instance of the RestApi, so that the cost of authenticating is only paid once per session.
  */
@@ -23,18 +24,30 @@ public class RestSession {
 
     /**
      * Authenticates and creates the Bullhorn REST API Session
+     *
      * @return A new RestApi object
      */
     public RestApi getRestApi() {
         if (restApi == null) {
-            BullhornRestCredentials bullhornRestCredentials = getBullhornRestCredentials(propertyFileUtil);
-            restApi = new RestApi(bullhornRestCredentials, restApiExtension);
+            BullhornData bullhornData = createRestSession();
+            restApi = new RestApi(bullhornData, restApiExtension);
         }
         return restApi;
     }
 
     /**
+     * Creates the rest session - the StandardBullhornData constructor performs the REST authentication.
+     *
+     * @return a BullhornData object that is used to make rest calls.
+     */
+    private BullhornData createRestSession() {
+        BullhornRestCredentials bullhornRestCredentials = getBullhornRestCredentials(propertyFileUtil);
+        return new StandardBullhornData(bullhornRestCredentials);
+    }
+
+    /**
      * Returns the authentication object based on the DataLoader properties
+     *
      * @param propertyFileUtil The dataloader properties
      * @return The credentials object
      */

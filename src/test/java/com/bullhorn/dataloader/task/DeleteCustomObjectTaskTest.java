@@ -90,7 +90,7 @@ public class DeleteCustomObjectTaskTest {
         Row row = TestUtils.createRow("text1,text2", "Test,Skip");
 
         DeleteCustomObjectTask task = new DeleteCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Cannot Perform Delete: missing 'id' column.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Cannot Perform Delete: missing 'id' column.");
 
         task.run();
 
@@ -119,7 +119,7 @@ public class DeleteCustomObjectTaskTest {
 
         DeleteCustomObjectTask task = new DeleteCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper());
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot find To-One Association: 'clientCorporation.externalID' with value: 'ext-1'");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot find To-One Association: 'clientCorporation.externalID' with value: 'ext-1'");
 
         task.run();
 
@@ -127,22 +127,4 @@ public class DeleteCustomObjectTaskTest {
         final Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
     }
-
-    @Test
-    public void run_Fail_CannotDisassociate() throws IOException, InstantiationException, IllegalAccessException {
-        Row row = TestUtils.createRow("id,text1,text2,clientCorporation.externalID", "1,Test,Skip,ext-1");
-
-        DeleteCustomObjectTask task = new DeleteCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class, 100));
-        when(restApiMock.disassociateWithEntity(any(), any(), any(), any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, null, "externalID", "Flagrant Error"));
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making UPDATE REST call:\n" +
-            "\tError occurred on field externalID due to the following: Flagrant Error\n");
-
-        task.run();
-
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        final Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-    }
-
 }

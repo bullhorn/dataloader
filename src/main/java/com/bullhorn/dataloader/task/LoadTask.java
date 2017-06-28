@@ -136,7 +136,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         List<B> existingEntityList = findEntityList(entityExistFieldsMap);
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
-                throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Update - Multiple Records Exist. Found " +
+                throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found " +
                     existingEntityList.size() + " " + entityInfo.getEntityName() +
                     " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
             } else {
@@ -152,15 +152,13 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             CrudResponse response = restApi.insertEntity((CreateEntity) entity);
-            checkForRestSdkErrorMessages(response);
             entityID = response.getChangedEntityId();
             entity.setId(entityID);
             if (entity.getClass() == ClientCorporation.class) {
                 setDefaultContactExternalId(entityID);
             }
         } else {
-            CrudResponse response = restApi.updateEntity((UpdateEntity) entity);
-            checkForRestSdkErrorMessages(response);
+            restApi.updateEntity((UpdateEntity) entity);
         }
     }
 
@@ -175,8 +173,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                     ClientContact clientContact = clientContacts.get(0);
                     String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
                     clientContact.setExternalID(defaultContactExternalId);
-                    CrudResponse response = restApi.updateEntity(clientContact);
-                    checkForRestSdkErrorMessages(response);
+                    restApi.updateEntity(clientContact);
                 }
             }
         }
@@ -224,7 +221,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         } else {
             Method method = methodMap.get(toOneEntityName.toLowerCase());
             if (method == null) {
-                throw new RestApiException("Row " + row.getNumber() + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+                throw new RestApiException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
             }
 
             Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
@@ -255,9 +252,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected void validateListFromRestCall(String field, List<B> list, String value) {
         if (list == null || list.isEmpty()) {
-            throw new RestApiException("Row " + row.getNumber() + ": Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
+            throw new RestApiException("Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
         } else if (list.size() > 1) {
-            throw new RestApiException("Row " + row.getNumber() + ": Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
+            throw new RestApiException("Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
         }
     }
 
@@ -276,7 +273,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         } else {
             Method method = methodMap.get(fieldName);
             if (method == null) {
-                throw new RestApiException("Row " + row.getNumber() + ": Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
+                throw new RestApiException("Invalid field: '" + field + "' - '" + fieldName + "' does not exist on the Address object");
             }
 
             method.invoke(addressMap.get(toOneEntityName), row.getValue(field));
@@ -364,10 +361,10 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
             if (existingAssociations.size() > valueSet.size()) {
                 String duplicateAssociations = existingAssociationSet.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                throw new RestApiException("Row " + row.getNumber() + ": Found " + existingAssociations.size() + " duplicate To-Many Associations: '" + field + "' with value:\n" + duplicateAssociations);
+                throw new RestApiException("Found " + existingAssociations.size() + " duplicate To-Many Associations: '" + field + "' with value:\n" + duplicateAssociations);
             } else {
                 String missingAssociations = valueSet.stream().filter(n -> !existingAssociationSet.contains(n)).map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                throw new RestApiException("Row " + row.getNumber() + ": Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
+                throw new RestApiException("Error occurred: " + associationName + " does not exist with " + fieldName + " of the following values:\n" + missingAssociations);
             }
         }
 

@@ -72,7 +72,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private Result handle() throws Exception {
         Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (!entityExistFields.isPresent()) {
-            throw new IllegalArgumentException("Row " + row.getNumber() + ": Properties file is missing the '" +
+            throw new IllegalArgumentException("Properties file is missing the '" +
                 WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
         }
 
@@ -104,7 +104,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
             if (!searchList.isEmpty()) {
                 bullhornParentId = searchList.get(0).getId();
             } else {
-                throw new RestApiException("Row " + row.getNumber() + ": Parent Entity not found.");
+                throw new RestApiException("Parent Entity not found.");
             }
         }
     }
@@ -135,7 +135,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         try {
             attachmentFile = new File(row.getValue(StringConsts.RELATIVE_FILE_PATH));
         } catch (NullPointerException e) {
-            throw new IOException("Row " + row.getNumber() + ": Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
+            throw new IOException("Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
         }
 
         if (isNewEntity || row.hasValue(StringConsts.RELATIVE_FILE_PATH)) {
@@ -145,7 +145,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                 fileMeta.setFileContent(fileStr);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
-                throw new RestApiException("Row " + row.getNumber() + ": Unable to set fileContent on insert for: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));
+                throw new RestApiException("Unable to set fileContent on insert for: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));
             }
         } else {
             // for update, grab original fileContent because it is required for an update

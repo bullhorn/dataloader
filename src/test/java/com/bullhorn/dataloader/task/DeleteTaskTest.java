@@ -14,7 +14,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
-import com.bullhornsdk.data.model.enums.ChangeType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +23,6 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import java.io.IOException;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -112,7 +110,7 @@ public class DeleteTaskTest {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
 
         task.run();
 
@@ -126,7 +124,7 @@ public class DeleteTaskTest {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         when(restApiMock.search(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Placement.class));
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
 
         task.run();
 
@@ -139,7 +137,7 @@ public class DeleteTaskTest {
     public void run_NonDeletableEntityFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         DeleteTask task = new DeleteTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Delete: ClientCorporation records are not deletable.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: ClientCorporation records are not deletable.");
 
         task.run();
 
@@ -152,27 +150,11 @@ public class DeleteTaskTest {
     public void run_IdColumnFailure() throws IOException {
         Row row = new Row(1);
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Cannot Perform Delete: missing 'id' column.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Cannot Perform Delete: missing 'id' column.");
 
         task.run();
 
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
-    }
-
-    @Test
-    public void run_RestFailure() throws IOException, InstantiationException, IllegalAccessException {
-        Row row = TestUtils.createRow("id", "1");
-        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        when(restApiMock.search(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
-        when(restApiMock.deleteEntity(any(), anyInt())).thenReturn(TestUtils.getResponse(ChangeType.DELETE, null, "FailureField", "Because failed"));
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred when making DELETE REST call:\n" +
-            "\tError occurred on field FailureField due to the following: Because failed\n");
-
-        task.run();
-
-        verify(csvFileWriterMock).writeRow(eq(row), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
     }

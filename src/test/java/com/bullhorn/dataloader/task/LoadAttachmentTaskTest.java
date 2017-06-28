@@ -94,7 +94,7 @@ public class LoadAttachmentTaskTest {
     @SuppressWarnings("unchecked")
     public void loadAttachmentNoRelativeFilePathTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
-        Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for loadAttachments"));
+        Result expectedResult = Result.Failure(new IOException("Missing the 'relativeFilePath' column required for loadAttachments"));
         when(restApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtilMock_CandidateExternalID, restApi, printUtilMock, actionTotals);
@@ -143,7 +143,7 @@ public class LoadAttachmentTaskTest {
     @Test
     public void existPropertyMissingTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name", "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Row 1: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.IllegalArgumentException: Properties file is missing the 'candidateExistField' property required to lookup the parent entity.");
         PropertyFileUtil propertyFileUtilMock_Empty = mock(PropertyFileUtil.class);
         doReturn(Optional.empty()).when(propertyFileUtilMock_Empty).getEntityExistFields("Candidate");
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtilMock_Empty, restApi, printUtilMock, actionTotals);
@@ -158,7 +158,7 @@ public class LoadAttachmentTaskTest {
     @Test
     public void existPropertyConfiguredIncorrectlyTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name", "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'candidateExistField': 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: 'candidateExistField': 'bogus' does not exist on Candidate");
         PropertyFileUtil propertyFileUtilMock_Incorrect = mock(PropertyFileUtil.class);
         List<String> existFields = Collections.singletonList("bogus");
         doReturn(Optional.of(existFields)).when(propertyFileUtilMock_Incorrect).getEntityExistFields("Candidate");

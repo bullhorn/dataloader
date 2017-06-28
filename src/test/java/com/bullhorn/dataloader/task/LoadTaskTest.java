@@ -38,7 +38,6 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.time.DateTimeException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -326,7 +325,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Error occurred: candidates does not exist with id of the following values:\n\t2");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
@@ -421,7 +420,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'bogus' does not exist on Candidate");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
@@ -435,7 +434,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid address field format: 'city' Must use 'address.city' in csv header");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Invalid address field format: 'city' Must use 'address.city' in csv header");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
@@ -529,7 +528,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: To-One Association: 'bogus' does not exist on Candidate");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
@@ -543,7 +542,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'owner.bogus': 'bogus' does not exist on CorporateUser");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: 'owner.bogus': 'bogus' does not exist on CorporateUser");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
@@ -557,7 +556,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
@@ -583,7 +582,7 @@ public class LoadTaskTest {
     public void getNewAssociationIdListTest() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName,primarySkills.id","Data,Loader,1;2;3");
         when(restApiMock.query(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1, 2));
-        String expectedExceptionMessage = "Row 1: Error occurred: primarySkills does not exist with id of the following values:\n\t3";
+        String expectedExceptionMessage = "Error occurred: primarySkills does not exist with id of the following values:\n\t3";
 
         String actualExceptionMessage = "";
         try {
@@ -617,7 +616,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
         verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
         Result actualResult = resultArgumentCaptor.getValue();
         Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));

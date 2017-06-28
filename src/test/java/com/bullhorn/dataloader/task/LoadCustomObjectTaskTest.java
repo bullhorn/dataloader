@@ -202,7 +202,7 @@ public class LoadCustomObjectTaskTest {
     public void runTest_PersonSubTypeNotIncluded() throws IOException {
         Row row = TestUtils.createRow("person.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
         task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = Result.Failure(new Exception("Row 1: The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
+        Result expectedResult = Result.Failure(new Exception("The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
         customObjectListWrapper.setData(new ArrayList<>());
@@ -222,7 +222,7 @@ public class LoadCustomObjectTaskTest {
     public void runTest_PersonSubTypeNotValid() throws IOException {
         Row row = TestUtils.createRow("person.id,person._subtype,text1,text2,date1", "1,Potato,Test,Skip,2016-08-30");
         task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Result expectedResult = Result.Failure(new Exception("Row 1: The person._subType field must be either Candidate or ClientContact"));
+        Result expectedResult = Result.Failure(new Exception("The person._subType field must be either Candidate or ClientContact"));
 
         PersonCustomObjectInstance2ListWrapper customObjectListWrapper = new PersonCustomObjectInstance2ListWrapper();
         customObjectListWrapper.setData(new ArrayList<>());
@@ -313,7 +313,7 @@ public class LoadCustomObjectTaskTest {
         Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.entity = new ClientCorporationCustomObjectInstance2();
-        RestApiException expectedException = new RestApiException("Row 1: Found duplicate.");
+        RestApiException expectedException = new RestApiException("Found duplicate.");
 
         ((ClientCorporationCustomObjectInstance2) task.entity).setText1("test");
         ClientCorporationCustomObjectInstance2 clientCorporationCustomObjectInstance2 = new ClientCorporationCustomObjectInstance2();
@@ -408,7 +408,7 @@ public class LoadCustomObjectTaskTest {
     public void getParentEntityTest_Exception() throws InvocationTargetException, IllegalAccessException, IOException {
         Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        RestApiException expectedException = new RestApiException("Row 1: To-One Association: 'candidate' does not exist on ClientCorporationCustomObjectInstance2");
+        RestApiException expectedException = new RestApiException("To-One Association: 'candidate' does not exist on ClientCorporationCustomObjectInstance2");
         task.entity = new ClientCorporationCustomObjectInstance2();
 
         RestApiException actualException = new RestApiException();

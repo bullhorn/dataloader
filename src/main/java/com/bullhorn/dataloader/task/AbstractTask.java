@@ -18,8 +18,6 @@ import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.bullhornsdk.data.model.response.crud.CrudResponse;
-import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -34,7 +32,6 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.DateTimeException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -104,12 +101,19 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return Result.Failure(e);
     }
 
-    protected Result handleFailure(Exception e, Integer entityID) {
-        printUtil.printAndLog(e);
+    /**
+     * Generic handling of an error for the row that fails.
+     *
+     * @param exception the exception that was caught
+     * @param entityID  the entity ID (or null if it does not exist)
+     * @return a result object that captures the error text
+     */
+    protected Result handleFailure(Exception exception, Integer entityID) {
+        printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
         if (entityID != null) {
-            return Result.Failure(e, entityID);
+            return Result.Failure(exception, entityID);
         }
-        return Result.Failure(e);
+        return Result.Failure(exception);
     }
 
     protected <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
@@ -134,7 +138,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
-            throw new RestApiException("Row " + row.getNumber() + ": Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -170,7 +174,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (DateTime.class.equals(fieldType)) {
             return field + "=" + getDateQuery(value);
         } else {
-            throw new RestApiException("Row " + row.getNumber() + ": Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -183,7 +187,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     protected String getDateQuery(String value) {
-        if (entityInfo.isCustomObject()){
+        if (entityInfo.isCustomObject()) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             DateTime dateTime = formatter.parseDateTime(value);
             return String.valueOf(dateTime.toDate().getTime());
@@ -250,7 +254,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
      * Returns the type of the given field on the given entity
      *
      * @param fieldType The type of the field if it already is known, otherwise the type of the parent
-     * @param field The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
+     * @param field     The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
      * @param fieldName The part of the field after the '.', like: 'id'
      * @return The class type of the field retrieved from the SDK-REST object.
      */
@@ -262,13 +266,14 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         String getMethodName = "get" + fieldName;
         List<Method> methods = Arrays.asList(fieldType.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
-            throw new RestApiException("Row " + row.getNumber() + ": '" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
+            throw new RestApiException("'" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
         }
 
         return methods.get(0).getReturnType();
     }
 
     // TODO: Refactor this to use entityInfo.fromString() and Cell
+
     /**
      * Returns the Bullhorn entity class for the given field on the given entity
      *
@@ -283,19 +288,8 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    // TODO: Move to the RestApi
-    protected void checkForRestSdkErrorMessages(CrudResponse response) {
-        if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
-            StringBuilder sb = new StringBuilder();
-            for (Message message : response.getMessages()) {
-                sb.append("\tError occurred on field " + message.getPropertyName() + " due to the following: " + message.getDetailMessage());
-                sb.append("\n");
-            }
-            throw new RestApiException("Row " + row.getNumber() + ": Error occurred when making " + response.getChangeType().toString() + " REST call:\n" + sb.toString());
-        }
-    }
-
     // TODO: Pass in row number and move to utility class
+
     /**
      * populates a field on an entity using reflection
      *
@@ -307,11 +301,11 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
         Method method = methodMap.get(field.toLowerCase());
         if (method == null) {
-            throw new RestApiException("Row " + row.getNumber() + ": Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
         }
 
         if (isAddressField(field) && methodMap.containsKey("address")) {
-            throw new RestApiException("Row " + row.getNumber() + ": Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header" );
+            throw new RestApiException("Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header");
         }
 
         if (value != null) {

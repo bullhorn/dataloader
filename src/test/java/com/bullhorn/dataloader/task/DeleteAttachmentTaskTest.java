@@ -86,7 +86,7 @@ public class DeleteAttachmentTaskTest {
     @Test
     public void testDeleteAttachmentMissingID() throws ExecutionException, IOException {
         Row row = TestUtils.createRow("Candidate.externalID,relativeFilePath,isResume,parentEntityID", "1,testResume/TestResume.doc,0,1");
-        final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'id' column required for deleteAttachments"));
+        final Result expectedResult = Result.Failure(new IOException("Missing the 'id' column required for deleteAttachments"));
         task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
         task.run();
@@ -100,7 +100,7 @@ public class DeleteAttachmentTaskTest {
     @Test
     public void testDeleteAttachmentMissingParentEntityID() throws ExecutionException, IOException {
         Row row = TestUtils.createRow("id,Candidate.externalID,relativeFilePath,isResume", "1,1,testResume/TestResume.doc,0");
-        final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'parentEntityID' column required for deleteAttachments"));
+        final Result expectedResult = Result.Failure(new IOException("Missing the 'parentEntityID' column required for deleteAttachments"));
         task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
         task.run();

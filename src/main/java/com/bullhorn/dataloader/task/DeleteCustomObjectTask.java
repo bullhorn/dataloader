@@ -16,7 +16,6 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
@@ -56,7 +55,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
 
     protected Result handle() throws Exception {
         if (!row.hasValue(StringConsts.ID)) {
-            throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+            throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
         entityID = Integer.parseInt(row.getValue("id"));
@@ -74,8 +73,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
      */
     private void deleteCustomObject(Integer parentEntityID) {
         AssociationField associationField = getAssociationField();
-        CrudResponse response = restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
-        checkForRestSdkErrorMessages(response);
+        restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
     }
 
     private String getParentEntityField() throws IOException {

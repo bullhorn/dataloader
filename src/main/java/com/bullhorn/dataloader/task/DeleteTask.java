@@ -14,7 +14,6 @@ import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
-import com.bullhornsdk.data.model.response.crud.CrudResponse;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -55,18 +54,17 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
 
     private <D extends DeleteEntity> Result handle() throws IOException {
         if (!row.hasValue(StringConsts.ID)) {
-            throw new IllegalArgumentException("Row " + row.getNumber() + ": Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
+            throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
         bullhornID = Integer.parseInt(row.getValue(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
-            throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
-        CrudResponse response = restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
-        checkForRestSdkErrorMessages(response);
+        restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
         return Result.Delete(bullhornID);
     }
 
@@ -88,7 +86,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else {
-            throw new RestApiException("Row " + row.getNumber() + ": Cannot Perform Delete: " + entityInfo.getEntityName() +
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() +
                 " records are not deletable.");
         }
     }

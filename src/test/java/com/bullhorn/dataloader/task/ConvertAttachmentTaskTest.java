@@ -103,7 +103,7 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void convertAttachmentNoRelativeFilePathTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
-        final Result expectedResult = Result.Failure(new IOException("Row 1: Missing the 'relativeFilePath' column required for convertAttachments"));
+        final Result expectedResult = Result.Failure(new IOException("Missing the 'relativeFilePath' column required for convertAttachments"));
         when(restApi.search(anyObject(), eq("externalID:\"2016Ext\""), anySet(), anyObject())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1001));
         task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriter, candidateExternalIdProperties, restApi, printUtil, actionTotalsMock);
 
