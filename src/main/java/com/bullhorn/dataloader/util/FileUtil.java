@@ -13,7 +13,7 @@ import java.util.TreeMap;
 
 /**
  * Utility for getting CSV files from disk.
- *
+ * <p>
  * Handles validating and sorting individual files or all files in a directory.
  */
 public class FileUtil {
@@ -23,9 +23,9 @@ public class FileUtil {
      * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
      * argument, this list will be either empty or contain exactly one matching entity to filename.
      *
-     * @param filePath   any file or directory
+     * @param filePath       any file or directory
      * @param validationUtil The validation utility
-     * @param comparator specifies how the sorted map should be sorted by entity
+     * @param comparator     specifies how the sorted map should be sorted by entity
      * @return a Map of entity enums to lists of valid files.
      */
     static public SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
@@ -41,9 +41,9 @@ public class FileUtil {
      * Given a directory, this method searches the directory for all valid CSV files and returns the map.
      * Multiple files for a single entity will be sorted alphabetically.
      *
-     * @param directory The path to the directory (relative or absolute)
+     * @param directory      The path to the directory (relative or absolute)
      * @param validationUtil The validation utility
-     * @param comparator How to sort the list
+     * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
     static public SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
@@ -71,9 +71,9 @@ public class FileUtil {
     /**
      * Given an individual file path, this method constructs the entity to file map and returns it.
      *
-     * @param filePath The path to the file (relative or absolute)
+     * @param filePath       The path to the file (relative or absolute)
      * @param validationUtil The validation utility
-     * @param comparator How to sort the list
+     * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
     static public SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
@@ -92,7 +92,7 @@ public class FileUtil {
     /**
      * Returns the list of loadable csv files in load order
      *
-     * @param filePath The given file or directory
+     * @param filePath       The given file or directory
      * @param validationUtil The validation utility
      * @return the subset of getValidCsvFiles that are loadable
      */
@@ -113,7 +113,7 @@ public class FileUtil {
     /**
      * Returns the list of deletable csv files in delete order
      *
-     * @param filePath The given file or directory
+     * @param filePath       The given file or directory
      * @param validationUtil The validation utility
      * @return the subset of getValidCsvFiles that are deletable
      */

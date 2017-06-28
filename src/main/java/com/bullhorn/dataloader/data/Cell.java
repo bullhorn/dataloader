@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.data;
 
 /**
  * Represents an individual cell of data in a spreadsheet.
- *
+ * <p>
  * Contains the contents of an individual cell and the column header for this cell.
  */
 public class Cell {
@@ -13,7 +13,7 @@ public class Cell {
     /**
      * Constructor which takes the name and value of the cell in an input spreadsheet
      *
-     * @param name the string value in the header row for this column
+     * @param name  the string value in the header row for this column
      * @param value the string value of the cell in the spreadsheet
      */
     public Cell(String name, String value) {

@@ -145,7 +145,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                 entityID = entity.getId();
             }
         } else {
-            entity = (B)entityInfo.getEntityClass().newInstance();
+            entity = (B) entityInfo.getEntityClass().newInstance();
         }
     }
 
