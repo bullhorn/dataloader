@@ -40,7 +40,6 @@ public class IntegrationTest {
 
     private static final String EXAMPLE_UUID = "12345678-1234-1234-1234-1234567890AB";
     private static final String EXAMPLE_EXTERNAL_ID_ENDING = "-ext-1";
-    private static final Integer INDEXER_WAIT_MINUTES = 5;
 
     private ConsoleOutputCapturer consoleOutputCapturer;
 
@@ -58,10 +57,10 @@ public class IntegrationTest {
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
         // Run the sanity to catch quick and obvious failures
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("integrationTestSanity"), 0);
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("integrationTestSanity"));
 
         // Run the full test
-        insertUpdateDeleteFromDirectory("examples/load", INDEXER_WAIT_MINUTES);
+        insertUpdateDeleteFromDirectory("examples/load");
     }
 
     /**
@@ -71,7 +70,7 @@ public class IntegrationTest {
      * @param directoryPath The path to the directory to load
      * @throws IOException For directory cloning
      */
-    private void insertUpdateDeleteFromDirectory(String directoryPath, Integer waitTimeMinutes) throws IOException, InterruptedException {
+    private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException, InterruptedException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
@@ -114,14 +113,6 @@ public class IntegrationTest {
         Assert.assertFalse("Delete performed during insert step", insertCommandOutput.contains("deleted: 1"));
         Assert.assertFalse("Failure reported during insert step", insertCommandOutput.contains("failed: 1"));
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
-        // endregion
-
-        // region ~WORKAROUND~
-        // The Note V1 indexers on SL9 can take a while to index during normal business hours.
-        if (waitTimeMinutes > 0) {
-            System.out.println("...Waiting " + waitTimeMinutes + " minutes for indexers to catch up...");
-            TimeUnit.MINUTES.sleep(waitTimeMinutes);
-        }
         // endregion
 
         // region INSERT ATTACHMENTS
