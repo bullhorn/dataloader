@@ -1,7 +1,9 @@
 package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
@@ -13,24 +15,31 @@ import org.junit.Test;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RestApiExtensionTest {
 
     private RestApi restApiMock;
+    private PrintUtil printUtilMock;
     private RestApiExtension restApiExtension;
 
     @Before
     public void setup() {
         restApiMock = mock(RestApi.class);
-        restApiExtension = new RestApiExtension();
+        printUtilMock = mock(PrintUtil.class);
+        restApiExtension = new RestApiExtension(printUtilMock);
     }
 
     @Test
@@ -43,6 +52,74 @@ public class RestApiExtensionTest {
     public void testCheckFOrRestSdkErrorMessagesFailure() {
         CrudResponse crudResponse = TestUtils.getResponse(ChangeType.INSERT, null, "FailureField", "Because failed");
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetByExternalIdBuildUrl() {
+        String externalID = "ext 1";
+        when(restApiMock.getRestUrl()).thenReturn("https://rest.bullhorn.com/");
+        when(restApiMock.getBhRestToken()).thenReturn("123456789");
+        when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
+
+        Set fieldSet = new HashSet<>(Arrays.asList("name", "id"));
+        restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
+
+        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID/ext+1?" +
+            "BhRestToken=123456789&entity=Candidate&fields=name%2Cid";
+        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
+    }
+
+    @Test
+    public void testGetByExternalIdEmptyReturn() {
+        when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[]");
+
+        SearchResult searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertTrue(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getList().isEmpty());
+    }
+
+    @Test
+    public void testGetByExternalIdOneReturn() {
+        when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
+
+        SearchResult searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertTrue(searchResult.getSuccess());
+        Assert.assertEquals(searchResult.getList().size(), 1);
+    }
+
+    @Test
+    public void testGetByExternalIdMultipleReturns() {
+        when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}, {id: 2}]");
+
+        SearchResult searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertTrue(searchResult.getSuccess());
+        Assert.assertEquals(searchResult.getList().size(), 2);
+    }
+
+    @Test
+    public void testGetByExternalIdUnauthorized() {
+        RestApiException restApiException = new RestApiException("Missing entitlement: SI DataLoader Administration");
+        when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
+
+        SearchResult searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext∂ 1", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertFalse(searchResult.getSuccess());
+
+        // Subsequent calls should not attempt to call the doGetByExternalID method
+        searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 2", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertFalse(searchResult.getSuccess());
+        verify(restApiMock, times(1)).performGetRequest(any(), any(), any());
+        verify(printUtilMock, times(1)).printAndLog(eq("Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index."));
     }
 
     @Test
