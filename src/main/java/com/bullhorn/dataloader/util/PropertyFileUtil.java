@@ -101,7 +101,7 @@ public class PropertyFileUtil {
 
     /**
      * Parses the environment variables to pull out DataLoader specific properties
-     *
+     * <p>
      * Environment Variables must start with "DATALOADER_" in order to be used, and the log will show if an
      * environment variable has been used to override values from the property file.
      *
@@ -150,6 +150,7 @@ public class PropertyFileUtil {
 
     /**
      * Returns the properties parsed from command line arguments, and sets the remaining args
+     *
      * @param args user provided command line arguments
      * @return the properties gleaned from the command line
      */
@@ -157,9 +158,9 @@ public class PropertyFileUtil {
         Properties properties = new Properties();
         List<String> consumedArgs = new ArrayList<>();
 
-        for (int i = 0; i+1 < args.length; ++i) {
+        for (int i = 0; i + 1 < args.length; ++i) {
             String argName = args[i];
-            String argValue = args[i+1];
+            String argValue = args[i + 1];
 
             Property property = Property.fromString(argName);
             if (property != null) {
@@ -275,6 +276,7 @@ public class PropertyFileUtil {
 
     /**
      * Returns the arguments list after the property arguments have been parsed out
+     *
      * @return The command line arguments without the given property arguments
      */
     public String[] getRemainingArgs() {

@@ -55,7 +55,7 @@ public class RowTest {
         row.addCell(new Cell("firstName", "John"));
         row.addCell(new Cell("lastName", "Smith"));
 
-        List<String> expected = Arrays.asList(new String[] {"id", "firstName", "lastName"});
+        List<String> expected = Arrays.asList(new String[]{"id", "firstName", "lastName"});
         Assert.assertEquals(row.getNames(), expected);
     }
 
@@ -63,7 +63,7 @@ public class RowTest {
     public void testGetNamesEmpty() {
         Row row = new Row(1);
 
-        List<String> expected = Arrays.asList(new String[] {});
+        List<String> expected = Arrays.asList(new String[]{});
         Assert.assertEquals(row.getNames(), expected);
     }
 
@@ -74,7 +74,7 @@ public class RowTest {
         row.addCell(new Cell("firstName", "John"));
         row.addCell(new Cell("lastName", "Smith"));
 
-        List<String> expected = Arrays.asList(new String[] {"1", "John", "Smith"});
+        List<String> expected = Arrays.asList(new String[]{"1", "John", "Smith"});
         Assert.assertEquals(row.getValues(), expected);
     }
 
@@ -82,7 +82,7 @@ public class RowTest {
     public void testGetValuesEmpty() {
         Row row = new Row(1);
 
-        List<String> expected = Arrays.asList(new String[] {});
+        List<String> expected = Arrays.asList(new String[]{});
         Assert.assertEquals(row.getValues(), expected);
     }
 }

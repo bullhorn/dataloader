@@ -72,7 +72,7 @@ public class CompleteCallTest {
             "\"numThreads\":9," +
             "\"command\":\"LOAD\"," +
             "\"entity\":\"Candidate\"" +
-        "}";
+            "}";
 
         completeCall.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
 

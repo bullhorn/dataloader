@@ -38,7 +38,6 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
-import java.time.DateTimeException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -64,8 +63,6 @@ public class LoadTaskTest {
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
 
-    private ArgumentCaptor<Result> resultArgumentCaptor;
-
     @Before
     public void setup() throws Exception {
         actionTotalsMock = mock(ActionTotals.class);
@@ -84,8 +81,6 @@ public class LoadTaskTest {
         countryNameToIdMap.put("United States", 1);
         countryNameToIdMap.put("Canada", 2216);
         when(preloaderMock.getCountryNameToIdMap()).thenReturn(countryNameToIdMap);
-
-        resultArgumentCaptor = ArgumentCaptor.forClass(Result.class);
     }
 
     // TODO: Stop testing this non-public method
@@ -110,7 +105,7 @@ public class LoadTaskTest {
     // TODO: Stop testing this non-public method
     @Test
     public void insertAttachmentToDescriptionClientCorporationTest() throws Exception {
-        Row row = TestUtils.createRow("externalID,name","11,DL Technologoes");
+        Row row = TestUtils.createRow("externalID,name", "11,DL Technologoes");
         ClientCorporation corporation = new ClientCorporation();
 
         // ClientCorporation uses companyDescription field instead of description
@@ -182,18 +177,16 @@ public class LoadTaskTest {
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,United States,1,");
         when(propertyFileUtilMock.getEntityExistFields("Candidate")).thenReturn(Optional.of(Arrays.asList("firstName", "lastName", "email")));
-        when(restApiMock.search(eq(Candidate.class), eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
-        when(restApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(restApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CorporateUser.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -209,18 +202,16 @@ public class LoadTaskTest {
         ClientContact clientContact = new ClientContact(1);
         clientContact.setExternalID("defaultContactJAMCORP123");
 
-        when(restApiMock.search(eq(ClientCorporation.class), eq("externalID:\"JAMCORP123\""), any(), any())).thenReturn(TestUtils.getListWrapper(ClientCorporation.class));
-        when(restApiMock.query(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(clientCorporation));
-        when(restApiMock.query(eq(ClientContact.class), eq("clientCorporation.id=1 AND status='Archive'"), any(), any())).thenReturn(TestUtils.getListWrapper(ClientContact.class, 1));
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"JAMCORP123\""), any(), any())).thenReturn(TestUtils.getList(ClientCorporation.class));
+        when(restApiMock.queryForList(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(clientCorporation));
+        when(restApiMock.queryForList(eq(ClientContact.class), eq("clientCorporation.id=1 AND status='Archive'"), any(), any())).thenReturn(TestUtils.getList(ClientContact.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(restApiMock).updateEntity(eq(clientContact));
     }
@@ -234,8 +225,8 @@ public class LoadTaskTest {
             "11,Data,Loader,dloader@bullhorn.com,1;2;3");
         when(propertyFileUtilMock.getEntityExistFields("Candidate")).thenReturn(Optional.of(Collections.singletonList("externalID")));
         Set associationIdSet = new HashSet<>(Arrays.asList(1, 2, 3));
-        when(restApiMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
-        when(restApiMock.query(eq(Skill.class), eq("id=1 OR id=2 OR id=3"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1, 2, 3));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
+        when(restApiMock.queryForList(eq(Skill.class), eq("id=1 OR id=2 OR id=3"), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
@@ -244,9 +235,7 @@ public class LoadTaskTest {
         // Verify that only one association call got made for all of the associated primarySkills
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdSet));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -255,17 +244,15 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow(
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,United States,1,");
-        when(restApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(restApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CorporateUser.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -280,27 +267,27 @@ public class LoadTaskTest {
         candidate1.setExternalID("1");
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        when(restApiMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getList(candidate1, candidate2));
 
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        when(restApiMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
+        when(restApiMock.searchForList(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getList(clientContact));
 
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        when(restApiMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
+        when(restApiMock.searchForList(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getList(lead));
 
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        when(restApiMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
+        when(restApiMock.searchForList(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getList(jobOrder));
 
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        when(restApiMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
+        when(restApiMock.searchForList(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getList(opportunity));
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(restApiMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
+        when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getList(placement));
 
         // Do not mock out any existing note entities
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
@@ -309,9 +296,7 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
 
         verify(restApiMock, times(8)).insertEntity(any());
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
@@ -320,16 +305,14 @@ public class LoadTaskTest {
     @Test
     public void run_InsertError_Note_MissingRecords() throws Exception {
         Row row = TestUtils.createRow("candidates.id", "1;2");
-        when(restApiMock.search(any(), eq("id:1 OR id:2"), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 OR id:2"), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Error occurred: candidates does not exist with id of the following values:\n\t2");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Error occurred: candidates does not exist with id of the following values:\n\t2");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
@@ -340,17 +323,15 @@ public class LoadTaskTest {
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,United States,1,");
         when(propertyFileUtilMock.getEntityExistFields("Candidate")).thenReturn(Optional.of(Collections.singletonList("externalID")));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
-        when(restApiMock.search(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
-        when(restApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(restApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CorporateUser.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -360,33 +341,33 @@ public class LoadTaskTest {
             "id,candidates.externalID,clientContacts.externalID,leads.customText1,jobOrders.externalID,opportunities.externalID,placements.customText1",
             "1,1;2,3,4,5,6,7");
         when(propertyFileUtilMock.getEntityExistFields("Note")).thenReturn(Optional.of(Collections.singletonList("id")));
-        when(restApiMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
+        when(restApiMock.searchForList(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
 
         Candidate candidate1 = new Candidate(1001);
         candidate1.setExternalID("1");
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        when(restApiMock.search(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getListWrapper(candidate1, candidate2));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any())).thenReturn(TestUtils.getList(candidate1, candidate2));
 
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        when(restApiMock.search(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getListWrapper(clientContact));
+        when(restApiMock.searchForList(eq(ClientContact.class), eq("externalID:\"3\""), any(), any())).thenReturn(TestUtils.getList(clientContact));
 
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        when(restApiMock.search(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getListWrapper(lead));
+        when(restApiMock.searchForList(eq(Lead.class), eq("customText1:\"4\""), any(), any())).thenReturn(TestUtils.getList(lead));
 
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        when(restApiMock.search(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getListWrapper(jobOrder));
+        when(restApiMock.searchForList(eq(JobOrder.class), eq("externalID:\"5\""), any(), any())).thenReturn(TestUtils.getList(jobOrder));
 
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        when(restApiMock.search(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getListWrapper(opportunity));
+        when(restApiMock.searchForList(eq(Opportunity.class), eq("externalID:\"6\""), any(), any())).thenReturn(TestUtils.getList(opportunity));
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(restApiMock.search(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getListWrapper(placement));
+        when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getList(placement));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         // Ensure that no inserts happen by returning the duplicate error message from SDK-REST, should an insert call be made
@@ -397,9 +378,7 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
 
         verify(restApiMock, times(1)).updateEntity(any(Note.class));
         verify(restApiMock, times(7)).insertEntity(any(NoteEntity.class));
@@ -416,57 +395,51 @@ public class LoadTaskTest {
 
     @Test
     public void run_invalidField() throws Exception {
-        Row row = TestUtils.createRow("bogus","This should fail with meaningful error because the field bogus does not exist on Candidate.");
+        Row row = TestUtils.createRow("bogus", "This should fail with meaningful error because the field bogus does not exist on Candidate.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'bogus' does not exist on Candidate");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'bogus' does not exist on Candidate");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
     public void run_invalidAddressField() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,city","Data,Loader,Failsville");
+        Row row = TestUtils.createRow("firstName,lastName,city", "Data,Loader,Failsville");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid address field format: 'city' Must use 'address.city' in csv header");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Invalid address field format: 'city' Must use 'address.city' in csv header");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
     public void run_validAddressField() throws Exception {
-        Row row = TestUtils.createRow("id,city","1,Successville");
+        Row row = TestUtils.createRow("id,city", "1,Successville");
         when(propertyFileUtilMock.getEntityExistFields("CandidateEducation")).thenReturn(Optional.of(Collections.singletonList("id")));
-        when(restApiMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CandidateEducation.class, 1));
-        when(restApiMock.query(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CandidateEducation.class, 1));
+        when(restApiMock.queryForList(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CandidateEducation.class, 1));
+        when(restApiMock.queryForList(eq(CandidateEducation.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CandidateEducation.class, 1));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE_EDUCATION, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
     @Test
     public void run_validAddressField_CountryName() throws Exception {
-        Row row = TestUtils.createRow("externalID,firstName,lastName,address.countryName","11,Data,Loader,Canada");
+        Row row = TestUtils.createRow("externalID,firstName,lastName,address.countryName", "11,Data,Loader,Canada");
         when(propertyFileUtilMock.getEntityExistFields("Candidate")).thenReturn(Optional.of(Collections.singletonList("externalID")));
-        when(restApiMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
-        when(restApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(restApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CorporateUser.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
@@ -479,17 +452,15 @@ public class LoadTaskTest {
         Assert.assertEquals(Integer.valueOf(2216), actualCandidate.getAddress().getCountryID());
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
     public void run_validAddressField_CountryID() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,address.countryID","Data,Loader,2216"); // 2216 = Canada
-        when(restApiMock.query(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(CorporateUser.class, 1));
-        when(restApiMock.query(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        Row row = TestUtils.createRow("firstName,lastName,address.countryID", "Data,Loader,2216"); // 2216 = Canada
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(CorporateUser.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
@@ -502,51 +473,43 @@ public class LoadTaskTest {
         Assert.assertEquals(Integer.valueOf(2216), actualCandidate.getAddress().getCountryID());
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
     public void run_invalidAddressField_CountryID() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,address.countryName","Data,Loader,BOGUS");
+        Row row = TestUtils.createRow("firstName,lastName,address.countryName", "Data,Loader,BOGUS");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NumberFormatException: For input string: \"BOGUS\"");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
     public void run_invalidToOneAssociation() throws Exception {
-        Row row = TestUtils.createRow("bogus.id","This should fail with meaningful error because bogus does not exist.");
+        Row row = TestUtils.createRow("bogus.id", "This should fail with meaningful error because bogus does not exist.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: To-One Association: 'bogus' does not exist on Candidate");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: To-One Association: 'bogus' does not exist on Candidate");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     @Test
     public void run_invalidToOneAssociationField() throws Exception {
-        Row row = TestUtils.createRow("owner.bogus","This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
+        Row row = TestUtils.createRow("owner.bogus", "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: 'owner.bogus': 'bogus' does not exist on CorporateUser");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: 'owner.bogus': 'bogus' does not exist on CorporateUser");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
@@ -557,17 +520,15 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Invalid field: 'secondaryAddress.bogus' - 'bogus' does not exist on the Address object");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
     // TODO: Stop testing this internal method
     @Test
     public void getGetMethodTestCatch() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         boolean exceptionWasThrown = false;
         try {
             LoadTask task = new LoadTask(EntityInfo.CANDIDATE_REFERENCE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
@@ -581,9 +542,9 @@ public class LoadTaskTest {
 
     @Test
     public void getNewAssociationIdListTest() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,primarySkills.id","Data,Loader,1;2;3");
-        when(restApiMock.query(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1, 2));
-        String expectedExceptionMessage = "Row 1: Error occurred: primarySkills does not exist with id of the following values:\n\t3";
+        Row row = TestUtils.createRow("firstName,lastName,primarySkills.id", "Data,Loader,1;2;3");
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
+        String expectedExceptionMessage = "Error occurred: primarySkills does not exist with id of the following values:\n\t3";
 
         String actualExceptionMessage = "";
         try {
@@ -598,29 +559,25 @@ public class LoadTaskTest {
 
     @Test
     public void run_TestCatch() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
     public void testRunMultipleExistingRecords() throws Exception {
-        Row row = TestUtils.createRow("externalID,firstName,lastName","11,Data,Loader");
+        Row row = TestUtils.createRow("externalID,firstName,lastName", "11,Data,Loader");
         when(propertyFileUtilMock.getEntityExistFields("Candidate")).thenReturn(Optional.of(Collections.singletonList("externalID")));
-        when(restApiMock.search(any(), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1, 2));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Row 1: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
-        verify(csvFileWriterMock).writeRow(any(), resultArgumentCaptor.capture());
-        Result actualResult = resultArgumentCaptor.getValue();
-        Assert.assertThat(actualResult, new ReflectionEquals(expectedResult));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Update - Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: {externalID=11}");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     // TODO: Stop testing internals - do this through the run method
@@ -632,7 +589,7 @@ public class LoadTaskTest {
         Set associationIdList = new HashSet<>(Collections.singletonList(1));
         RestApiException thrownException = new RestApiException("an association between Candidate 1 and Skill 1 already exists");
         when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(restApiMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.entityID = 1;
@@ -650,8 +607,8 @@ public class LoadTaskTest {
         RestApiException thrownException = new RestApiException("nope");
         Set associationIdList = new HashSet<>(Collections.singletonList(1));
         when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(restApiMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
-        when(restApiMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
 
         boolean wasExceptionThrown = false;
         try {
@@ -675,8 +632,8 @@ public class LoadTaskTest {
         Set associationIdList = new HashSet<>();
         associationIdList.add(1);
         when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(restApiMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1, 2));
-        when(restApiMock.query(any(), any(), eq(null), any())).thenReturn(TestUtils.getListWrapper(Skill.class, 1, 2));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
         String errorMessage = "";
 
         boolean wasExceptionThrown = false;
@@ -697,31 +654,31 @@ public class LoadTaskTest {
     @Test
     public void findEntityTest_search() throws Exception {
         Row row = TestUtils.createRow("clientCorporation.id", "1");
-        when(restApiMock.search(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1));
+        when(restApiMock.searchForList(eq(ClientCorporation.class), any(), any(), any())).thenReturn(TestUtils.getList(ClientCorporation.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
-        verify(restApiMock, times(1)).search(any(), any(), any(), any());
+        verify(restApiMock, times(1)).searchForList(any(), any(), any(), any());
     }
 
     // TODO: Stop testing internals - do this through the run method
     @Test
     public void findEntityTest_note() throws Exception {
         Row row = TestUtils.createRow("id", "1");
-        when(restApiMock.search(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getListWrapper(Note.class, 1));
+        when(restApiMock.searchForList(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.findEntity("id", "id", Note.class, Integer.class);
 
-        verify(restApiMock, times(1)).search(any(), any(), any(), any());
+        verify(restApiMock, times(1)).searchForList(any(), any(), any(), any());
     }
 
     // TODO: Stop testing internals - do this through the run method
     @Test(expected = RestApiException.class)
     public void findEntityTest_searchReturnsEmptyList() throws Exception {
         Row row = TestUtils.createRow("clientCorporation.id", "1");
-        when(restApiMock.search(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class));
+        when(restApiMock.searchForList(eq(Candidate.class), any(), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CONTACT, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
@@ -730,19 +687,19 @@ public class LoadTaskTest {
     // TODO: Stop testing internals - do this through the run method
     @Test(expected = RestApiException.class)
     public void findEntityTest_duplicates() throws Exception {
-        Row row = TestUtils.createRow("clientCorporation.id","1");
-        when(restApiMock.search(any(), any(), any(), any())).thenReturn(TestUtils.getListWrapper(Candidate.class, 1, 2));
+        Row row = TestUtils.createRow("clientCorporation.id", "1");
+        when(restApiMock.searchForList(eq(Candidate.class), any(), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CONTACT, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
 
-        verify(restApiMock, times(1)).search(any(), any(), any(), any());
+        verify(restApiMock, times(1)).searchForList(any(), any(), any(), any());
     }
 
     // TODO: Move to query builder
     @Test(expected = RestApiException.class)
     public void getWhereStatement_integer() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CONTACT, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         String actual = task.getWhereStatement("id", "99", int.class);
 
@@ -752,7 +709,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test(expected = RestApiException.class)
     public void getWhereStatement_unsupportedType() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CONTACT, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.getWhereStatement("comments", "my comment", double.class);
     }
@@ -760,7 +717,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test(expected = RestApiException.class)
     public void getQueryStatement_unsupportedType() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.getQueryStatement("doubleField", "doubleValue", double.class, Note.class);
     }
@@ -768,7 +725,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void updateRowProcessedCountsTest() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.rowProcessedCount.set(110);
         task.updateRowProcessedCounts();
@@ -779,7 +736,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_IntegerEmptyValue() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("id"), "");
@@ -790,7 +747,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_Integer() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("id"), "1");
@@ -801,7 +758,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_Double() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
         Object convertedString = task.convertStringToClass(method, "1");
@@ -812,7 +769,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_DoubleEmptyValue() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
         Object convertedString = task.convertStringToClass(method, "");
@@ -823,7 +780,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_Boolean() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "true");
@@ -834,7 +791,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_BooleanNullValue() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "");
@@ -845,7 +802,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_DateTime() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         DateTime now = DateTime.now();
         String dateFormatString = "MM/dd/yyyy HH:mm:ss.SSS";
         DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern(dateFormatString);
@@ -861,7 +818,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_EmptyDateTime() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("dateadded"), "");
@@ -871,7 +828,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_UnknownValue() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("tearsheets"), "");
@@ -881,7 +838,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_BigDecimal() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "1");
@@ -892,7 +849,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void convertStringToClassTest_BigDecimalEmptyValue() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
         Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "");
@@ -903,7 +860,7 @@ public class LoadTaskTest {
     // TODO: Move to query builder
     @Test
     public void getDateQueryTest() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName","Data,Loader");
+        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         String dateFormatString = "MM/dd/yyyy";
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));

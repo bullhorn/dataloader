@@ -1,16 +1,18 @@
 package com.bullhorn.dataloader.rest;
 
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
 import com.bullhornsdk.data.model.parameter.QueryParams;
 import com.bullhornsdk.data.model.parameter.standard.StandardQueryParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.bullhornsdk.data.model.response.crud.Message;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Handles implementation details for extensions to the RestApi.
+ * Performs additional REST behavior details for operations in the RestApi.
  */
 public class RestApiExtension {
 
@@ -22,15 +24,31 @@ public class RestApiExtension {
     private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
     /**
-     * Performs additional checks after a record has been deleted. For deleted job records, deletes the job submission
-     * history as well.
+     * Throws exceptions if there are errors in the SDK-REST response
      *
-     * @param restApi The RestApi
-     * @param crudResponse    The response from the RestApi
-     * @return The updated crud response after additional behavior
+     * @param response the CrudResponse that was returned from SDK-REST
+     * @throws RestApiException when there are error messages in the response
+     */
+    void checkForRestSdkErrorMessages(CrudResponse response) throws RestApiException {
+        if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
+            StringBuilder sb = new StringBuilder();
+            for (Message message : response.getMessages()) {
+                sb.append("\tError occurred on field ").append(message.getPropertyName()).
+                    append(" due to the following: ").append(message.getDetailMessage()).append("\n");
+            }
+            throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb.toString());
+        }
+    }
+
+    /**
+     * Performs additional checks after a record has been deleted. For deleted job records, deletes the job submission
+     * history as well.*
+     *
+     * @param restApi      the bullhorn rest api
+     * @param crudResponse the response from the RestApi
+     * @return the updated crud response after additional behavior
      */
     <C extends CrudResponse> C postDelete(RestApi restApi, C crudResponse) {
-
         if (null != crudResponse &&                                                         // CrudResponse is not null
             crudResponse.getMessages().isEmpty() &&                                         // and has no errors
             CHANGETYPE_UPDATE.equals(crudResponse.getChangeType()) &&                       // if we updated
@@ -46,12 +64,11 @@ public class RestApiExtension {
     /**
      * Given a jobSubmissionId, delete all associated JobSubmissionHistory records for it.
      *
-     * @param restApi The RestApi object
-     * @param jobSubmissionId The ID of the JobSubmission that was deleted
+     * @param restApi         the bullhorn rest api
+     * @param jobSubmissionId the ID of the JobSubmission that was deleted
      * @return CrudResponse with up to 1 error message if any deletes failed.
      */
     private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(RestApi restApi, Integer jobSubmissionId) {
-
         C crudResponse = null;
 
         // queryForList arg1
@@ -61,7 +78,7 @@ public class RestApiExtension {
         String whereClause = String.format(WHERECLAUSETEMPLATE_JOBSUBMISSION_ID, jobSubmissionId);
 
         // queryForList arg3
-        Set<String> fieldSet = new HashSet<String>();
+        Set<String> fieldSet = new HashSet<>();
         fieldSet.add(FIELDNAME_ID);
 
         // queryForList arg4

@@ -90,7 +90,7 @@ public class TemplateServiceTest {
     public void testRun_BadConnection() throws Exception {
         when(restSessionMock.getRestApi()).thenThrow(new RestApiException());
 
-        templateService.run(new String[] {Command.TEMPLATE.getMethodName(), "Candidate"});
+        templateService.run(new String[]{Command.TEMPLATE.getMethodName(), "Candidate"});
 
         verify(printUtilMock, times(1)).printAndLog("Failed to create REST session.");
     }

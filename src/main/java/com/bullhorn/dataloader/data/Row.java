@@ -1,9 +1,7 @@
 package com.bullhorn.dataloader.data;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents a row of data in the spreadsheet - a collection of fields to insert/update for an entity.

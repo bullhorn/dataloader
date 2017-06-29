@@ -1,7 +1,9 @@
 package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
+import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
@@ -32,9 +34,21 @@ public class RestApiExtensionTest {
     }
 
     @Test
+    public void testCheckFOrRestSdkErrorMessagesSuccess() {
+        CrudResponse crudResponse = TestUtils.getResponse(ChangeType.INSERT, 1, "SuccessField", "");
+        restApiExtension.checkForRestSdkErrorMessages(crudResponse);
+    }
+
+    @Test(expected = RestApiException.class)
+    public void testCheckFOrRestSdkErrorMessagesFailure() {
+        CrudResponse crudResponse = TestUtils.getResponse(ChangeType.INSERT, null, "FailureField", "Because failed");
+        restApiExtension.checkForRestSdkErrorMessages(crudResponse);
+    }
+
+    @Test
     public void testPostDelete_JobSubmission() throws InstantiationException, IllegalAccessException {
-        //When soft-deleting a JobSubmission, JobSubmissionHistory records should also be hard-deleted
-        List<JobSubmissionHistory> jshList = TestUtils.getListWrapper(JobSubmissionHistory.class, 1, 2, 3).getData();
+        // When soft-deleting a JobSubmission, JobSubmissionHistory records should also be hard-deleted
+        List<JobSubmissionHistory> jshList = TestUtils.getList(JobSubmissionHistory.class, 1, 2, 3);
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
         CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", null);
         when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
@@ -47,8 +61,8 @@ public class RestApiExtensionTest {
 
     @Test
     public void testPostDelete_JobSubmission_FAIL() throws InstantiationException, IllegalAccessException {
-        //When (soft-)deleting NOT a JobSubmission, History records should NOT also be hard-deleted
-        List<JobSubmissionHistory> jshList = TestUtils.getListWrapper(JobSubmissionHistory.class, 1, 2, 3).getData();
+        // When (soft-)deleting NOT a JobSubmission, History records should NOT also be hard-deleted
+        List<JobSubmissionHistory> jshList = TestUtils.getList(JobSubmissionHistory.class, 1, 2, 3);
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
         CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", "This text makes it fail.");
         when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
@@ -80,7 +94,7 @@ public class RestApiExtensionTest {
             newMessage.setDetailMessage(message);
             newMessage.setType("ERROR");
             newMessage.setSeverity("ERROR");
-            messages.add(newMessage );
+            messages.add(newMessage);
         }
         crudResponse.setMessages(messages);
         crudResponse.setChangedEntityId(changedEntityId);

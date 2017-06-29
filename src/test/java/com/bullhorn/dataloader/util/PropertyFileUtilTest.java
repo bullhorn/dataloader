@@ -29,7 +29,7 @@ public class PropertyFileUtilTest {
     @Before
     public void setup() {
         path = TestUtils.getResourceFilePath("unitTest.properties");
-        emptyArgs = new String[] {};
+        emptyArgs = new String[]{};
         envVars = new HashMap<>();
         systemProperties = new Properties();
         propertyValidation = new PropertyValidation();
@@ -180,7 +180,7 @@ public class PropertyFileUtilTest {
         args.add("7");
         args.add("-waitTimeMSecBetweenFilesInDirectory");
         args.add("25");
-        String[] argsArray = args.toArray(new String[] {});
+        String[] argsArray = args.toArray(new String[]{});
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidation, printUtilMock);
 
@@ -250,7 +250,7 @@ public class PropertyFileUtilTest {
         ArrayList<String> args = new ArrayList<>();
         args.add("candidateExistField");
         args.add("externalID");
-        String[] argsArray = args.toArray(new String[] {});
+        String[] argsArray = args.toArray(new String[]{});
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidation, printUtilMock);
 

@@ -25,7 +25,6 @@ import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
@@ -87,8 +86,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     @Override
     protected void insertOrUpdateEntity() throws IOException {
         try {
-            CrudResponse response = restApi.updateEntity((UpdateEntity) parentEntity);
-            checkForRestSdkErrorMessages(response);
+            restApi.updateEntity((UpdateEntity) parentEntity);
             parentEntityUpdateDone = true;
         } catch (RestApiException e) {
             checkIfCouldUpdateCustomObject(e);
@@ -116,8 +114,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Row scrubbedRow = getRowWithoutUnusedFields();
-        String where = scrubbedRow.getNames().stream().map(n -> getWhereStatement(n, (String) row.getValue(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
-        List<B> matchingCustomObjectList = (List<B>) restApi.query((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams()).getData();
+        String where = scrubbedRow.getNames().stream().map(n -> getWhereStatement(n, row.getValue(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        List<B> matchingCustomObjectList = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams());
         return matchingCustomObjectList;
     }
 
@@ -137,7 +135,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     private void checkForDuplicates(List<B> matchingCustomObjectList) throws Exception {
         if (!matchingCustomObjectList.isEmpty()) {
             if (matchingCustomObjectList.size() > 1) {
-                throw new RestApiException("Row " + row.getNumber() + ": Found duplicate.");
+                throw new RestApiException("Found duplicate.");
             } else {
                 entityID = matchingCustomObjectList.get(0).getId();
                 entity.setId(entityID);
@@ -214,7 +212,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String parentEntityName = entityInfo.getEntityName().substring(0, entityInfo.getEntityName().indexOf("CustomObjectInstance"));
         if (!toOneEntityName.equalsIgnoreCase(parentEntityName)) {
-            throw new RestApiException("Row " + row.getNumber() + ": To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+            throw new RestApiException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
         }
         parentEntityClass = BullhornEntityInfo.getTypeFromName(toOneEntityName).getType();
     }
@@ -226,9 +224,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         } else if ("clientcontact".equalsIgnoreCase(personSubtype) || "client contact".equalsIgnoreCase(personSubtype)) {
             parentEntityClass = (Class<B>) ClientContact.class;
         } else if (personSubtype == null) {
-            throw new Exception("Row " + row.getNumber() + ": The required field person._subType is missing. This field must be included to load " + entityName);
+            throw new Exception("The required field person._subType is missing. This field must be included to load " + entityName);
         } else {
-            throw new Exception("Row " + row.getNumber() + ": The person._subType field must be either Candidate or ClientContact");
+            throw new Exception("The person._subType field must be either Candidate or ClientContact");
         }
     }
 

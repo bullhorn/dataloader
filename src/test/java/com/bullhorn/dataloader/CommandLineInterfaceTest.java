@@ -233,7 +233,7 @@ public class CommandLineInterfaceTest {
      * Helper method which ensures that only the given action is run, and run successfully
      *
      * @param actionRun The action that should have run
-     * @param args The arguments that should be provided to the action
+     * @param args      The arguments that should be provided to the action
      */
     private void verifyActionRun(Action actionRun, String[] args) throws Exception {
         for (Action action : actions) {
@@ -254,7 +254,7 @@ public class CommandLineInterfaceTest {
      * Helper method which ensures that only the given action is run, and run unsuccessfully
      *
      * @param actionFailed The action that should have failes
-     * @param args The arguments that should be provided to the action
+     * @param args         The arguments that should be provided to the action
      */
     private void verifyActionFailed(Action actionFailed, String[] args) throws Exception {
         for (Action action : actions) {
