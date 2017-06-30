@@ -4,20 +4,16 @@ import java.util.List;
 
 /**
  * Represents the result from a search call that contains a flag to indicate whether or not the call was success,
- * and the results if it was. This is used for calls that may or may not be enabled for the current user.
+ * or whether the call is unauthorized due to a user settings, and the results if it was successful.
+ * This is used for calls that may or may not be enabled for the current user.
  */
 public class SearchResult<T> {
 
-    private Boolean success;
-    private List<T> list;
+    private Boolean success = true;
+    private Boolean authorized = true;
+    private List<T> list = null;
 
-    SearchResult(Boolean success) {
-        this.setSuccess(success);
-    }
-
-    public SearchResult(List<T> list) {
-        this.setSuccess(true);
-        this.setList(list);
+    SearchResult() {
     }
 
     public Boolean getSuccess() {
@@ -34,5 +30,17 @@ public class SearchResult<T> {
 
     public void setList(List<T> list) {
         this.list = list;
+        this.success = true;
+    }
+
+    public Boolean getAuthorized() {
+        return authorized;
+    }
+
+    public void setAuthorized(Boolean authorized) {
+        this.authorized = authorized;
+        if (!authorized) {
+            this.success = false;
+        }
     }
 }

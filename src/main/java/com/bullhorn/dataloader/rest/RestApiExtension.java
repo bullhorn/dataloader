@@ -73,10 +73,12 @@ public class RestApiExtension {
      * @return SearchResults for checking if the call succeeded and the list of results
      */
     <S extends SearchEntity> SearchResult<S> getByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
-        SearchResult<S> searchResult = new SearchResult<>(false);
+        SearchResult<S> searchResult = new SearchResult<>();
+        searchResult.setSuccess(false);
+        searchResult.setAuthorized(authorized);
         if (authorized) {
             searchResult = doGetByExternalID(restApi, type, externalID, fieldSet);
-            authorized = searchResult.getSuccess();
+            authorized = searchResult.getAuthorized();
         }
         return searchResult;
     }
@@ -85,7 +87,7 @@ public class RestApiExtension {
      * Internal method that performs the search by externalID and returns the resulting list of entities
      */
     private <S extends SearchEntity> SearchResult<S> doGetByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
-        SearchResult<S> searchResult = new SearchResult<>(false);
+        SearchResult<S> searchResult = new SearchResult<>();
 
         try {
             String encodedExternalID = URLEncoder.encode(externalID, "UTF-8");
@@ -106,12 +108,14 @@ public class RestApiExtension {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));
             }
-            searchResult = new SearchResult<>(list);
-
-            printUtil.printAndLog(jsonString);
+            searchResult.setList(list);
         } catch (Exception e) {
             if (e.getMessage().contains("SI DataLoader Administration")) {
                 printUtil.printAndLog("Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
+                searchResult.setAuthorized(false);
+            } else {
+                printUtil.printAndLog("Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
+                searchResult.setSuccess(false);
             }
         }
 

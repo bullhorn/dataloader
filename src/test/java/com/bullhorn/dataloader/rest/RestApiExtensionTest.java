@@ -78,6 +78,7 @@ public class RestApiExtensionTest {
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertTrue(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
         Assert.assertTrue(searchResult.getList().isEmpty());
     }
 
@@ -89,6 +90,7 @@ public class RestApiExtensionTest {
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertTrue(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
         Assert.assertEquals(searchResult.getList().size(), 1);
     }
 
@@ -100,6 +102,7 @@ public class RestApiExtensionTest {
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertTrue(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
         Assert.assertEquals(searchResult.getList().size(), 2);
     }
 
@@ -109,17 +112,46 @@ public class RestApiExtensionTest {
         when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
 
         SearchResult searchResult = restApiExtension.getByExternalID(
-            restApiMock, Candidate.class, "ext∂ 1", new HashSet<>(Collections.singletonList("id")));
+            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertFalse(searchResult.getSuccess());
+        Assert.assertFalse(searchResult.getAuthorized());
 
         // Subsequent calls should not attempt to call the doGetByExternalID method
         searchResult = restApiExtension.getByExternalID(
             restApiMock, Candidate.class, "ext 2", new HashSet<>(Collections.singletonList("id")));
 
+        String expected = "Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.";
         Assert.assertFalse(searchResult.getSuccess());
+        Assert.assertFalse(searchResult.getAuthorized());
         verify(restApiMock, times(1)).performGetRequest(any(), any(), any());
-        verify(printUtilMock, times(1)).printAndLog(eq("Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index."));
+        verify(printUtilMock, times(1)).printAndLog(eq(expected));
+    }
+
+    @Test
+    public void testGetByExternalIdFailure() {
+        RestApiException restApiException = new RestApiException("Flagrant System Error");
+        when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
+
+        SearchResult searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
+
+        String expected = "Fast lookup failed for Candidate by externalID: 'ext 1'. " +
+            "Will use a regular /search call instead. Error Message: Flagrant System Error";
+        verify(printUtilMock, times(1)).printAndLog(eq(expected));
+        Assert.assertFalse(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
+
+        // Subsequent calls should attempt to call the doGetByExternalID method, and warn user every time it failed
+        searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 2", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertFalse(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
+        expected = "Fast lookup failed for Candidate by externalID: 'ext 2'. " +
+            "Will use a regular /search call instead. Error Message: Flagrant System Error";
+        verify(printUtilMock, times(1)).printAndLog(eq(expected));
+        verify(restApiMock, times(2)).performGetRequest(any(), any(), any());
     }
 
     @Test

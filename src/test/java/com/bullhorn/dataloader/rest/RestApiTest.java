@@ -67,7 +67,8 @@ public class RestApiTest {
     @Test
     public void testSearchForListExternalIdSuccess() throws InstantiationException, IllegalAccessException {
         SearchParams searchParams = ParamFactory.searchParams();
-        SearchResult<Candidate> searchResult = new SearchResult<>(TestUtils.getList(Candidate.class, 1));
+        SearchResult<Candidate> searchResult = new SearchResult<>();
+        searchResult.setList(TestUtils.getList(Candidate.class, 1));
         when(restApiExtensionMock.getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
 
         restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
@@ -79,7 +80,8 @@ public class RestApiTest {
     @Test
     public void testSearchForListExternalIdFailure() {
         SearchParams searchParams = ParamFactory.searchParams();
-        SearchResult<Candidate> searchResult = new SearchResult<>(false);
+        SearchResult<Candidate> searchResult = new SearchResult<>();
+        searchResult.setSuccess(false);
         when(restApiExtensionMock.getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
 
         restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
