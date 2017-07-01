@@ -80,7 +80,7 @@ public class IntegrationTest {
         FileUtils.copyDirectory(new File(directoryPath), tempDirectory);
 
         // Replace all external ID endings with unique ones based on the current timestamp
-        String newExternalIdEnding = "-" + secondsSinceEpoch;
+        String newExternalIdEnding = "" + secondsSinceEpoch;
         TestUtils.replaceTextInFiles(tempDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
 
         // Replace all UUIDs in with unique ones

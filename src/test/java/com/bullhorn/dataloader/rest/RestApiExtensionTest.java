@@ -121,11 +121,35 @@ public class RestApiExtensionTest {
         searchResult = restApiExtension.getByExternalID(
             restApiMock, Candidate.class, "ext 2", new HashSet<>(Collections.singletonList("id")));
 
-        String expected = "Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.";
+        String expected = "WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.";
         Assert.assertFalse(searchResult.getSuccess());
         Assert.assertFalse(searchResult.getAuthorized());
         verify(restApiMock, times(1)).performGetRequest(any(), any(), any());
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
+    }
+
+    @Test
+    public void testGetByExternalIdUnsupportedCharacters() {
+        RestApiException restApiException = new RestApiException("{'errorMessage' : 'Unknown or badly structured command: /services/dataLoader/getByExternalID/ext 1.'}");
+        when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
+
+        SearchResult searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
+
+        String expected = "WARNING: Cannot perform fast lookup by externalID: 'ext 1' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.";
+        verify(printUtilMock, times(1)).printAndLog(eq(expected));
+        Assert.assertFalse(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
+
+        // Subsequent calls should attempt to call the doGetByExternalID method, and warn user every time it failed
+        searchResult = restApiExtension.getByExternalID(
+            restApiMock, Candidate.class, "ext-2", new HashSet<>(Collections.singletonList("id")));
+
+        Assert.assertFalse(searchResult.getSuccess());
+        Assert.assertTrue(searchResult.getAuthorized());
+        expected = "WARNING: Cannot perform fast lookup by externalID: 'ext-2' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.";
+        verify(printUtilMock, times(1)).printAndLog(eq(expected));
+        verify(restApiMock, times(2)).performGetRequest(any(), any(), any());
     }
 
     @Test
@@ -134,9 +158,9 @@ public class RestApiExtensionTest {
         when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
 
         SearchResult searchResult = restApiExtension.getByExternalID(
-            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
+            restApiMock, Candidate.class, "ext1", new HashSet<>(Collections.singletonList("id")));
 
-        String expected = "Fast lookup failed for Candidate by externalID: 'ext 1'. " +
+        String expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext1'. " +
             "Will use a regular /search call instead. Error Message: Flagrant System Error";
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
         Assert.assertFalse(searchResult.getSuccess());
@@ -148,7 +172,7 @@ public class RestApiExtensionTest {
 
         Assert.assertFalse(searchResult.getSuccess());
         Assert.assertTrue(searchResult.getAuthorized());
-        expected = "Fast lookup failed for Candidate by externalID: 'ext 2'. " +
+        expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext 2'. " +
             "Will use a regular /search call instead. Error Message: Flagrant System Error";
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
         verify(restApiMock, times(2)).performGetRequest(any(), any(), any());

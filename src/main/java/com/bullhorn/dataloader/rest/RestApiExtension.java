@@ -111,10 +111,13 @@ public class RestApiExtension {
             searchResult.setList(list);
         } catch (Exception e) {
             if (e.getMessage().contains("SI DataLoader Administration")) {
-                printUtil.printAndLog("Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
+                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
                 searchResult.setAuthorized(false);
+            } else if (e.getMessage().contains("Unknown or badly structured command")) {
+                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID: '" + externalID + "' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.");
+                searchResult.setSuccess(false);
             } else {
-                printUtil.printAndLog("Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
+                printUtil.printAndLog("WARNING: Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
                 searchResult.setSuccess(false);
             }
         }
