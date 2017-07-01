@@ -7,6 +7,7 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
@@ -62,6 +63,14 @@ public class RestApiTest {
         restApi.searchForList(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
         verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
+    }
+
+    @Test
+    public void testSearchForListExternalIdUnsupportedEntity() throws InstantiationException, IllegalAccessException {
+        SearchParams searchParams = ParamFactory.searchParams();
+        restApi.searchForList(Opportunity.class, "externalID:\"ext 1\"", null, searchParams);
+        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
+        verify(bullhornDataMock, times(1)).searchForList(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
     }
 
     @Test

@@ -102,7 +102,7 @@ public class RestApiExtension {
 
             String jsonString = restApi.performGetRequest(url, String.class, new HashMap<>());
 
-            List<S> list = new ArrayList<S>();
+            List<S> list = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(jsonString);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);

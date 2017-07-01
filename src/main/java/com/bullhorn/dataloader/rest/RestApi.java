@@ -3,6 +3,8 @@ package com.bullhorn.dataloader.rest;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.type.AllRecordsEntity;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -68,8 +70,9 @@ public class RestApi {
 
     // The search/query calls that DataLoader uses to lookup existing data
     public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
+        Boolean isSupportedEntity = type != Opportunity.class && type != JobOrder.class;
         String externalID = SearchCriteria.getExternalIdValue(query);
-        if (!externalID.isEmpty()) {
+        if (isSupportedEntity && !externalID.isEmpty()) {
             SearchResult<T> searchResult = restApiExtension.getByExternalID(this, type, externalID, fieldSet);
             if (searchResult.getSuccess()) {
                 return searchResult.getList();
