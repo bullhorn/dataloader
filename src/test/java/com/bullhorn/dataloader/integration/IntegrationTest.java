@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * The purpose of this integration test is to:
@@ -70,6 +69,7 @@ public class IntegrationTest {
      * @param directoryPath The path to the directory to load
      * @throws IOException For directory cloning
      */
+    @SuppressWarnings("ConstantConditions")
     private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException, InterruptedException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'

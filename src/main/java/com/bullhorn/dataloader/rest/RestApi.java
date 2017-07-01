@@ -4,6 +4,7 @@ import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.type.AllRecordsEntity;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
@@ -70,7 +71,7 @@ public class RestApi {
 
     // The search/query calls that DataLoader uses to lookup existing data
     public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
-        Boolean isSupportedEntity = type != Opportunity.class && type != JobOrder.class;
+        Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
         String externalID = SearchCriteria.getExternalIdValue(query);
         if (isSupportedEntity && !externalID.isEmpty()) {
             SearchResult<T> searchResult = restApiExtension.getByExternalID(this, type, externalID, fieldSet);
@@ -156,7 +157,7 @@ public class RestApi {
     // endregion
 
     // region Methods used by RestApiExtension
-    public <T> T performGetRequest(String url, Class<T> returnType, Map<String, String> uriVariables) {
+    <T> T performGetRequest(String url, Class<T> returnType, Map<String, String> uriVariables) {
         return bullhornData.performGetRequest(url, returnType, uriVariables);
     }
     // endregion

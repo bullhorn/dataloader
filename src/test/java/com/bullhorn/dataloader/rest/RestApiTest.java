@@ -7,6 +7,8 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
@@ -68,9 +70,15 @@ public class RestApiTest {
     @Test
     public void testSearchForListExternalIdUnsupportedEntity() throws InstantiationException, IllegalAccessException {
         SearchParams searchParams = ParamFactory.searchParams();
+
+        restApi.searchForList(Lead.class, "externalID:\"ext 1\"", null, searchParams);
         restApi.searchForList(Opportunity.class, "externalID:\"ext 1\"", null, searchParams);
-        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
+        restApi.searchForList(JobOrder.class, "externalID:\"ext 1\"", null, searchParams);
+
+        verify(bullhornDataMock, times(1)).searchForList(eq(Lead.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).searchForList(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
     }
 
     @Test
