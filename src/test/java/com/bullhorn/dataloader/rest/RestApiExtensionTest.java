@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -99,6 +98,7 @@ public class RestApiExtensionTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testGetByExternalIdOneReturn() {
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
 
@@ -108,6 +108,11 @@ public class RestApiExtensionTest {
         Assert.assertTrue(searchResult.getSuccess());
         Assert.assertTrue(searchResult.getAuthorized());
         Assert.assertEquals(searchResult.getList().size(), 1);
+
+        List<Candidate> candidates = searchResult.getList();
+        Candidate candidate = candidates.get(0);
+        Assert.assertTrue(candidate.getId() == 1);
+        Assert.assertEquals(candidate.getExternalID(), "ext 1");
     }
 
     @Test
@@ -198,8 +203,8 @@ public class RestApiExtensionTest {
     public void testPostDelete_JobSubmission() throws InstantiationException, IllegalAccessException {
         // When soft-deleting a JobSubmission, JobSubmissionHistory records should also be hard-deleted
         List<JobSubmissionHistory> jshList = TestUtils.getList(JobSubmissionHistory.class, 1, 2, 3);
-        CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
-        CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", null);
+        CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", "UPDATE", null);
+        CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", "DELETE", null);
         when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
         when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
@@ -212,8 +217,8 @@ public class RestApiExtensionTest {
     public void testPostDelete_JobSubmission_FAIL() throws InstantiationException, IllegalAccessException {
         // When (soft-)deleting NOT a JobSubmission, History records should NOT also be hard-deleted
         List<JobSubmissionHistory> jshList = TestUtils.getList(JobSubmissionHistory.class, 1, 2, 3);
-        CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", 1, "UPDATE", null);
-        CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", 1, "DELETE", "This text makes it fail.");
+        CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", "UPDATE", null);
+        CrudResponse crudResponse_jshArg = getDeleteCrudResponse("JobSubmissionHistory", "DELETE", "This text makes it fail.");
         when(restApiMock.queryForList(eq(JobSubmissionHistory.class), any(), any(), any())).thenReturn(jshList);
         when(restApiMock.deleteEntity(eq(JobSubmissionHistory.class), any())).thenReturn(crudResponse_jshArg);
 
@@ -224,7 +229,7 @@ public class RestApiExtensionTest {
 
     @Test
     public void testPostDelete_Not_JobSubmission() throws InstantiationException, IllegalAccessException {
-        CrudResponse crudResponse = getDeleteCrudResponse("Candidate", 1, "UPDATE", null);
+        CrudResponse crudResponse = getDeleteCrudResponse("Candidate", "UPDATE", null);
 
         CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse);
 
@@ -233,7 +238,7 @@ public class RestApiExtensionTest {
         verify(restApiMock, never()).deleteEntity(eq(JobSubmissionHistory.class), any());
     }
 
-    private CrudResponse getDeleteCrudResponse(String changedEntityType, Integer changedEntityId, String changeType, String message) {
+    private CrudResponse getDeleteCrudResponse(String changedEntityType, String changeType, String message) {
         CrudResponse crudResponse = new DeleteResponse();
         crudResponse.setChangedEntityType(changedEntityType);
         crudResponse.setChangeType(changeType);
@@ -246,7 +251,7 @@ public class RestApiExtensionTest {
             messages.add(newMessage);
         }
         crudResponse.setMessages(messages);
-        crudResponse.setChangedEntityId(changedEntityId);
+        crudResponse.setChangedEntityId(1);
 
         return crudResponse;
     }

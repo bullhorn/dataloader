@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.helper.RestJsonConverter;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
@@ -108,6 +109,7 @@ public class RestApiExtension {
             JSONArray jsonArray = new JSONArray(jsonString);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
+                jsonObject.put(StringConsts.EXTERNAL_ID, externalID);
                 list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));
             }
             searchResult.setList(list);

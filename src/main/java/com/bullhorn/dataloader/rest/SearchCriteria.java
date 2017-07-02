@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
+import com.bullhorn.dataloader.util.StringConsts;
+
 /**
  * Class that encapsulates the search criteria for looking up existing entities in the system.
  * TODO: Encapsulate all query/where clause building into this class, which will get passed to the RestApi object's
@@ -7,7 +9,7 @@ package com.bullhorn.dataloader.rest;
  */
 class SearchCriteria {
 
-    private static final String EXTERNAL_ID_START = "externalID:\"";
+    private static final String EXTERNAL_ID_START = StringConsts.EXTERNAL_ID + ":\"";
     private static final String EXTERNAL_ID_END = "\"";
 
     /**
