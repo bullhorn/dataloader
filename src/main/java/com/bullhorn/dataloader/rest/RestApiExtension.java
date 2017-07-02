@@ -9,6 +9,7 @@ import com.bullhornsdk.data.model.parameter.QueryParams;
 import com.bullhornsdk.data.model.parameter.standard.StandardQueryParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
+import com.google.common.collect.Sets;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -88,6 +89,7 @@ public class RestApiExtension {
      */
     private <S extends SearchEntity> SearchResult<S> doGetByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
         SearchResult<S> searchResult = new SearchResult<>();
+        fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
         try {
             String encodedExternalID = URLEncoder.encode(externalID, "UTF-8");

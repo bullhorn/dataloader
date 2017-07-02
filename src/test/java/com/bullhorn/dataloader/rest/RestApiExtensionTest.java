@@ -9,6 +9,7 @@ import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,11 +63,26 @@ public class RestApiExtensionTest {
         when(restApiMock.getBhRestToken()).thenReturn("123456789");
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
 
-        Set fieldSet = new HashSet<>(Arrays.asList("name", "id"));
+        Set fieldSet = Sets.newHashSet("name", "id");
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
 
         String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID/ext+1?" +
             "BhRestToken=123456789&entity=Candidate&fields=name%2Cid";
+        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testGetByExternalIdBuildUrlNullFieldSet() {
+        String externalID = "ext 1";
+        when(restApiMock.getRestUrl()).thenReturn("https://rest.bullhorn.com/");
+        when(restApiMock.getBhRestToken()).thenReturn("123456789");
+        when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
+
+        restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, null);
+
+        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID/ext+1?" +
+            "BhRestToken=123456789&entity=Candidate&fields=id";
         verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
     }
 
