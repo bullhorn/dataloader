@@ -66,7 +66,7 @@ public class RestApiExtensionTest {
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
 
         String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID/ext+1?" +
-            "BhRestToken=123456789&entity=Candidate&fields=name%2Cid";
+            "BhRestToken=123456789&entity=Candidate&fields=name,id";
         verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
     }
 

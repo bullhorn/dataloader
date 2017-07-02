@@ -100,8 +100,10 @@ public class RestApiExtension {
             URIBuilder uriBuilder = new URIBuilder(restUrl);
             uriBuilder.addParameter("BhRestToken", bhRestToken);
             uriBuilder.addParameter("entity", type.getSimpleName());
-            uriBuilder.addParameter("fields", String.join(",", fieldSet));
             String url = uriBuilder.toString();
+
+            // The uriBuilder encodes the comma, which causes the call to fail
+            url = url.concat("&fields=" + String.join(",", fieldSet));
 
             String jsonString = restApi.performGetRequest(url, String.class, new HashMap<>());
 
