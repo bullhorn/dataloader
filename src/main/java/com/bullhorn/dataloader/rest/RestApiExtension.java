@@ -1,12 +1,23 @@
 package com.bullhorn.dataloader.rest;
 
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.bullhornsdk.data.api.helper.RestJsonConverter;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.QueryParams;
 import com.bullhornsdk.data.model.parameter.standard.StandardQueryParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
+import com.google.common.collect.Sets;
+import org.apache.http.client.utils.URIBuilder;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +34,19 @@ public class RestApiExtension {
     private static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
     private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
+    final private PrintUtil printUtil;
+    final private RestJsonConverter restJsonConverter;
+
+    // Whether or not the current user being used to load data is authorized with the 'SI Dataloader Administration'
+    // User Action Entitlement. Assume we are, until proven otherwise the first time through when a call that is
+    // hidden behind this entitlement fails.
+    private Boolean authorized = true;
+
+    public RestApiExtension(PrintUtil printUtil) {
+        this.printUtil = printUtil;
+        this.restJsonConverter = new RestJsonConverter();
+    }
+
     /**
      * Throws exceptions if there are errors in the SDK-REST response
      *
@@ -38,6 +62,73 @@ public class RestApiExtension {
             }
             throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb.toString());
         }
+    }
+
+    /**
+     * Searches for results by externalID. If the call ever fails due to being unauthorized, don't try again in
+     * the same DataLoader session.
+     *
+     * @param type       the entity type
+     * @param externalID the string field to search for
+     * @param fieldSet   the fields to return in the results for each entity found with the given externalID
+     * @param <S>        the search entity
+     * @return SearchResults for checking if the call succeeded and the list of results
+     */
+    <S extends SearchEntity> SearchResult<S> getByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
+        SearchResult<S> searchResult = new SearchResult<>();
+        searchResult.setSuccess(false);
+        searchResult.setAuthorized(authorized);
+        if (authorized) {
+            searchResult = doGetByExternalID(restApi, type, externalID, fieldSet);
+            authorized = searchResult.getAuthorized();
+        }
+        return searchResult;
+    }
+
+    /**
+     * Internal method that performs the search by externalID and returns the resulting list of entities
+     */
+    private <S extends SearchEntity> SearchResult<S> doGetByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
+        SearchResult<S> searchResult = new SearchResult<>();
+        fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
+
+        try {
+            String encodedExternalID = URLEncoder.encode(externalID, "UTF-8");
+            String restUrl = restApi.getRestUrl() + "services/dataLoader/getByExternalID/" + encodedExternalID;
+            String bhRestToken = restApi.getBhRestToken();
+
+            URIBuilder uriBuilder = new URIBuilder(restUrl);
+            uriBuilder.addParameter("BhRestToken", bhRestToken);
+            uriBuilder.addParameter("entity", type.getSimpleName());
+            String url = uriBuilder.toString();
+
+            // The uriBuilder encodes the comma, which causes the call to fail
+            url = url.concat("&fields=" + String.join(",", fieldSet));
+
+            String jsonString = restApi.performGetRequest(url, String.class, new HashMap<>());
+
+            List<S> list = new ArrayList<>();
+            JSONArray jsonArray = new JSONArray(jsonString);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                jsonObject.put(StringConsts.EXTERNAL_ID, externalID);
+                list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));
+            }
+            searchResult.setList(list);
+        } catch (Exception e) {
+            if (e.getMessage().contains("SI DataLoader Administration")) {
+                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
+                searchResult.setAuthorized(false);
+            } else if (e.getMessage().contains("Unknown or badly structured command")) {
+                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID: '" + externalID + "' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.");
+                searchResult.setSuccess(false);
+            } else {
+                printUtil.printAndLog("WARNING: Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
+                searchResult.setSuccess(false);
+            }
+        }
+
+        return searchResult;
     }
 
     /**

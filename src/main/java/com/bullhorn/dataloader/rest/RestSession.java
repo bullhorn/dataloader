@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.rest;
 
 
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.BullhornData;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
 
@@ -29,7 +28,7 @@ public class RestSession {
      */
     public RestApi getRestApi() {
         if (restApi == null) {
-            BullhornData bullhornData = createRestSession();
+            StandardBullhornData bullhornData = createRestSession();
             restApi = new RestApi(bullhornData, restApiExtension);
         }
         return restApi;
@@ -40,7 +39,7 @@ public class RestSession {
      *
      * @return a BullhornData object that is used to make rest calls.
      */
-    private BullhornData createRestSession() {
+    private StandardBullhornData createRestSession() {
         BullhornRestCredentials bullhornRestCredentials = getBullhornRestCredentials(propertyFileUtil);
         return new StandardBullhornData(bullhornRestCredentials);
     }

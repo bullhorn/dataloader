@@ -1,37 +1,46 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhornsdk.data.api.BullhornData;
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
+import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class RestApiTest {
-    private BullhornData bullhornDataMock;
+    private StandardBullhornData bullhornDataMock;
     private RestApiExtension restApiExtensionMock;
     private RestApi restApi;
 
     @Before
     public void setup() {
-        bullhornDataMock = mock(BullhornData.class);
+        bullhornDataMock = mock(StandardBullhornData.class);
         restApiExtensionMock = mock(RestApiExtension.class);
         restApi = new RestApi(bullhornDataMock, restApiExtensionMock);
     }
@@ -52,9 +61,50 @@ public class RestApiTest {
     }
 
     @Test
-    public void testSearchForList() {
+    public void testSearchForListNoExternalID() {
         restApi.searchForList(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
+        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
+    }
+
+    @Test
+    public void testSearchForListExternalIdUnsupportedEntity() throws InstantiationException, IllegalAccessException {
+        SearchParams searchParams = ParamFactory.searchParams();
+
+        restApi.searchForList(Lead.class, "externalID:\"ext 1\"", null, searchParams);
+        restApi.searchForList(Opportunity.class, "externalID:\"ext 1\"", null, searchParams);
+        restApi.searchForList(JobOrder.class, "externalID:\"ext 1\"", null, searchParams);
+
+        verify(bullhornDataMock, times(1)).searchForList(eq(Lead.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).searchForList(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).searchForList(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testSearchForListExternalIdSuccess() throws InstantiationException, IllegalAccessException {
+        SearchParams searchParams = ParamFactory.searchParams();
+        SearchResult<Candidate> searchResult = new SearchResult<>();
+        searchResult.setList(TestUtils.getList(Candidate.class, 1));
+        when(restApiExtensionMock.getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
+
+        restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
+
+        verify(restApiExtensionMock, times(1)).getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
+        verify(bullhornDataMock, never()).searchForList(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testSearchForListExternalIdFailure() {
+        SearchParams searchParams = ParamFactory.searchParams();
+        SearchResult<Candidate> searchResult = new SearchResult<>();
+        searchResult.setSuccess(false);
+        when(restApiExtensionMock.getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
+
+        restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
+
+        verify(restApiExtensionMock, times(1)).getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
+        verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(null), eq(searchParams));
     }
 
     @Test
@@ -152,5 +202,12 @@ public class RestApiTest {
     public void testDeleteFile() {
         restApi.deleteFile(Candidate.class, 1, 1);
         verify(bullhornDataMock, times(1)).deleteFile(eq(Candidate.class), eq(1), eq(1));
+    }
+
+    @Test
+    public void testPerformGetRequest() {
+        Map<String, String> map = new HashMap<>();
+        restApi.performGetRequest("url", Candidate.class, map);
+        verify(bullhornDataMock, times(1)).performGetRequest(eq("url"), eq(Candidate.class), eq(map));
     }
 }

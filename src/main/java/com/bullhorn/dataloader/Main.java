@@ -34,7 +34,7 @@ public class Main {
             PropertyValidation propertyValidation = new PropertyValidation();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidation, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
-            RestApiExtension restApiExtension = new RestApiExtension();
+            RestApiExtension restApiExtension = new RestApiExtension(printUtil);
             RestSession restSession = new RestSession(restApiExtension, propertyFileUtil);
             Preloader preloader = new Preloader(restSession);
             CompleteCall completeCall = new CompleteCall(restSession, httpClient, propertyFileUtil, printUtil);

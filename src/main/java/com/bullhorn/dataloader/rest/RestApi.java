@@ -1,8 +1,11 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhornsdk.data.api.BullhornData;
+import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
+import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.Lead;
+import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.type.AllRecordsEntity;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -24,6 +27,7 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,10 +37,10 @@ import java.util.Set;
  */
 public class RestApi {
 
-    private final BullhornData bullhornData;
+    private final StandardBullhornData bullhornData;
     private final RestApiExtension restApiExtension;
 
-    public RestApi(BullhornData bullhornData, RestApiExtension restApiExtension) {
+    public RestApi(StandardBullhornData bullhornData, RestApiExtension restApiExtension) {
         this.bullhornData = bullhornData;
         this.restApiExtension = restApiExtension;
     }
@@ -58,8 +62,23 @@ public class RestApi {
     // endregion
 
     // region Lookup Calls
+
+    // TODO: Remove unused SearchParams and QueryParams arguments
+    // TODO: Refactor to:
+    // <T extends BullhornEntity> List<T> findEntities(SearchCriteria entitySearch, Set<String> fieldSet)
+    // Where SearchCriteria contains the EntityType, and query/where clause builder logic, and this method does the
+    // check to determine whether to call search or query on bullhornData.
+
     // The search/query calls that DataLoader uses to lookup existing data
     public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
+        Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
+        String externalID = SearchCriteria.getExternalIdValue(query);
+        if (isSupportedEntity && !externalID.isEmpty()) {
+            SearchResult<T> searchResult = restApiExtension.getByExternalID(this, type, externalID, fieldSet);
+            if (searchResult.getSuccess()) {
+                return searchResult.getList();
+            }
+        }
         return bullhornData.searchForList(type, query, fieldSet, params);
     }
 
@@ -134,6 +153,12 @@ public class RestApi {
 
     public FileApiResponse deleteFile(Class<? extends FileEntity> type, Integer entityId, Integer fileId) {
         return bullhornData.deleteFile(type, entityId, fileId);
+    }
+    // endregion
+
+    // region Methods used by RestApiExtension
+    <T> T performGetRequest(String url, Class<T> returnType, Map<String, String> uriVariables) {
+        return bullhornData.performGetRequest(url, returnType, uriVariables);
     }
     // endregion
 }
