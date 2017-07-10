@@ -20,10 +20,10 @@ import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
-import com.bullhornsdk.data.model.entity.core.standard.NoteEntity;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.standard.Skill;
+import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import org.apache.logging.log4j.Level;
 import org.joda.time.DateTime;
@@ -49,6 +49,7 @@ import java.util.Set;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -289,16 +290,25 @@ public class LoadTaskTest {
         placement.setCustomText1("7");
         when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getList(placement));
 
-        // Do not mock out any existing note entities
-        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        // Create expected note object in insertEntity call
+        Note expected = new Note();
+        expected.setCandidates(new OneToMany<>(new Candidate(1001), new Candidate(1002)));
+        expected.setClientContacts(new OneToMany<>(new ClientContact(1003)));
+        expected.setLeads(new OneToMany<>(new Lead(1004)));
+        expected.setJobOrders(new OneToMany<>(new JobOrder(1005)));
+        expected.setOpportunities(new OneToMany<>(new Opportunity(1006)));
+        expected.setPlacements(new OneToMany<>(new Placement(1007)));
+        when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
-
-        verify(restApiMock, times(8)).insertEntity(any());
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -311,7 +321,7 @@ public class LoadTaskTest {
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, "com.bullhornsdk.data.exception.RestApiException: Error occurred: candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Error occurred: candidates does not exist with id of the following values:\n\t2");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -370,26 +380,23 @@ public class LoadTaskTest {
         when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any())).thenReturn(TestUtils.getList(placement));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
-        // Ensure that no inserts happen by returning the duplicate error message from SDK-REST, should an insert call be made
-        RestApiException exception = new RestApiException("{\"errorMessage\" : \"error persisting an entity of type: NoteEntity\",\"errors\" : [ {\"propertyName\" : null,\"severity\" : \"ERROR\",\"type\" : \"DUPLICATE_VALUE\"} ],\"entityName\" : \"NoteEntity\"}");
-        when(restApiMock.insertEntity(any(NoteEntity.class))).thenThrow(exception);
+        // Create expected note object in insertEntity call
+        Note expected = new Note(1);
+        expected.setCandidates(new OneToMany<>(new Candidate(1001), new Candidate(1002)));
+        expected.setClientContacts(new OneToMany<>(new ClientContact(1003)));
+        expected.setLeads(new OneToMany<>(new Lead(1004)));
+        expected.setJobOrders(new OneToMany<>(new JobOrder(1005)));
+        expected.setOpportunities(new OneToMany<>(new Opportunity(1006)));
+        expected.setPlacements(new OneToMany<>(new Placement(1007)));
+        when(restApiMock.updateEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        verify(restApiMock, never()).insertEntity(any());
+        verify(restApiMock, times(1)).updateEntity(any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
-
-        verify(restApiMock, times(1)).updateEntity(any(Note.class));
-        verify(restApiMock, times(7)).insertEntity(any(NoteEntity.class));
-
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Candidate entity 1001 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Candidate entity 1002 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to ClientContact entity 1003 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Lead entity 1004 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to JobOrder entity 1005 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Opportunity entity 1006 already exists.");
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Note entity 1 to Placement entity 1007 already exists.");
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -582,6 +589,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test
+    @SuppressWarnings("unchecked")
     public void addAssociationToEntityTestCatchNoThrow() throws Exception {
         Row row = TestUtils.createRow(
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
@@ -600,6 +608,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test
+    @SuppressWarnings("unchecked")
     public void addAssociationToEntityTestCatchThrow() throws Exception {
         Row row = TestUtils.createRow(
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
@@ -624,6 +633,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test
+    @SuppressWarnings("unchecked")
     public void addAssociationToEntityTestCatchThrowDuplicateAssociation() throws Exception {
         Row row = TestUtils.createRow(
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
@@ -652,6 +662,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test
+    @SuppressWarnings("unchecked")
     public void findEntityTest_search() throws Exception {
         Row row = TestUtils.createRow("clientCorporation.id", "1");
         when(restApiMock.searchForList(eq(ClientCorporation.class), any(), any(), any())).thenReturn(TestUtils.getList(ClientCorporation.class, 1));
@@ -664,6 +675,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test
+    @SuppressWarnings("unchecked")
     public void findEntityTest_note() throws Exception {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.searchForList(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
@@ -676,6 +688,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test(expected = RestApiException.class)
+    @SuppressWarnings("unchecked")
     public void findEntityTest_searchReturnsEmptyList() throws Exception {
         Row row = TestUtils.createRow("clientCorporation.id", "1");
         when(restApiMock.searchForList(eq(Candidate.class), any(), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
@@ -686,6 +699,7 @@ public class LoadTaskTest {
 
     // TODO: Stop testing internals - do this through the run method
     @Test(expected = RestApiException.class)
+    @SuppressWarnings("unchecked")
     public void findEntityTest_duplicates() throws Exception {
         Row row = TestUtils.createRow("clientCorporation.id", "1");
         when(restApiMock.searchForList(eq(Candidate.class), any(), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1, 2));
@@ -716,6 +730,7 @@ public class LoadTaskTest {
 
     // TODO: Move to query builder
     @Test(expected = RestApiException.class)
+    @SuppressWarnings("unchecked")
     public void getQueryStatement_unsupportedType() throws IOException {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
