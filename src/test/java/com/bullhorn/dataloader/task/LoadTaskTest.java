@@ -413,6 +413,18 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void run_invalidNoteField() throws Exception {
+        Row row = TestUtils.createRow("clientCorporations.id", "1;2");
+
+        LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: To-One Association: 'clientCorporations' does not exist on Note");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
+    }
+
+    @Test
     public void run_invalidAddressField() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName,city", "Data,Loader,Failsville");
 
@@ -521,6 +533,18 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void run_invalidToManyAssociationField() throws Exception {
+        Row row = TestUtils.createRow("candidates.bogus", "1;2");
+
+        LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: 'candidates.bogus': 'bogus' does not exist on Candidate");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
+    }
+
+    @Test
     public void run_invalidToOneAddressAssociationField() throws Exception {
         Row row = TestUtils.createRow("secondaryAddress.bogus", "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
 
@@ -540,7 +564,7 @@ public class LoadTaskTest {
         try {
             LoadTask task = new LoadTask(EntityInfo.CANDIDATE_REFERENCE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
             task.getGetMethod(CandidateAssociations.getInstance().businessSectors(), "nothing");
-        } catch (NoSuchMethodException e) {
+        } catch (RestApiException e) {
             exceptionWasThrown = true;
         }
 

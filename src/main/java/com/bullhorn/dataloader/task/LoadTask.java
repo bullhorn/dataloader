@@ -211,10 +211,6 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         String toManyEntityName = field.substring(0, field.indexOf("."));
 
         List<Integer> associationIdList = getNewAssociationIdList(field, associationMap.get(field));
-        Method method = methodMap.get(toManyEntityName.toLowerCase());
-        if (method == null) {
-            throw new RestApiException("To-Many Association: '" + toManyEntityName + "' does not exist on " + entity.getClass().getSimpleName());
-        }
         Class associationClass = associationMap.get(field).getAssociationType();
         List<B> associationList = new ArrayList<>();
         for (Integer associationId : associationIdList) {
@@ -224,6 +220,8 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
         OneToMany oneToMany = new OneToMany();
         oneToMany.setData(associationList);
+
+        Method method = methodMap.get(toManyEntityName.toLowerCase());
         method.invoke(entity, oneToMany);
     }
 
@@ -402,12 +400,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     // TODO: Move to AssociationUtil
-    protected Method getGetMethod(AssociationField associationField, String associationName) throws NoSuchMethodException {
+    protected Method getGetMethod(AssociationField associationField, String associationName) {
         String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
         try {
             return associationField.getAssociationType().getMethod(methodName);
         } catch (NoSuchMethodException e) {
-            throw e;
+            throw new RestApiException("'" + associationField.getAssociationFieldName() + "." + associationName + "': '" + associationName + "' does not exist on " + associationField.getAssociationType().getSimpleName());
         }
     }
 
