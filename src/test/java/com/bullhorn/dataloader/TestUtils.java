@@ -16,6 +16,7 @@ import org.junit.Assert;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,9 +116,21 @@ public class TestUtils {
      * @return The absolute path to the resource file
      * @throws NullPointerException If the file does not exist
      */
-    public static String getResourceFilePath(String filename) throws NullPointerException {
-        final ClassLoader classLoader = TestUtils.class.getClassLoader();
-        return new File(classLoader.getResource(filename).getFile()).getAbsolutePath();
+    public static String getResourceFilePath(String filename) {
+        URL url = getResourceUrl(filename);
+        return new File(url.getFile()).getAbsolutePath();
+    }
+
+    private static URL getResourceUrl(String filename) {
+        ClassLoader classLoader = TestUtils.class.getClassLoader();
+        URL url = classLoader.getResource(filename);
+        if (url == null) {
+            url = classLoader.getResource("unitTest/" + filename);
+            if (url == null) {
+                url = classLoader.getResource("integrationTest/" + filename);
+            }
+        }
+        return url;
     }
 
     /**

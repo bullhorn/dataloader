@@ -56,7 +56,10 @@ public class IntegrationTest {
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
         // Run the sanity to catch quick and obvious failures
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("integrationTestSanity"));
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("sanity"));
+
+        // Run a special character test to ensure that we are supporting them in query/search calls
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"));
 
         // Run the full test
         insertUpdateDeleteFromDirectory("examples/load");
