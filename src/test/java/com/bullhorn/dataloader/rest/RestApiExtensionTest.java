@@ -18,7 +18,9 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -66,8 +68,13 @@ public class RestApiExtensionTest {
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
 
         String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?" +
-            "entity=Candidate&externalId=ext 1&fields=name,id&BhRestToken=123456789";
-        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
+            "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+        Map<String, String> expectedUrlVariables = new LinkedHashMap<>();
+        expectedUrlVariables.put("entity", "Candidate");
+        expectedUrlVariables.put("externalId", "ext 1");
+        expectedUrlVariables.put("fields", "name,id");
+        expectedUrlVariables.put("BhRestToken", "123456789");
+        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), eq(expectedUrlVariables));
     }
 
     @Test
@@ -81,8 +88,13 @@ public class RestApiExtensionTest {
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, null);
 
         String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?" +
-            "entity=Candidate&externalId=ext 1&fields=id&BhRestToken=123456789";
-        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
+            "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+        Map<String, String> expectedUrlVariables = new LinkedHashMap<>();
+        expectedUrlVariables.put("entity", "Candidate");
+        expectedUrlVariables.put("externalId", "ext 1");
+        expectedUrlVariables.put("fields", "id");
+        expectedUrlVariables.put("BhRestToken", "123456789");
+        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), eq(expectedUrlVariables));
     }
 
     @Test

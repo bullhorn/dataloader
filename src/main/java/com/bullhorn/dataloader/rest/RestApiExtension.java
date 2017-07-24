@@ -11,15 +11,14 @@ import com.bullhornsdk.data.model.parameter.standard.StandardQueryParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
-import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -93,13 +92,15 @@ public class RestApiExtension {
         fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
         try {
-            String url = restApi.getRestUrl() + "services/dataLoader/getByExternalID" +
-                "?entity=" + type.getSimpleName() +
-                "&externalId=" + externalID +
-                "&fields=" + String.join(",", fieldSet) +
-                "&BhRestToken=" + restApi.getBhRestToken();
+            String url = restApi.getRestUrl() + "services/dataLoader/getByExternalID?entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
 
-            String jsonString = restApi.performGetRequest(url, String.class, new HashMap<>());
+            Map<String, String> urlVariables = new LinkedHashMap<>();
+            urlVariables.put("entity", type.getSimpleName());
+            urlVariables.put("externalId", externalID);
+            urlVariables.put("fields", String.join(",", fieldSet));
+            urlVariables.put("BhRestToken", restApi.getBhRestToken());
+
+            String jsonString = restApi.performGetRequest(url, String.class, urlVariables);
 
             List<S> list = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(jsonString);
