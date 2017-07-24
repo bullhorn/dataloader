@@ -11,15 +11,14 @@ import com.bullhornsdk.data.model.parameter.standard.StandardQueryParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
-import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -93,19 +92,15 @@ public class RestApiExtension {
         fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
         try {
-            String encodedExternalID = URLEncoder.encode(externalID, "UTF-8");
-            String restUrl = restApi.getRestUrl() + "services/dataLoader/getByExternalID/" + encodedExternalID;
-            String bhRestToken = restApi.getBhRestToken();
+            String url = restApi.getRestUrl() + "services/dataLoader/getByExternalID?entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
 
-            URIBuilder uriBuilder = new URIBuilder(restUrl);
-            uriBuilder.addParameter("BhRestToken", bhRestToken);
-            uriBuilder.addParameter("entity", type.getSimpleName());
-            String url = uriBuilder.toString();
+            Map<String, String> urlVariables = new LinkedHashMap<>();
+            urlVariables.put("entity", type.getSimpleName());
+            urlVariables.put("externalId", externalID);
+            urlVariables.put("fields", String.join(",", fieldSet));
+            urlVariables.put("BhRestToken", restApi.getBhRestToken());
 
-            // The uriBuilder encodes the comma, which causes the call to fail
-            url = url.concat("&fields=" + String.join(",", fieldSet));
-
-            String jsonString = restApi.performGetRequest(url, String.class, new HashMap<>());
+            String jsonString = restApi.performGetRequest(url, String.class, urlVariables);
 
             List<S> list = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(jsonString);
@@ -119,9 +114,6 @@ public class RestApiExtension {
             if (e.getMessage().contains("SI DataLoader Administration")) {
                 printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
                 searchResult.setAuthorized(false);
-            } else if (e.getMessage().contains("Unknown or badly structured command")) {
-                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID: '" + externalID + "' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.");
-                searchResult.setSuccess(false);
             } else {
                 printUtil.printAndLog("WARNING: Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
                 searchResult.setSuccess(false);

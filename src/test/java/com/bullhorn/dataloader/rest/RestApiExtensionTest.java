@@ -18,7 +18,9 @@ import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.Matchers.any;
@@ -43,7 +45,7 @@ public class RestApiExtensionTest {
     }
 
     @Test
-    public void testCheckFOrRestSdkErrorMessagesSuccess() {
+    public void testCheckForRestSdkErrorMessagesSuccess() {
         CrudResponse crudResponse = TestUtils.getResponse(ChangeType.INSERT, 1, "SuccessField", "");
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
     }
@@ -65,9 +67,14 @@ public class RestApiExtensionTest {
         Set fieldSet = Sets.newHashSet("name", "id");
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
 
-        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID/ext+1?" +
-            "BhRestToken=123456789&entity=Candidate&fields=name,id";
-        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
+        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?" +
+            "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+        Map<String, String> expectedUrlVariables = new LinkedHashMap<>();
+        expectedUrlVariables.put("entity", "Candidate");
+        expectedUrlVariables.put("externalId", "ext 1");
+        expectedUrlVariables.put("fields", "name,id");
+        expectedUrlVariables.put("BhRestToken", "123456789");
+        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), eq(expectedUrlVariables));
     }
 
     @Test
@@ -80,9 +87,14 @@ public class RestApiExtensionTest {
 
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, null);
 
-        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID/ext+1?" +
-            "BhRestToken=123456789&entity=Candidate&fields=id";
-        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), any());
+        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?" +
+            "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+        Map<String, String> expectedUrlVariables = new LinkedHashMap<>();
+        expectedUrlVariables.put("entity", "Candidate");
+        expectedUrlVariables.put("externalId", "ext 1");
+        expectedUrlVariables.put("fields", "id");
+        expectedUrlVariables.put("BhRestToken", "123456789");
+        verify(restApiMock, times(1)).performGetRequest(eq(expectedUrl), eq(String.class), eq(expectedUrlVariables));
     }
 
     @Test
@@ -147,30 +159,6 @@ public class RestApiExtensionTest {
         Assert.assertFalse(searchResult.getAuthorized());
         verify(restApiMock, times(1)).performGetRequest(any(), any(), any());
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
-    }
-
-    @Test
-    public void testGetByExternalIdUnsupportedCharacters() {
-        RestApiException restApiException = new RestApiException("{'errorMessage' : 'Unknown or badly structured command: /services/dataLoader/getByExternalID/ext 1.'}");
-        when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
-
-        SearchResult searchResult = restApiExtension.getByExternalID(
-            restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
-
-        String expected = "WARNING: Cannot perform fast lookup by externalID: 'ext 1' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.";
-        verify(printUtilMock, times(1)).printAndLog(eq(expected));
-        Assert.assertFalse(searchResult.getSuccess());
-        Assert.assertTrue(searchResult.getAuthorized());
-
-        // Subsequent calls should attempt to call the doGetByExternalID method, and warn user every time it failed
-        searchResult = restApiExtension.getByExternalID(
-            restApiMock, Candidate.class, "ext-2", new HashSet<>(Collections.singletonList("id")));
-
-        Assert.assertFalse(searchResult.getSuccess());
-        Assert.assertTrue(searchResult.getAuthorized());
-        expected = "WARNING: Cannot perform fast lookup by externalID: 'ext-2' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.";
-        verify(printUtilMock, times(1)).printAndLog(eq(expected));
-        verify(restApiMock, times(2)).performGetRequest(any(), any(), any());
     }
 
     @Test
