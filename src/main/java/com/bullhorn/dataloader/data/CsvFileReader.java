@@ -24,6 +24,8 @@ public class CsvFileReader extends CsvReader {
      */
     public CsvFileReader(String filePath) throws IOException {
         super(filePath);
+        // Turn the SafetySwitch off because it limits the maximum length of any column to 100,000 characters
+        setSafetySwitch(false);
         readHeaders();
         checkForDuplicateHeaders();
     }
