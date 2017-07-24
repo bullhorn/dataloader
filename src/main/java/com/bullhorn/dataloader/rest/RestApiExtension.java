@@ -93,17 +93,11 @@ public class RestApiExtension {
         fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
         try {
-            String encodedExternalID = URLEncoder.encode(externalID, "UTF-8");
-            String restUrl = restApi.getRestUrl() + "services/dataLoader/getByExternalID/" + encodedExternalID;
-            String bhRestToken = restApi.getBhRestToken();
-
-            URIBuilder uriBuilder = new URIBuilder(restUrl);
-            uriBuilder.addParameter("BhRestToken", bhRestToken);
-            uriBuilder.addParameter("entity", type.getSimpleName());
-            String url = uriBuilder.toString();
-
-            // The uriBuilder encodes the comma, which causes the call to fail
-            url = url.concat("&fields=" + String.join(",", fieldSet));
+            String url = restApi.getRestUrl() + "services/dataLoader/getByExternalID" +
+                "?entity=" + type.getSimpleName() +
+                "&externalId=" + externalID +
+                "&fields=" + String.join(",", fieldSet) +
+                "&BhRestToken=" + restApi.getBhRestToken();
 
             String jsonString = restApi.performGetRequest(url, String.class, new HashMap<>());
 
@@ -119,9 +113,6 @@ public class RestApiExtension {
             if (e.getMessage().contains("SI DataLoader Administration")) {
                 printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
                 searchResult.setAuthorized(false);
-            } else if (e.getMessage().contains("Unknown or badly structured command")) {
-                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID: '" + externalID + "' because the externalID is limited to no special characters, spaces or dashes. Will use a regular /search call instead.");
-                searchResult.setSuccess(false);
             } else {
                 printUtil.printAndLog("WARNING: Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
                 searchResult.setSuccess(false);
