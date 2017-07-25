@@ -38,7 +38,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
 
     /**
      * Run method on this runnable object called by the thread manager.
-     * <p>
+     *
      * At this point, we should have an entity type that we know we can delete (soft or hard).
      */
     @Override

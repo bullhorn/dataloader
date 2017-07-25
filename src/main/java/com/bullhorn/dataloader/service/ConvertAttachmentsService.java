@@ -16,7 +16,7 @@ import java.io.InputStream;
 
 /**
  * Handles converting attachments
- * <p>
+ *
  * Takes the user's command line arguments and converts attachments from doc/pdf to html.
  */
 public class ConvertAttachmentsService extends AbstractService implements Action {

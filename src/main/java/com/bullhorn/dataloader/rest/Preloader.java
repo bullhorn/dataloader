@@ -26,7 +26,7 @@ public class Preloader {
     /**
      * Called upon dataloader initialization (before tasks begin executing) in order to load any lookup data
      * required for entity to load.
-     * <p>
+     *
      * This method will determine what internal methods to call based on the entity to be loaded
      *
      * @param entityInfo The type of entity to be loaded
@@ -41,7 +41,7 @@ public class Preloader {
     /**
      * Since the REST API only allows us to set the country using `countryID`, we query for all countries by name
      * to allow the `countryName` to upload by name instead of just the internal Bullhorn country code.
-     * <p>
+     *
      * Makes rest calls and stores the private data the first time through
      */
     public Map<String, Integer> getCountryNameToIdMap() {

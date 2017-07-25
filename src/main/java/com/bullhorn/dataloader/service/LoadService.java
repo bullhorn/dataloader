@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Load (Insert/Update) service implementation
- * <p>
+ *
  * Takes the user's command line arguments and runs a load process
  */
 public class LoadService extends AbstractService implements Action {

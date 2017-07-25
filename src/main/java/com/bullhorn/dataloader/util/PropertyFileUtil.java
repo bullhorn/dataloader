@@ -101,7 +101,7 @@ public class PropertyFileUtil {
 
     /**
      * Parses the environment variables to pull out DataLoader specific properties
-     * <p>
+     *
      * Environment Variables must start with "DATALOADER_" in order to be used, and the log will show if an
      * environment variable has been used to override values from the property file.
      *

@@ -67,7 +67,7 @@ public class CsvFileReader extends CsvReader {
 
     /**
      * Returns the data for the current row in the format of a row object.
-     * <p>
+     *
      * First, call csvFileReader.readRecord() to read the next row, and then call this method instead of getValues() to
      * return the Row object instead of the raw string array of values.
      *

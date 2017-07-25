@@ -20,7 +20,7 @@ import java.util.SortedMap;
 
 /**
  * Delete service implementation
- * <p>
+ *
  * Takes the user's command line arguments and runs a delete process
  */
 public class DeleteService extends AbstractService implements Action {

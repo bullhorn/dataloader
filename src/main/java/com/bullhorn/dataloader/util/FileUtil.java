@@ -13,7 +13,7 @@ import java.util.TreeMap;
 
 /**
  * Utility for getting CSV files from disk.
- * <p>
+ *
  * Handles validating and sorting individual files or all files in a directory.
  */
 public class FileUtil {
@@ -133,7 +133,7 @@ public class FileUtil {
 
     /**
      * Extractions entity type from a file path.
-     * <p>
+     *
      * The file name must start with the name of the entity
      *
      * @param fileName path from which to extract entity name

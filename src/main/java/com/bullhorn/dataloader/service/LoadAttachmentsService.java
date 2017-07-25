@@ -16,7 +16,7 @@ import java.io.InputStream;
 
 /**
  * Handles loading attachments
- * <p>
+ *
  * Takes the user's command line arguments and runs a load attachments process
  */
 public class LoadAttachmentsService extends AbstractService implements Action {

@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.data;
 
 /**
  * Represents the result of processing a record using the REST API.
- * <p>
+ *
  * This class is a data type, not an instance type. Two different results can be considered identical if they
  * contain the same data values. They have no identity in and of themselves.
  */

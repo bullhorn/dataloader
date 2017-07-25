@@ -18,7 +18,7 @@ import java.util.SortedMap;
 
 /**
  * Base class for all command line actions that convert user input to a process that executes and reports results.
- * <p>
+ *
  * Contains common functionality.
  */
 public abstract class AbstractService {

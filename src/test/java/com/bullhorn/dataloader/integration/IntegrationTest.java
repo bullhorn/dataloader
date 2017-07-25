@@ -15,22 +15,22 @@ import java.util.UUID;
 
 /**
  * The purpose of this integration test is to:
- * <p>
+ *
  * 1. Allow for TravisCI to run as part of every build check, using `maven verify`, which goes beyond
  * `maven test` to also run the integration test.  Uses a test corp on SL9 (BhNext) with hidden
  * credentials in TravisCI Environment Variables.
- * <p>
+ *
  * 2. Tests the entire Examples directory, which contains all possible values for all loadable entities and
  * their attachments.  The unique IDs of all of the entities are changed from `-ext-1` to something unique,
  * after the examples have been cloned to a test folder.
- * <p>
+ *
  * 3. INSERT the entire examples/load/ folder by performing the load command the first time.
- * <p>
+ *
  * 4. UPDATE the entire examples/load/ folder by performing the load command a second time, with all exist
  * fields properly set in the integrationTest.properties file.
- * <p>
+ *
  * 5. DELETE all entered records by targeting the entire results directory.
- * <p>
+ *
  * 6. Test assertions of both command line output and results files created. We are not making
  * calls against the CRM itself to verify the presence or absence of records, since these steps will
  * cover the presence of records in the index and database.
