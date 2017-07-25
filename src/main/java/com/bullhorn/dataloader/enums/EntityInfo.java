@@ -150,28 +150,28 @@ public enum EntityInfo {
     }
 
     /**
-     * @return the bullhornEntityInfo enum
+     * The bullhornEntityInfo enum
      */
     public BullhornEntityInfo getBullhornEntityInfo() {
         return this.bullhornEntityInfo;
     }
 
     /**
-     * @return the entity name usable in the Bullhorn's SDK-REST
+     * The entity name usable in the Bullhorn's SDK-REST
      */
     public String getEntityName() {
         return bullhornEntityInfo.getName();
     }
 
     /**
-     * @return the entity class used in the Bullhorn's SDK-REST
+     * The entity class used in the Bullhorn's SDK-REST
      */
     public Class getEntityClass() {
         return bullhornEntityInfo.getType();
     }
 
     /**
-     * @return the order in which this entity should be loaded relative to other entities, to avoid
+     * The order in which this entity should be loaded relative to other entities, to avoid
      * referencing issues.
      */
     public Integer getLoadOrder() {
@@ -179,63 +179,63 @@ public enum EntityInfo {
     }
 
     /**
-     * @return True if this entity can be loaded using REST.
+     * True if this entity can be loaded using REST.
      */
     public boolean isLoadable() {
         return isInsertable() || isUpdatable();
     }
 
     /**
-     * @return True if this entity can be inserted using REST.
+     * True if this entity can be inserted using REST.
      */
     public boolean isInsertable() {
         return CreateEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
-     * @return True if this entity can be updated using REST.
+     * True if this entity can be updated using REST.
      */
     public boolean isUpdatable() {
         return UpdateEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
-     * @return True if this entity can be deleted using REST.
+     * True if this entity can be deleted using REST.
      */
     public boolean isDeletable() {
         return (isHardDeletable() || isSoftDeletable());
     }
 
     /**
-     * @return True if this entity can be hard deleted using REST.
+     * True if this entity can be hard deleted using REST.
      */
     public boolean isHardDeletable() {
         return HardDeleteEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
-     * @return True if this entity can be soft deleted using REST.
+     * True if this entity can be soft deleted using REST.
      */
     public boolean isSoftDeletable() {
         return SoftDeleteEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
-     * @return True if this entity can not be loaded using REST.
+     * True if this entity can not be loaded using REST.
      */
     public boolean isReadOnly() {
         return !isLoadable();
     }
 
     /**
-     * @return True if this entity is a custom object class.
+     * True if this entity is a custom object class.
      */
     public boolean isCustomObject() {
         return CustomObjectInstance.class.isAssignableFrom(getEntityClass());
     }
 
     /**
-     * @return True if this entity can have attachments.
+     * True if this entity can have attachments.
      */
     public boolean isAttachmentEntity() {
         return (Candidate.class.isAssignableFrom(getEntityClass())
