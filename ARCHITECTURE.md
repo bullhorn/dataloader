@@ -1,8 +1,8 @@
-##DataLoader Architecture
--This file takes advantage of advanced markdown features to draw [LaTeX](https://en.wikibooks.org/wiki/LaTeX/Mathematics) mathematical formulas. Unfortunately, GitHub markdown does not support these diagrams. To view this file using StackEdit.io, click [here](https://stackedit.io/viewer#!url=https://raw.githubusercontent.com/bullhorn/dataloader/master/ARCHITECTURE.md)
+## DataLoader Architecture
 
-###Overview
-At the highest level, DataLoader is a command line interface that has the following inputs and outputs:
+### Overview
+
+DataLoader is a locally running java application that provides a command line interface for converting input CSV files to Bullhorn REST API calls for mass inserts, updates, and deletes. Like Data Mirror, it is built on top of the [SDK-REST](https://github.com/bullhorn/sdk-rest) java library. DataLoader has the following inputs and outputs:
 
  * Inputs
 	 * dataloader.properties file
@@ -14,34 +14,10 @@ At the highest level, DataLoader is a command line interface that has the follow
 	 * Results files (success and/or failure files for each CSV input file)
 	 * Logfile
 
-####Services
+#### Services
+
 Services in DataLoader are responsible for handling user commands. For example the `LoadService` is responsible for handling the `load` command. 
 
-####Tasks
-Tasks in DataLoader are responsible for processing an individual row in a CSV input file. For example, the `LoadTask` is responsible for loading an individual row of data. When the LoadService executes, it will use the `ConcurencyService` to create a thread pool of `LoadTask` runners, one for each row in the file, and then let all of the tasks run to completion. 
+#### Tasks
 
-### Performance
-
-####Total Time to Load a CSV File
-Up until you reach the point of thread saturation in the client JVM, the total time it takes to load a CSV file can be described as:
-
-$$T_{total} = \dfrac{T_{row} * N_{row}}{N_{thread}} $$
-
-T<sub>total</sub> = total time to load all records in a CSV file
-T<sub>row</sub> = time to load an individual row
-N<sub>row</sub> = number of rows in a CSV file
-N<sub>thread</sub> = number of threads running on the client JVM
-
-#### Time to Load an individual row in a CSV File
-The total time it takes to load an individual row can be described as:
-
-Best Case (Lookup already exists):
-$$T_{row} = T_{call} * (N_{a} + 1)$$
-
-Worst Case (Lookup External to Internal ID each time):
-$$T_{row} = T_{call} * ((N_{a} * 2) + 1)$$
-
-T<sub>row</sub> = time to load an individual row
-T<sub>call</sub> = average time to send and receive a response for a REST call
-N<sub>a</sub> = number of columns in this row that are associated to another entity (will require a single rest call to associate)
-
+A Task in DataLoader is responsible for processing an individual row of data from a CSV input file. For example, the `LoadTask` is responsible for turning a row of data into PUT, POST, or DELETE calls to insert/update/delete data in Bullhorn based upon the DataLoader settings in the `dataloader.properties` file. Tasks are created upon startup and placed in a task pool that runs `n` number of tasks concurrently, where `n` is equal to the `numThreads` setting in the properties file. Once all tasks in the pool have completed, the program exits.
