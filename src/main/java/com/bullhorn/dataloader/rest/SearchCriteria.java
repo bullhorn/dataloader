@@ -14,7 +14,7 @@ class SearchCriteria {
 
     /**
      * Convenience method that extracts the externalID lookup if it exists.
-     *
+     * <p>
      * TODO: Remove the need for this once SearchCriteria is used to encapsulate the search criteria
      *
      * @return empty string if it does not exist or is blank

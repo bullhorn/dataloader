@@ -55,12 +55,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected ActionTotals actionTotals;
 
     AbstractTask(EntityInfo entityInfo,
-                        Row row,
-                        CsvFileWriter csvFileWriter,
-                        PropertyFileUtil propertyFileUtil,
-                        RestApi restApi,
-                        PrintUtil printUtil,
-                        ActionTotals actionTotals) {
+                 Row row,
+                 CsvFileWriter csvFileWriter,
+                 PropertyFileUtil propertyFileUtil,
+                 RestApi restApi,
+                 PrintUtil printUtil,
+                 ActionTotals actionTotals) {
         this.entityInfo = entityInfo;
         this.row = row;
         this.csvFileWriter = csvFileWriter;
