@@ -60,9 +60,8 @@ public abstract class AbstractService {
      * @return true if the user has responded with yes, false if no
      */
     protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<EntityInfo, List<String>> entityToFileListMap) {
-        if (entityToFileListMap.size() > 1 ||
-            (!entityToFileListMap.isEmpty() &&
-                entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
+        if (entityToFileListMap.size() > 1
+            || (!entityToFileListMap.isEmpty() && entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");
 
             Integer count = 1;

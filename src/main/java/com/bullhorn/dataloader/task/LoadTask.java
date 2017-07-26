@@ -46,13 +46,16 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
+    private static final Integer RECORD_RETURN_COUNT = 500;
+
     protected B entity;
     protected Integer entityID;
     protected Map<String, Method> methodMap;
     protected Preloader preloader;
+    protected boolean isNewEntity = true;
+
     private Map<String, AssociationField> associationMap = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
-    protected boolean isNewEntity = true;
 
     public LoadTask(EntityInfo entityInfo,
                     Row row,
@@ -129,9 +132,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         List<B> existingEntityList = findEntityList(entityExistFieldsMap);
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
-                throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found " +
-                    existingEntityList.size() + " " + entityInfo.getEntityName() +
-                    " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
+                throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found "
+                    + existingEntityList.size() + " " + entityInfo.getEntityName()
+                    + " records with the same ExistField criteria of: " + getEntityExistFieldsMap());
             } else {
                 isNewEntity = false;
                 entity = existingEntityList.get(0);
@@ -380,19 +383,18 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
      */
     private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(String field, AssociationField
         associationField, Set<String> valueSet) {
-        Integer COUNT_PARAMETER = 500;
         List<B> list;
         Class<B> associationClass = associationField.getAssociationType();
 
         if (SearchEntity.class.isAssignableFrom(associationClass)) {
             String where = getQueryStatement(valueSet, field, associationClass);
             SearchParams searchParams = ParamFactory.searchParams();
-            searchParams.setCount(COUNT_PARAMETER);
+            searchParams.setCount(RECORD_RETURN_COUNT);
             list = (List<B>) restApi.searchForList((Class<S>) associationClass, where, null, searchParams);
         } else {
             String where = getWhereStatement(valueSet, field, associationClass);
             QueryParams queryParams = ParamFactory.queryParams();
-            queryParams.setCount(COUNT_PARAMETER);
+            queryParams.setCount(RECORD_RETURN_COUNT);
             list = (List<B>) restApi.queryForList((Class<Q>) associationClass, where, null, queryParams);
         }
 

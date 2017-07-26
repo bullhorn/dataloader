@@ -56,8 +56,8 @@ public class RestApiExtension {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
             for (Message message : response.getMessages()) {
-                sb.append("\tError occurred on field ").append(message.getPropertyName()).
-                    append(" due to the following: ").append(message.getDetailMessage()).append("\n");
+                sb.append("\tError occurred on field ").append(message.getPropertyName())
+                    .append(" due to the following: ").append(message.getDetailMessage()).append("\n");
             }
             throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb.toString());
         }
@@ -155,17 +155,17 @@ public class RestApiExtension {
         C crudResponse = null;
 
         // queryForList arg1
-        Class jshClass = JobSubmissionHistory.class;
+        final Class jshClass = JobSubmissionHistory.class;
 
         // queryForList arg2
-        String whereClause = String.format(WHERECLAUSETEMPLATE_JOBSUBMISSION_ID, jobSubmissionId);
+        final String whereClause = String.format(WHERECLAUSETEMPLATE_JOBSUBMISSION_ID, jobSubmissionId);
 
         // queryForList arg3
-        Set<String> fieldSet = new HashSet<>();
+        final Set<String> fieldSet = new HashSet<>();
         fieldSet.add(FIELDNAME_ID);
 
         // queryForList arg4
-        QueryParams queryParams = StandardQueryParams.getInstance();
+        final QueryParams queryParams = StandardQueryParams.getInstance();
         queryParams.setCount(QUERYPARAM_MAX_COUNT);
         queryParams.setOrderBy(FIELDNAME_ID);
         queryParams.setShowTotalMatched(false);

@@ -245,11 +245,11 @@ public class LoadCustomObjectTaskTest {
         Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
         when(restApiMock.searchForList(eq(ClientCorporation.class), any(), any(), any())).thenReturn(TestUtils.getList(ClientCorporation.class, 1));
 
-        String noPermissionException = "{\n" +
-            "  \"errorMessage\" : \"error persisting an entity of type: Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\",\n" +
-            "  \"errors\" : [ ],\n" +
-            "  \"entityName\" : \"Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\"\n" +
-            "}";
+        String noPermissionException = "{\n"
+            + "  \"errorMessage\" : \"error persisting an entity of type: Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\",\n"
+            + "  \"errors\" : [ ],\n"
+            + "  \"entityName\" : \"Update Failed: You do not have permission for ClientCorporation Custom Object field customObject2s.\"\n"
+            + "}";
         when(restApiMock.updateEntity(any())).thenThrow(new RestApiException(noPermissionException));
 
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);

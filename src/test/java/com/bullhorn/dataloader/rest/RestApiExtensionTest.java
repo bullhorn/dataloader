@@ -67,8 +67,8 @@ public class RestApiExtensionTest {
         Set fieldSet = Sets.newHashSet("name", "id");
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
 
-        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?" +
-            "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?"
+            + "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
         Map<String, String> expectedUrlVariables = new LinkedHashMap<>();
         expectedUrlVariables.put("entity", "Candidate");
         expectedUrlVariables.put("externalId", "ext 1");
@@ -87,8 +87,8 @@ public class RestApiExtensionTest {
 
         restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, null);
 
-        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?" +
-            "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+        String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?"
+            + "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
         Map<String, String> expectedUrlVariables = new LinkedHashMap<>();
         expectedUrlVariables.put("entity", "Candidate");
         expectedUrlVariables.put("externalId", "ext 1");
@@ -169,8 +169,8 @@ public class RestApiExtensionTest {
         SearchResult searchResult = restApiExtension.getByExternalID(
             restApiMock, Candidate.class, "ext1", new HashSet<>(Collections.singletonList("id")));
 
-        String expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext1'. " +
-            "Will use a regular /search call instead. Error Message: Flagrant System Error";
+        String expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext1'. "
+            + "Will use a regular /search call instead. Error Message: Flagrant System Error";
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
         Assert.assertFalse(searchResult.getSuccess());
         Assert.assertTrue(searchResult.getAuthorized());
@@ -181,8 +181,8 @@ public class RestApiExtensionTest {
 
         Assert.assertFalse(searchResult.getSuccess());
         Assert.assertTrue(searchResult.getAuthorized());
-        expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext 2'. " +
-            "Will use a regular /search call instead. Error Message: Flagrant System Error";
+        expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext 2'. "
+            + "Will use a regular /search call instead. Error Message: Flagrant System Error";
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
         verify(restApiMock, times(2)).performGetRequest(any(), any(), any());
     }

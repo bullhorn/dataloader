@@ -73,7 +73,7 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {}
         printUtil.printActionTotals(Command.LOAD, actionTotals);
         return actionTotals;
     }
@@ -100,7 +100,7 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {}
         printUtil.printActionTotals(Command.DELETE, actionTotals);
         return actionTotals;
     }
@@ -123,7 +123,7 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {}
         printUtil.printActionTotals(Command.LOAD_ATTACHMENTS, actionTotals);
         return actionTotals;
     }
@@ -146,7 +146,7 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {}
         printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, actionTotals);
         return actionTotals;
     }
@@ -169,7 +169,7 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {}
         printUtil.printActionTotals(Command.DELETE_ATTACHMENTS, actionTotals);
         return actionTotals;
     }

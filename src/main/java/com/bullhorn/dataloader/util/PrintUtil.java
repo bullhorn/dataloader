@@ -79,10 +79,10 @@ public class PrintUtil {
     /**
      * Prints an error to the console and logs the error with stacktrace to the logfile
      */
-    public void printAndLog(Exception e) {
-        print("ERROR: " + e.toString());
+    public void printAndLog(Exception exception) {
+        print("ERROR: " + exception.toString());
         StringWriter stackTrace = new StringWriter();
-        e.printStackTrace(new PrintWriter(stackTrace));
+        exception.printStackTrace(new PrintWriter(stackTrace));
         log(Level.ERROR, stackTrace.toString());
     }
 

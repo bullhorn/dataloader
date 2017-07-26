@@ -60,8 +60,8 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         bullhornID = Integer.parseInt(row.getValue(StringConsts.ID));
 
         if (!isEntityDeletable(bullhornID)) {
-            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() +
-                " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
+                + " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
         }
 
         restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
@@ -86,8 +86,8 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else {
-            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() +
-                " records are not deletable.");
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
+                + " records are not deletable.");
         }
     }
 

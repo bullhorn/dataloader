@@ -96,9 +96,9 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         actionTotals.incrementActionTotal(result.getAction());
     }
 
-    Result handleFailure(Exception e) {
-        printUtil.printAndLog(e);
-        return Result.failure(e);
+    Result handleFailure(Exception exception) {
+        printUtil.printAndLog(exception);
+        return Result.failure(exception);
     }
 
     /**
@@ -122,10 +122,20 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return (List<B>) restApi.searchForList((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams());
     }
 
+    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
+        String query = fieldToValueMap.keySet().stream().map(n -> getQueryStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
+        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
+    }
+
     <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
         return (List<B>) restApi.queryForList((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams());
+    }
+
+    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
+        String query = fieldToValueMap.keySet().stream().map(n -> getWhereStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
     String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
@@ -152,16 +162,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
 
         return new ArrayList<>();
-    }
-
-    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(n -> getQueryStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
-    }
-
-    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(n -> getWhereStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
     String getWhereStatement(String field, String value, Class fieldType) {

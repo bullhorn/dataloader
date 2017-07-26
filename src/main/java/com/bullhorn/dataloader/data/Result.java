@@ -157,10 +157,10 @@ public class Result {
 
         Result that = (Result) obj;
 
-        return (getStatus().equals(that.getStatus()) &&
-            getAction().equals(that.getAction()) &&
-            getBullhornId().equals(that.getBullhornId()) &&
-            getFailureText().equals(that.getFailureText()));
+        return (getStatus().equals(that.getStatus())
+            && getAction().equals(that.getAction())
+            && getBullhornId().equals(that.getBullhornId())
+            && getFailureText().equals(that.getFailureText()));
     }
 
     @Override
@@ -174,12 +174,12 @@ public class Result {
 
     @Override
     public String toString() {
-        return "Result{" +
-            "status=" + getStatus() +
-            ", action=" + getAction() +
-            ", bullhornId=" + getBullhornId() +
-            ", failureText='" + getFailureText() + "'" +
-            '}';
+        return "Result{"
+            + "status=" + getStatus()
+            + ", action=" + getAction()
+            + ", bullhornId=" + getBullhornId()
+            + ", failureText='" + getFailureText() + "'"
+            + '}';
     }
 
     public enum Status {

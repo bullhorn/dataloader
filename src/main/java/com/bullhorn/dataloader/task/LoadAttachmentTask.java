@@ -72,8 +72,8 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private Result handle() throws Exception {
         Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (!entityExistFields.isPresent()) {
-            throw new IllegalArgumentException("Properties file is missing the '" +
-                WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
+            throw new IllegalArgumentException("Properties file is missing the '"
+                + WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
         }
 
         getAndSetBullhornID(entityExistFields.get());

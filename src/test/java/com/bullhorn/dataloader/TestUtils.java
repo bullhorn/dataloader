@@ -134,7 +134,8 @@ public class TestUtils {
     }
 
     /**
-     * Given a directory, this will replace all instances of the given text string with another text string for files with the given extension.
+     * Given a directory, this will replace all instances of the given text string with another text string for files
+     * with the given extension.
      *
      * @param directory   The directory to recurse through
      * @param replaceText The text to find
@@ -209,8 +210,8 @@ public class TestUtils {
         String[] headerArray = headers.split(",");
         String[] valuesArray = values.split(",");
         if (headerArray.length != valuesArray.length) {
-            throw new IOException("Test Setup Failure - Create Row called with headers/values mismatching in length: " +
-                headerArray.length + " headers, " + valuesArray.length + " values.");
+            throw new IOException("Test Setup Failure - Create Row called with headers/values mismatching in length: "
+                + headerArray.length + " headers, " + valuesArray.length + " values.");
         }
 
         Row row = new Row(1);

@@ -22,9 +22,9 @@ import java.util.Properties;
  * Wrapper around the properties that handles all interaction with properties throughout a session.
  */
 public class PropertyFileUtil {
+    private static final String EXIST_FIELD_SUFFIX = "ExistField";
+    private static final String DATALOADER_PREFIX = "DATALOADER_";
 
-    final private String EXIST_FIELD_SUFFIX = "ExistField";
-    final private String DATALOADER_PREFIX = "DATALOADER_";
     final private PrintUtil printUtil;
     private String[] remainingArgs;
 
