@@ -63,7 +63,7 @@ public class RestApiTest {
     @Test
     public void testSearchForListNoExternalID() {
         restApi.searchForList(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
-        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
+        verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
     }
 
@@ -78,7 +78,7 @@ public class RestApiTest {
         verify(bullhornDataMock, times(1)).searchForList(eq(Lead.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(null), any());
-        verify(restApiExtensionMock, never()).getByExternalID(any(), any(), any(), any());
+        verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
     }
 
     @Test
@@ -86,11 +86,11 @@ public class RestApiTest {
         SearchParams searchParams = ParamFactory.searchParams();
         SearchResult<Candidate> searchResult = new SearchResult<>();
         searchResult.setList(TestUtils.getList(Candidate.class, 1));
-        when(restApiExtensionMock.getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
+        when(restApiExtensionMock.getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
 
         restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
 
-        verify(restApiExtensionMock, times(1)).getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
+        verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
         verify(bullhornDataMock, never()).searchForList(any(), any(), any(), any());
     }
 
@@ -99,11 +99,11 @@ public class RestApiTest {
         SearchParams searchParams = ParamFactory.searchParams();
         SearchResult<Candidate> searchResult = new SearchResult<>();
         searchResult.setSuccess(false);
-        when(restApiExtensionMock.getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
+        when(restApiExtensionMock.getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
 
         restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
 
-        verify(restApiExtensionMock, times(1)).getByExternalID(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
+        verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
         verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(null), eq(searchParams));
     }
 

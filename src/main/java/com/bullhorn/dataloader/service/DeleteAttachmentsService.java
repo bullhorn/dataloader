@@ -45,7 +45,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
             printUtil.printAndLog("Deleting " + entityInfo + " attachments from: " + filePath + "...");
             timer.start();
             ActionTotals actionTotals = processRunner.runDeleteAttachmentsProcess(entityInfo, filePath);
-            printUtil.printAndLog("Finished deleting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
+            printUtil.printAndLog("Finished deleting " + entityInfo + " attachments in " + timer.getDurationStringHms());
             completeCall.complete(Command.DELETE_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to delete " + entityInfo + " attachments");

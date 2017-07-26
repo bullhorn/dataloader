@@ -65,7 +65,7 @@ public class RestApiExtensionTest {
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
 
         Set fieldSet = Sets.newHashSet("name", "id");
-        restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, fieldSet);
+        restApiExtension.getByExternalId(restApiMock, Candidate.class, externalID, fieldSet);
 
         String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?"
             + "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
@@ -85,7 +85,7 @@ public class RestApiExtensionTest {
         when(restApiMock.getBhRestToken()).thenReturn("123456789");
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
 
-        restApiExtension.getByExternalID(restApiMock, Candidate.class, externalID, null);
+        restApiExtension.getByExternalId(restApiMock, Candidate.class, externalID, null);
 
         String expectedUrl = "https://rest.bullhorn.com/services/dataLoader/getByExternalID?"
             + "entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
@@ -101,7 +101,7 @@ public class RestApiExtensionTest {
     public void testGetByExternalIdEmptyReturn() {
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[]");
 
-        SearchResult searchResult = restApiExtension.getByExternalID(
+        SearchResult searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertTrue(searchResult.getSuccess());
@@ -114,7 +114,7 @@ public class RestApiExtensionTest {
     public void testGetByExternalIdOneReturn() {
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}]");
 
-        SearchResult searchResult = restApiExtension.getByExternalID(
+        SearchResult searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertTrue(searchResult.getSuccess());
@@ -131,7 +131,7 @@ public class RestApiExtensionTest {
     public void testGetByExternalIdMultipleReturns() {
         when(restApiMock.performGetRequest(any(), any(), any())).thenReturn("[{id: 1}, {id: 2}]");
 
-        SearchResult searchResult = restApiExtension.getByExternalID(
+        SearchResult searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertTrue(searchResult.getSuccess());
@@ -144,14 +144,14 @@ public class RestApiExtensionTest {
         RestApiException restApiException = new RestApiException("Missing entitlement: SI DataLoader Administration");
         when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
 
-        SearchResult searchResult = restApiExtension.getByExternalID(
+        SearchResult searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext 1", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertFalse(searchResult.getSuccess());
         Assert.assertFalse(searchResult.getAuthorized());
 
         // Subsequent calls should not attempt to call the doGetByExternalID method
-        searchResult = restApiExtension.getByExternalID(
+        searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext 2", new HashSet<>(Collections.singletonList("id")));
 
         String expected = "WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.";
@@ -166,7 +166,7 @@ public class RestApiExtensionTest {
         RestApiException restApiException = new RestApiException("Flagrant System Error");
         when(restApiMock.performGetRequest(any(), any(), any())).thenThrow(restApiException);
 
-        SearchResult searchResult = restApiExtension.getByExternalID(
+        SearchResult searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext1", new HashSet<>(Collections.singletonList("id")));
 
         String expected = "WARNING: Fast lookup failed for Candidate by externalID: 'ext1'. "
@@ -176,7 +176,7 @@ public class RestApiExtensionTest {
         Assert.assertTrue(searchResult.getAuthorized());
 
         // Subsequent calls should attempt to call the doGetByExternalID method, and warn user every time it failed
-        searchResult = restApiExtension.getByExternalID(
+        searchResult = restApiExtension.getByExternalId(
             restApiMock, Candidate.class, "ext 2", new HashSet<>(Collections.singletonList("id")));
 
         Assert.assertFalse(searchResult.getSuccess());

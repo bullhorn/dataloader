@@ -49,7 +49,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     private static final Integer RECORD_RETURN_COUNT = 500;
 
     protected B entity;
-    protected Integer entityID;
+    protected Integer entityId;
     protected Map<String, Method> methodMap;
     protected Preloader preloader;
     protected boolean isNewEntity = true;
@@ -76,9 +76,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         try {
             result = handle();
         } catch (Exception e) {
-            result = handleFailure(e, entityID);
+            result = handleFailure(e, entityId);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     protected Result handle() throws Exception {
@@ -115,15 +115,15 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected String getAttachmentFilePath(String entityName, String externalID) {
-        return "convertedAttachments/" + entityName + "/" + externalID + ".html";
+    protected String getAttachmentFilePath(String entityName, String externalId) {
+        return "convertedAttachments/" + entityName + "/" + externalId + ".html";
     }
 
     protected Result createResult() {
         if (isNewEntity) {
-            return Result.insert(entityID);
+            return Result.insert(entityId);
         } else {
-            return Result.update(entityID);
+            return Result.update(entityId);
         }
     }
 
@@ -138,7 +138,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             } else {
                 isNewEntity = false;
                 entity = existingEntityList.get(0);
-                entityID = entity.getId();
+                entityId = entity.getId();
             }
         } else {
             entity = (B) entityInfo.getEntityClass().newInstance();
@@ -148,18 +148,18 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             CrudResponse response = restApi.insertEntity((CreateEntity) entity);
-            entityID = response.getChangedEntityId();
-            entity.setId(entityID);
+            entityId = response.getChangedEntityId();
+            entity.setId(entityId);
             if (entity.getClass() == ClientCorporation.class) {
-                setDefaultContactExternalId(entityID);
+                setDefaultContactExternalId(entityId);
             }
         } else {
             restApi.updateEntity((UpdateEntity) entity);
         }
     }
 
-    protected void setDefaultContactExternalId(Integer entityID) {
-        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityID.toString(), Integer.class, (Class<B>) ClientCorporation.class, Sets.newHashSet("id", "externalID"));
+    protected void setDefaultContactExternalId(Integer entityId) {
+        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityId.toString(), Integer.class, (Class<B>) ClientCorporation.class, Sets.newHashSet("id", "externalID"));
         if (!clientCorporations.isEmpty()) {
             ClientCorporation clientCorporation = clientCorporations.get(0);
             if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
@@ -320,11 +320,11 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     protected void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         try {
-            restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityID, associationField, Sets.newHashSet(newAssociationIdList));
+            restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityId, associationField, Sets.newHashSet(newAssociationIdList));
         } catch (RestApiException e) {
             // Provide a simpler duplication error message with all of the essential data
-            if (e.getMessage().contains("an association between " + entityInfo.getEntityName()) && e.getMessage().contains(entityID + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
-                printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName() + " entity " + entityID + " to " + associationField.getAssociationType().getSimpleName() + " entities " + newAssociationIdList.toString() + " already exists.");
+            if (e.getMessage().contains("an association between " + entityInfo.getEntityName()) && e.getMessage().contains(entityId + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
+                printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName() + " entity " + entityId + " to " + associationField.getAssociationType().getSimpleName() + " entities " + newAssociationIdList.toString() + " already exists.");
             } else {
                 throw e;
             }

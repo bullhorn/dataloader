@@ -48,9 +48,9 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
         try {
             result = handle();
         } catch (Exception e) {
-            result = handleFailure(e, entityID);
+            result = handleFailure(e, entityId);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     protected Result handle() throws Exception {
@@ -58,22 +58,22 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
             throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        entityID = Integer.parseInt(row.getValue("id"));
+        entityId = Integer.parseInt(row.getValue("id"));
         String parentEntityField = getParentEntityField();
         getParentEntity(parentEntityField);
         deleteCustomObject(parentEntity.getId());
-        return Result.delete(entityID);
+        return Result.delete(entityId);
     }
 
     /**
      * This peforms a disassociate call, which will not hard delete the custom object, only remove
      * it from it's association to the parent entity.
      *
-     * @param parentEntityID The id of the parentEntity
+     * @param parentEntityId The id of the parentEntity
      */
-    private void deleteCustomObject(Integer parentEntityID) {
+    private void deleteCustomObject(Integer parentEntityId) {
         AssociationField associationField = getAssociationField();
-        restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityID, associationField, Sets.newHashSet(entityID));
+        restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityId, associationField, Sets.newHashSet(entityId));
     }
 
     private String getParentEntityField() throws IOException {

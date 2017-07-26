@@ -114,12 +114,12 @@ public class TemplateUtil<B extends BullhornEntity> {
     protected void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
         for (Field field : associationFields) {
             field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
-            addExternalIDWhenExists(field);
+            addExternalIdWhenExists(field);
             metaFieldSet.addAll(field.getAssociatedEntity().getFields());
         }
     }
 
-    protected void addExternalIDWhenExists(Field field) {
+    protected void addExternalIdWhenExists(Field field) {
         try {
             if (BullhornEntityInfo.getTypeFromName(field.getOptionsType()).getType().getMethod("getExternalID") != null) {
                 Field externalIdField = new Field();

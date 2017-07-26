@@ -70,7 +70,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.actionTotals = actionTotals;
     }
 
-    void writeToResultCSV(Result result) {
+    void writeToResultCsv(Result result) {
         int attempts = 0;
         while (attempts < 3) {
             try {
@@ -105,13 +105,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
      * Generic handling of an error for the row that fails.
      *
      * @param exception the exception that was caught
-     * @param entityID  the entity ID (or null if it does not exist)
+     * @param entityId  the entity ID (or null if it does not exist)
      * @return a result object that captures the error text
      */
-    Result handleFailure(Exception exception, Integer entityID) {
+    Result handleFailure(Exception exception, Integer entityId) {
         printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
-        if (entityID != null) {
-            return Result.failure(exception, entityID);
+        if (entityId != null) {
+            return Result.failure(exception, entityId);
         }
         return Result.failure(exception);
     }

@@ -45,7 +45,7 @@ public class ConvertAttachmentsService extends AbstractService implements Action
             printUtil.printAndLog("Converting " + entityInfo + " attachments from: " + filePath + "...");
             timer.start();
             ActionTotals actionTotals = processRunner.runConvertAttachmentsProcess(entityInfo, filePath);
-            printUtil.printAndLog("Finished converting " + entityInfo + " attachments in " + timer.getDurationStringHMS());
+            printUtil.printAndLog("Finished converting " + entityInfo + " attachments in " + timer.getDurationStringHms());
             completeCall.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to convert " + entityInfo + " attachments");

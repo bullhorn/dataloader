@@ -72,9 +72,9 @@ public class RestApi {
     // The search/query calls that DataLoader uses to lookup existing data
     public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
         Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
-        String externalID = SearchCriteria.getExternalIdValue(query);
-        if (isSupportedEntity && !externalID.isEmpty()) {
-            SearchResult<T> searchResult = restApiExtension.getByExternalID(this, type, externalID, fieldSet);
+        String externalId = SearchCriteria.getExternalIdValue(query);
+        if (isSupportedEntity && !externalId.isEmpty()) {
+            SearchResult<T> searchResult = restApiExtension.getByExternalId(this, type, externalId, fieldSet);
             if (searchResult.getSuccess()) {
                 return searchResult.getList();
             }

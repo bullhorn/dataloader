@@ -52,7 +52,7 @@ public class DeleteService extends AbstractService implements Action {
                         printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                         timer.start();
                         ActionTotals actionTotals = processRunner.runDeleteProcess(entityInfo, fileName);
-                        printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
+                        printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
                         completeCall.complete(Command.DELETE, fileName, entityInfo, actionTotals, timer);
                     } catch (Exception e) {
                         printUtil.printAndLog("FAILED to delete " + entityInfo.getEntityName() + " records");

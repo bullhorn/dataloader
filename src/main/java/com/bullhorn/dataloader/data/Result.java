@@ -82,11 +82,11 @@ public class Result {
      * Failure convenience constructor
      *
      * @param exception  The exception for this failure result
-     * @param bullhornID The id of the Bullhorn entity
+     * @param bullhornId The id of the Bullhorn entity
      * @return The new Result object
      */
-    public static Result failure(Exception exception, Integer bullhornID) {
-        return new Result(Status.FAILURE, Action.FAILURE, bullhornID, exception.toString());
+    public static Result failure(Exception exception, Integer bullhornId) {
+        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, exception.toString());
     }
 
     /**

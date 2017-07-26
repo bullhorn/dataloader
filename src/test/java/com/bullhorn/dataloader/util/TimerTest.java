@@ -8,7 +8,7 @@ public class TimerTest {
     @Test
     public void testGetDurationStringHMS() throws InterruptedException {
         final Timer timer = new Timer();
-        final String durationString = timer.getDurationStringHMS();
+        final String durationString = timer.getDurationStringHms();
 
         Assert.assertEquals("00:00:00", durationString);
     }

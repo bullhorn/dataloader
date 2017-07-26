@@ -8,6 +8,8 @@ import java.util.Map;
 
 // TODO: pull this out into the ValidationUtil and simplify down to a single class
 public class PropertyValidation {
+    private static final Integer MAX_NUM_THREADS = 15;
+    private static final Integer MAX_WAIT_TIME_SECONDS = 3600 * 1000; // 1 hour
 
     public PropertyValidation() {
     }
@@ -92,8 +94,6 @@ public class PropertyValidation {
     }
 
     public Integer validateNumThreads(Integer numThreads) {
-        final Integer MAX_NUM_THREADS = 15;
-
         if (numThreads < 0 || numThreads > MAX_NUM_THREADS) {
             throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
         }
@@ -104,7 +104,6 @@ public class PropertyValidation {
     }
 
     public Integer validateWaitTimeMSec(String waitTimeString) {
-        final int MAX_WAIT_TIME_SECONDS = 3600 * 1000; // 1 hour
         Integer waitTime = 0;
         if (waitTimeString != null) {
             waitTime = Integer.valueOf(waitTimeString);

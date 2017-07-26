@@ -49,7 +49,7 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
         } catch (Exception e) {
             result = handleFailure(e);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     private boolean isResume() {
@@ -59,17 +59,17 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
 
     private Result handle() throws Exception {
         if (isResume()) {
-            String convertedHTML = convertAttachmentToHtml();
-            writeHtmlToFile(convertedHTML);
+            String convertedHtml = convertAttachmentToHtml();
+            writeHtmlToFile(convertedHtml);
             return Result.convert();
         } else {
             return Result.skip();
         }
     }
 
-    protected void writeHtmlToFile(String convertedHTML) throws IOException {
+    protected void writeHtmlToFile(String convertedHtml) throws IOException {
         File convertedAttachmentFile = getFile();
-        write(convertedHTML, convertedAttachmentFile);
+        write(convertedHtml, convertedAttachmentFile);
     }
 
     protected File getFile() {
@@ -79,10 +79,10 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
         return convertedAttachmentFile;
     }
 
-    protected void write(String convertedHTML, File convertedAttachmentFile) throws IOException {
+    protected void write(String convertedHtml, File convertedAttachmentFile) throws IOException {
         FileOutputStream fop = new FileOutputStream(convertedAttachmentFile.getAbsoluteFile());
-        byte[] convertedHTMLInBytes = convertedHTML.getBytes();
-        fop.write(convertedHTMLInBytes);
+        byte[] convertedHtmlInBytes = convertedHtml.getBytes();
+        fop.write(convertedHtmlInBytes);
         fop.flush();
         fop.close();
     }

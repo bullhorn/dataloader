@@ -60,9 +60,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         try {
             result = handle();
         } catch (Exception e) {
-            result = handleFailure(e, entityID);
+            result = handleFailure(e, entityId);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     protected Result handle() throws Exception {
@@ -106,7 +106,7 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected void getCustomObjectId() throws Exception {
-        if (entityID == null) {
+        if (entityId == null) {
             List<B> matchingCustomObjectList = queryForMatchingCustomObject();
             checkForDuplicates(matchingCustomObjectList);
         }
@@ -137,8 +137,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
             if (matchingCustomObjectList.size() > 1) {
                 throw new RestApiException("Found duplicate.");
             } else {
-                entityID = matchingCustomObjectList.get(0).getId();
-                entity.setId(entityID);
+                entityId = matchingCustomObjectList.get(0).getId();
+                entity.setId(entityId);
                 isNewEntity = parentEntityUpdateDone;
             }
         }

@@ -141,10 +141,10 @@
             <property name="lineWrappingIndentation" value="4"/>
             <property name="arrayInitIndent" value="4"/>
         </module>
-        <!--<module name="AbbreviationAsWordInName">--> <!--TODO: turn on and fix: -->
-            <!--<property name="ignoreFinal" value="false"/>-->
-            <!--<property name="allowedAbbreviationLength" value="1"/>-->
-        <!--</module>-->
+        <module name="AbbreviationAsWordInName">
+            <property name="ignoreFinal" value="false"/>
+            <property name="allowedAbbreviationLength" value="1"/>
+        </module>
         <module name="OverloadMethodsDeclarationOrder"/>
         <module name="VariableDeclarationUsageDistance"/>
         <module name="CustomImportOrder">

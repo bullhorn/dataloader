@@ -66,7 +66,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         } catch (Exception e) {
             result = handleFailure(e);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     private Result handle() throws Exception {
@@ -76,7 +76,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
                 + WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
         }
 
-        getAndSetBullhornID(entityExistFields.get());
+        getAndSetBullhornId(entityExistFields.get());
         addParentEntityIDtoRow();
         createFileMeta();
         populateFileMeta();
@@ -89,7 +89,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
-    private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
+    private <S extends SearchEntity> void getAndSetBullhornId(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
             bullhornParentId = Integer.parseInt(row.getValue(getEntityAssociatedPropertyName(StringConsts.ID)));
         } else {

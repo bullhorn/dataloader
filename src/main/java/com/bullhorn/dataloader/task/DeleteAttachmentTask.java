@@ -43,7 +43,7 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
         } catch (Exception e) {
             result = handleFailure(e);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     private Result handle() throws Exception {
