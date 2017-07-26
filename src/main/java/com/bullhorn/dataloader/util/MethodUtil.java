@@ -15,10 +15,10 @@ public class MethodUtil {
      *
      * @return A map of field names to setter methods that can invoked generically using `method.invoke`
      */
-    public static Map<String, Method> getSetterMethodMap(Class aClass) {
+    public static Map<String, Method> getSetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
 
-        for (Method method : Arrays.asList(aClass.getMethods())) {
+        for (Method method : Arrays.asList(anyClass.getMethods())) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
             }

@@ -74,7 +74,7 @@ public class LoadAttachmentTaskTest {
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock_CandidateID, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Insert(0);
+        Result expectedResult = Result.insert(0);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -87,7 +87,7 @@ public class LoadAttachmentTaskTest {
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new IOException("Missing the 'relativeFilePath' column required for loadAttachments"));
+        Result expectedResult = Result.failure(new IOException("Missing the 'relativeFilePath' column required for loadAttachments"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -101,7 +101,7 @@ public class LoadAttachmentTaskTest {
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock_CandidateID, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new RestApiException("Test"));
+        Result expectedResult = Result.failure(new RestApiException("Test"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -118,7 +118,7 @@ public class LoadAttachmentTaskTest {
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Insert(0);
+        Result expectedResult = Result.insert(0);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -171,7 +171,7 @@ public class LoadAttachmentTaskTest {
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock_CandidateExternalID, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Update(0);
+        Result expectedResult = Result.update(0);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

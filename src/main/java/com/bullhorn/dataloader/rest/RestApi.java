@@ -72,9 +72,9 @@ public class RestApi {
     // The search/query calls that DataLoader uses to lookup existing data
     public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
         Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
-        String externalID = SearchCriteria.getExternalIdValue(query);
-        if (isSupportedEntity && !externalID.isEmpty()) {
-            SearchResult<T> searchResult = restApiExtension.getByExternalID(this, type, externalID, fieldSet);
+        String externalId = SearchCriteria.getExternalIdValue(query);
+        if (isSupportedEntity && !externalId.isEmpty()) {
+            SearchResult<T> searchResult = restApiExtension.getByExternalId(this, type, externalId, fieldSet);
             if (searchResult.getSuccess()) {
                 return searchResult.getList();
             }
@@ -117,7 +117,10 @@ public class RestApi {
         return postDeleteCrudResponse;
     }
 
-    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName, Set<Integer> associationIds) {
+    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(Class<T> type,
+                                                                                       Integer entityId,
+                                                                                       AssociationField<T, ? extends BullhornEntity> associationName,
+                                                                                       Set<Integer> associationIds) {
         C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
@@ -126,7 +129,10 @@ public class RestApi {
     /**
      * Checks for error messages and throws RestApiExceptions if there are any
      */
-    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName, Set<Integer> associationIds) throws RestApiException {
+    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(Class<T> type,
+                                                                                          Integer entityId,
+                                                                                          AssociationField<T, ? extends BullhornEntity> associationName,
+                                                                                          Set<Integer> associationIds) throws RestApiException {
         C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;

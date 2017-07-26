@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Row {
 
-    final private Integer number;
+    private final Integer number;
     private List<Cell> cells;
 
     /**

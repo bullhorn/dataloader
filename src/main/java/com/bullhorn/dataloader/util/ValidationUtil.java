@@ -9,7 +9,7 @@ import java.io.File;
  */
 public class ValidationUtil {
 
-    final private PrintUtil printUtil;
+    private final PrintUtil printUtil;
 
     public ValidationUtil(PrintUtil printUtil) {
         this.printUtil = printUtil;

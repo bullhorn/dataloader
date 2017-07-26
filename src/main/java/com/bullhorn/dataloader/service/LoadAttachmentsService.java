@@ -16,7 +16,7 @@ import java.io.InputStream;
 
 /**
  * Handles loading attachments
- * <p>
+ *
  * Takes the user's command line arguments and runs a load attachments process
  */
 public class LoadAttachmentsService extends AbstractService implements Action {
@@ -45,7 +45,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
             printUtil.printAndLog("Loading " + entityInfo + " attachments from: " + filePath + "...");
             timer.start();
             ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
-            printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHMS());
+            printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHms());
             completeCall.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to load " + entityInfo + " attachments");

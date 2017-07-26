@@ -12,8 +12,8 @@ import com.bullhornsdk.data.api.StandardBullhornData;
  */
 public class RestSession {
 
-    final private RestApiExtension restApiExtension;
-    final private PropertyFileUtil propertyFileUtil;
+    private final RestApiExtension restApiExtension;
+    private final PropertyFileUtil propertyFileUtil;
     private RestApi restApi = null;
 
     public RestSession(RestApiExtension restApiExtension, PropertyFileUtil propertyFileUtil) {

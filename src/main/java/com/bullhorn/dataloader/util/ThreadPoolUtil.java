@@ -29,7 +29,8 @@ public class ThreadPoolUtil {
     public ExecutorService getExecutorService() {
         final BlockingQueue<Runnable> taskPoolSize = new ArrayBlockingQueue<>(getTaskPoolSize());
 
-        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(), KEEP_ALIVE_TIME, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
+        return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(),
+            KEEP_ALIVE_TIME, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     /**

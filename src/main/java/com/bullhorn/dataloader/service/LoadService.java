@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Load (Insert/Update) service implementation
- * <p>
+ *
  * Takes the user's command line arguments and runs a load process
  */
 public class LoadService extends AbstractService implements Action {
@@ -53,7 +53,7 @@ public class LoadService extends AbstractService implements Action {
                         printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                         timer.start();
                         ActionTotals actionTotals = processRunner.runLoadProcess(entityInfo, fileName);
-                        printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHMS());
+                        printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
                         completeCall.complete(Command.LOAD, fileName, entityInfo, actionTotals, timer);
                     } catch (Exception e) {
                         printUtil.printAndLog("FAILED to load: " + entityInfo.getEntityName() + " records");

@@ -22,10 +22,10 @@ import java.util.Properties;
  * Wrapper around the properties that handles all interaction with properties throughout a session.
  */
 public class PropertyFileUtil {
+    private static final String EXIST_FIELD_SUFFIX = "ExistField";
+    private static final String DATALOADER_PREFIX = "DATALOADER_";
 
-    final private String EXIST_FIELD_SUFFIX = "ExistField";
-    final private String DATALOADER_PREFIX = "DATALOADER_";
-    final private PrintUtil printUtil;
+    private final PrintUtil printUtil;
     private String[] remainingArgs;
 
     // Property values from the property file, saved in a more convenient format
@@ -101,7 +101,7 @@ public class PropertyFileUtil {
 
     /**
      * Parses the environment variables to pull out DataLoader specific properties
-     * <p>
+     *
      * Environment Variables must start with "DATALOADER_" in order to be used, and the log will show if an
      * environment variable has been used to override values from the property file.
      *

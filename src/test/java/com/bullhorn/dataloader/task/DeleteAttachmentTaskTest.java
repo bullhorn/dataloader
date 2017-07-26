@@ -53,7 +53,7 @@ public class DeleteAttachmentTaskTest {
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Delete(0);
+        Result expectedResult = Result.delete(0);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -65,7 +65,7 @@ public class DeleteAttachmentTaskTest {
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new RestApiException("Test"));
+        Result expectedResult = Result.failure(new RestApiException("Test"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -76,7 +76,7 @@ public class DeleteAttachmentTaskTest {
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new IOException("Missing the 'id' column required for deleteAttachments"));
+        Result expectedResult = Result.failure(new IOException("Missing the 'id' column required for deleteAttachments"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -87,7 +87,7 @@ public class DeleteAttachmentTaskTest {
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new IOException("Missing the 'parentEntityID' column required for deleteAttachments"));
+        Result expectedResult = Result.failure(new IOException("Missing the 'parentEntityID' column required for deleteAttachments"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

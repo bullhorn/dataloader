@@ -24,17 +24,17 @@ import java.util.Map;
 
 /**
  * Utility for determining the associated fields that are on a given entity.
- * <p>
+ *
  * These are used for checking which associations are possible in order to throw meaningful errors up front.
  */
 public class AssociationUtil {
     // This is a cached list of the associations per entity
     // The key is always this entity, and each value is the entity that it is associated to
-    static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
+    private static Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
 
     /**
      * Returns the list of associated fields for the given SDK-REST entity class.
-     * <p>
+     *
      * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their
      * different threads, and all calling this method the first time through.
      *
@@ -58,7 +58,7 @@ public class AssociationUtil {
 
     /**
      * Returns the associations object from SDK-REST for the given entity
-     * <p>
+     *
      * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their
      * different threads, and all calling this method the first time through.
      *

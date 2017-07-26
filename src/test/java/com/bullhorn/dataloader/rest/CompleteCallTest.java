@@ -63,16 +63,16 @@ public class CompleteCallTest {
     @Test
     public void testComplete() throws IOException {
         String expectedURL = "http://bullhorn-rest-api/services/dataLoader/complete?BhRestToken=12345678-1234-1234-1234-1234567890AB";
-        String expectedPayload = "{" +
-            "\"totalRecords\":6," +
-            "\"file\":\"Candidate.csv\"," +
-            "\"failureRecords\":3," +
-            "\"durationMsec\":999," +
-            "\"successRecords\":3," +
-            "\"numThreads\":9," +
-            "\"command\":\"LOAD\"," +
-            "\"entity\":\"Candidate\"" +
-            "}";
+        String expectedPayload = "{"
+            + "\"totalRecords\":6,"
+            + "\"file\":\"Candidate.csv\","
+            + "\"failureRecords\":3,"
+            + "\"durationMsec\":999,"
+            + "\"successRecords\":3,"
+            + "\"numThreads\":9,"
+            + "\"command\":\"LOAD\","
+            + "\"entity\":\"Candidate\""
+            + "}";
 
         completeCall.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
 

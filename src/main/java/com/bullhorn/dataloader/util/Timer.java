@@ -29,7 +29,7 @@ public class Timer {
      *
      * @return The string that represents the duration in HH:MM:SS format.
      */
-    public String getDurationStringHMS() {
+    public String getDurationStringHms() {
         return String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(getDurationMillis()),
             TimeUnit.MILLISECONDS.toMinutes(getDurationMillis()) % TimeUnit.HOURS.toMinutes(1),
             TimeUnit.MILLISECONDS.toSeconds(getDurationMillis()) % TimeUnit.MINUTES.toSeconds(1));

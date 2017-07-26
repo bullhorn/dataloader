@@ -66,17 +66,17 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
         } catch (Exception e) {
             result = handleFailure(e);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     private Result handle() throws Exception {
         Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
         if (!entityExistFields.isPresent()) {
-            throw new IllegalArgumentException("Properties file is missing the '" +
-                WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
+            throw new IllegalArgumentException("Properties file is missing the '"
+                + WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
         }
 
-        getAndSetBullhornID(entityExistFields.get());
+        getAndSetBullhornId(entityExistFields.get());
         addParentEntityIDtoRow();
         createFileMeta();
         populateFileMeta();
@@ -89,7 +89,7 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
-    private <S extends SearchEntity> void getAndSetBullhornID(List<String> properties) throws Exception {
+    private <S extends SearchEntity> void getAndSetBullhornId(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
             bullhornParentId = Integer.parseInt(row.getValue(getEntityAssociatedPropertyName(StringConsts.ID)));
         } else {
@@ -175,10 +175,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
             FileWrapper fileWrapper = restApi.addFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
-            return Result.Insert(fileWrapper.getId());
+            return Result.insert(fileWrapper.getId());
         } else {
             FileWrapper fileWrapper = restApi.updateFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
-            return Result.Update(fileWrapper.getId());
+            return Result.update(fileWrapper.getId());
         }
     }
 

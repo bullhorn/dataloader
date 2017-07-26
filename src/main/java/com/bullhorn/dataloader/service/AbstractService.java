@@ -18,19 +18,19 @@ import java.util.SortedMap;
 
 /**
  * Base class for all command line actions that convert user input to a process that executes and reports results.
- * <p>
+ *
  * Contains common functionality.
  */
 public abstract class AbstractService {
 
-    final protected PrintUtil printUtil;
-    final protected PropertyFileUtil propertyFileUtil;
-    final protected ValidationUtil validationUtil;
-    final protected CompleteCall completeCall;
-    final protected RestSession restSession;
-    final protected ProcessRunner processRunner;
-    final protected InputStream inputStream;
-    final protected Timer timer;
+    protected final PrintUtil printUtil;
+    protected final PropertyFileUtil propertyFileUtil;
+    protected final ValidationUtil validationUtil;
+    protected final CompleteCall completeCall;
+    protected final RestSession restSession;
+    protected final ProcessRunner processRunner;
+    protected final InputStream inputStream;
+    protected final Timer timer;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
@@ -60,9 +60,8 @@ public abstract class AbstractService {
      * @return true if the user has responded with yes, false if no
      */
     protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<EntityInfo, List<String>> entityToFileListMap) {
-        if (entityToFileListMap.size() > 1 ||
-            (!entityToFileListMap.isEmpty() &&
-                entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
+        if (entityToFileListMap.size() > 1
+            || (!entityToFileListMap.isEmpty() && entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");
 
             Integer count = 1;

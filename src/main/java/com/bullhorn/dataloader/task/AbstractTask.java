@@ -55,12 +55,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     protected ActionTotals actionTotals;
 
     AbstractTask(EntityInfo entityInfo,
-                        Row row,
-                        CsvFileWriter csvFileWriter,
-                        PropertyFileUtil propertyFileUtil,
-                        RestApi restApi,
-                        PrintUtil printUtil,
-                        ActionTotals actionTotals) {
+                 Row row,
+                 CsvFileWriter csvFileWriter,
+                 PropertyFileUtil propertyFileUtil,
+                 RestApi restApi,
+                 PrintUtil printUtil,
+                 ActionTotals actionTotals) {
         this.entityInfo = entityInfo;
         this.row = row;
         this.csvFileWriter = csvFileWriter;
@@ -70,7 +70,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         this.actionTotals = actionTotals;
     }
 
-    void writeToResultCSV(Result result) {
+    void writeToResultCsv(Result result) {
         int attempts = 0;
         while (attempts < 3) {
             try {
@@ -96,24 +96,24 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         actionTotals.incrementActionTotal(result.getAction());
     }
 
-    Result handleFailure(Exception e) {
-        printUtil.printAndLog(e);
-        return Result.Failure(e);
+    Result handleFailure(Exception exception) {
+        printUtil.printAndLog(exception);
+        return Result.failure(exception);
     }
 
     /**
      * Generic handling of an error for the row that fails.
      *
      * @param exception the exception that was caught
-     * @param entityID  the entity ID (or null if it does not exist)
+     * @param entityId  the entity ID (or null if it does not exist)
      * @return a result object that captures the error text
      */
-    Result handleFailure(Exception exception, Integer entityID) {
+    Result handleFailure(Exception exception, Integer entityId) {
         printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
-        if (entityID != null) {
-            return Result.Failure(exception, entityID);
+        if (entityId != null) {
+            return Result.failure(exception, entityId);
         }
-        return Result.Failure(exception);
+        return Result.failure(exception);
     }
 
     <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
@@ -122,10 +122,30 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return (List<B>) restApi.searchForList((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams());
     }
 
+    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
+        String query = fieldToValueMap.keySet().stream().map(
+            n -> getQueryStatement(n,
+                fieldToValueMap.get(n),
+                getFieldType(entityInfo.getEntityClass(), n, n),
+                getFieldEntityClass(n)))
+            .collect(Collectors.joining(" AND "));
+        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
+    }
+
     <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
         String where = getWhereStatement(field, value, fieldType);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
         return (List<B>) restApi.queryForList((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams());
+    }
+
+    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
+        String query = fieldToValueMap.keySet().stream().map(
+            n -> getWhereStatement(
+                n,
+                fieldToValueMap.get(n),
+                getFieldType(entityInfo.getEntityClass(), n, n)))
+            .collect(Collectors.joining(" AND "));
+        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
     String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
@@ -152,16 +172,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
 
         return new ArrayList<>();
-    }
-
-    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(n -> getQueryStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
-    }
-
-    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(n -> getWhereStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
     String getWhereStatement(String field, String value, Class fieldType) {

@@ -10,8 +10,8 @@ public class CsvFileReaderTest {
 
     @Test
     public void duplicateHeaders() throws IOException, InterruptedException {
-        IllegalStateException expectedException = new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" +
-            "\tname\n");
+        IllegalStateException expectedException = new IllegalStateException("Provided CSV file contains the following duplicate headers:\n"
+            + "\tname\n");
 
         IllegalStateException actualException = null;
         try {

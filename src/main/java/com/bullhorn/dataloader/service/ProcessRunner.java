@@ -28,17 +28,17 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Dependency injected utility for running a process, such as load or delete.
- * <p>
+ *
  * Contains the logic for running all complex processes in DataLoader. Services can call these methods to create and
  * execute tasks as part of a larger process without having to know all of the details involved.
  */
 public class ProcessRunner {
 
-    final protected RestSession restSession;
-    final protected Preloader preloader;
-    final protected PrintUtil printUtil;
-    final protected PropertyFileUtil propertyFileUtil;
-    final protected ThreadPoolUtil threadPoolUtil;
+    protected final RestSession restSession;
+    protected final Preloader preloader;
+    protected final PrintUtil printUtil;
+    protected final PropertyFileUtil propertyFileUtil;
+    protected final ThreadPoolUtil threadPoolUtil;
 
     public ProcessRunner(RestSession restSession, Preloader preloader, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
         this.restSession = restSession;
@@ -73,7 +73,8 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+        }
         printUtil.printActionTotals(Command.LOAD, actionTotals);
         return actionTotals;
     }
@@ -100,7 +101,8 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+        }
         printUtil.printActionTotals(Command.DELETE, actionTotals);
         return actionTotals;
     }
@@ -123,7 +125,8 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+        }
         printUtil.printActionTotals(Command.LOAD_ATTACHMENTS, actionTotals);
         return actionTotals;
     }
@@ -146,7 +149,8 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+        }
         printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, actionTotals);
         return actionTotals;
     }
@@ -169,7 +173,8 @@ public class ProcessRunner {
         }
         // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
         executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) ;
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+        }
         printUtil.printActionTotals(Command.DELETE_ATTACHMENTS, actionTotals);
         return actionTotals;
     }

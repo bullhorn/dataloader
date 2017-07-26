@@ -20,10 +20,10 @@ import org.json.JSONObject;
  */
 public class CompleteCall {
 
-    final private RestSession restSession;
-    final private HttpClient httpClient;
-    final private PropertyFileUtil propertyFileUtil;
-    final private PrintUtil printUtil;
+    private final RestSession restSession;
+    private final HttpClient httpClient;
+    private final PropertyFileUtil propertyFileUtil;
+    private final PrintUtil printUtil;
 
     public CompleteCall(RestSession restSession,
                         HttpClient httpClient,

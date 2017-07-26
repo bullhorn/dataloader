@@ -20,11 +20,11 @@ class SearchCriteria {
      * @return empty string if it does not exist or is blank
      */
     static String getExternalIdValue(String searchString) {
-        String externalID = "";
+        String externalId = "";
         if (searchString.contains(EXTERNAL_ID_START)) {
-            externalID = searchString.substring(searchString.indexOf(EXTERNAL_ID_START) + EXTERNAL_ID_START.length());
-            externalID = externalID.substring(0, externalID.indexOf(EXTERNAL_ID_END));
+            externalId = searchString.substring(searchString.indexOf(EXTERNAL_ID_START) + EXTERNAL_ID_START.length());
+            externalId = externalId.substring(0, externalId.indexOf(EXTERNAL_ID_END));
         }
-        return externalID;
+        return externalId;
     }
 }

@@ -624,7 +624,7 @@ public class LoadTaskTest {
         when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.entityID = 1;
+        task.entityId = 1;
         task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
 
         verify(printUtilMock, times(1)).log(Level.INFO, "Association from Candidate entity 1 to Skill entities [1] already exists.");
@@ -646,7 +646,7 @@ public class LoadTaskTest {
         boolean wasExceptionThrown = false;
         try {
             LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-            task.entityID = 1;
+            task.entityId = 1;
             task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
         } catch (RestApiException e) {
             wasExceptionThrown = true;
@@ -673,7 +673,7 @@ public class LoadTaskTest {
         boolean wasExceptionThrown = false;
         try {
             LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-            task.entityID = 1;
+            task.entityId = 1;
             task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
         } catch (RestApiException e) {
             errorMessage = e.getMessage();

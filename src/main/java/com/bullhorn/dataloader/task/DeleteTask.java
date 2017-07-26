@@ -24,7 +24,7 @@ import java.util.Map;
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
-    private Integer bullhornID;
+    private Integer bullhornId;
 
     public DeleteTask(EntityInfo entityInfo,
                       Row row,
@@ -38,7 +38,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
 
     /**
      * Run method on this runnable object called by the thread manager.
-     * <p>
+     *
      * At this point, we should have an entity type that we know we can delete (soft or hard).
      */
     @Override
@@ -47,9 +47,9 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         try {
             result = handle();
         } catch (Exception e) {
-            result = handleFailure(e, bullhornID);
+            result = handleFailure(e, bullhornId);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     private <D extends DeleteEntity> Result handle() throws IOException {
@@ -57,26 +57,26 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        bullhornID = Integer.parseInt(row.getValue(StringConsts.ID));
+        bullhornId = Integer.parseInt(row.getValue(StringConsts.ID));
 
-        if (!isEntityDeletable(bullhornID)) {
-            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() +
-                " record with ID: " + bullhornID + " does not exist or has already been soft-deleted.");
+        if (!isEntityDeletable(bullhornId)) {
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
+                + " record with ID: " + bullhornId + " does not exist or has already been soft-deleted.");
         }
 
-        restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
-        return Result.Delete(bullhornID);
+        restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornId);
+        return Result.delete(bullhornId);
     }
 
     /**
      * Returns true if the given internal ID corresponds to a record that can be deleted
      *
-     * @param bullhornID The internal ID
+     * @param bullhornId The internal ID
      * @return True if deletable, false otherwise
      */
-    private Boolean isEntityDeletable(Integer bullhornID) throws IOException {
+    private Boolean isEntityDeletable(Integer bullhornId) throws IOException {
         Map<String, String> existFieldsMap = new HashMap<>();
-        existFieldsMap.put(StringConsts.ID, bullhornID.toString());
+        existFieldsMap.put(StringConsts.ID, bullhornId.toString());
 
         if (entityInfo.isSoftDeletable()) {
             existFieldsMap.putAll(getIsDeletedField());
@@ -86,8 +86,8 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
             List<B> existingEntityList = findEntityList(existFieldsMap);
             return !existingEntityList.isEmpty();
         } else {
-            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() +
-                " records are not deletable.");
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
+                + " records are not deletable.");
         }
     }
 

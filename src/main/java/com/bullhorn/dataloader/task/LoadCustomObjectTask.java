@@ -60,9 +60,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         try {
             result = handle();
         } catch (Exception e) {
-            result = handleFailure(e, entityID);
+            result = handleFailure(e, entityId);
         }
-        writeToResultCSV(result);
+        writeToResultCsv(result);
     }
 
     protected Result handle() throws Exception {
@@ -93,20 +93,20 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         }
     }
 
-    private void checkIfCouldUpdateCustomObject(RestApiException e) {
+    private void checkIfCouldUpdateCustomObject(RestApiException exception) {
         String stringPriorToMessage = "error persisting an entity of type: Update Failed: You do not have permission for ";
-        if (e.getMessage().contains(stringPriorToMessage)) {
-            int startIndex = e.getMessage().indexOf(stringPriorToMessage) + stringPriorToMessage.length();
-            int endIndex = e.getMessage().indexOf("field customObject", startIndex);
-            String cleanedExceptionMessage = e.getMessage().substring(startIndex, endIndex) + instanceNumber + " is not set up.";
+        if (exception.getMessage().contains(stringPriorToMessage)) {
+            int startIndex = exception.getMessage().indexOf(stringPriorToMessage) + stringPriorToMessage.length();
+            int endIndex = exception.getMessage().indexOf("field customObject", startIndex);
+            String cleanedExceptionMessage = exception.getMessage().substring(startIndex, endIndex) + instanceNumber + " is not set up.";
             throw new RestApiException(cleanedExceptionMessage);
         } else {
-            throw e;
+            throw exception;
         }
     }
 
     protected void getCustomObjectId() throws Exception {
-        if (entityID == null) {
+        if (entityId == null) {
             List<B> matchingCustomObjectList = queryForMatchingCustomObject();
             checkForDuplicates(matchingCustomObjectList);
         }
@@ -114,7 +114,12 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Row scrubbedRow = getRowWithoutUnusedFields();
-        String where = scrubbedRow.getNames().stream().map(n -> getWhereStatement(n, row.getValue(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        String where = scrubbedRow.getNames().stream().map(
+            n -> getWhereStatement(
+                n,
+                row.getValue(n),
+                getFieldType(entityInfo.getEntityClass(), n, n)))
+            .collect(Collectors.joining(" AND "));
         List<B> matchingCustomObjectList = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams());
         return matchingCustomObjectList;
     }
@@ -137,8 +142,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
             if (matchingCustomObjectList.size() > 1) {
                 throw new RestApiException("Found duplicate.");
             } else {
-                entityID = matchingCustomObjectList.get(0).getId();
-                entity.setId(entityID);
+                entityId = matchingCustomObjectList.get(0).getId();
+                entity.setId(entityId);
                 isNewEntity = parentEntityUpdateDone;
             }
         }
@@ -238,7 +243,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                 String parentEntityField = row.getNames().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
                 entityExistFieldsMap.put(parentEntityField, row.getValue(parentEntityField));
             } catch (Exception e) {
-                throw new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity.");
+                throw new IOException("Missing parent entity locator column, for example: 'candidate.id', "
+                    + "'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded "
+                    + "to the correct parent entity.");
             }
         }
         return entityExistFieldsMap;

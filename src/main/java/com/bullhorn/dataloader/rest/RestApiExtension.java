@@ -33,8 +33,8 @@ public class RestApiExtension {
     private static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
     private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
-    final private PrintUtil printUtil;
-    final private RestJsonConverter restJsonConverter;
+    private final PrintUtil printUtil;
+    private final RestJsonConverter restJsonConverter;
 
     // Whether or not the current user being used to load data is authorized with the 'SI Dataloader Administration'
     // User Action Entitlement. Assume we are, until proven otherwise the first time through when a call that is
@@ -56,8 +56,8 @@ public class RestApiExtension {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
             for (Message message : response.getMessages()) {
-                sb.append("\tError occurred on field ").append(message.getPropertyName()).
-                    append(" due to the following: ").append(message.getDetailMessage()).append("\n");
+                sb.append("\tError occurred on field ").append(message.getPropertyName())
+                    .append(" due to the following: ").append(message.getDetailMessage()).append("\n");
             }
             throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb.toString());
         }
@@ -68,17 +68,17 @@ public class RestApiExtension {
      * the same DataLoader session.
      *
      * @param type       the entity type
-     * @param externalID the string field to search for
+     * @param externalId the string field to search for
      * @param fieldSet   the fields to return in the results for each entity found with the given externalID
      * @param <S>        the search entity
      * @return SearchResults for checking if the call succeeded and the list of results
      */
-    <S extends SearchEntity> SearchResult<S> getByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
+    <S extends SearchEntity> SearchResult<S> getByExternalId(RestApi restApi, Class<S> type, String externalId, Set<String> fieldSet) {
         SearchResult<S> searchResult = new SearchResult<>();
         searchResult.setSuccess(false);
         searchResult.setAuthorized(authorized);
         if (authorized) {
-            searchResult = doGetByExternalID(restApi, type, externalID, fieldSet);
+            searchResult = doGetByExternalId(restApi, type, externalId, fieldSet);
             authorized = searchResult.getAuthorized();
         }
         return searchResult;
@@ -87,7 +87,7 @@ public class RestApiExtension {
     /**
      * Internal method that performs the search by externalID and returns the resulting list of entities
      */
-    private <S extends SearchEntity> SearchResult<S> doGetByExternalID(RestApi restApi, Class<S> type, String externalID, Set<String> fieldSet) {
+    private <S extends SearchEntity> SearchResult<S> doGetByExternalId(RestApi restApi, Class<S> type, String externalId, Set<String> fieldSet) {
         SearchResult<S> searchResult = new SearchResult<>();
         fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
@@ -96,7 +96,7 @@ public class RestApiExtension {
 
             Map<String, String> urlVariables = new LinkedHashMap<>();
             urlVariables.put("entity", type.getSimpleName());
-            urlVariables.put("externalId", externalID);
+            urlVariables.put("externalId", externalId);
             urlVariables.put("fields", String.join(",", fieldSet));
             urlVariables.put("BhRestToken", restApi.getBhRestToken());
 
@@ -106,16 +106,20 @@ public class RestApiExtension {
             JSONArray jsonArray = new JSONArray(jsonString);
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                jsonObject.put(StringConsts.EXTERNAL_ID, externalID);
+                jsonObject.put(StringConsts.EXTERNAL_ID, externalId);
                 list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));
             }
             searchResult.setList(list);
         } catch (Exception e) {
             if (e.getMessage().contains("SI DataLoader Administration")) {
-                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID because the current user is missing the User Action Entitlement: 'SI Dataloader Administration'. Will use regular /search calls that rely on the lucene index.");
+                printUtil.printAndLog("WARNING: Cannot perform fast lookup by externalID because the current "
+                    + "user is missing the User Action Entitlement: 'SI Dataloader Administration'. "
+                    + "Will use regular /search calls that rely on the lucene index.");
                 searchResult.setAuthorized(false);
             } else {
-                printUtil.printAndLog("WARNING: Fast lookup failed for " + type.getSimpleName() + " by externalID: '" + externalID + "'. Will use a regular /search call instead. Error Message: " + e.getMessage());
+                printUtil.printAndLog("WARNING: Fast lookup failed for " + type.getSimpleName()
+                    + " by externalID: '" + externalId + "'. Will use a regular /search call instead. Error Message: "
+                    + e.getMessage());
                 searchResult.setSuccess(false);
             }
         }
@@ -155,17 +159,17 @@ public class RestApiExtension {
         C crudResponse = null;
 
         // queryForList arg1
-        Class jshClass = JobSubmissionHistory.class;
+        final Class jshClass = JobSubmissionHistory.class;
 
         // queryForList arg2
-        String whereClause = String.format(WHERECLAUSETEMPLATE_JOBSUBMISSION_ID, jobSubmissionId);
+        final String whereClause = String.format(WHERECLAUSETEMPLATE_JOBSUBMISSION_ID, jobSubmissionId);
 
         // queryForList arg3
-        Set<String> fieldSet = new HashSet<>();
+        final Set<String> fieldSet = new HashSet<>();
         fieldSet.add(FIELDNAME_ID);
 
         // queryForList arg4
-        QueryParams queryParams = StandardQueryParams.getInstance();
+        final QueryParams queryParams = StandardQueryParams.getInstance();
         queryParams.setCount(QUERYPARAM_MAX_COUNT);
         queryParams.setOrderBy(FIELDNAME_ID);
         queryParams.setShowTotalMatched(false);
