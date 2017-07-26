@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * An extension to the CsvFileReader that adds our extra functionality, like duplicate checking and returning the CSV file
- * data as a list of key-value pairs, where each row is represented by a map of header names to values.
+ * An extension to the CsvFileReader that adds our extra functionality, like duplicate checking and returning the CSV
+ * file data as a list of key-value pairs, where each row is represented by a map of header names to values.
  */
 public class CsvFileReader extends CsvReader {
 
