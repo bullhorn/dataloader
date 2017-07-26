@@ -302,7 +302,8 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     private boolean verifyIfOneToMany(String field) {
-        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = AssociationUtil.getAssociationFields((Class<AssociationEntity>) entityInfo.getEntityClass());
+        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList =
+            AssociationUtil.getAssociationFields((Class<AssociationEntity>) entityInfo.getEntityClass());
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0, field.indexOf(".")))) {
                 associationMap.put(field, associationField);
@@ -339,7 +340,8 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField) throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+    protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField)
+        throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
 

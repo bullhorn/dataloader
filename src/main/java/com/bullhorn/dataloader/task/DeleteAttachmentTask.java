@@ -58,6 +58,8 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
         if (!row.hasValue(StringConsts.ID) || row.getValue(StringConsts.ID).isEmpty()) {
             throw new IOException("Missing the '" + StringConsts.ID + "' column required for deleteAttachments");
         }
-        return restApi.deleteFile((Class<F>) entityInfo.getEntityClass(), Integer.valueOf(row.getValue(StringConsts.PARENT_ENTITY_ID)), Integer.valueOf(row.getValue(StringConsts.ID)));
+        return restApi.deleteFile((Class<F>) entityInfo.getEntityClass(),
+            Integer.valueOf(row.getValue(StringConsts.PARENT_ENTITY_ID)),
+            Integer.valueOf(row.getValue(StringConsts.ID)));
     }
 }

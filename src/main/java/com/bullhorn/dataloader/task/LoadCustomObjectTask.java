@@ -114,7 +114,12 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
     private <Q extends QueryEntity> List<B> queryForMatchingCustomObject() throws InvocationTargetException, IllegalAccessException {
         Row scrubbedRow = getRowWithoutUnusedFields();
-        String where = scrubbedRow.getNames().stream().map(n -> getWhereStatement(n, row.getValue(n), getFieldType(entityInfo.getEntityClass(), n, n))).collect(Collectors.joining(" AND "));
+        String where = scrubbedRow.getNames().stream().map(
+            n -> getWhereStatement(
+                n,
+                row.getValue(n),
+                getFieldType(entityInfo.getEntityClass(), n, n)))
+            .collect(Collectors.joining(" AND "));
         List<B> matchingCustomObjectList = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), where, Sets.newHashSet("id"), ParamFactory.queryParams());
         return matchingCustomObjectList;
     }
