@@ -159,7 +159,12 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected void setDefaultContactExternalId(Integer entityId) {
-        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id", entityId.toString(), Integer.class, (Class<B>) ClientCorporation.class, Sets.newHashSet("id", "externalID"));
+        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity(
+            "id",
+            entityId.toString(),
+            Integer.class,
+            (Class<B>) ClientCorporation.class,
+            Sets.newHashSet("id", "externalID"));
         if (!clientCorporations.isEmpty()) {
             ClientCorporation clientCorporation = clientCorporations.get(0);
             if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
@@ -323,8 +328,11 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityId, associationField, Sets.newHashSet(newAssociationIdList));
         } catch (RestApiException e) {
             // Provide a simpler duplication error message with all of the essential data
-            if (e.getMessage().contains("an association between " + entityInfo.getEntityName()) && e.getMessage().contains(entityId + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
-                printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName() + " entity " + entityId + " to " + associationField.getAssociationType().getSimpleName() + " entities " + newAssociationIdList.toString() + " already exists.");
+            if (e.getMessage().contains("an association between " + entityInfo.getEntityName())
+                && e.getMessage().contains(entityId + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
+                printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName()
+                    + " entity " + entityId + " to " + associationField.getAssociationType().getSimpleName()
+                    + " entities " + newAssociationIdList.toString() + " already exists.");
             } else {
                 throw e;
             }
@@ -407,7 +415,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         try {
             return associationField.getAssociationType().getMethod(methodName);
         } catch (NoSuchMethodException e) {
-            throw new RestApiException("'" + associationField.getAssociationFieldName() + "." + associationName + "': '" + associationName + "' does not exist on " + associationField.getAssociationType().getSimpleName());
+            throw new RestApiException("'" + associationField.getAssociationFieldName()
+                + "." + associationName + "': '" + associationName + "' does not exist on "
+                + associationField.getAssociationType().getSimpleName());
         }
     }
 

@@ -123,7 +123,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(n -> getQueryStatement(n, fieldToValueMap.get(n), getFieldType(entityInfo.getEntityClass(), n, n), getFieldEntityClass(n))).collect(Collectors.joining(" AND "));
+        String query = fieldToValueMap.keySet().stream().map(
+            n -> getQueryStatement(n,
+                fieldToValueMap.get(n),
+                getFieldType(entityInfo.getEntityClass(), n, n),
+                getFieldEntityClass(n)))
+            .collect(Collectors.joining(" AND "));
         return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
     }
 

@@ -117,7 +117,10 @@ public class RestApi {
         return postDeleteCrudResponse;
     }
 
-    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName, Set<Integer> associationIds) {
+    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(Class<T> type,
+                                                                                       Integer entityId,
+                                                                                       AssociationField<T, ? extends BullhornEntity> associationName,
+                                                                                       Set<Integer> associationIds) {
         C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
@@ -126,7 +129,10 @@ public class RestApi {
     /**
      * Checks for error messages and throws RestApiExceptions if there are any
      */
-    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName, Set<Integer> associationIds) throws RestApiException {
+    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(Class<T> type,
+                                                                                          Integer entityId,
+                                                                                          AssociationField<T, ? extends BullhornEntity> associationName,
+                                                                                          Set<Integer> associationIds) throws RestApiException {
         C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;

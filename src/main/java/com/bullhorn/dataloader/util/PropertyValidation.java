@@ -80,7 +80,10 @@ public class PropertyValidation {
 
             // Check that the exist field matches a real entity
             if (EntityInfo.fromString(entityEntry.getKey()) == null) {
-                throw new IllegalArgumentException("DataLoader Properties Error: " + WordUtils.uncapitalize(entityEntry.getKey()) + "ExistField property does not match a supported entity - unrecognized entity: '" + entityEntry.getKey() + "'");
+                throw new IllegalArgumentException("DataLoader Properties Error: "
+                    + WordUtils.uncapitalize(entityEntry.getKey())
+                    + "ExistField property does not match a supported entity - unrecognized entity: '"
+                    + entityEntry.getKey() + "'");
             }
         }
     }

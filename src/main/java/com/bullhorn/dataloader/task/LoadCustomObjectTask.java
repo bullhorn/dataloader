@@ -238,7 +238,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
                 String parentEntityField = row.getNames().stream().filter(n -> n.contains(".")).collect(Collectors.toList()).get(0);
                 entityExistFieldsMap.put(parentEntityField, row.getValue(parentEntityField));
             } catch (Exception e) {
-                throw new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity.");
+                throw new IOException("Missing parent entity locator column, for example: 'candidate.id', "
+                    + "'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded "
+                    + "to the correct parent entity.");
             }
         }
         return entityExistFieldsMap;
