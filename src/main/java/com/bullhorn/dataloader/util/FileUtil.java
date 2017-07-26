@@ -28,7 +28,7 @@ public class FileUtil {
      * @param comparator     specifies how the sorted map should be sorted by entity
      * @return a Map of entity enums to lists of valid files.
      */
-    static public SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
+    public static SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
         File file = new File(filePath);
         if (file.isDirectory()) {
             return getValidCsvFilesFromDirectory(file, validationUtil, comparator);
@@ -46,7 +46,7 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    static public SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
+    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         String[] fileNames = directory.list();
@@ -76,7 +76,7 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    static public SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
+    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         if (validationUtil.isValidCsvFile(filePath, false)) {
@@ -96,7 +96,7 @@ public class FileUtil {
      * @param validationUtil The validation utility
      * @return the subset of getValidCsvFiles that are loadable
      */
-    static public SortedMap<EntityInfo, List<String>> getLoadableCsvFilesFromPath(String filePath, ValidationUtil validationUtil) {
+    public static SortedMap<EntityInfo, List<String>> getLoadableCsvFilesFromPath(String filePath, ValidationUtil validationUtil) {
         SortedMap<EntityInfo, List<String>> loadableEntityToFileListMap = new TreeMap<>(EntityInfo.loadOrderComparator);
 
         SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, validationUtil, EntityInfo.loadOrderComparator);
@@ -117,7 +117,7 @@ public class FileUtil {
      * @param validationUtil The validation utility
      * @return the subset of getValidCsvFiles that are deletable
      */
-    static public SortedMap<EntityInfo, List<String>> getDeletableCsvFilesFromPath(String filePath, ValidationUtil validationUtil) {
+    public static SortedMap<EntityInfo, List<String>> getDeletableCsvFilesFromPath(String filePath, ValidationUtil validationUtil) {
         SortedMap<EntityInfo, List<String>> deletableEntityToFileListMap = new TreeMap<>(EntityInfo.deleteOrderComparator);
 
         SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, validationUtil, EntityInfo.deleteOrderComparator);
@@ -139,7 +139,7 @@ public class FileUtil {
      * @param fileName path from which to extract entity name
      * @return the SDK-Rest entity, or null if not found
      */
-    static public EntityInfo extractEntityFromFileName(String fileName) {
+    public static EntityInfo extractEntityFromFileName(String fileName) {
         File file = new File(fileName);
 
         String upperCaseFileName = file.getName().toUpperCase();

@@ -16,7 +16,7 @@ import java.util.Map;
  */
 public class Preloader {
 
-    final private RestSession restSession;
+    private final RestSession restSession;
     private Map<String, Integer> countryNameToIdMap = null;
 
     public Preloader(RestSession restSession) {

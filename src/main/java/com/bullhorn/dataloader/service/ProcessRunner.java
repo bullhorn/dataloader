@@ -34,11 +34,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class ProcessRunner {
 
-    final protected RestSession restSession;
-    final protected Preloader preloader;
-    final protected PrintUtil printUtil;
-    final protected PropertyFileUtil propertyFileUtil;
-    final protected ThreadPoolUtil threadPoolUtil;
+    protected final RestSession restSession;
+    protected final Preloader preloader;
+    protected final PrintUtil printUtil;
+    protected final PropertyFileUtil propertyFileUtil;
+    protected final ThreadPoolUtil threadPoolUtil;
 
     public ProcessRunner(RestSession restSession, Preloader preloader, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
         this.restSession = restSession;

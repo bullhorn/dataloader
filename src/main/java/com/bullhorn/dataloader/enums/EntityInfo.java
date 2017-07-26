@@ -111,13 +111,13 @@ public enum EntityInfo {
     /**
      * Comparator for sorting EntityInfo objects in a sorted collection.
      */
-    final static public Comparator<EntityInfo> loadOrderComparator =
+    public static final Comparator<EntityInfo> loadOrderComparator =
         Comparator.comparingInt(EntityInfo::getLoadOrder);
 
     /**
      * Comparator for sorting EntityInfo objects in a sorted collection in reverse of the load.
      */
-    final static public Comparator<EntityInfo> deleteOrderComparator =
+    public static final Comparator<EntityInfo> deleteOrderComparator =
         (firstEntityInfo, secondEntityInfo) -> secondEntityInfo.getLoadOrder() - firstEntityInfo.getLoadOrder();
 
     private BullhornEntityInfo bullhornEntityInfo;

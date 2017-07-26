@@ -33,8 +33,8 @@ public class RestApiExtension {
     private static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
     private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
-    final private PrintUtil printUtil;
-    final private RestJsonConverter restJsonConverter;
+    private final PrintUtil printUtil;
+    private final RestJsonConverter restJsonConverter;
 
     // Whether or not the current user being used to load data is authorized with the 'SI Dataloader Administration'
     // User Action Entitlement. Assume we are, until proven otherwise the first time through when a call that is

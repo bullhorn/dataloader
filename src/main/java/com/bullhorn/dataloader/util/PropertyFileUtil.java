@@ -25,7 +25,7 @@ public class PropertyFileUtil {
     private static final String EXIST_FIELD_SUFFIX = "ExistField";
     private static final String DATALOADER_PREFIX = "DATALOADER_";
 
-    final private PrintUtil printUtil;
+    private final PrintUtil printUtil;
     private String[] remainingArgs;
 
     // Property values from the property file, saved in a more convenient format

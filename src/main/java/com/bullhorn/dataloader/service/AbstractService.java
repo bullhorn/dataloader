@@ -23,14 +23,14 @@ import java.util.SortedMap;
  */
 public abstract class AbstractService {
 
-    final protected PrintUtil printUtil;
-    final protected PropertyFileUtil propertyFileUtil;
-    final protected ValidationUtil validationUtil;
-    final protected CompleteCall completeCall;
-    final protected RestSession restSession;
-    final protected ProcessRunner processRunner;
-    final protected InputStream inputStream;
-    final protected Timer timer;
+    protected final PrintUtil printUtil;
+    protected final PropertyFileUtil propertyFileUtil;
+    protected final ValidationUtil validationUtil;
+    protected final CompleteCall completeCall;
+    protected final RestSession restSession;
+    protected final ProcessRunner processRunner;
+    protected final InputStream inputStream;
+    protected final Timer timer;
 
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,

@@ -30,7 +30,7 @@ import java.util.Map;
 public class AssociationUtil {
     // This is a cached list of the associations per entity
     // The key is always this entity, and each value is the entity that it is associated to
-    static private Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
+    private static Map<Class<AssociationEntity>, List<AssociationField<AssociationEntity, BullhornEntity>>> entityClassToAssociationsMap = new HashMap<>();
 
     /**
      * Returns the list of associated fields for the given SDK-REST entity class.

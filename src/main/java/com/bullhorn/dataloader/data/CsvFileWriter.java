@@ -23,10 +23,10 @@ public class CsvFileWriter {
     public static final String SUCCESS_CSV = "_success.csv";
     public static final String FAILURE_CSV = "_failure.csv";
 
-    final private Command command;
-    final private String[] headers;
-    final private String successFilePath;
-    final private String failureFilePath;
+    private final Command command;
+    private final String[] headers;
+    private final String successFilePath;
+    private final String failureFilePath;
 
     private CsvWriter successCsv = null;
     private CsvWriter failureCsv = null;

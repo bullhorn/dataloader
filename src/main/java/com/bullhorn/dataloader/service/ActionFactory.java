@@ -16,14 +16,14 @@ import java.io.InputStream;
  */
 public class ActionFactory {
 
-    final private PrintUtil printUtil;
-    final private ValidationUtil validationUtil;
-    final private PropertyFileUtil propertyFileUtil;
-    final private CompleteCall completeCall;
-    final private RestSession restSession;
-    final private ProcessRunner processRunner;
-    final private InputStream inputStream;
-    final private Timer timer;
+    private final PrintUtil printUtil;
+    private final ValidationUtil validationUtil;
+    private final PropertyFileUtil propertyFileUtil;
+    private final CompleteCall completeCall;
+    private final RestSession restSession;
+    private final ProcessRunner processRunner;
+    private final InputStream inputStream;
+    private final Timer timer;
 
     public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
