@@ -61,9 +61,9 @@ public class ConvertAttachmentTask<A extends AssociationEntity, E extends Entity
         if (isResume()) {
             String convertedHTML = convertAttachmentToHtml();
             writeHtmlToFile(convertedHTML);
-            return Result.Convert();
+            return Result.convert();
         } else {
-            return Result.Skip();
+            return Result.skip();
         }
     }
 

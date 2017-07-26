@@ -65,7 +65,7 @@ public class ConvertAttachmentTaskTest {
         doNothing().when(task).writeHtmlToFile(anyString());
         task.run();
 
-        Result expectedResult = Result.Convert();
+        Result expectedResult = Result.convert();
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.CONVERT, 1);
     }
@@ -78,7 +78,7 @@ public class ConvertAttachmentTaskTest {
         doNothing().when(task).writeHtmlToFile(anyString());
         task.run();
 
-        Result expectedResult = Result.Skip();
+        Result expectedResult = Result.skip();
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.SKIP, 1);
     }
@@ -102,7 +102,7 @@ public class ConvertAttachmentTaskTest {
         ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        final Result expectedResult = Result.Failure(new IOException("Missing the 'relativeFilePath' column required for convertAttachments"));
+        final Result expectedResult = Result.failure(new IOException("Missing the 'relativeFilePath' column required for convertAttachments"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

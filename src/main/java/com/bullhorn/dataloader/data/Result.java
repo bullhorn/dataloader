@@ -26,7 +26,7 @@ public class Result {
      * @param bullhornId The bullhorn internal ID of the record
      * @return The new Result object
      */
-    public static Result Insert(Integer bullhornId) {
+    public static Result insert(Integer bullhornId) {
         return new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
     }
 
@@ -36,7 +36,7 @@ public class Result {
      * @param bullhornId The bullhorn internal ID of the record
      * @return The new Result object
      */
-    public static Result Update(Integer bullhornId) {
+    public static Result update(Integer bullhornId) {
         return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
     }
 
@@ -46,7 +46,7 @@ public class Result {
      * @param bullhornId The bullhorn internal ID of the record
      * @return The new Result object
      */
-    public static Result Delete(Integer bullhornId) {
+    public static Result delete(Integer bullhornId) {
         return new Result(Status.SUCCESS, Action.DELETE, bullhornId, "");
     }
 
@@ -55,7 +55,7 @@ public class Result {
      *
      * @return The new Result object
      */
-    public static Result Convert() {
+    public static Result convert() {
         return new Result(Status.SUCCESS, Action.CONVERT, -1, "");
     }
 
@@ -64,7 +64,7 @@ public class Result {
      *
      * @return The new Result object
      */
-    public static Result Skip() {
+    public static Result skip() {
         return new Result(Status.SUCCESS, Action.SKIP, -1, "");
     }
 
@@ -74,7 +74,7 @@ public class Result {
      * @param exception The exception for this failure result
      * @return The new Result object
      */
-    public static Result Failure(Exception exception) {
+    public static Result failure(Exception exception) {
         return new Result(Status.FAILURE, Action.FAILURE, -1, exception.toString());
     }
 
@@ -85,7 +85,7 @@ public class Result {
      * @param bullhornID The id of the Bullhorn entity
      * @return The new Result object
      */
-    public static Result Failure(Exception exception, Integer bullhornID) {
+    public static Result failure(Exception exception, Integer bullhornID) {
         return new Result(Status.FAILURE, Action.FAILURE, bullhornID, exception.toString());
     }
 
@@ -146,11 +146,16 @@ public class Result {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Result)) return false;
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
 
-        Result that = (Result) o;
+        if (!(obj instanceof Result)) {
+            return false;
+        }
+
+        Result that = (Result) obj;
 
         return (getStatus().equals(that.getStatus()) &&
             getAction().equals(that.getAction()) &&

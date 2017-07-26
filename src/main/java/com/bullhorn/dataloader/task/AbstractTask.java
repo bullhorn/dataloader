@@ -98,7 +98,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
     Result handleFailure(Exception e) {
         printUtil.printAndLog(e);
-        return Result.Failure(e);
+        return Result.failure(e);
     }
 
     /**
@@ -111,9 +111,9 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     Result handleFailure(Exception exception, Integer entityID) {
         printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
         if (entityID != null) {
-            return Result.Failure(exception, entityID);
+            return Result.failure(exception, entityID);
         }
-        return Result.Failure(exception);
+        return Result.failure(exception);
     }
 
     <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {

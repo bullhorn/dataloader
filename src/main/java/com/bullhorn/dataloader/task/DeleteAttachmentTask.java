@@ -48,7 +48,7 @@ public class DeleteAttachmentTask<A extends AssociationEntity, E extends EntityA
 
     private Result handle() throws Exception {
         FileApiResponse fileApiResponse = deleteFile();
-        return Result.Delete(fileApiResponse.getFileId());
+        return Result.delete(fileApiResponse.getFileId());
     }
 
     private <F extends FileEntity> FileApiResponse deleteFile() throws IOException {

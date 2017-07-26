@@ -24,7 +24,7 @@ public class ResultTest {
 
     @Test
     public void testInsert() {
-        Result result = Result.Insert(99);
+        Result result = Result.insert(99);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -35,7 +35,7 @@ public class ResultTest {
 
     @Test
     public void testUpdate() {
-        Result result = Result.Update(99);
+        Result result = Result.update(99);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -46,7 +46,7 @@ public class ResultTest {
 
     @Test
     public void testDelete() {
-        Result result = Result.Delete(99);
+        Result result = Result.delete(99);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -57,7 +57,7 @@ public class ResultTest {
 
     @Test
     public void testFailure() {
-        Result result = Result.Failure(new Exception("Message 1"));
+        Result result = Result.failure(new Exception("Message 1"));
 
         Assert.assertEquals(result.isSuccess(), false);
         Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
@@ -68,7 +68,7 @@ public class ResultTest {
 
     @Test
     public void testNullBullhornId() {
-        Result result = Result.Update(null);
+        Result result = Result.update(null);
 
         Assert.assertEquals(result.isSuccess(), true);
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
@@ -79,14 +79,14 @@ public class ResultTest {
 
     @Test
     public void testInsertEnumToString() {
-        Result result = Result.Insert(99);
+        Result result = Result.insert(99);
 
         Assert.assertEquals(result.getAction().toString(), "INSERT");
     }
 
     @Test
     public void testUpdateEnumToString() {
-        Result result = Result.Update(99);
+        Result result = Result.update(99);
 
         Assert.assertEquals(result.getAction().toString(), "UPDATE");
     }
@@ -100,7 +100,7 @@ public class ResultTest {
 
     @Test
     public void testEquals_identity() {
-        Result result1 = Result.Insert(99);
+        Result result1 = Result.insert(99);
         Result result2 = result1;
 
         Assert.assertEquals(result1, result2);
@@ -108,7 +108,7 @@ public class ResultTest {
 
     @Test
     public void testEquals_type() {
-        Result result = Result.Insert(99);
+        Result result = Result.insert(99);
         Timer timer = new Timer();
 
         Assert.assertNotEquals(result, timer);
@@ -116,9 +116,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_status() {
-        Result result1 = Result.Insert(99);
-        Result result2 = Result.Insert(99);
-        Result different = Result.Failure(new Exception());
+        Result result1 = Result.insert(99);
+        Result result2 = Result.insert(99);
+        Result different = Result.failure(new Exception());
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -126,9 +126,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_action() {
-        Result result1 = Result.Insert(1);
-        Result result2 = Result.Insert(1);
-        Result different = Result.Update(1);
+        Result result1 = Result.insert(1);
+        Result result2 = Result.insert(1);
+        Result different = Result.update(1);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -136,9 +136,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_action_setter() {
-        Result result1 = Result.Insert(1);
-        Result result2 = Result.Insert(1);
-        Result different = Result.Insert(1);
+        Result result1 = Result.insert(1);
+        Result result2 = Result.insert(1);
+        Result different = Result.insert(1);
         different.setAction(Result.Action.UPDATE);
 
         Assert.assertEquals(result1, result2);
@@ -147,9 +147,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_bullhornId() {
-        Result result1 = Result.Insert(1);
-        Result result2 = Result.Insert(1);
-        Result different = Result.Insert(2);
+        Result result1 = Result.insert(1);
+        Result result2 = Result.insert(1);
+        Result different = Result.insert(2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -157,9 +157,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_bullhornId_setter() {
-        Result result1 = Result.Insert(1);
-        Result result2 = Result.Insert(1);
-        Result different = Result.Insert(1);
+        Result result1 = Result.insert(1);
+        Result result2 = Result.insert(1);
+        Result different = Result.insert(1);
         different.setBullhornId(2);
 
         Assert.assertEquals(result1, result2);
@@ -168,9 +168,9 @@ public class ResultTest {
 
     @Test
     public void testEquals_failureText() {
-        Result result1 = Result.Failure(new Exception("Message 1"));
-        Result result2 = Result.Failure(new Exception("Message 1"));
-        Result different = Result.Failure(new Exception("Message 2"));
+        Result result1 = Result.failure(new Exception("Message 1"));
+        Result result2 = Result.failure(new Exception("Message 1"));
+        Result different = Result.failure(new Exception("Message 2"));
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -179,9 +179,9 @@ public class ResultTest {
     @Test
     public void testHashCode_status() {
         Set<Result> results = Sets.newHashSet();
-        results.add(Result.Insert(99));
-        results.add(Result.Failure(new Exception("")));
-        results.add(Result.Failure(new Exception("")));
+        results.add(Result.insert(99));
+        results.add(Result.failure(new Exception("")));
+        results.add(Result.failure(new Exception("")));
 
         Assert.assertEquals(2, results.size());
     }
@@ -189,10 +189,10 @@ public class ResultTest {
     @Test
     public void testHashCode_action() {
         Set<Result> results = Sets.newHashSet();
-        results.add(Result.Insert(99));
-        results.add(Result.Insert(99));
-        results.add(Result.Update(99));
-        results.add(Result.Delete(99));
+        results.add(Result.insert(99));
+        results.add(Result.insert(99));
+        results.add(Result.update(99));
+        results.add(Result.delete(99));
 
         Assert.assertEquals(3, results.size());
     }
@@ -200,9 +200,9 @@ public class ResultTest {
     @Test
     public void testHashCode_bullhornId() {
         Set<Result> results = Sets.newHashSet();
-        results.add(Result.Insert(99));
-        results.add(Result.Insert(99));
-        results.add(Result.Insert(100));
+        results.add(Result.insert(99));
+        results.add(Result.insert(99));
+        results.add(Result.insert(100));
 
         Assert.assertEquals(2, results.size());
     }
@@ -210,9 +210,9 @@ public class ResultTest {
     @Test
     public void testHashCode_failureMessage() {
         Set<Result> results = Sets.newHashSet();
-        results.add(Result.Failure(new Exception("Message 1")));
-        results.add(Result.Failure(new Exception("Message 1")));
-        results.add(Result.Failure(new Exception("Message 2")));
+        results.add(Result.failure(new Exception("Message 1")));
+        results.add(Result.failure(new Exception("Message 1")));
+        results.add(Result.failure(new Exception("Message 2")));
 
         Assert.assertEquals(2, results.size());
     }

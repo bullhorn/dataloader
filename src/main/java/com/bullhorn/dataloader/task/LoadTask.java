@@ -118,9 +118,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
 
     protected Result createResult() {
         if (isNewEntity) {
-            return Result.Insert(entityID);
+            return Result.insert(entityID);
         } else {
-            return Result.Update(entityID);
+            return Result.update(entityID);
         }
     }
 

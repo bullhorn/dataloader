@@ -65,7 +65,7 @@ public class DeleteTask<A extends AssociationEntity, E extends EntityAssociation
         }
 
         restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornID);
-        return Result.Delete(bullhornID);
+        return Result.delete(bullhornID);
     }
 
     /**

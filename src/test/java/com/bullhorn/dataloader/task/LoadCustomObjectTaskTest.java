@@ -111,7 +111,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Insert(1);
+        Result expectedResult = Result.insert(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -143,7 +143,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Insert(1);
+        Result expectedResult = Result.insert(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -175,7 +175,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Insert(1);
+        Result expectedResult = Result.insert(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -186,7 +186,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new Exception("The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
+        Result expectedResult = Result.failure(new Exception("The required field person._subType is missing. This field must be included to load PersonCustomObjectInstance2"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -197,7 +197,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new Exception("The person._subType field must be either Candidate or ClientContact"));
+        Result expectedResult = Result.failure(new Exception("The person._subType field must be either Candidate or ClientContact"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -211,7 +211,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Update(1);
+        Result expectedResult = Result.update(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -222,7 +222,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new RestApiException("Cannot find To-One Association: 'clientCorporation.id' with value: '1'"));
+        Result expectedResult = Result.failure(new RestApiException("Cannot find To-One Association: 'clientCorporation.id' with value: '1'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -236,7 +236,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new RestApiException("Cannot Perform Update - Multiple Records Exist. Found 2 ClientCorporationCustomObjectInstance2 records with the same ExistField criteria of: {text1=Test, clientCorporation.id=1}"));
+        Result expectedResult = Result.failure(new RestApiException("Cannot Perform Update - Multiple Records Exist. Found 2 ClientCorporationCustomObjectInstance2 records with the same ExistField criteria of: {text1=Test, clientCorporation.id=1}"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -255,7 +255,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new RestApiException("ClientCorporation Custom Object 2 is not set up."));
+        Result expectedResult = Result.failure(new RestApiException("ClientCorporation Custom Object 2 is not set up."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -268,7 +268,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new RestApiException("bogus"));
+        Result expectedResult = Result.failure(new RestApiException("bogus"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -298,7 +298,7 @@ public class LoadCustomObjectTaskTest {
         task = new LoadCustomObjectTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.Failure(new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity."));
+        Result expectedResult = Result.failure(new IOException("Missing parent entity locator column, for example: 'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded to the correct parent entity."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

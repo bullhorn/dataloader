@@ -62,7 +62,7 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
         String parentEntityField = getParentEntityField();
         getParentEntity(parentEntityField);
         deleteCustomObject(parentEntity.getId());
-        return Result.Delete(entityID);
+        return Result.delete(entityID);
     }
 
     /**

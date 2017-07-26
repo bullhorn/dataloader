@@ -175,10 +175,10 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
             FileWrapper fileWrapper = restApi.addFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
-            return Result.Insert(fileWrapper.getId());
+            return Result.insert(fileWrapper.getId());
         } else {
             FileWrapper fileWrapper = restApi.updateFile((Class<F>) entityInfo.getEntityClass(), bullhornParentId, fileMeta);
-            return Result.Update(fileWrapper.getId());
+            return Result.update(fileWrapper.getId());
         }
     }
 
