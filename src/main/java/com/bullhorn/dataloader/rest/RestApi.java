@@ -66,7 +66,6 @@ public class RestApi {
 
     // region Lookup Calls
 
-    // TODO: Remove unused SearchParams and QueryParams arguments
     // TODO: Refactor to:
     // <T extends BullhornEntity> List<T> findEntities(SearchCriteria entitySearch, Set<String> fieldSet)
     // Where SearchCriteria contains the EntityType, and query/where clause builder logic, and this method does the
