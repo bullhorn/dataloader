@@ -346,7 +346,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         String fieldName = field.substring(field.indexOf(".") + 1);
 
         Set<String> valueSet = Sets.newHashSet(row.getValue(field).split(propertyFileUtil.getListDelimiter()));
-        Method method = getGetMethod(associationField, fieldName);
+        Method method = AssociationUtil.getAssociationGetMethod(associationField, fieldName);
         List<B> existingAssociations = getExistingAssociations(field, associationField, valueSet);
 
         if (existingAssociations.size() != valueSet.size()) {
@@ -409,18 +409,6 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
 
         return list;
-    }
-
-    // TODO: Move to AssociationUtil
-    protected Method getGetMethod(AssociationField associationField, String associationName) {
-        String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
-        try {
-            return associationField.getAssociationType().getMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            throw new RestApiException("'" + associationField.getAssociationFieldName()
-                + "." + associationName + "': '" + associationName + "' does not exist on "
-                + associationField.getAssociationType().getSimpleName());
-        }
     }
 
     private String getQueryStatement(Set<String> valueSet, String field, Class<B> associationClass) {

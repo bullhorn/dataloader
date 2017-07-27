@@ -556,21 +556,6 @@ public class LoadTaskTest {
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 
-    // TODO: Stop testing this internal method
-    @Test
-    public void getGetMethodTestCatch() throws IOException {
-        Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
-        boolean exceptionWasThrown = false;
-        try {
-            LoadTask task = new LoadTask(EntityInfo.CANDIDATE_REFERENCE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-            task.getGetMethod(CandidateAssociations.getInstance().businessSectors(), "nothing");
-        } catch (RestApiException e) {
-            exceptionWasThrown = true;
-        }
-
-        Assert.assertThat(true, new ReflectionEquals(exceptionWasThrown));
-    }
-
     @Test
     public void getNewAssociationIdListTest() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName,primarySkills.id", "Data,Loader,1;2;3");

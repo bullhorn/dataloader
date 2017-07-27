@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.rest;
 
 import com.bullhornsdk.data.api.StandardBullhornData;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;

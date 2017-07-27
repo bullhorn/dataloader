@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
-import com.bullhornsdk.data.model.response.list.CountryListWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
