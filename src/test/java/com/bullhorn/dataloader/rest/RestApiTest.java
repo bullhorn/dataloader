@@ -115,7 +115,7 @@ public class RestApiTest {
 
     @Test
     public void testQueryForAllRecords() {
-        restApi.queryForAllRecords(Country.class, "id IS NOT nulls", null, ParamFactory.queryParams());
+        restApi.queryForAllRecordsList(Country.class, "id IS NOT nulls", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).queryForAllRecords(eq(Country.class), eq("id IS NOT nulls"), eq(null), any());
     }
 
