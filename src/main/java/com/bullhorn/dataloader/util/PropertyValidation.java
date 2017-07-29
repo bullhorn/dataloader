@@ -6,7 +6,9 @@ import org.apache.commons.lang.WordUtils;
 import java.util.List;
 import java.util.Map;
 
-// TODO: pull this out into the ValidationUtil and simplify down to a single class
+/**
+ * Validates the user's entries in the properties file.
+ */
 public class PropertyValidation {
     private static final Integer MAX_NUM_THREADS = 15;
     private static final Integer MAX_WAIT_TIME_SECONDS = 3600 * 1000; // 1 hour
