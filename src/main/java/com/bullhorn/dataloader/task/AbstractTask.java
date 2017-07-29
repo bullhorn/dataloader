@@ -38,7 +38,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -209,15 +208,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
+    // TODO: Move exist fields to Cell object
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
-        // TODO: Simplify the entity exist field data structure to not be an optional
-        Optional<List<String>> existFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
-        if (existFields.isPresent()) {
-            for (String existField : existFields.get()) {
-                entityExistFieldsMap.put(existField, row.getValue(existField));
-            }
+        List<String> existFields = propertyFileUtil.getEntityExistFields(entityInfo);
+        for (String existField : existFields) {
+            entityExistFieldsMap.put(existField, row.getValue(existField));
         }
 
         return entityExistFieldsMap;

@@ -35,7 +35,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Responsible for attaching a single row from a CSV input file.
@@ -70,13 +69,14 @@ public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAss
     }
 
     private Result handle() throws Exception {
-        Optional<List<String>> entityExistFields = propertyFileUtil.getEntityExistFields(entityInfo.getEntityClass().getSimpleName());
-        if (!entityExistFields.isPresent()) {
+        List<String> entityExistFields = propertyFileUtil.getEntityExistFields(entityInfo);
+        if (entityExistFields.isEmpty()) {
             throw new IllegalArgumentException("Properties file is missing the '"
-                + WordUtils.uncapitalize(entityInfo.getEntityName()) + "ExistField' property required to lookup the parent entity.");
+                + WordUtils.uncapitalize(entityInfo.getEntityName())
+                + "ExistField' property required to lookup the parent entity.");
         }
 
-        getAndSetBullhornId(entityExistFields.get());
+        getAndSetBullhornId(entityExistFields);
         addParentEntityIDtoRow();
         createFileMeta();
         populateFileMeta();

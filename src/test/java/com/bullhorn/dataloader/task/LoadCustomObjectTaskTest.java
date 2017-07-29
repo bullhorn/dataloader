@@ -31,7 +31,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -61,8 +60,7 @@ public class LoadCustomObjectTaskTest {
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
 
-        List<String> existField = Collections.singletonList("text1");
-        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Optional.of(existField));
+        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
 
         StandardMetaData meta = new StandardMetaData();

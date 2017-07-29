@@ -97,8 +97,8 @@ public class RestApi {
                                                                               String where,
                                                                               Set<String> fieldSet,
                                                                               QueryParams params) {
-        ListWrapper<T> wrapper = bullhornData.queryForAllRecords(type, where, fieldSet, params);
-        return wrapper == null ? Collections.emptyList() : wrapper.getData();
+        ListWrapper<T> listWrapper = bullhornData.queryForAllRecords(type, where, fieldSet, params);
+        return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }
     // endregion
 
