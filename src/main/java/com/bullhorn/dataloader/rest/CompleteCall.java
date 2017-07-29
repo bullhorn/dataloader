@@ -13,7 +13,7 @@ import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.http.client.utils.URIBuilder;
 import org.json.JSONObject;
 
-// TODO: Change name to CompleteUtil and add --jsonOutput capability
+// TODO: Add a CompleteUtil with a --jsonOutput capability
 
 /**
  * Utility class for sending DataLoader complete call to REST

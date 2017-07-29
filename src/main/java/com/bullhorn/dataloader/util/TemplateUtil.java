@@ -8,7 +8,6 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.util.ReadOnly;
 import com.csvreader.CsvWriter;
-import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -19,11 +18,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// TODO: Move to task directory and rename to TemplateTask and Refactor to use ConnectionUtil
-// TODO: Convert to using EntityInfo enum everywhere instead of Entity String Name
+// TODO: Refactor to use ConnectionUtil and EntityInfo
 public class TemplateUtil<B extends BullhornEntity> {
 
-    private final Set<String> compositeTypes = Sets.newHashSet("address");
     private RestApi restApi;
 
     public TemplateUtil(RestApi restApi) {
@@ -56,7 +53,7 @@ public class TemplateUtil<B extends BullhornEntity> {
         csvWriter.close();
     }
 
-    protected void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
+    void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
         HashSet<String> methodSet = getEntityFields(entity);
 
         for (Field field : metaFieldSet) {
@@ -70,8 +67,8 @@ public class TemplateUtil<B extends BullhornEntity> {
                     dataTypes.add(field.getDataType());
                 } else if (isCompositeType(field)) {
                     List<Method> compositeMethodList = getCompositeMethodList(entity, field);
-                    compositeMethodList.stream().forEach(n -> headers.add(getCompositeHeaderName(n, field)));
-                    compositeMethodList.stream().forEach(n -> dataTypes.add(n.getReturnType().getSimpleName()));
+                    compositeMethodList.forEach(n -> headers.add(getCompositeHeaderName(n, field)));
+                    compositeMethodList.forEach(n -> dataTypes.add(n.getReturnType().getSimpleName()));
                 }
             }
         }
@@ -106,20 +103,20 @@ public class TemplateUtil<B extends BullhornEntity> {
         return methodList;
     }
 
-    protected Class getGetMethod(Class<B> toOneEntityClass, String fieldName) {
+    private Class getGetMethod(Class<B> toOneEntityClass, String fieldName) {
         String getMethodName = "get" + fieldName;
-        return Arrays.asList(toOneEntityClass.getMethods()).stream().filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
+        return Arrays.stream(toOneEntityClass.getMethods()).filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
     }
 
-    protected void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
+    void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
         for (Field field : associationFields) {
-            field.getAssociatedEntity().getFields().stream().forEach(n -> n.setName(field.getName() + "." + n.getName()));
+            field.getAssociatedEntity().getFields().forEach(n -> n.setName(field.getName() + "." + n.getName()));
             addExternalIdWhenExists(field);
             metaFieldSet.addAll(field.getAssociatedEntity().getFields());
         }
     }
 
-    protected void addExternalIdWhenExists(Field field) {
+    private void addExternalIdWhenExists(Field field) {
         try {
             if (BullhornEntityInfo.getTypeFromName(field.getOptionsType()).getType().getMethod("getExternalID") != null) {
                 Field externalIdField = new Field();
@@ -135,11 +132,11 @@ public class TemplateUtil<B extends BullhornEntity> {
         }
     }
 
-    protected boolean hasId(Set<Field> metaFieldSet, String column) {
-        return metaFieldSet.stream().map(n -> n.getName()).anyMatch(n -> n.equalsIgnoreCase(column + ".id"));
+    boolean hasId(Set<Field> metaFieldSet, String column) {
+        return metaFieldSet.stream().map(Field::getName).anyMatch(n -> n.equalsIgnoreCase(column + ".id"));
     }
 
-    protected boolean isCompositeType(Field field) {
+    boolean isCompositeType(Field field) {
         return "COMPOSITE".equalsIgnoreCase(field.getType());
     }
 }
