@@ -9,11 +9,11 @@ import java.util.Map;
 /**
  * Validates the user's entries in the properties file.
  */
-public class PropertyValidation {
+public class PropertyValidationUtil {
     private static final Integer MAX_NUM_THREADS = 15;
     private static final Integer MAX_WAIT_TIME_SECONDS = 3600 * 1000; // 1 hour
 
-    public PropertyValidation() {
+    public PropertyValidationUtil() {
     }
 
     String validateUsername(String username) {
