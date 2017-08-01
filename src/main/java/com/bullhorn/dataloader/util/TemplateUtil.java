@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.meta.Field;
@@ -18,7 +19,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// TODO: Refactor to use ConnectionUtil and EntityInfo
+/**
+ * Utility for querying meta and creating an example file that includes all potential fields for an entity.
+ */
 public class TemplateUtil<B extends BullhornEntity> {
 
     private RestApi restApi;
@@ -27,34 +30,42 @@ public class TemplateUtil<B extends BullhornEntity> {
         this.restApi = restApi;
     }
 
-    public void writeExampleEntityCsv(String entity) throws IOException, ClassNotFoundException {
-        Set<Field> metaFieldSet = getMetaFieldSet(entity);
+    public void writeExampleEntityCsv(EntityInfo entityInfo) throws IOException, ClassNotFoundException {
+        Set<Field> metaFieldSet = getMetaFieldSet(entityInfo);
 
         ArrayList<String> headers = new ArrayList<>();
         ArrayList<String> dataTypes = new ArrayList<>();
-        populateDataTypes(entity, metaFieldSet, headers, dataTypes);
+        populateDataTypes(entityInfo, metaFieldSet, headers, dataTypes);
 
-        writeToCsv(entity, headers, dataTypes);
+        writeToCsv(entityInfo, headers, dataTypes);
     }
 
-    private Set<Field> getMetaFieldSet(String entity) {
-        MetaData<B> metaData = restApi.getMetaData(BullhornEntityInfo.getTypeFromName(entity).getType(), MetaParameter.FULL, null);
+    @SuppressWarnings("unchecked")
+    private Set<Field> getMetaFieldSet(EntityInfo entityInfo) {
+        MetaData metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, null);
         Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
-        Set<Field> associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
+        Set<Field> associationFields = metaFieldSet.stream()
+            .filter(n -> n.getAssociatedEntity() != null)
+            .collect(Collectors.toSet());
         addAssociatedFields(metaFieldSet, associationFields);
         return metaFieldSet;
     }
 
-    private void writeToCsv(String entity, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException {
-        CsvWriter csvWriter = new CsvWriter(entity + "Example.csv");
+    private void writeToCsv(EntityInfo entityInfo,
+                            ArrayList<String> headers,
+                            ArrayList<String> dataTypes) throws IOException {
+        CsvWriter csvWriter = new CsvWriter(entityInfo.getEntityName() + "Example.csv");
         csvWriter.writeRecord(headers.toArray(new String[0]));
         csvWriter.writeRecord(dataTypes.toArray(new String[0]));
         csvWriter.flush();
         csvWriter.close();
     }
 
-    void populateDataTypes(String entity, Set<Field> metaFieldSet, ArrayList<String> headers, ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
-        HashSet<String> methodSet = getEntityFields(entity);
+    void populateDataTypes(EntityInfo entityInfo,
+                           Set<Field> metaFieldSet,
+                           ArrayList<String> headers,
+                           ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
+        HashSet<String> methodSet = getEntityFields(entityInfo);
 
         for (Field field : metaFieldSet) {
             if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
@@ -66,7 +77,7 @@ public class TemplateUtil<B extends BullhornEntity> {
                     headers.add(field.getName());
                     dataTypes.add(field.getDataType());
                 } else if (isCompositeType(field)) {
-                    List<Method> compositeMethodList = getCompositeMethodList(entity, field);
+                    List<Method> compositeMethodList = getCompositeMethodList(entityInfo, field);
                     compositeMethodList.forEach(n -> headers.add(getCompositeHeaderName(n, field)));
                     compositeMethodList.forEach(n -> dataTypes.add(n.getReturnType().getSimpleName()));
                 }
@@ -74,12 +85,11 @@ public class TemplateUtil<B extends BullhornEntity> {
         }
     }
 
-    private HashSet<String> getEntityFields(String entity) throws ClassNotFoundException {
+    private HashSet<String> getEntityFields(EntityInfo entityInfo) throws ClassNotFoundException {
         HashSet<String> methodSet = new HashSet<>();
-        Class entityClass = BullhornEntityInfo.getTypeFromName(entity).getType();
-
-        for (Method method : Arrays.asList(entityClass.getMethods())) {
-            if ("set".equalsIgnoreCase(method.getName().substring(0, 3)) && !method.isAnnotationPresent(ReadOnly.class)) {
+        for (Method method : Arrays.asList(entityInfo.getEntityClass().getMethods())) {
+            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))
+                && !method.isAnnotationPresent(ReadOnly.class)) {
                 methodSet.add(method.getName().substring(3).toLowerCase());
             }
         }
@@ -90,8 +100,9 @@ public class TemplateUtil<B extends BullhornEntity> {
         return field.getName() + "." + method.getName().substring(3, 4).toLowerCase() + method.getName().substring(4);
     }
 
-    private List<Method> getCompositeMethodList(String entity, Field field) {
-        Class compositeClass = getGetMethod(BullhornEntityInfo.getTypeFromName(entity).getType(), field.getName());
+    @SuppressWarnings("unchecked")
+    private List<Method> getCompositeMethodList(EntityInfo entityInfo, Field field) {
+        Class compositeClass = getGetMethod(entityInfo.getEntityClass(), field.getName());
         List<Method> methodList = new ArrayList<>();
         for (Method method : Arrays.asList(compositeClass.getMethods())) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))
@@ -105,7 +116,9 @@ public class TemplateUtil<B extends BullhornEntity> {
 
     private Class getGetMethod(Class<B> toOneEntityClass, String fieldName) {
         String getMethodName = "get" + fieldName;
-        return Arrays.stream(toOneEntityClass.getMethods()).filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList()).get(0).getReturnType();
+        return Arrays.stream(toOneEntityClass.getMethods())
+            .filter(n -> getMethodName.equalsIgnoreCase(n.getName()))
+            .collect(Collectors.toList()).get(0).getReturnType();
     }
 
     void addAssociatedFields(Set<Field> metaFieldSet, Set<Field> associationFields) {
@@ -130,10 +143,6 @@ public class TemplateUtil<B extends BullhornEntity> {
         } catch (Exception e) {
             // Ignore errors here
         }
-    }
-
-    boolean hasId(Set<Field> metaFieldSet, String column) {
-        return metaFieldSet.stream().map(Field::getName).anyMatch(n -> n.equalsIgnoreCase(column + ".id"));
     }
 
     boolean isCompositeType(Field field) {
