@@ -31,6 +31,10 @@ public class TemplateService extends AbstractService implements Action {
 
     @Override
     public void run(String[] args) {
+        if (!isValidArguments(args)) {
+            throw new IllegalArgumentException("invalid command line arguments");
+        }
+
         RestApi restApi;
 
         try {
@@ -41,33 +45,8 @@ public class TemplateService extends AbstractService implements Action {
             return;
         }
 
-        EntityInfo entityInfo = validateArguments(args);
-        createTemplate(entityInfo, restApi);
-    }
-
-    protected void createTemplate(EntityInfo entityInfo, RestApi restApi) {
-        try {
-            printUtil.printAndLog("Creating Template for " + entityInfo.getEntityName() + "...");
-            timer.start();
-            TemplateUtil templateUtil = new TemplateUtil(restApi);
-            templateUtil.writeExampleEntityCsv(entityInfo.getEntityName());
-            printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
-        } catch (Exception e) {
-            printUtil.printAndLog("Failed to create template for " + entityInfo);
-            printUtil.printAndLog(e);
-        }
-    }
-
-    protected EntityInfo validateArguments(String[] args) {
-        if (!isValidArguments(args)) {
-            throw new IllegalArgumentException("Invalid arguments");
-        }
-
         EntityInfo entityInfo = EntityInfo.fromString(args[1]);
-        if (entityInfo == null) {
-            throw new IllegalArgumentException("unknown entity");
-        }
-        return entityInfo;
+        createTemplate(entityInfo, restApi);
     }
 
     @Override
@@ -76,12 +55,27 @@ public class TemplateService extends AbstractService implements Action {
             return false;
         }
 
-        EntityInfo entityInfo = EntityInfo.fromString(args[1]);
+        String entityName = args[1];
+        EntityInfo entityInfo = EntityInfo.fromString(entityName);
         if (entityInfo == null) {
-            printUtil.printAndLog("Template requested is not valid. " + args[1] + " is not a valid entity.");
+            printUtil.printAndLog("ERROR: Template requested is not valid: \"" + entityName
+                + "\" is not a valid entity.");
             return false;
         }
 
         return true;
+    }
+
+    private void createTemplate(EntityInfo entityInfo, RestApi restApi) {
+        try {
+            printUtil.printAndLog("Creating Template for " + entityInfo.getEntityName() + "...");
+            timer.start();
+            TemplateUtil templateUtil = new TemplateUtil(restApi);
+            templateUtil.writeExampleEntityCsv(entityInfo);
+            printUtil.printAndLog("Generated template in " + timer.getDurationStringSec());
+        } catch (Exception e) {
+            printUtil.printAndLog("ERROR: Failed to create template for " + entityInfo.getEntityName());
+            printUtil.printAndLog(e);
+        }
     }
 }

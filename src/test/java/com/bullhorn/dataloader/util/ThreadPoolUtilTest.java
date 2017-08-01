@@ -12,12 +12,11 @@ import static org.mockito.Mockito.when;
 
 public class ThreadPoolUtilTest {
 
-    PropertyFileUtil propertyFileUtilMock;
-    ThreadPoolUtil threadPoolUtil;
+    private ThreadPoolUtil threadPoolUtil;
 
     @Before
     public void setup() {
-        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         when(propertyFileUtilMock.getNumThreads()).thenReturn(10);
         threadPoolUtil = new ThreadPoolUtil(propertyFileUtilMock);
     }

@@ -5,7 +5,7 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 
 /**
- * Validation methods for validating user input on the command line.
+ * Validates the user's input on the command line.
  */
 public class ValidationUtil {
 
@@ -22,6 +22,7 @@ public class ValidationUtil {
      * @param expectedNumArgs The expected number of arguments
      * @return true if there are the correct number of parameters returned
      */
+    @SuppressWarnings("SameParameterValue")
     public boolean isNumParametersValid(String[] args, Integer expectedNumArgs) {
         if (args.length < expectedNumArgs) {
             printUtil.printAndLog("ERROR: Not enough arguments provided.");
@@ -36,7 +37,7 @@ public class ValidationUtil {
     /**
      * Validates whether the given filePath is a valid CSV file for processing.
      */
-    public boolean isValidCsvFile(String filePath, Boolean shouldPrint) {
+    boolean isValidCsvFile(String filePath, Boolean shouldPrint) {
         File file = new File(filePath);
         if (!file.exists()) {
             if (shouldPrint) {

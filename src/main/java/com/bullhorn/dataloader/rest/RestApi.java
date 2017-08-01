@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.rest;
 
 import com.bullhornsdk.data.api.StandardBullhornData;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
@@ -26,6 +25,7 @@ import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,21 +56,25 @@ public class RestApi {
     // endregion
 
     // region Meta Operations
-    public <T extends BullhornEntity> MetaData<T> getMetaData(Class<T> type, MetaParameter metaParameter, Set<String> fieldSet) {
+    public <T extends BullhornEntity> MetaData<T> getMetaData(Class<T> type,
+                                                              MetaParameter metaParameter,
+                                                              Set<String> fieldSet) {
         return bullhornData.getMetaData(type, metaParameter, fieldSet);
     }
     // endregion
 
     // region Lookup Calls
 
-    // TODO: Remove unused SearchParams and QueryParams arguments
     // TODO: Refactor to:
     // <T extends BullhornEntity> List<T> findEntities(SearchCriteria entitySearch, Set<String> fieldSet)
     // Where SearchCriteria contains the EntityType, and query/where clause builder logic, and this method does the
     // check to determine whether to call search or query on bullhornData.
 
     // The search/query calls that DataLoader uses to lookup existing data
-    public <T extends SearchEntity> List<T> searchForList(Class<T> type, String query, Set<String> fieldSet, SearchParams params) {
+    public <T extends SearchEntity> List<T> searchForList(Class<T> type,
+                                                          String query,
+                                                          Set<String> fieldSet,
+                                                          SearchParams params) {
         Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
         String externalId = SearchCriteria.getExternalIdValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
@@ -82,25 +86,31 @@ public class RestApi {
         return bullhornData.searchForList(type, query, fieldSet, params);
     }
 
-    public <T extends QueryEntity> List<T> queryForList(Class<T> type, String where, Set<String> fieldSet, QueryParams params) {
+    public <T extends QueryEntity> List<T> queryForList(Class<T> type,
+                                                        String where,
+                                                        Set<String> fieldSet,
+                                                        QueryParams params) {
         return bullhornData.queryForList(type, where, fieldSet, params);
     }
 
-    // TODO: Return the unwrapped list, and rename to queryForAllRecordsList
-    <T extends QueryEntity & AllRecordsEntity, L extends ListWrapper<T>> L queryForAllRecords(Class<T> type, String where, Set<String> fieldSet, QueryParams params) {
-        return bullhornData.queryForAllRecords(type, where, fieldSet, params);
+    <T extends QueryEntity & AllRecordsEntity> List<T> queryForAllRecordsList(Class<T> type,
+                                                                              String where,
+                                                                              Set<String> fieldSet,
+                                                                              QueryParams params) {
+        ListWrapper<T> listWrapper = bullhornData.queryForAllRecords(type, where, fieldSet, params);
+        return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }
     // endregion
 
     // region CRUD Operations
-    // Check for REST error messages and throw RestApiExceptions if there are any.
-    public <C extends CrudResponse, T extends CreateEntity> C insertEntity(T entity) throws RestApiException {
+    // The methods DataLoader uses to Create, Read, Update, and Delete.
+    public <C extends CrudResponse, T extends CreateEntity> C insertEntity(T entity) {
         C crudResponse = bullhornData.insertEntity(entity);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
     }
 
-    public <C extends CrudResponse, T extends UpdateEntity> C updateEntity(T entity) throws RestApiException {
+    public <C extends CrudResponse, T extends UpdateEntity> C updateEntity(T entity) {
         C crudResponse = bullhornData.updateEntity(entity);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
@@ -109,30 +119,28 @@ public class RestApi {
     /**
      * Performs postDelete operations defined in the RestApiExtension.
      */
-    public <C extends CrudResponse, T extends DeleteEntity> C deleteEntity(Class<T> type, Integer id) throws RestApiException {
+    public <C extends CrudResponse, T extends DeleteEntity> C deleteEntity(Class<T> type, Integer id) {
         C crudResponse = bullhornData.deleteEntity(type, id);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         C postDeleteCrudResponse = restApiExtension.postDelete(this, crudResponse);
         restApiExtension.checkForRestSdkErrorMessages(postDeleteCrudResponse);
         return postDeleteCrudResponse;
     }
+    // endregion
 
-    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(Class<T> type,
-                                                                                       Integer entityId,
-                                                                                       AssociationField<T, ? extends BullhornEntity> associationName,
-                                                                                       Set<Integer> associationIds) {
+    // region Association Methods
+    // The methods DataLoader uses for creating or deleting associations.
+    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(
+        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
+        Set<Integer> associationIds) {
         C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
     }
 
-    /**
-     * Checks for error messages and throws RestApiExceptions if there are any
-     */
-    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(Class<T> type,
-                                                                                          Integer entityId,
-                                                                                          AssociationField<T, ? extends BullhornEntity> associationName,
-                                                                                          Set<Integer> associationIds) throws RestApiException {
+    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(
+        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
+        Set<Integer> associationIds) {
         C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;

@@ -10,14 +10,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PropertyValidationTest {
+@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+public class PropertyValidationUtilTest {
 
-    private PropertyValidation propertyValidation;
+    private PropertyValidationUtil propertyValidationUtil;
     private Map<String, List<String>> entityExistFieldsMap;
 
     @Before
     public void setup() {
-        propertyValidation = new PropertyValidation();
+        propertyValidationUtil = new PropertyValidationUtil();
 
         entityExistFieldsMap = new HashMap<>();
         entityExistFieldsMap.put("AppointmentAttendee", Arrays.asList("externalID"));
@@ -56,109 +57,109 @@ public class PropertyValidationTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyUserName() throws IOException {
-        propertyValidation.validateUsername("");
+        propertyValidationUtil.validateUsername("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyPassword() throws IOException {
-        propertyValidation.validatePassword("");
+        propertyValidationUtil.validatePassword("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyClientId() throws IOException {
-        propertyValidation.validateClientId("");
+        propertyValidationUtil.validateClientId("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyClientSecret() throws IOException {
-        propertyValidation.validateClientSecret("");
+        propertyValidationUtil.validateClientSecret("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyAuthorizeUrl() throws IOException {
-        propertyValidation.validateAuthorizeUrl("");
+        propertyValidationUtil.validateAuthorizeUrl("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyTokenUrl() throws IOException {
-        propertyValidation.validateTokenUrl("");
+        propertyValidationUtil.validateTokenUrl("");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyLoginUrl() throws IOException {
-        propertyValidation.validateLoginUrl("");
+        propertyValidationUtil.validateLoginUrl("");
     }
 
     @Test
     public void testEntityExistFields_TrimWhitespace() throws IOException {
         Assert.assertEquals(" id ", entityExistFieldsMap.get("Candidate").get(0));
-        propertyValidation.validateEntityExistFields(entityExistFieldsMap);
+        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
         Assert.assertEquals("id", entityExistFieldsMap.get("Candidate").get(0));
     }
 
     @Test
     public void testEntityExistFields_Missing() throws IOException {
         entityExistFieldsMap.remove("BusinessSector");
-        propertyValidation.validateEntityExistFields(entityExistFieldsMap);
+        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test
     public void testEntityExistFields_Empty() throws IOException {
         entityExistFieldsMap.put("Candidate", Arrays.asList(""));
-        propertyValidation.validateEntityExistFields(entityExistFieldsMap);
+        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEntityExistFields_BadEntity() throws IOException {
         entityExistFieldsMap.put("BadEntity", Arrays.asList("externalID"));
-        propertyValidation.validateEntityExistFields(entityExistFieldsMap);
+        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyListDelimiter() throws IOException {
-        propertyValidation.validateListDelimiter("");
+        propertyValidationUtil.validateListDelimiter("");
     }
 
     @Test
     public void testValidateNumThreads() throws IOException {
-        Integer actual = propertyValidation.validateNumThreads(0);
+        Integer actual = propertyValidationUtil.validateNumThreads(0);
         Assert.assertNotEquals(actual, new Integer(0));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyNumThreads() throws IOException {
-        propertyValidation.validateNumThreads(Integer.valueOf(""));
+        propertyValidationUtil.validateNumThreads(Integer.valueOf(""));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testLowerBoundNumThreads() throws IOException {
-        propertyValidation.validateNumThreads(-1);
+        propertyValidationUtil.validateNumThreads(-1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUpperBoundNumThreads() throws IOException {
-        propertyValidation.validateNumThreads(16);
+        propertyValidationUtil.validateNumThreads(16);
     }
 
     @Test
     public void testNullWaitTime() {
-        Integer waitTimeMSec = propertyValidation.validateWaitTimeMSec(null);
+        Integer waitTimeMSec = propertyValidationUtil.validateWaitTimeMSec(null);
         Assert.assertEquals(Integer.valueOf(0), waitTimeMSec);
     }
 
     @Test
     public void testValidWaitTime() {
-        Integer waitTimeMSec = propertyValidation.validateWaitTimeMSec("3000");
+        Integer waitTimeMSec = propertyValidationUtil.validateWaitTimeMSec("3000");
         Assert.assertEquals(Integer.valueOf(3000), waitTimeMSec);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testLowerBoundWaitTime() throws IOException {
-        propertyValidation.validateWaitTimeMSec("-1");
+        propertyValidationUtil.validateWaitTimeMSec("-1");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUpperBoundWaitTime() throws IOException {
-        propertyValidation.validateWaitTimeMSec("3600001");
+        propertyValidationUtil.validateWaitTimeMSec("3600001");
     }
 }

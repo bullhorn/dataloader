@@ -2,7 +2,6 @@ package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
-import com.bullhornsdk.data.model.response.list.CountryListWrapper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -31,30 +31,28 @@ public class PreloaderTest {
         restApiMock = mock(RestApi.class);
         RestSession restSessionMock = mock(RestSession.class);
 
-        CountryListWrapper countryListWrapper = new CountryListWrapper();
         List<Country> countryList = new ArrayList<>();
         Country usa = new Country();
         usa.setId(1);
         usa.setName("USA");
         countryList.add(usa);
-        countryListWrapper.setData(countryList);
 
         preloader = new Preloader(restSessionMock);
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        when(restApiMock.queryForAllRecords(any(), any(), any(), any())).thenReturn(countryListWrapper);
+        when(restApiMock.queryForAllRecordsList(eq(Country.class), any(), any(), any())).thenReturn(countryList);
     }
 
     @Test
     public void preloadCandidateWorkHistory() throws IOException, InterruptedException {
         preloader.preload(EntityInfo.CANDIDATE_WORK_HISTORY);
-        verify(restApiMock, never()).queryForAllRecords(any(), any(), any(), any());
+        verify(restApiMock, never()).queryForAllRecordsList(any(), any(), any(), any());
     }
 
     @Test
     public void preloadCandidate() throws IOException, InterruptedException {
         preloader.preload(EntityInfo.CANDIDATE);
-        verify(restApiMock, times(1)).queryForAllRecords(any(), any(), any(), any());
+        verify(restApiMock, times(1)).queryForAllRecordsList(any(), any(), any(), any());
     }
 
     @Test

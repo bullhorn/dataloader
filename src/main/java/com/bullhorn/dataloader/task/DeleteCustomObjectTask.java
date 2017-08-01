@@ -11,7 +11,6 @@ import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
@@ -19,12 +18,12 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
-public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
+public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations,
+    B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
 
     public DeleteCustomObjectTask(EntityInfo entityInfo,
                                   Row row,
@@ -72,8 +71,10 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
      * @param parentEntityId The id of the parentEntity
      */
     private void deleteCustomObject(Integer parentEntityId) {
-        AssociationField associationField = getAssociationField();
-        restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityId, associationField, Sets.newHashSet(entityId));
+        AssociationField associationField = AssociationUtil.getCustomObjectAssociationField(entityInfo,
+            parentEntityClass);
+        restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityId, associationField,
+            Sets.newHashSet(entityId));
     }
 
     private String getParentEntityField() throws IOException {
@@ -84,26 +85,9 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
             }
         }
         if (parentField.equals("")) {
-            throw new IOException("No association entities found in csv for " + entityInfo.getEntityName() + ". CustomObjectInstances require a parent entity in the csv.");
+            throw new IOException("No association entities found in csv for " + entityInfo.getEntityName()
+                + ". CustomObjectInstances require a parent entity in the csv.");
         }
         return parentField;
-    }
-
-    // TODO: Move to Association Util
-    private AssociationField getAssociationField() {
-        String associationName = getAssociationName();
-        List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList = AssociationUtil.getAssociationFields((Class<AssociationEntity>) parentEntityClass);
-        for (AssociationField associationField : associationFieldList) {
-            if (associationField.getAssociationFieldName().equalsIgnoreCase(associationName)) {
-                return associationField;
-            }
-        }
-        throw new RestApiException("Cannot find association field for association " + associationName);
-    }
-
-    private String getAssociationName() {
-        String entityName = entityInfo.getEntityName();
-        String instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
-        return "customObject" + instanceNumber + "s";
     }
 }

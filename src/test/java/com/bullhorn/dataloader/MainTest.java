@@ -33,12 +33,27 @@ public class MainTest {
     }
 
     @Test
-    public void testMain_BadFileInput() {
+    public void testConstructor() {
+        Main main = new Main();
+        Assert.assertNotNull(main);
+    }
+
+    @Test
+    public void testMainBadFileInput() {
         String[] args = {"load", "file.bad"};
 
-        Main main = new Main();
-        main.main(args);
+        Main.main(args);
 
         Assert.assertTrue(outputStream.toString().contains("ERROR: Cannot access: file.bad"));
+    }
+
+    @Test
+    public void testMainExceptionThrown() {
+        System.setProperty("propertyfile", "bogus.properties");
+        String[] args = {"load"};
+
+        Main.main(args);
+
+        Assert.assertTrue(outputStream.toString().contains("ERROR: java.io.FileNotFoundException: bogus.properties"));
     }
 }

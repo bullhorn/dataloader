@@ -8,7 +8,7 @@ import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.service.ProcessRunner;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.PropertyValidation;
+import com.bullhorn.dataloader.util.PropertyValidationUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -31,8 +31,8 @@ public class Main {
         Timer timer = new Timer();
 
         try {
-            PropertyValidation propertyValidation = new PropertyValidation();
-            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidation, printUtil);
+            PropertyValidationUtil propertyValidationUtil = new PropertyValidationUtil();
+            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidationUtil, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
             RestApiExtension restApiExtension = new RestApiExtension(printUtil);
             RestSession restSession = new RestSession(restApiExtension, propertyFileUtil);

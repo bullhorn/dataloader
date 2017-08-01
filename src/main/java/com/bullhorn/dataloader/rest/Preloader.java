@@ -59,7 +59,8 @@ public class Preloader {
     private Map<String, Integer> createCountryNameToIdMap() {
         RestApi restApi = restSession.getRestApi();
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
-        List<Country> countryList = restApi.queryForAllRecords(Country.class, "id IS NOT null", Sets.newHashSet("id", "name"), ParamFactory.queryParams()).getData();
+        List<Country> countryList = restApi.queryForAllRecordsList(Country.class, "id IS NOT null",
+            Sets.newHashSet("id", "name"), ParamFactory.queryParams());
         countryList.forEach(n -> countryNameToIdMap.put(n.getName().trim(), n.getId()));
         return countryNameToIdMap;
     }

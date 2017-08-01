@@ -1,8 +1,9 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.Property;
 import com.google.common.base.CaseFormat;
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.WordUtils;
 import org.joda.time.format.DateTimeFormat;
@@ -15,7 +16,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -45,19 +45,19 @@ public class PropertyFileUtil {
     /**
      * Constructor that assembles the dataloader properties from a variety of possible methods.
      *
-     * @param fileName           the property filename to load
-     * @param envVars            the environment variables to use (overrides the properties file)
-     * @param systemProperties   the system properties to use (overrides the properties file and envVars)
-     * @param args               the command line arguments (overrides all others)
-     * @param propertyValidation validates the properties
-     * @param printUtil          for logging properties
+     * @param fileName               the property filename to load
+     * @param envVars                the environment variables to use (overrides the properties file)
+     * @param systemProperties       the system properties to use (overrides the properties file and envVars)
+     * @param args                   the command line arguments (overrides all others)
+     * @param propertyValidationUtil validates the properties
+     * @param printUtil              for logging properties
      * @throws IOException for file not found
      */
     public PropertyFileUtil(String fileName,
                             Map<String, String> envVars,
                             Properties systemProperties,
                             String[] args,
-                            PropertyValidation propertyValidation,
+                            PropertyValidationUtil propertyValidationUtil,
                             PrintUtil printUtil) throws IOException {
         this.printUtil = printUtil;
 
@@ -80,7 +80,7 @@ public class PropertyFileUtil {
         properties.putAll(argumentProperties);
 
         // Process and log
-        processProperties(properties, propertyValidation);
+        processProperties(properties, propertyValidationUtil);
         logProperties(fileName, properties);
     }
 
@@ -186,23 +186,23 @@ public class PropertyFileUtil {
     /**
      * Convert properties into higher level local variables for convenience
      *
-     * @param properties         The raw contents of the properties file
-     * @param propertyValidation The validation utility
+     * @param properties             The raw contents of the properties file
+     * @param propertyValidationUtil The validation utility
      */
-    private void processProperties(Properties properties, PropertyValidation propertyValidation) {
-        this.numThreads = propertyValidation.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
-        this.username = propertyValidation.validateUsername(properties.getProperty(Property.USERNAME.getName()));
-        this.password = propertyValidation.validatePassword(properties.getProperty(Property.PASSWORD.getName()));
-        this.authorizeUrl = propertyValidation.validateAuthorizeUrl(properties.getProperty(Property.AUTHORIZE_URL.getName()));
-        this.tokenUrl = propertyValidation.validateTokenUrl(properties.getProperty(Property.TOKEN_URL.getName()));
-        this.clientId = propertyValidation.validateClientId(properties.getProperty(Property.CLIENT_ID.getName()));
-        this.clientSecret = propertyValidation.validateClientSecret(properties.getProperty(Property.CLIENT_SECRET.getName()));
-        this.loginUrl = propertyValidation.validateLoginUrl(properties.getProperty(Property.LOGIN_URL.getName()));
-        this.listDelimiter = propertyValidation.validateListDelimiter(properties.getProperty(Property.LIST_DELIMITER.getName()));
-        this.dateParser = getDateTimeFormatter(properties);
-        this.entityExistFieldsMap = ImmutableMap.copyOf(createEntityExistFieldsMap(properties));
-        propertyValidation.validateEntityExistFields(entityExistFieldsMap);
-        this.waitTimeMSecBetweenFilesInDirectory = propertyValidation.validateWaitTimeMSec(properties.getProperty(Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
+    private void processProperties(Properties properties, PropertyValidationUtil propertyValidationUtil) {
+        numThreads = propertyValidationUtil.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
+        username = propertyValidationUtil.validateUsername(properties.getProperty(Property.USERNAME.getName()));
+        password = propertyValidationUtil.validatePassword(properties.getProperty(Property.PASSWORD.getName()));
+        authorizeUrl = propertyValidationUtil.validateAuthorizeUrl(properties.getProperty(Property.AUTHORIZE_URL.getName()));
+        tokenUrl = propertyValidationUtil.validateTokenUrl(properties.getProperty(Property.TOKEN_URL.getName()));
+        clientId = propertyValidationUtil.validateClientId(properties.getProperty(Property.CLIENT_ID.getName()));
+        clientSecret = propertyValidationUtil.validateClientSecret(properties.getProperty(Property.CLIENT_SECRET.getName()));
+        loginUrl = propertyValidationUtil.validateLoginUrl(properties.getProperty(Property.LOGIN_URL.getName()));
+        listDelimiter = propertyValidationUtil.validateListDelimiter(properties.getProperty(Property.LIST_DELIMITER.getName()));
+        dateParser = getDateTimeFormatter(properties);
+        entityExistFieldsMap = createEntityExistFieldsMap(properties);
+        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        waitTimeMSecBetweenFilesInDirectory = propertyValidationUtil.validateWaitTimeMSec(properties.getProperty(Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
@@ -312,13 +312,14 @@ public class PropertyFileUtil {
     }
 
     /**
-     * Returns the list of entity exist fields for a given entity
+     * Returns the list of entity exist fields for a given entity.
      *
-     * @param entity The entity name
-     * @return The list of field names, if they exist.
+     * @param entityInfo The entity type
+     * @return The list of field names if they exist, an empty list otherwise
      */
-    public Optional<List<String>> getEntityExistFields(String entity) {
-        return Optional.ofNullable(entityExistFieldsMap.get(entity));
+    public List<String> getEntityExistFields(EntityInfo entityInfo) {
+        List<String> entityExistFields = entityExistFieldsMap.get(entityInfo.getEntityName());
+        return entityExistFields == null ? Lists.newArrayList() : entityExistFields;
     }
 
     public String getListDelimiter() {
