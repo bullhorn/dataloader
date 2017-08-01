@@ -33,11 +33,11 @@ public class SearchResult<T> {
         this.success = true;
     }
 
-    public Boolean getAuthorized() {
+    Boolean getAuthorized() {
         return authorized;
     }
 
-    public void setAuthorized(Boolean authorized) {
+    void setAuthorized(Boolean authorized) {
         this.authorized = authorized;
         if (!authorized) {
             this.success = false;
