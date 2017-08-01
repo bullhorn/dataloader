@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ActionTotals {
 
-    private ConcurrentHashMap<Result.Action, AtomicInteger> concurrentHashMap = new ConcurrentHashMap();
+    private ConcurrentHashMap<Result.Action, AtomicInteger> concurrentHashMap = new ConcurrentHashMap<>();
 
     public ActionTotals() {
         for (Result.Action action : Result.Action.values()) {
