@@ -7,7 +7,7 @@ import java.util.List;
  * or whether the call is unauthorized due to a user settings, and the results if it was successful.
  * This is used for calls that may or may not be enabled for the current user.
  */
-public class SearchResult<T> {
+class SearchResult<T> {
 
     private Boolean success = true;
     private Boolean authorized = true;

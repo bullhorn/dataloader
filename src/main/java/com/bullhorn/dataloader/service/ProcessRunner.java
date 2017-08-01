@@ -32,13 +32,14 @@ import java.util.concurrent.TimeUnit;
  * Contains the logic for running all complex processes in DataLoader. Services can call these methods to create and
  * execute tasks as part of a larger process without having to know all of the details involved.
  */
+@SuppressWarnings("StatementWithEmptyBody")
 public class ProcessRunner {
 
-    protected final RestSession restSession;
-    protected final Preloader preloader;
-    protected final PrintUtil printUtil;
-    protected final PropertyFileUtil propertyFileUtil;
-    protected final ThreadPoolUtil threadPoolUtil;
+    private final RestSession restSession;
+    private final Preloader preloader;
+    private final PrintUtil printUtil;
+    private final PropertyFileUtil propertyFileUtil;
+    private final ThreadPoolUtil threadPoolUtil;
 
     public ProcessRunner(RestSession restSession, Preloader preloader, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
         this.restSession = restSession;
@@ -48,7 +49,7 @@ public class ProcessRunner {
         this.threadPoolUtil = threadPoolUtil;
     }
 
-    public ActionTotals runLoadProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+    ActionTotals runLoadProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath);
@@ -79,7 +80,7 @@ public class ProcessRunner {
         return actionTotals;
     }
 
-    public ActionTotals runDeleteProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+    ActionTotals runDeleteProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath);
@@ -107,7 +108,7 @@ public class ProcessRunner {
         return actionTotals;
     }
 
-    public ActionTotals runLoadAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+    ActionTotals runLoadAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath);
@@ -131,7 +132,7 @@ public class ProcessRunner {
         return actionTotals;
     }
 
-    public ActionTotals runConvertAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+    ActionTotals runConvertAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath);
@@ -155,7 +156,7 @@ public class ProcessRunner {
         return actionTotals;
     }
 
-    public ActionTotals runDeleteAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+    ActionTotals runDeleteAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath);

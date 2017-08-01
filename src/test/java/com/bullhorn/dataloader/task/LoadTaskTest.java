@@ -751,7 +751,7 @@ public class LoadTaskTest {
     public void updateRowProcessedCountsTest() throws IOException {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.rowProcessedCount.set(110);
+        AbstractTask.rowProcessedCount.set(110);
         task.updateRowProcessedCounts();
 
         verify(printUtilMock, times(1)).printAndLog("Processed: 111 records.");

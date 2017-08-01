@@ -36,8 +36,7 @@ public class MainTest {
     public void testMain_BadFileInput() {
         String[] args = {"load", "file.bad"};
 
-        Main main = new Main();
-        main.main(args);
+        Main.main(args);
 
         Assert.assertTrue(outputStream.toString().contains("ERROR: Cannot access: file.bad"));
     }
