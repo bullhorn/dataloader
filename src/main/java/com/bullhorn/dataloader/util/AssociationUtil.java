@@ -45,6 +45,7 @@ public class AssociationUtil {
      * @param entityClass The SDK-REST entity class
      * @return The list of this entity (key is always this entity class) to the entity's associated classes
      */
+    @SuppressWarnings({"ConstantConditions", "unchecked"})
     public static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getAssociationFields(
         Class entityClass) {
         try {
@@ -89,6 +90,7 @@ public class AssociationUtil {
      * @param associationName  The association field name
      * @return The get method that returns the association list
      */
+    @SuppressWarnings("unchecked")
     public static Method getAssociationGetMethod(AssociationField associationField, String associationName) {
         String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
         try {
