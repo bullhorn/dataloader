@@ -45,16 +45,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * Handles converting a row of CSV data into REST calls to either insert or update a record in Bullhorn.
+ */
 public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
     private static final Integer RECORD_RETURN_COUNT = 500;
 
     protected B entity;
-    protected Integer entityId;
-    protected Map<String, Method> methodMap;
     protected Preloader preloader;
-    protected boolean isNewEntity = true;
+    private Map<String, Method> methodMap;
+    boolean isNewEntity = true;
+    Integer entityId;
 
-    private Map<String, AssociationField> associationMap = new HashMap<>();
+    private Map<String, AssociationField> toManyAssociations = new HashMap<>();
     private Map<String, Address> addressMap = new HashMap<>();
 
     public LoadTask(EntityInfo entityInfo,
@@ -82,52 +85,19 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     protected Result handle() throws Exception {
-        createEntityObject();
-        handleData();
+        getOrCreateEntity();
+        handleFields();
         insertAttachmentToDescription();
         insertOrUpdateEntity();
         createNewAssociations();
         return createResult();
     }
 
-    protected void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
-        String descriptionMethod = getDescriptionMethod();
-        if (!"".equals(descriptionMethod)) {
-            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), row.getValue("externalID"));
-            File convertedAttachment = new File(attachmentFilePath);
-            if (convertedAttachment.exists()) {
-                String description = FileUtils.readFileToString(convertedAttachment);
-                methodMap.get(descriptionMethod).invoke(entity, description);
-            }
-        }
-    }
-
-    protected String getDescriptionMethod() {
-        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(StringConsts.DESCRIPTION)).collect(Collectors.toList());
-        if (descriptionMethods.size() > 0) {
-            if (descriptionMethods.indexOf(StringConsts.DESCRIPTION) > -1) {
-                return StringConsts.DESCRIPTION;
-            } else {
-                return descriptionMethods.get(0);
-            }
-        } else {
-            return "";
-        }
-    }
-
-    protected String getAttachmentFilePath(String entityName, String externalId) {
-        return "convertedAttachments/" + entityName + "/" + externalId + ".html";
-    }
-
-    protected Result createResult() {
-        if (isNewEntity) {
-            return Result.insert(entityId);
-        } else {
-            return Result.update(entityId);
-        }
-    }
-
-    protected void createEntityObject() throws IOException, IllegalAccessException, InstantiationException {
+    /**
+     * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not
+     * found will create a new entity.
+     */
+    void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
         Map<String, String> entityExistFieldsMap = getEntityExistFieldsMap();
         List<B> existingEntityList = findEntityList(entityExistFieldsMap);
         if (!existingEntityList.isEmpty()) {
@@ -145,6 +115,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
+    /**
+     * Calls rest to insert or update the entity by passing in the filled out entity object.
+     */
     protected void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             CrudResponse response = restApi.insertEntity((CreateEntity) entity);
@@ -158,7 +131,43 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected void setDefaultContactExternalId(Integer entityId) {
+    // region Direct Field Methods
+    /**
+     * Handles inserting/updating all cells in the row.
+     *
+     * Direct Fields: Populate the field on the entity.
+     * Compound Fields (address): Get the address object and populate the field on the address.
+     * To-One Associations: Get the association object and populate the internal ID field.
+     * To-Many Associations: Call the association REST method (unless we are loading notes)
+     */
+    void handleFields() throws Exception {
+        for (String field : row.getNames()) {
+            if (validField(field)) {
+                if (field.contains(".")) {
+                    handleAssociations(field);
+                } else {
+                    populateFieldOnEntity(field);
+                }
+            }
+        }
+        for (String addressField : addressMap.keySet()) {
+            methodMap.get(addressField.toLowerCase()).invoke(entity, addressMap.get(addressField));
+        }
+    }
+
+    /**
+     * Ignore the username field for existing entities, as we cannot change the owner through REST??? TODO: check this!
+     */
+    protected boolean validField(String field) {
+        return isNewEntity || !"username".equalsIgnoreCase(field);
+    }
+
+    /**
+     * Special case that handles setting the externalID of the defaultContact that is created on a ClientCorporation.
+     * This allows for easily finding that contact later using the externalID, which will be of the format:
+     * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
+     */
+    private void setDefaultContactExternalId(Integer entityId) {
         List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity(
             "id",
             entityId.toString(),
@@ -180,105 +189,22 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected void handleData() throws Exception {
-        for (String field : row.getNames()) {
-            if (validField(field)) {
-                if (field.contains(".")) {
-                    handleAssociations(field);
-                } else {
-                    populateFieldOnEntity(field);
-                }
-            }
-        }
-        for (String addressField : addressMap.keySet()) {
-            methodMap.get(addressField.toLowerCase()).invoke(entity, addressMap.get(addressField));
-        }
-    }
-
-    protected boolean validField(String field) {
-        if (!isNewEntity) {
-            return !"username".equalsIgnoreCase(field);
-        }
-        return true;
-    }
-
-    protected void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
+    private void populateFieldOnEntity(String field) throws ParseException, InvocationTargetException, IllegalAccessException {
         populateFieldOnEntity(field, row.getValue(field), entity, methodMap);
     }
 
     protected void handleAssociations(String field) throws Exception {
-        boolean isOneToMany = verifyIfOneToMany(field);
+        boolean isOneToMany = isOneToMany(field);
         if (!isOneToMany) {
-            handleOneToOne(field);
+            handleToOne(field);
         } else if (entityInfo == EntityInfo.NOTE) {
             prepopulateNoteAssociation(field);
         }
     }
 
-    private void prepopulateNoteAssociation(String field) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
-        String toManyEntityName = field.substring(0, field.indexOf("."));
-
-        List<Integer> associationIdList = getNewAssociationIdList(field, associationMap.get(field));
-        Class associationClass = associationMap.get(field).getAssociationType();
-        List<B> associationList = new ArrayList<>();
-        for (Integer associationId : associationIdList) {
-            B associationInstance = (B) associationClass.newInstance();
-            associationInstance.setId(associationId);
-            associationList.add(associationInstance);
-        }
-        OneToMany oneToMany = new OneToMany();
-        oneToMany.setData(associationList);
-
-        Method method = methodMap.get(toManyEntityName.toLowerCase());
-        method.invoke(entity, oneToMany);
-    }
-
-    private <S extends SearchEntity> void handleOneToOne(String field) throws InvocationTargetException, IllegalAccessException, RestApiException {
-        String toOneEntityName = field.substring(0, field.indexOf("."));
-        String fieldName = field.substring(field.indexOf(".") + 1, field.length());
-
-        if (toOneEntityName.toLowerCase().contains("address")) {
-            handleAddress(toOneEntityName, field, fieldName);
-        } else {
-            Method method = methodMap.get(toOneEntityName.toLowerCase());
-            if (method == null) {
-                throw new RestApiException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
-            }
-
-            Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
-            B toOneEntity = getToOneEntity(field, fieldName, toOneEntityClass);
-            method.invoke(entity, toOneEntity);
-        }
-    }
-
-    protected B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
-        Class fieldType = getFieldType(toOneEntityClass, field, fieldName);
-        return findEntity(field, fieldName, toOneEntityClass, fieldType);
-    }
-
-    protected B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
-        List<B> list;
-        String value = row.getValue(field);
-
-        if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
-            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass, null);
-        } else {
-            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass, null);
-        }
-
-        validateListFromRestCall(field, list, value);
-
-        return list.get(0);
-    }
-
-    protected void validateListFromRestCall(String field, List<B> list, String value) {
-        if (list == null || list.isEmpty()) {
-            throw new RestApiException("Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
-        } else if (list.size() > 1) {
-            throw new RestApiException("Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
-        }
-    }
-
+    /**
+     * Handles setting a compound address field.
+     */
     private void handleAddress(String toOneEntityName, String field, String fieldName) throws InvocationTargetException, IllegalAccessException {
         if (!addressMap.containsKey(toOneEntityName)) {
             addressMap.put(toOneEntityName, new Address());
@@ -300,35 +226,126 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             method.invoke(addressMap.get(toOneEntityName), row.getValue(field));
         }
     }
+    // endregion
 
-    private boolean verifyIfOneToMany(String field) {
+    // region Attachments / Description Methods
+    void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
+        String descriptionMethod = getDescriptionMethod();
+        if (!"".equals(descriptionMethod)) {
+            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), row.getValue("externalID"));
+            File convertedAttachment = new File(attachmentFilePath);
+            if (convertedAttachment.exists()) {
+                String description = FileUtils.readFileToString(convertedAttachment);
+                methodMap.get(descriptionMethod).invoke(entity, description);
+            }
+        }
+    }
+
+    String getDescriptionMethod() {
+        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(StringConsts.DESCRIPTION)).collect(Collectors.toList());
+        if (descriptionMethods.size() > 0) {
+            if (descriptionMethods.indexOf(StringConsts.DESCRIPTION) > -1) {
+                return StringConsts.DESCRIPTION;
+            } else {
+                return descriptionMethods.get(0);
+            }
+        } else {
+            return "";
+        }
+    }
+
+    String getAttachmentFilePath(String entityName, String externalId) {
+        return "convertedAttachments/" + entityName + "/" + externalId + ".html";
+    }
+    // endregion
+
+    // region To-One Association Methods
+    private <S extends SearchEntity> void handleToOne(String field) throws InvocationTargetException, IllegalAccessException, RestApiException {
+        String toOneEntityName = field.substring(0, field.indexOf("."));
+        String fieldName = field.substring(field.indexOf(".") + 1, field.length());
+
+        if (toOneEntityName.toLowerCase().contains("address")) {
+            handleAddress(toOneEntityName, field, fieldName);
+        } else {
+            Method method = methodMap.get(toOneEntityName.toLowerCase());
+            if (method == null) {
+                throw new RestApiException("To-One Association: '" + toOneEntityName + "' does not exist on " + entity.getClass().getSimpleName());
+            }
+
+            Class<B> toOneEntityClass = (Class<B>) method.getParameterTypes()[0];
+            B toOneEntity = getToOneEntity(field, fieldName, toOneEntityClass);
+            method.invoke(entity, toOneEntity);
+        }
+    }
+
+    private B getToOneEntity(String field, String fieldName, Class<B> toOneEntityClass) {
+        Class fieldType = getFieldType(toOneEntityClass, field, fieldName);
+        return findEntity(field, fieldName, toOneEntityClass, fieldType);
+    }
+
+    B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
+        List<B> list;
+        String value = row.getValue(field);
+
+        if (SearchEntity.class.isAssignableFrom(toOneEntityClass)) {
+            list = searchForEntity(fieldName, value, fieldType, toOneEntityClass, null);
+        } else {
+            list = queryForEntity(fieldName, value, fieldType, toOneEntityClass, null);
+        }
+
+        validateListFromRestCall(field, list, value);
+
+        return list.get(0);
+    }
+
+    void validateListFromRestCall(String field, List<B> list, String value) {
+        if (list == null || list.isEmpty()) {
+            throw new RestApiException("Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
+        } else if (list.size() > 1) {
+            throw new RestApiException("Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
+        }
+    }
+    // endregion
+
+    // region To-Many Association Methods
+    /**
+     * Populates the toManyAssociations map with all To-Many association fields that can be set on the entity object.
+     */
+    private boolean isOneToMany(String field) {
         List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList =
             AssociationUtil.getAssociationFields((Class<AssociationEntity>) entityInfo.getEntityClass());
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0, field.indexOf(".")))) {
-                associationMap.put(field, associationField);
+                toManyAssociations.put(field, associationField);
                 return true;
             }
         }
         return false;
     }
 
+    /**
+     * Makes association REST calls for all To-Many relationships for the entity.
+     */
     private void createNewAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (entityInfo != EntityInfo.NOTE) {
-            for (String associationName : associationMap.keySet()) {
+            for (String associationName : toManyAssociations.keySet()) {
                 if (row.getValue(associationName) != null && !row.getValue(associationName).equals("")) {
-                    addAssociationToEntity(associationName, associationMap.get(associationName));
+                    addAssociationToEntity(associationName, toManyAssociations.get(associationName));
                 }
             }
         }
     }
 
-    protected void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    /**
+     * Makes an associate REST call to associate the given one to many relationship with the entity.
+     */
+    void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException,
+        InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         try {
             restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityId, associationField, Sets.newHashSet(newAssociationIdList));
         } catch (RestApiException e) {
-            // Provide a simpler duplication error message with all of the essential data
+            // Provides a simpler duplication error message with all of the essential data
             if (e.getMessage().contains("an association between " + entityInfo.getEntityName())
                 && e.getMessage().contains(entityId + " and " + associationField.getAssociationType().getSimpleName() + " ")) {
                 printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName()
@@ -340,7 +357,28 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }
     }
 
-    protected List<Integer> getNewAssociationIdList(String field, AssociationField associationField)
+    private void prepopulateNoteAssociation(String field) throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        String toManyEntityName = field.substring(0, field.indexOf("."));
+
+        List<Integer> associationIdList = getNewAssociationIdList(field, toManyAssociations.get(field));
+        Class associationClass = toManyAssociations.get(field).getAssociationType();
+        List<B> associationList = new ArrayList<>();
+        for (Integer associationId : associationIdList) {
+            B associationInstance = (B) associationClass.newInstance();
+            associationInstance.setId(associationId);
+            associationList.add(associationInstance);
+        }
+        OneToMany oneToMany = new OneToMany();
+        oneToMany.setData(associationList);
+
+        Method method = methodMap.get(toManyEntityName.toLowerCase());
+        method.invoke(entity, oneToMany);
+    }
+
+    /**
+     * Returns the list of internal IDs that match the search criteria in the given field.
+     */
+    List<Integer> getNewAssociationIdList(String field, AssociationField associationField)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
@@ -365,6 +403,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return associationIdList;
     }
 
+    /**
+     * Given a list of entity objects, this returns the non-duplicate set of all returned values.
+     */
     private Set<String> getExistingAssociationValues(Method method, List<B> existingAssociations) {
         return existingAssociations.stream().map(n -> {
             try {
@@ -375,6 +416,9 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         }).collect(Collectors.toSet());
     }
 
+    /**
+     * Returns the list of internal IDs from the given list of bullhorn entity object.
+     */
     private List<Integer> findIdsOfAssociations(Set<String> valueSet, List<B> existingAssociations, Method method) throws IllegalAccessException, InvocationTargetException {
         List<Integer> associationIdList = new ArrayList<>();
         for (B association : existingAssociations) {
@@ -419,5 +463,14 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     private String getWhereStatement(Set<String> valueSet, String field, Class<B> associationClass) {
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
         return valueSet.stream().map(n -> getWhereStatement(fieldName, n, getFieldType(associationClass, field, fieldName))).collect(Collectors.joining(" OR "));
+    }
+    // endregion
+
+    Result createResult() {
+        if (isNewEntity) {
+            return Result.insert(entityId);
+        } else {
+            return Result.update(entityId);
+        }
     }
 }

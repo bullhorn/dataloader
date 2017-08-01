@@ -66,8 +66,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     protected Result handle() throws Exception {
-        createEntityObject();
-        handleData();
+        getOrCreateEntity();
+        handleFields();
         getCustomObjectId();
         prepParentEntityForCustomObject();
         insertOrUpdateEntity();

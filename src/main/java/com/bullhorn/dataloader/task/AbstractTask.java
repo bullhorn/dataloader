@@ -95,11 +95,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         actionTotals.incrementActionTotal(result.getAction());
     }
 
-    Result handleFailure(Exception exception) {
-        printUtil.printAndLog(exception);
-        return Result.failure(exception);
-    }
-
+    // region Error Handling Methods
     /**
      * Generic handling of an error for the row that fails.
      *
@@ -115,10 +111,130 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return Result.failure(exception);
     }
 
-    <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
-        String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
-        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) restApi.searchForList((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams());
+    /**
+     * Generic handling of an error for the row that fails. For the case when there is no internal ID to report.
+     */
+    Result handleFailure(Exception exception) {
+        printUtil.printAndLog(exception);
+        return Result.failure(exception);
+    }
+    // endregion
+
+    // region Direct Field Utility Methods
+    /**
+     * Returns the type of the given field on the given entity
+     *
+     * @param fieldType The type of the field if it already is known, otherwise the type of the parent
+     * @param field     The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
+     * @param fieldName The part of the field after the '.', like: 'id'
+     * @return The class type of the field retrieved from the SDK-REST object.
+     */
+    Class getFieldType(Class<B> fieldType, String field, String fieldName) {
+        if (fieldName.contains(".")) {
+            fieldType = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
+            fieldName = fieldName.substring(fieldName.indexOf(".") + 1);
+        }
+        String getMethodName = "get" + fieldName;
+        List<Method> methods = Arrays.stream(fieldType.getMethods()).filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
+        if (methods.isEmpty()) {
+            throw new RestApiException("'" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
+        }
+
+        return methods.get(0).getReturnType();
+    }
+
+    /**
+     * Returns the Bullhorn entity class for the given field on the given entity
+     *
+     * @param field The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
+     * @return The Bullhorn entity class that the field is on
+     */
+    Class<B> getFieldEntityClass(String field) {
+        if (field.contains(".")) {
+            return BullhornEntityInfo.getTypeFromName(field.substring(0, field.indexOf("."))).getType();
+        } else {
+            return entityInfo.getEntityClass();
+        }
+    }
+
+    /**
+     * populates a field on an entity using reflection
+     *
+     * @param field     field to populate
+     * @param value     value to populate field with
+     * @param entity    the entity to populate
+     * @param methodMap map of set methods on entity
+     */
+    void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
+        Method method = methodMap.get(field.toLowerCase());
+        if (method == null) {
+            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
+        }
+
+        if (isAddressField(field) && methodMap.containsKey("address")) {
+            throw new RestApiException("Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header");
+        }
+
+        if (value != null) {
+            method.invoke(entity, convertStringToObject(method, value));
+        }
+    }
+
+    private boolean isAddressField(String field) {
+        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
+        return addressFields.indexOf(field.toLowerCase()) > -1;
+    }
+
+    Object convertStringToObject(Method method, String value) throws ParseException {
+        Class convertToClass = method.getParameterTypes()[0];
+        value = value.trim();
+
+        if (String.class.equals(convertToClass)) {
+            return value;
+        } else if (Integer.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return 0;
+            }
+            return Integer.parseInt(value);
+        } else if (Double.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return 0.0;
+            }
+            return Double.parseDouble(value);
+        } else if (Boolean.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return Boolean.parseBoolean(null);
+            }
+            return Boolean.parseBoolean(value);
+        } else if (DateTime.class.equals(convertToClass)) {
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            if (!StringUtils.isEmpty(value)) {
+                return formatter.parseDateTime(value);
+            }
+        } else if (BigDecimal.class.equals(convertToClass)) {
+            DecimalFormat decimalFormat = new DecimalFormat();
+            decimalFormat.setParseBigDecimal(true);
+            if (StringUtils.isEmpty(value)) {
+                return decimalFormat.parse(String.valueOf(0.0));
+            }
+            return decimalFormat.parse(value);
+        }
+        return null;
+    }
+    // endregion
+
+    // region Search Criteria Methods
+    // TODO: Move these to the SearchCriteria:
+    List<B> findEntityList(Map<String, String> fieldToValueMap) {
+        if (!fieldToValueMap.isEmpty()) {
+            if (SearchEntity.class.isAssignableFrom(entityInfo.getEntityClass())) {
+                return searchForEntity(fieldToValueMap);
+            } else {
+                return queryForEntity(fieldToValueMap);
+            }
+        }
+
+        return new ArrayList<>();
     }
 
     private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
@@ -131,10 +247,10 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
     }
 
-    <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
-        String where = getWhereStatement(field, value, fieldType);
+    <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
+        String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
         fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) restApi.queryForList((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams());
+        return (List<B>) restApi.searchForList((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams());
     }
 
     private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
@@ -145,6 +261,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                 getFieldType(entityInfo.getEntityClass(), n, n)))
             .collect(Collectors.joining(" AND "));
         return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
+    }
+
+    <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
+        String where = getWhereStatement(field, value, fieldType);
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) restApi.queryForList((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams());
     }
 
     String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
@@ -159,18 +281,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else {
             throw new RestApiException("Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
         }
-    }
-
-    List<B> findEntityList(Map<String, String> fieldToValueMap) {
-        if (!fieldToValueMap.isEmpty()) {
-            if (SearchEntity.class.isAssignableFrom(entityInfo.getEntityClass())) {
-                return searchForEntity(fieldToValueMap);
-            } else {
-                return queryForEntity(fieldToValueMap);
-            }
-        }
-
-        return new ArrayList<>();
     }
 
     String getWhereStatement(String field, String value, Class fieldType) {
@@ -207,6 +317,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             return df.format(dateTime.toDate());
         }
     }
+    // endregion
 
     // TODO: Move exist fields to Cell object
     protected Map<String, String> getEntityExistFieldsMap() throws IOException {
@@ -218,109 +329,5 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
 
         return entityExistFieldsMap;
-    }
-
-    Object convertStringToClass(Method method, String value) throws ParseException {
-        Class convertToClass = method.getParameterTypes()[0];
-        value = value.trim();
-
-        if (String.class.equals(convertToClass)) {
-            return value;
-        } else if (Integer.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return 0;
-            }
-            return Integer.parseInt(value);
-        } else if (Double.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return 0.0;
-            }
-            return Double.parseDouble(value);
-        } else if (Boolean.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return Boolean.parseBoolean(null);
-            }
-            return Boolean.parseBoolean(value);
-        } else if (DateTime.class.equals(convertToClass)) {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            if (!StringUtils.isEmpty(value)) {
-                return formatter.parseDateTime(value);
-            }
-        } else if (BigDecimal.class.equals(convertToClass)) {
-            DecimalFormat decimalFormat = new DecimalFormat();
-            decimalFormat.setParseBigDecimal(true);
-            if (StringUtils.isEmpty(value)) {
-                return decimalFormat.parse(String.valueOf(0.0));
-            }
-            return decimalFormat.parse(value);
-        }
-        return null;
-    }
-
-    /**
-     * Returns the type of the given field on the given entity
-     *
-     * @param fieldType The type of the field if it already is known, otherwise the type of the parent
-     * @param field     The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
-     * @param fieldName The part of the field after the '.', like: 'id'
-     * @return The class type of the field retrieved from the SDK-REST object.
-     */
-    Class getFieldType(Class<B> fieldType, String field, String fieldName) {
-        if (fieldName.contains(".")) {
-            fieldType = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
-            fieldName = fieldName.substring(fieldName.indexOf(".") + 1);
-        }
-        String getMethodName = "get" + fieldName;
-        List<Method> methods = Arrays.stream(fieldType.getMethods()).filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
-        if (methods.isEmpty()) {
-            throw new RestApiException("'" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
-        }
-
-        return methods.get(0).getReturnType();
-    }
-
-    // TODO: Refactor this to use entityInfo.fromString() and Cell
-
-    /**
-     * Returns the Bullhorn entity class for the given field on the given entity
-     *
-     * @param field The name of the field, like: 'commentingPerson.id', otherwise just the fieldName itself
-     * @return The Bullhorn entity class that the field is on
-     */
-    Class<B> getFieldEntityClass(String field) {
-        if (field.contains(".")) {
-            return BullhornEntityInfo.getTypeFromName(field.substring(0, field.indexOf("."))).getType();
-        } else {
-            return entityInfo.getEntityClass();
-        }
-    }
-
-    /**
-     * populates a field on an entity using reflection
-     *
-     * @param field     field to populate
-     * @param value     value to populate field with
-     * @param entity    the entity to populate
-     * @param methodMap map of set methods on entity
-     */
-    void populateFieldOnEntity(String field, String value, Object entity, Map<String, Method> methodMap) throws ParseException, InvocationTargetException, IllegalAccessException {
-        Method method = methodMap.get(field.toLowerCase());
-        if (method == null) {
-            throw new RestApiException("Invalid field: '" + field + "' does not exist on " + entity.getClass().getSimpleName());
-        }
-
-        if (isAddressField(field) && methodMap.containsKey("address")) {
-            throw new RestApiException("Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header");
-        }
-
-        if (value != null) {
-            method.invoke(entity, convertStringToClass(method, value));
-        }
-    }
-
-    // TODO: Move out to utility class
-    private boolean isAddressField(String field) {
-        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
-        return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 }

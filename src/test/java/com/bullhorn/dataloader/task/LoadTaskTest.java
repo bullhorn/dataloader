@@ -763,7 +763,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("id"), "");
+        Object convertedString = task.convertStringToObject(methodMap.get("id"), "");
 
         Assert.assertEquals(0, convertedString);
     }
@@ -774,7 +774,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("id"), "1");
+        Object convertedString = task.convertStringToObject(methodMap.get("id"), "1");
 
         Assert.assertEquals(1, convertedString);
     }
@@ -785,7 +785,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
-        Object convertedString = task.convertStringToClass(method, "1");
+        Object convertedString = task.convertStringToObject(method, "1");
 
         Assert.assertEquals(1.0, convertedString);
     }
@@ -796,7 +796,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Method method = getClass().getMethod("convertStringToClassTest_DoubleTestMethod", Double.class);
-        Object convertedString = task.convertStringToClass(method, "");
+        Object convertedString = task.convertStringToObject(method, "");
 
         Assert.assertEquals(0.0, convertedString);
     }
@@ -807,7 +807,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "true");
+        Object convertedString = task.convertStringToObject(methodMap.get("isdeleted"), "true");
 
         Assert.assertEquals(true, convertedString);
     }
@@ -818,7 +818,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("isdeleted"), "");
+        Object convertedString = task.convertStringToObject(methodMap.get("isdeleted"), "");
 
         Assert.assertEquals(false, convertedString);
     }
@@ -834,7 +834,7 @@ public class LoadTaskTest {
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("dateadded"), now.toString(dateTimeFormat));
+        Object convertedString = task.convertStringToObject(methodMap.get("dateadded"), now.toString(dateTimeFormat));
 
         Assert.assertEquals(now, convertedString);
     }
@@ -845,7 +845,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("dateadded"), "");
+        Object convertedString = task.convertStringToObject(methodMap.get("dateadded"), "");
         Assert.assertEquals(null, convertedString);
     }
 
@@ -855,7 +855,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("tearsheets"), "");
+        Object convertedString = task.convertStringToObject(methodMap.get("tearsheets"), "");
         Assert.assertEquals(null, convertedString);
     }
 
@@ -865,7 +865,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "1");
+        Object convertedString = task.convertStringToObject(methodMap.get("dayrate"), "1");
 
         Assert.assertEquals(BigDecimal.ONE, convertedString);
     }
@@ -876,7 +876,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         Map<String, Method> methodMap = EntityInfo.CANDIDATE.getSetterMethodMap();
-        Object convertedString = task.convertStringToClass(methodMap.get("dayrate"), "");
+        Object convertedString = task.convertStringToObject(methodMap.get("dayrate"), "");
 
         Assert.assertTrue(BigDecimal.ZERO.setScale(1).equals(convertedString));
     }
