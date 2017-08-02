@@ -260,7 +260,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     // endregion
 
     // region To-One Association Methods
-    private <S extends SearchEntity> void handleToOne(String field) throws InvocationTargetException, IllegalAccessException, RestApiException {
+    private void handleToOne(String field) throws InvocationTargetException, IllegalAccessException, RestApiException {
         String toOneEntityName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1, field.length());
 
