@@ -24,6 +24,7 @@ import java.util.Properties;
 public class PropertyFileUtil {
     private static final String EXIST_FIELD_SUFFIX = "ExistField";
     private static final String DATALOADER_PREFIX = "DATALOADER_";
+    private static final String CONVERTED_ATTACHMENTS_DIRECTORY = "convertedAttachments";
 
     private final PrintUtil printUtil;
     private String[] remainingArgs;
@@ -82,6 +83,83 @@ public class PropertyFileUtil {
         // Process and log
         processProperties(properties, propertyValidationUtil);
         logProperties(fileName, properties);
+    }
+
+    /**
+     * Returns a relative path that can be used to persist converted attachments (documents that have been parsed
+     * into HTML files) to disk so that they can be later retrived and added to the description field of entities
+     * when loading.
+     *
+     * @param entityInfo the entity type
+     * @param externalId the entity's externalID
+     * @return a string containing the filepath to read to or write from
+     */
+    public String getConvertedAttachmentFilepath(EntityInfo entityInfo, String externalId) {
+        return CONVERTED_ATTACHMENTS_DIRECTORY + "/" + entityInfo.getEntityName() + "/" + externalId + ".html";
+    }
+
+    /**
+     * Returns the arguments list after the property arguments have been parsed out
+     *
+     * @return The command line arguments without the given property arguments
+     */
+    public String[] getRemainingArgs() {
+        return remainingArgs;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getClientId() {
+        return clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public String getAuthorizeUrl() {
+        return authorizeUrl;
+    }
+
+    public String getTokenUrl() {
+        return tokenUrl;
+    }
+
+    public String getLoginUrl() {
+        return loginUrl;
+    }
+
+    /**
+     * Returns the list of entity exist fields for a given entity.
+     *
+     * @param entityInfo The entity type
+     * @return The list of field names if they exist, an empty list otherwise
+     */
+    public List<String> getEntityExistFields(EntityInfo entityInfo) {
+        List<String> entityExistFields = entityExistFieldsMap.get(entityInfo.getEntityName());
+        return entityExistFields == null ? Lists.newArrayList() : entityExistFields;
+    }
+
+    public String getListDelimiter() {
+        return listDelimiter;
+    }
+
+    public DateTimeFormatter getDateParser() {
+        return dateParser;
+    }
+
+    public Integer getNumThreads() {
+        return numThreads;
+    }
+
+    public Integer getWaitTimeMsecBetweenFilesInDirectory() {
+        return waitTimeMSecBetweenFilesInDirectory;
     }
 
     /**
@@ -272,69 +350,5 @@ public class PropertyFileUtil {
         if (properties.containsKey(property)) {
             printUtil.log("   " + property + "=" + properties.getProperty(property));
         }
-    }
-
-    /**
-     * Returns the arguments list after the property arguments have been parsed out
-     *
-     * @return The command line arguments without the given property arguments
-     */
-    public String[] getRemainingArgs() {
-        return remainingArgs;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getClientId() {
-        return clientId;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
-
-    public String getAuthorizeUrl() {
-        return authorizeUrl;
-    }
-
-    public String getTokenUrl() {
-        return tokenUrl;
-    }
-
-    public String getLoginUrl() {
-        return loginUrl;
-    }
-
-    /**
-     * Returns the list of entity exist fields for a given entity.
-     *
-     * @param entityInfo The entity type
-     * @return The list of field names if they exist, an empty list otherwise
-     */
-    public List<String> getEntityExistFields(EntityInfo entityInfo) {
-        List<String> entityExistFields = entityExistFieldsMap.get(entityInfo.getEntityName());
-        return entityExistFields == null ? Lists.newArrayList() : entityExistFields;
-    }
-
-    public String getListDelimiter() {
-        return listDelimiter;
-    }
-
-    public DateTimeFormatter getDateParser() {
-        return dateParser;
-    }
-
-    public Integer getNumThreads() {
-        return numThreads;
-    }
-
-    public Integer getWaitTimeMsecBetweenFilesInDirectory() {
-        return waitTimeMSecBetweenFilesInDirectory;
     }
 }

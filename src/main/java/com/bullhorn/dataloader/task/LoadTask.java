@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -132,6 +133,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     // region Direct Field Methods
+
     /**
      * Handles inserting/updating all cells in the row.
      *
@@ -226,36 +228,25 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
             method.invoke(addressMap.get(toOneEntityName), row.getValue(field));
         }
     }
-    // endregion
 
-    // region Attachments / Description Methods
-    void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
-        String descriptionMethod = getDescriptionMethod();
-        if (!"".equals(descriptionMethod)) {
-            String attachmentFilePath = getAttachmentFilePath(entityInfo.getEntityName(), row.getValue("externalID"));
-            File convertedAttachment = new File(attachmentFilePath);
-            if (convertedAttachment.exists()) {
-                String description = FileUtils.readFileToString(convertedAttachment);
-                methodMap.get(descriptionMethod).invoke(entity, description);
+    /**
+     * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume
+     * file or description file stored on disk, if a convertAttachments has been done previously. This only works if
+     * there is an externalID being used in the input file.
+     */
+    private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
+        String descriptionMethod = MethodUtil.findBestMatch(methodMap.keySet(), StringConsts.DESCRIPTION);
+        if (descriptionMethod != null && row.hasValue(StringConsts.EXTERNAL_ID)) {
+            String convertedAttachmentFilepath = propertyFileUtil.getConvertedAttachmentFilepath(entityInfo,
+                row.getValue(StringConsts.EXTERNAL_ID));
+            if (convertedAttachmentFilepath != null) {
+                File convertedAttachmentFile = new File(convertedAttachmentFilepath);
+                if (convertedAttachmentFile.exists()) {
+                    String description = FileUtils.readFileToString(convertedAttachmentFile);
+                    methodMap.get(descriptionMethod).invoke(entity, description);
+                }
             }
         }
-    }
-
-    String getDescriptionMethod() {
-        List<String> descriptionMethods = methodMap.keySet().stream().filter(n -> n.contains(StringConsts.DESCRIPTION)).collect(Collectors.toList());
-        if (descriptionMethods.size() > 0) {
-            if (descriptionMethods.indexOf(StringConsts.DESCRIPTION) > -1) {
-                return StringConsts.DESCRIPTION;
-            } else {
-                return descriptionMethods.get(0);
-            }
-        } else {
-            return "";
-        }
-    }
-
-    String getAttachmentFilePath(String entityName, String externalId) {
-        return "convertedAttachments/" + entityName + "/" + externalId + ".html";
     }
     // endregion
 
@@ -308,6 +299,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     // endregion
 
     // region To-Many Association Methods
+
     /**
      * Populates the toManyAssociations map with all To-Many association fields that can be set on the entity object.
      */

@@ -29,15 +29,35 @@ public class PropertyFileUtilTest {
     @Before
     public void setup() {
         path = TestUtils.getResourceFilePath("unitTest.properties");
-        emptyArgs = new String[]{};
         envVars = new HashMap<>();
         systemProperties = new Properties();
+        emptyArgs = new String[]{};
         propertyValidationUtil = new PropertyValidationUtil();
         printUtilMock = mock(PrintUtil.class);
     }
 
     @Test
-    public void testGetMethods_PropertyFileValues() throws IOException {
+    public void testGetConvertedAttachmentFileForCandidate() throws IOException {
+        String expected = "convertedAttachments/Candidate/candidate-ext-1.html";
+
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        String actual = propertyFileUtil.getConvertedAttachmentFilepath(EntityInfo.CANDIDATE, "candidate-ext-1");
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGetConvertedAttachmentFileForClientContact() throws IOException {
+        String expected = "convertedAttachments/ClientContact/12345.html";
+
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        String actual = propertyFileUtil.getConvertedAttachmentFilepath(EntityInfo.CLIENT_CONTACT, "12345");
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testGettersForPropertyFileValues() throws IOException {
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals("john.smith", propertyFileUtil.getUsername());
@@ -54,7 +74,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetMethods_EnvironmentVariableOverrides() throws IOException {
+    public void testGettersForEnvironmentVariableOverrides() throws IOException {
         envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
         envVars.put("DATALOADER_PASSWORD", "password456");
         envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
@@ -97,7 +117,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetMethods_SystemPropertyOverrides() throws IOException {
+    public void testGettersForSystemPropertyOverrides() throws IOException {
         envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
         envVars.put("DATALOADER_PASSWORD", "password456");
         envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
@@ -136,7 +156,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetMethods_ArgumentPropertyOverrides() throws IOException {
+    public void testGettersForArgumentPropertyOverrides() throws IOException {
         envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
         envVars.put("DATALOADER_PASSWORD", "password456");
         envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");

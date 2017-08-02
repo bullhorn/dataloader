@@ -96,6 +96,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     }
 
     // region Error Handling Methods
+
     /**
      * Generic handling of an error for the row that fails.
      *
@@ -121,6 +122,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     // endregion
 
     // region Direct Field Utility Methods
+
     /**
      * Returns the type of the given field on the given entity
      *
