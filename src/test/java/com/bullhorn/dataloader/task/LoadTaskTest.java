@@ -35,7 +35,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -228,8 +227,8 @@ public class LoadTaskTest {
     @Test
     public void testRunInsertErrorForCandidateMissingRecords() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName,primarySkills.id", "Data,Loader,1;2;3");
-        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock);
@@ -593,77 +592,87 @@ public class LoadTaskTest {
         Assert.assertEquals(fileContents, actualOpportunity.getDescription());
     }
 
-    // TODO: Stop testing internals - do this through the run method
     @Test
-    @SuppressWarnings("unchecked")
-    public void addAssociationToEntityTestCatchNoThrow() throws Exception {
-        Row row = TestUtils.createRow(
-            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
-            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,United States,1,");
-        Set associationIdList = new HashSet<>(Collections.singletonList(1));
-        RestApiException thrownException = new RestApiException("an association between Candidate 1 and Skill 1 already exists");
-        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
+    public void testRunAssociationAlreadyExists() throws Exception {
+        Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1");
+        RestApiException thrownException = new RestApiException(
+            "an association between Candidate 1 and Skill 1 already exists");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).
+            thenReturn(TestUtils.getList(Skill.class, 1));
+        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance()
+            .primarySkills()), eq(new HashSet<>(Collections.singletonList(1))))).thenThrow(thrownException);
 
-        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.entityId = 1;
-        task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
 
-        verify(printUtilMock, times(1)).log(Level.INFO, "Association from Candidate entity 1 to Skill entities [1] already exists.");
+        verify(printUtilMock, times(1)).log(Level.INFO,
+            "Association from Candidate entity 1 to Skill entities [1] already exists.");
     }
 
-    // TODO: Stop testing internals - do this through the run method
     @Test
-    @SuppressWarnings("unchecked")
-    public void addAssociationToEntityTestCatchThrow() throws Exception {
-        Row row = TestUtils.createRow(
-            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
-            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,United States,1,");
-        RestApiException thrownException = new RestApiException("nope");
-        Set associationIdList = new HashSet<>(Collections.singletonList(1));
-        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1));
+    public void testRunAssociationMultipleAlreadyExist() throws Exception {
+        Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1;2;3");
+        RestApiException thrownException = new RestApiException(
+            "an association between Candidate 1 and Skill X already exists");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).
+            thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
+        when(restApiMock.associateWithEntity(eq(Candidate.class), any(), eq(CandidateAssociations.getInstance()
+            .primarySkills()), any())).thenThrow(thrownException);
 
-        boolean wasExceptionThrown = false;
-        try {
-            LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-            task.entityId = 1;
-            task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
-        } catch (RestApiException e) {
-            wasExceptionThrown = true;
-        }
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
 
-        Assert.assertThat(true, new ReflectionEquals(wasExceptionThrown));
+        verify(printUtilMock, times(1)).log(Level.INFO,
+            "Association from Candidate entity 1 to Skill entities [1, 2, 3] already exists.");
     }
 
-    // TODO: Stop testing internals - do this through the run method
     @Test
-    @SuppressWarnings("unchecked")
-    public void addAssociationToEntityTestCatchThrowDuplicateAssociation() throws Exception {
-        Row row = TestUtils.createRow(
-            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryName,owner.id",
-            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,United States,1,");
-        RestApiException thrownException = new RestApiException("nope");
-        Set associationIdList = new HashSet<>();
-        associationIdList.add(1);
-        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(associationIdList))).thenThrow(thrownException);
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
-        String errorMessage = "";
+    public void testRunDuplicateAssociationsExist() throws Exception {
+        Row row = TestUtils.createRow("externalID,primarySkills.name", "11,hacking");
+        RestApiException restApiException = new RestApiException("Some Duplicate Warning from REST");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        Skill skill1 = new Skill();
+        skill1.setId(1001);
+        skill1.setName("hacking");
+        Skill skill2 = new Skill();
+        skill2.setId(1002);
+        skill2.setName("hacking");
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(skill1, skill2));
+        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1),
+            eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
 
-        boolean wasExceptionThrown = false;
-        try {
-            LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-            task.entityId = 1;
-            task.addAssociationToEntity("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
-        } catch (RestApiException e) {
-            errorMessage = e.getMessage();
-            wasExceptionThrown = true;
-        }
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
 
-        Assert.assertTrue(wasExceptionThrown);
-        Assert.assertTrue(errorMessage.contains("duplicate To-Many Associations"));
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
+            "com.bullhornsdk.data.exception.RestApiException: Found 2 duplicate To-Many Associations: " +
+                "'primarySkills.name' with value:\n\thacking");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunAssociationException() throws Exception {
+        Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1");
+        RestApiException restApiException = new RestApiException("Flagrant Error");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1));
+        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1),
+            eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
+            "com.bullhornsdk.data.exception.RestApiException: Flagrant Error");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     // TODO: Stop testing internals - do this through the run method

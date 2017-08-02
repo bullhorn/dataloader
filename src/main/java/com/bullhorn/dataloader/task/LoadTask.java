@@ -331,7 +331,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     /**
      * Makes an associate REST call to associate the given one to many relationship with the entity.
      */
-    void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException,
+    private void addAssociationToEntity(String field, AssociationField associationField) throws NoSuchMethodException,
         InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         try {
