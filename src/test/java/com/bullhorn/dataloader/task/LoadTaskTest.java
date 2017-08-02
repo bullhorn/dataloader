@@ -14,6 +14,7 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateEducation;
+import com.bullhornsdk.data.model.entity.core.standard.Category;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
@@ -631,7 +632,29 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunDuplicateAssociationsExist() throws Exception {
+    public void testRunDuplicateToOneAssociationsExist() throws Exception {
+        Row row = TestUtils.createRow("externalID,category.name", "11,hackers");
+        Category category1 = new Category();
+        category1.setId(1001);
+        category1.setName("hackers");
+        Category category2 = new Category();
+        category2.setId(1002);
+        category2.setName("hackers");
+        when(restApiMock.queryForList(eq(Category.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(category1, category2));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "com.bullhornsdk.data.exception.RestApiException: Found 2 duplicate To-One Associations: " +
+                "'category.name' with value: 'hackers'");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunDuplicateToManyAssociationsExist() throws Exception {
         Row row = TestUtils.createRow("externalID,primarySkills.name", "11,hacking");
         RestApiException restApiException = new RestApiException("Some Duplicate Warning from REST");
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
