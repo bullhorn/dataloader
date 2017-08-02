@@ -226,15 +226,34 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunInsertErrorForCandidateMissingRecords() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName,primarySkills.id", "Data,Loader,1;2;3");
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
+            "com.bullhornsdk.data.exception.RestApiException: Error occurred: "
+                + "primarySkills does not exist with id of the following values:\n\t3");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
+    }
+
+    @Test
     public void testRunInsertErrorForNoteMissingRecords() throws Exception {
         Row row = TestUtils.createRow("candidates.id", "1;2");
         when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 OR id:2"), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
-        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
-        LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "com.bullhornsdk.data.exception.RestApiException: Error occurred: candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "com.bullhornsdk.data.exception.RestApiException: Error occurred: "
+                + "candidates does not exist with id of the following values:\n\t2");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -572,24 +591,6 @@ public class LoadTaskTest {
         verify(restApiMock).insertEntity(opportunityArgumentCaptor.capture());
         Opportunity actualOpportunity = opportunityArgumentCaptor.getValue();
         Assert.assertEquals(fileContents, actualOpportunity.getDescription());
-    }
-
-    // TODO: Stop testing internals - do this through the run method
-    @Test
-    public void testGetNewAssociationIdListTest() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,primarySkills.id", "Data,Loader,1;2;3");
-        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1, 2));
-        String expectedExceptionMessage = "Error occurred: primarySkills does not exist with id of the following values:\n\t3";
-
-        String actualExceptionMessage = "";
-        try {
-            LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-            task.getNewAssociationIdList("primarySkills.id", CandidateAssociations.getInstance().primarySkills());
-        } catch (RestApiException e) {
-            actualExceptionMessage = e.getMessage();
-        }
-
-        Assert.assertThat(expectedExceptionMessage, new ReflectionEquals(actualExceptionMessage));
     }
 
     // TODO: Stop testing internals - do this through the run method

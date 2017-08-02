@@ -370,7 +370,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     /**
      * Returns the list of internal IDs that match the search criteria in the given field.
      */
-    List<Integer> getNewAssociationIdList(String field, AssociationField associationField)
+    private List<Integer> getNewAssociationIdList(String field, AssociationField associationField)
         throws IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         String associationName = field.substring(0, field.indexOf("."));
         String fieldName = field.substring(field.indexOf(".") + 1);
