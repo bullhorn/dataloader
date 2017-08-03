@@ -130,7 +130,9 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
 
         for (Cell cell : row.getCells()) {
             boolean fieldIsInMeta = ((List<Field>) meta.getFields()).stream().map(n -> n.getName()).anyMatch(n -> n.equals(cell.getName()));
-            if ((fieldIsInMeta || cell.isAssociation()) && (!cell.getName().contains("_"))) {
+            if ((fieldIsInMeta || cell.isAssociation())
+                && !cell.getName().contains("_")
+                && !cell.getName().contains("textBlock")) {
                 scrubbedRow.addCell(cell);
             }
         }
