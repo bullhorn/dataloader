@@ -698,56 +698,6 @@ public class LoadTaskTest {
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
-    // TODO: Stop testing internals - do this through the run method
-    @Test
-    @SuppressWarnings("unchecked")
-    public void findEntityTest_search() throws Exception {
-        Row row = TestUtils.createRow("clientCorporation.id", "1");
-        when(restApiMock.searchForList(eq(ClientCorporation.class), any(), any(), any())).thenReturn(TestUtils.getList(ClientCorporation.class, 1));
-
-        LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
-
-        verify(restApiMock, times(1)).searchForList(any(), any(), any(), any());
-    }
-
-    // TODO: Stop testing internals - do this through the run method
-    @Test
-    @SuppressWarnings("unchecked")
-    public void findEntityTest_note() throws Exception {
-        Row row = TestUtils.createRow("id", "1");
-        when(restApiMock.searchForList(eq(Note.class), eq("noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
-
-        LoadTask task = new LoadTask(EntityInfo.NOTE, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.findEntity("id", "id", Note.class, Integer.class);
-
-        verify(restApiMock, times(1)).searchForList(any(), any(), any(), any());
-    }
-
-    // TODO: Stop testing internals - do this through the run method
-    @Test(expected = RestApiException.class)
-    @SuppressWarnings("unchecked")
-    public void findEntityTest_searchReturnsEmptyList() throws Exception {
-        Row row = TestUtils.createRow("clientCorporation.id", "1");
-        when(restApiMock.searchForList(eq(Candidate.class), any(), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
-
-        LoadTask task = new LoadTask(EntityInfo.CLIENT_CONTACT, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
-    }
-
-    // TODO: Stop testing internals - do this through the run method
-    @Test(expected = RestApiException.class)
-    @SuppressWarnings("unchecked")
-    public void findEntityTest_duplicates() throws Exception {
-        Row row = TestUtils.createRow("clientCorporation.id", "1");
-        when(restApiMock.searchForList(eq(Candidate.class), any(), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1, 2));
-
-        LoadTask task = new LoadTask(EntityInfo.CLIENT_CONTACT, row, preloaderMock, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.findEntity("clientCorporation.id", "clientCorporation", ClientCorporation.class, Integer.class);
-
-        verify(restApiMock, times(1)).searchForList(any(), any(), any(), any());
-    }
-
     // TODO: Move to query builder
     @Test(expected = RestApiException.class)
     public void getWhereStatement_integer() throws IOException {

@@ -274,7 +274,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         return findEntity(field, fieldName, toOneEntityClass, fieldType);
     }
 
-    B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
+    private B findEntity(String field, String fieldName, Class<B> toOneEntityClass, Class fieldType) {
         List<B> list;
         String value = row.getValue(field);
 
