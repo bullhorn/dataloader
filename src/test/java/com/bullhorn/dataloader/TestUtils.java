@@ -208,15 +208,22 @@ public class TestUtils {
      */
     public static Row createRow(String headers, String values) throws IOException {
         String[] headerArray = headers.split(",");
-        String[] valuesArray = values.split(",");
-        if (headerArray.length != valuesArray.length) {
+        String[] valueArray = values.split(",");
+        return createRow(headerArray, valueArray);
+    }
+
+    /**
+     * Given a list of headers and values, this convenience method constructs the Row object that represents that data.
+     */
+    public static Row createRow(String[] headerArray, String[] valueArray) throws IOException {
+        if (headerArray.length != valueArray.length) {
             throw new IOException("Test Setup Failure - Create Row called with headers/values mismatching in length: "
-                + headerArray.length + " headers, " + valuesArray.length + " values.");
+                + headerArray.length + " headers, " + valueArray.length + " values.");
         }
 
         Row row = new Row(1);
         for (int i = 0; i < headerArray.length; i++) {
-            Cell cell = new Cell(headerArray[i], valuesArray[i]);
+            Cell cell = new Cell(headerArray[i], valueArray[i]);
             row.addCell(cell);
         }
         return row;

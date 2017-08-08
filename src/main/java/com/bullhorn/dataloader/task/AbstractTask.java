@@ -84,7 +84,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    void updateRowProcessedCounts() {
+    private void updateRowProcessedCounts() {
         rowProcessedCount.incrementAndGet();
         if (rowProcessedCount.intValue() % 111 == 0) {
             printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
@@ -122,6 +122,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     // endregion
 
     // region Direct Field Utility Methods
+    // TODO: Move to Field class
 
     /**
      * Returns the type of the given field on the given entity
@@ -187,7 +188,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return addressFields.indexOf(field.toLowerCase()) > -1;
     }
 
-    Object convertStringToObject(Method method, String value) throws ParseException {
+    private Object convertStringToObject(Method method, String value) throws ParseException {
         Class convertToClass = method.getParameterTypes()[0];
         value = value.trim();
 
@@ -198,11 +199,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
                 return 0;
             }
             return Integer.parseInt(value);
-        } else if (Double.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return 0.0;
-            }
-            return Double.parseDouble(value);
         } else if (Boolean.class.equals(convertToClass)) {
             if (StringUtils.isEmpty(value)) {
                 return Boolean.parseBoolean(null);
@@ -227,6 +223,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
     // region Search Criteria Methods
     // TODO: Move these to the SearchCriteria:
+
     List<B> findEntityList(Map<String, String> fieldToValueMap) {
         if (!fieldToValueMap.isEmpty()) {
             if (SearchEntity.class.isAssignableFrom(entityInfo.getEntityClass())) {
@@ -276,12 +273,13 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
             field = StringConsts.NOTE_ID;
         }
 
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
             return field + ":" + value;
         } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
         } else {
-            throw new RestApiException("Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Failed to create lucene search string for: '" + field
+                + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -293,9 +291,12 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         } else if (String.class.equals(fieldType)) {
             return field + "='" + value + "'";
         } else if (DateTime.class.equals(fieldType)) {
+            // TODO: This needs to be of the format: `dateOfBirth:[20170808 TO 20170808235959]` for dates
+            // Format: [yyyyMMdd TO yyyyMMddHHmmss] - a date range of one day
             return field + "=" + getDateQuery(value);
         } else {
-            throw new RestApiException("Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
+            throw new RestApiException("Failed to create query where clause for: '" + field
+                + "' with unsupported field type: " + fieldType);
         }
     }
 
@@ -307,7 +308,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    String getDateQuery(String value) {
+    private String getDateQuery(String value) {
         if (entityInfo.isCustomObject()) {
             DateTimeFormatter formatter = propertyFileUtil.getDateParser();
             DateTime dateTime = formatter.parseDateTime(value);
@@ -322,7 +323,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     // endregion
 
     // TODO: Move exist fields to Cell object
-    protected Map<String, String> getEntityExistFieldsMap() throws IOException {
+    Map<String, String> getEntityExistFieldsMap() throws IOException {
         Map<String, String> entityExistFieldsMap = new HashMap<>();
 
         List<String> existFields = propertyFileUtil.getEntityExistFields(entityInfo);

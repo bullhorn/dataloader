@@ -427,8 +427,8 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
      * work with up to 500 associated records, such as candidates or businessSectors. It will perform the lookup using
      * the field given after the period, like: 'businessSector.name' or 'candidate.id'
      */
-    private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(String field, AssociationField
-        associationField, Set<String> valueSet) {
+    private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(
+        String field, AssociationField associationField, Set<String> valueSet) {
         List<B> list;
         Class<B> associationClass = associationField.getAssociationType();
 
