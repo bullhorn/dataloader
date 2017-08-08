@@ -14,16 +14,6 @@ public class CellTest {
     }
 
     @Test
-    public void testSetters() {
-        Cell cell = new Cell("middleName", "Danger");
-        cell.setName("middleInitial");
-        cell.setValue("D");
-
-        Assert.assertEquals(cell.getName(), "middleInitial");
-        Assert.assertEquals(cell.getValue(), "D");
-    }
-
-    @Test
     public void testAddressTrue() {
         Cell cell = new Cell("secondaryAddress.state", "MO");
 
@@ -59,30 +49,30 @@ public class CellTest {
     }
 
     @Test
-    public void testGetAssociationNameValid() {
+    public void testGetAssociationBaseNameValid() {
         Cell cell = new Cell("candidate.externalID", "1");
 
-        Assert.assertEquals(cell.getAssociationName(), "candidate");
+        Assert.assertEquals(cell.getAssociationBaseName(), "candidate");
     }
 
     @Test
-    public void testGetAssociationNameInvalid() {
+    public void testGetAssociationBaseNameInvalid() {
         Cell cell = new Cell("externalID", "1");
 
-        Assert.assertEquals(cell.getAssociationName(), null);
+        Assert.assertEquals(cell.getAssociationBaseName(), null);
     }
 
     @Test
-    public void testGetAssociationFieldValid() {
+    public void testGetAssociationFieldNameValid() {
         Cell cell = new Cell("candidate.externalID", "1");
 
-        Assert.assertEquals(cell.getAssociationField(), "externalID");
+        Assert.assertEquals(cell.getAssociationFieldName(), "externalID");
     }
 
     @Test
-    public void testGetAssociationFieldInvalid() {
+    public void testGetAssociationFieldNameInvalid() {
         Cell cell = new Cell("externalID", "1");
 
-        Assert.assertEquals(cell.getAssociationField(), null);
+        Assert.assertEquals(cell.getAssociationFieldName(), null);
     }
 }

@@ -120,8 +120,9 @@ public enum EntityInfo {
     public static final Comparator<EntityInfo> deleteOrderComparator =
         (firstEntityInfo, secondEntityInfo) -> secondEntityInfo.getLoadOrder() - firstEntityInfo.getLoadOrder();
 
-    private BullhornEntityInfo bullhornEntityInfo;
-    private Integer loadOrder;
+    private final BullhornEntityInfo bullhornEntityInfo;
+    private final Integer loadOrder;
+    private Map<String, Method> methodMap = null;
 
     /**
      * Constructor for enum containing information about each entity type
@@ -247,17 +248,21 @@ public enum EntityInfo {
     }
 
     /**
-     * Returns the setter methods that exist on the SDK-REST entity class as a map of field name to method
+     * Returns the setter methods that exist on the SDK-REST entity class as a map of field name to method.
+     *
+     * Since the methods do not change, we will only compute the map once.
      *
      * @return A map of field name to setter methods that can invoked generically using `method.invoke`
      */
     public Map<String, Method> getSetterMethodMap() {
-        Map<String, Method> methodMap = MethodUtil.getSetterMethodMap(getEntityClass());
+        if (methodMap == null) {
+            methodMap = MethodUtil.getSetterMethodMap(getEntityClass());
 
-        // Add individual address setters for any entity that has an address field, since address is a composite
-        // field, not a direct field or an associated record.
-        if (methodMap.containsKey("address")) {
-            methodMap.putAll(MethodUtil.getSetterMethodMap(Address.class));
+            // Add individual address setters for any entity that has an address field, since address is a composite
+            // field, not a direct field or an associated record.
+            if (methodMap.containsKey("address")) {
+                methodMap.putAll(MethodUtil.getSetterMethodMap(Address.class));
+            }
         }
 
         return methodMap;

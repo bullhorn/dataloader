@@ -126,6 +126,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <additionalparam>-Xdoclint:none</additionalparam>
+                </configuration>
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -159,7 +162,8 @@
                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced.xml
                             </dependencyReducedPomLocation>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>com.bullhorn.dataloader.Main</Main-Class>
                                         <Build-Number>${project.version}</Build-Number>

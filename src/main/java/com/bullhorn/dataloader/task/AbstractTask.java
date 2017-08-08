@@ -84,7 +84,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
     }
 
-    void updateRowProcessedCounts() {
+    private void updateRowProcessedCounts() {
         rowProcessedCount.incrementAndGet();
         if (rowProcessedCount.intValue() % 111 == 0) {
             printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
@@ -95,10 +95,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         actionTotals.incrementActionTotal(result.getAction());
     }
 
-    Result handleFailure(Exception exception) {
-        printUtil.printAndLog(exception);
-        return Result.failure(exception);
-    }
+    // region Error Handling Methods
 
     /**
      * Generic handling of an error for the row that fails.
@@ -115,147 +112,17 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         return Result.failure(exception);
     }
 
-    <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
-        String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
-        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) restApi.searchForList((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams());
+    /**
+     * Generic handling of an error for the row that fails. For the case when there is no internal ID to report.
+     */
+    Result handleFailure(Exception exception) {
+        printUtil.printAndLog(exception);
+        return Result.failure(exception);
     }
+    // endregion
 
-    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(
-            n -> getQueryStatement(n,
-                fieldToValueMap.get(n),
-                getFieldType(entityInfo.getEntityClass(), n, n),
-                getFieldEntityClass(n)))
-            .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
-    }
-
-    <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
-        String where = getWhereStatement(field, value, fieldType);
-        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) restApi.queryForList((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams());
-    }
-
-    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
-        String query = fieldToValueMap.keySet().stream().map(
-            n -> getWhereStatement(
-                n,
-                fieldToValueMap.get(n),
-                getFieldType(entityInfo.getEntityClass(), n, n)))
-            .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
-    }
-
-    String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
-        if (fieldEntityClass.equals(Note.class) && field.equals(StringConsts.ID)) {
-            field = StringConsts.NOTE_ID;
-        }
-
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
-            return field + ":" + value;
-        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
-            return field + ":\"" + value + "\"";
-        } else {
-            throw new RestApiException("Failed to create lucene search string for: '" + field + "' with unsupported field type: " + fieldType);
-        }
-    }
-
-    List<B> findEntityList(Map<String, String> fieldToValueMap) {
-        if (!fieldToValueMap.isEmpty()) {
-            if (SearchEntity.class.isAssignableFrom(entityInfo.getEntityClass())) {
-                return searchForEntity(fieldToValueMap);
-            } else {
-                return queryForEntity(fieldToValueMap);
-            }
-        }
-
-        return new ArrayList<>();
-    }
-
-    String getWhereStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
-            return field + "=" + value;
-        } else if (Boolean.class.equals(fieldType)) {
-            return field + "=" + getBooleanWhereStatement(value);
-        } else if (String.class.equals(fieldType)) {
-            return field + "='" + value + "'";
-        } else if (DateTime.class.equals(fieldType)) {
-            return field + "=" + getDateQuery(value);
-        } else {
-            throw new RestApiException("Failed to create query where clause for: '" + field + "' with unsupported field type: " + fieldType);
-        }
-    }
-
-    String getBooleanWhereStatement(String value) {
-        if (value.equals("1")) {
-            return "true";
-        } else {
-            return Boolean.toString(Boolean.valueOf(value));
-        }
-    }
-
-    String getDateQuery(String value) {
-        if (entityInfo.isCustomObject()) {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            DateTime dateTime = formatter.parseDateTime(value);
-            return String.valueOf(dateTime.toDate().getTime());
-        } else {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            DateTime dateTime = formatter.parseDateTime(value);
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            return df.format(dateTime.toDate());
-        }
-    }
-
-    // TODO: Move exist fields to Cell object
-    protected Map<String, String> getEntityExistFieldsMap() throws IOException {
-        Map<String, String> entityExistFieldsMap = new HashMap<>();
-
-        List<String> existFields = propertyFileUtil.getEntityExistFields(entityInfo);
-        for (String existField : existFields) {
-            entityExistFieldsMap.put(existField, row.getValue(existField));
-        }
-
-        return entityExistFieldsMap;
-    }
-
-    Object convertStringToClass(Method method, String value) throws ParseException {
-        Class convertToClass = method.getParameterTypes()[0];
-        value = value.trim();
-
-        if (String.class.equals(convertToClass)) {
-            return value;
-        } else if (Integer.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return 0;
-            }
-            return Integer.parseInt(value);
-        } else if (Double.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return 0.0;
-            }
-            return Double.parseDouble(value);
-        } else if (Boolean.class.equals(convertToClass)) {
-            if (StringUtils.isEmpty(value)) {
-                return Boolean.parseBoolean(null);
-            }
-            return Boolean.parseBoolean(value);
-        } else if (DateTime.class.equals(convertToClass)) {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            if (!StringUtils.isEmpty(value)) {
-                return formatter.parseDateTime(value);
-            }
-        } else if (BigDecimal.class.equals(convertToClass)) {
-            DecimalFormat decimalFormat = new DecimalFormat();
-            decimalFormat.setParseBigDecimal(true);
-            if (StringUtils.isEmpty(value)) {
-                return decimalFormat.parse(String.valueOf(0.0));
-            }
-            return decimalFormat.parse(value);
-        }
-        return null;
-    }
+    // region Direct Field Utility Methods
+    // TODO: Move to Field class
 
     /**
      * Returns the type of the given field on the given entity
@@ -278,8 +145,6 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
 
         return methods.get(0).getReturnType();
     }
-
-    // TODO: Refactor this to use entityInfo.fromString() and Cell
 
     /**
      * Returns the Bullhorn entity class for the given field on the given entity
@@ -314,13 +179,158 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
 
         if (value != null) {
-            method.invoke(entity, convertStringToClass(method, value));
+            method.invoke(entity, convertStringToObject(method, value));
         }
     }
 
-    // TODO: Move out to utility class
     private boolean isAddressField(String field) {
         List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip", "countryid", "countryname");
         return addressFields.indexOf(field.toLowerCase()) > -1;
+    }
+
+    private Object convertStringToObject(Method method, String value) throws ParseException {
+        Class convertToClass = method.getParameterTypes()[0];
+        value = value.trim();
+
+        if (String.class.equals(convertToClass)) {
+            return value;
+        } else if (Integer.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return 0;
+            }
+            return Integer.parseInt(value);
+        } else if (Boolean.class.equals(convertToClass)) {
+            if (StringUtils.isEmpty(value)) {
+                return Boolean.parseBoolean(null);
+            }
+            return Boolean.parseBoolean(value);
+        } else if (DateTime.class.equals(convertToClass)) {
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            if (!StringUtils.isEmpty(value)) {
+                return formatter.parseDateTime(value);
+            }
+        } else if (BigDecimal.class.equals(convertToClass)) {
+            DecimalFormat decimalFormat = new DecimalFormat();
+            decimalFormat.setParseBigDecimal(true);
+            if (StringUtils.isEmpty(value)) {
+                return decimalFormat.parse(String.valueOf(0.0));
+            }
+            return decimalFormat.parse(value);
+        }
+        return null;
+    }
+    // endregion
+
+    // region Search Criteria Methods
+    // TODO: Move these to the SearchCriteria:
+
+    List<B> findEntityList(Map<String, String> fieldToValueMap) {
+        if (!fieldToValueMap.isEmpty()) {
+            if (SearchEntity.class.isAssignableFrom(entityInfo.getEntityClass())) {
+                return searchForEntity(fieldToValueMap);
+            } else {
+                return queryForEntity(fieldToValueMap);
+            }
+        }
+
+        return new ArrayList<>();
+    }
+
+    private <S extends SearchEntity> List<B> searchForEntity(Map<String, String> fieldToValueMap) {
+        String query = fieldToValueMap.keySet().stream().map(
+            n -> getQueryStatement(n,
+                fieldToValueMap.get(n),
+                getFieldType(entityInfo.getEntityClass(), n, n),
+                getFieldEntityClass(n)))
+            .collect(Collectors.joining(" AND "));
+        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
+    }
+
+    <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
+        String query = getQueryStatement(field, value, fieldType, fieldEntityClass);
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) restApi.searchForList((Class<S>) fieldEntityClass, query, fieldsToReturn, ParamFactory.searchParams());
+    }
+
+    private <Q extends QueryEntity> List<B> queryForEntity(Map<String, String> fieldToValueMap) {
+        String query = fieldToValueMap.keySet().stream().map(
+            n -> getWhereStatement(
+                n,
+                fieldToValueMap.get(n),
+                getFieldType(entityInfo.getEntityClass(), n, n)))
+            .collect(Collectors.joining(" AND "));
+        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.queryParams());
+    }
+
+    <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType, Class<B> fieldEntityClass, Set<String> fieldsToReturn) {
+        String where = getWhereStatement(field, value, fieldType);
+        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
+        return (List<B>) restApi.queryForList((Class<Q>) fieldEntityClass, where, fieldsToReturn, ParamFactory.queryParams());
+    }
+
+    String getQueryStatement(String field, String value, Class fieldType, Class<B> fieldEntityClass) {
+        if (fieldEntityClass.equals(Note.class) && field.equals(StringConsts.ID)) {
+            field = StringConsts.NOTE_ID;
+        }
+
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
+            return field + ":" + value;
+        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
+            return field + ":\"" + value + "\"";
+        } else {
+            throw new RestApiException("Failed to create lucene search string for: '" + field
+                + "' with unsupported field type: " + fieldType);
+        }
+    }
+
+    String getWhereStatement(String field, String value, Class fieldType) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
+            return field + "=" + value;
+        } else if (Boolean.class.equals(fieldType)) {
+            return field + "=" + getBooleanWhereStatement(value);
+        } else if (String.class.equals(fieldType)) {
+            return field + "='" + value + "'";
+        } else if (DateTime.class.equals(fieldType)) {
+            // TODO: This needs to be of the format: `dateOfBirth:[20170808 TO 20170808235959]` for dates
+            // Format: [yyyyMMdd TO yyyyMMddHHmmss] - a date range of one day
+            return field + "=" + getDateQuery(value);
+        } else {
+            throw new RestApiException("Failed to create query where clause for: '" + field
+                + "' with unsupported field type: " + fieldType);
+        }
+    }
+
+    String getBooleanWhereStatement(String value) {
+        if (value.equals("1")) {
+            return "true";
+        } else {
+            return Boolean.toString(Boolean.valueOf(value));
+        }
+    }
+
+    private String getDateQuery(String value) {
+        if (entityInfo.isCustomObject()) {
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            DateTime dateTime = formatter.parseDateTime(value);
+            return String.valueOf(dateTime.toDate().getTime());
+        } else {
+            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
+            DateTime dateTime = formatter.parseDateTime(value);
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+            return df.format(dateTime.toDate());
+        }
+    }
+    // endregion
+
+    // TODO: Move exist fields to Cell object
+    Map<String, String> getEntityExistFieldsMap() throws IOException {
+        Map<String, String> entityExistFieldsMap = new HashMap<>();
+
+        List<String> existFields = propertyFileUtil.getEntityExistFields(entityInfo);
+        for (String existField : existFields) {
+            entityExistFieldsMap.put(existField, row.getValue(existField));
+        }
+
+        return entityExistFieldsMap;
     }
 }

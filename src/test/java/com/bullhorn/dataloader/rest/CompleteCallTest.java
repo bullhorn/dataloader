@@ -77,7 +77,7 @@ public class CompleteCallTest {
         completeCall.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
 
         verify(httpClientMock).executeMethod(httpMethodArgumentCaptor.capture());
-        final HttpMethod httpMethod = httpMethodArgumentCaptor.getValue();
+        HttpMethod httpMethod = httpMethodArgumentCaptor.getValue();
         PostMethod postMethod = (PostMethod) httpMethod;
         Assert.assertEquals(expectedURL, postMethod.getURI().toString());
 
