@@ -87,7 +87,8 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     private void updateRowProcessedCounts() {
         rowProcessedCount.incrementAndGet();
         if (rowProcessedCount.intValue() % 111 == 0) {
-            printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
+            printUtil.printAndLog("Processed: "
+                + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
         }
     }
 
