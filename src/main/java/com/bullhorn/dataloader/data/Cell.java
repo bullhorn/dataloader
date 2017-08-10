@@ -4,7 +4,6 @@ package com.bullhorn.dataloader.data;
  * Represents the raw data from an individual cell of data in a spreadsheet.
  *
  * Contains the contents of an individual cell (value) and the column header (name) for this cell.
- * TODO: Have cell own the splitting up multiple values separated by a token into an array of values.
  */
 public class Cell {
 
