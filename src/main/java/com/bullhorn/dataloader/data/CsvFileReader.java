@@ -46,7 +46,8 @@ public class CsvFileReader extends CsvReader {
         Set<String> uniqueHeaders = Sets.newHashSet(getHeaders());
 
         if (headers.size() != uniqueHeaders.size()) {
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + printDuplicateHeaders());
+            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n"
+                + printDuplicateHeaders());
         }
     }
 
@@ -76,7 +77,8 @@ public class CsvFileReader extends CsvReader {
      */
     public Row getRow() throws IOException {
         if (getHeaderCount() != getValues().length) {
-            throw new IOException("Header column count " + getHeaderCount() + " is not equal to row column count " + getValues().length);
+            throw new IOException("Header column count " + getHeaderCount()
+                + " is not equal to row column count " + getValues().length);
         }
 
         Row row = new Row(rowNumber);
