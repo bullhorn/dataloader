@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Represents a row of data in the spreadsheet - a collection of fields to insert/update for an entity.
@@ -50,38 +51,25 @@ public class Row {
      * @return text in the cell, null if the cell with the given name does not exist
      */
     public String getValue(String name) {
-        String value = null;
-        for (Cell cell : cells) {
-            if (cell.getName().equalsIgnoreCase(name)) {
-                value = cell.getValue();
-            }
-        }
-        return value;
+        return cells.stream().filter(cell -> cell.getName().equalsIgnoreCase(name))
+            .findFirst().map(Cell::getValue).orElse(null);
     }
 
     /**
-     * Gets just the string headers (the names of the cells) for the row
+     * Gets just the string headers (the names of the cells) for the row.
      *
      * @return the ordered list of headers, as they appear in the spreadsheet
      */
     public List<String> getNames() {
-        List<String> names = new ArrayList<>();
-        for (Cell cell : cells) {
-            names.add(cell.getName());
-        }
-        return names;
+        return cells.stream().map(Cell::getName).collect(Collectors.toList());
     }
 
     /**
-     * Gets just the string values in the cells
+     * Gets just the string values in the cells.
      *
      * @return the ordered list of values, as they appear in the spreadsheet
      */
     public List<String> getValues() {
-        List<String> values = new ArrayList<>();
-        for (Cell cell : cells) {
-            values.add(cell.getValue());
-        }
-        return values;
+        return cells.stream().map(Cell::getValue).collect(Collectors.toList());
     }
 }
