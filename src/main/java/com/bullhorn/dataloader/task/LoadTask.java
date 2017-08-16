@@ -305,7 +305,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
      */
     private boolean isOneToMany(String field) {
         List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList =
-            AssociationUtil.getAssociationFields((Class<AssociationEntity>) entityInfo.getEntityClass());
+            AssociationUtil.getToManyFields(entityInfo);
         for (AssociationField associationField : associationFieldList) {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(field.substring(0, field.indexOf(".")))) {
                 toManyAssociations.put(field, associationField);

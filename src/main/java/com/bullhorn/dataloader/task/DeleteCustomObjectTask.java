@@ -71,8 +71,8 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
      * @param parentEntityId The id of the parentEntity
      */
     private void deleteCustomObject(Integer parentEntityId) {
-        AssociationField associationField = AssociationUtil.getCustomObjectAssociationField(entityInfo,
-            parentEntityClass);
+        AssociationField associationField = AssociationUtil.getCustomObjectField(entityInfo,
+            EntityInfo.fromString(parentEntityClass.getSimpleName()));
         restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityId, associationField,
             Sets.newHashSet(entityId));
     }
