@@ -158,7 +158,7 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
     }
 
     /**
-     * Ignore the username field for existing entities, as we cannot change the owner through REST??? TODO: check this!
+     * TODO: remove this now that the username field works just fine
      */
     protected boolean validField(String field) {
         return isNewEntity || !"username".equalsIgnoreCase(field);
