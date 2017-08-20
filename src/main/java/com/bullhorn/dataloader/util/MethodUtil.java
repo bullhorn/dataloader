@@ -22,6 +22,23 @@ import java.util.stream.Collectors;
 public class MethodUtil {
 
     /**
+     * Returns the map of getter methods (starting with "get") for the given class
+     *
+     * @return A map of field names to getter methods that can invoked generically using `method.invoke`
+     */
+    public static Map<String, Method> getGetterMethodMap(Class anyClass) {
+        Map<String, Method> setterMethodMap = new HashMap<>();
+
+        for (Method method : Arrays.asList(anyClass.getMethods())) {
+            if ("get".equalsIgnoreCase(method.getName().substring(0, 3))) {
+                setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
+            }
+        }
+
+        return setterMethodMap;
+    }
+
+    /**
      * Returns the map of setter methods (starting with "set") for the given class
      *
      * @return A map of field names to setter methods that can invoked generically using `method.invoke`
@@ -36,6 +53,23 @@ public class MethodUtil {
         }
 
         return setterMethodMap;
+    }
+
+    /**
+     * Returns the getter method for the given cell on the given entity.
+     *
+     * @param entityInfo the entity type to find a method on (ex: EntityInfo.CANDIDATE)
+     * @param fieldName  the field name of the method (ex: "externalID")
+     * @return the method if it exists
+     */
+    public static Method getGetterMethod(EntityInfo entityInfo, String fieldName) {
+        Map<String, Method> getterMethodMap = getGetterMethodMap(entityInfo.getEntityClass());
+        for (String methodName : getterMethodMap.keySet()) {
+            if (methodName.equalsIgnoreCase(fieldName)) {
+                return getterMethodMap.get(methodName);
+            }
+        }
+        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 
     /**

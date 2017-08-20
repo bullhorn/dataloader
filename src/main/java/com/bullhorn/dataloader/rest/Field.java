@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.embedded.Address;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +29,8 @@ public class Field {
     private final Boolean existField;
     private final DateTimeFormatter dateTimeFormatter;
     private final Method setMethod;
+    private final Method getAddressMethod;
+    private final Method setAddressMethod;
 
     /**
      * Constructor which takes the type of entity and the raw cell data.
@@ -56,6 +59,15 @@ public class Field {
         }
 
         this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
+
+        // For direct but compound address fields, use the get/set methods to populate the address object.
+        if (cell.isAddress()) {
+            this.getAddressMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
+            this.setAddressMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
+        } else {
+            this.getAddressMethod = null;
+            this.setAddressMethod = null;
+        }
     }
 
     public EntityInfo getEntityInfo() {
@@ -136,11 +148,21 @@ public class Field {
      * Calls the appropriate set method on the given SDK-REST entity object in order to send the entity in a REST call.
      *
      * This only applies to direct or To-One fields, as To-Many fields must be associated with a separate Association
-     * SDK-REST call.
+     * SDK-REST call. For Addresses, we have a special case where we need to set the direct but compound address field.
      *
      * @param entity the entity object to populate
      */
-    void populateFieldOnEntity(BullhornEntity entity) throws ParseException, InvocationTargetException, IllegalAccessException {
-        setMethod.invoke(entity, getValue());
+    public void populateFieldOnEntity(BullhornEntity entity) throws ParseException, InvocationTargetException,
+        IllegalAccessException {
+        if (cell.isAddress()) {
+            Address address = (Address) getAddressMethod.invoke(entity);
+            if (address == null) {
+                address = new Address();
+            }
+            setMethod.invoke(address, getValue());
+            setAddressMethod.invoke(entity, address);
+        } else {
+            setMethod.invoke(entity, getValue());
+        }
     }
 }

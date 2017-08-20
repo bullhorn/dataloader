@@ -206,6 +206,90 @@ public class FieldTest {
     }
 
     @Test
+    public void testAddressField() throws ParseException, InvocationTargetException, IllegalAccessException {
+        Cell cell = new Cell("address.address1", "100 Summer St.");
+        Field field = new Field(EntityInfo.CANDIDATE, cell, true, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE);
+        Assert.assertEquals(field.isExistField(), true);
+        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "address1");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
+        Assert.assertEquals(field.getFieldType(), String.class);
+        Assert.assertEquals(field.getValue(), "100 Summer St.");
+        Assert.assertEquals(field.getStringValue(), "100 Summer St.");
+
+        Candidate candidate = new Candidate();
+
+        Assert.assertEquals(candidate.getAddress(), null);
+
+        field.populateFieldOnEntity(candidate);
+
+        Assert.assertEquals(candidate.getAddress().getAddress1(), "100 Summer St.");
+    }
+
+    @Test
+    public void testAddressFieldCountryId() throws ParseException, InvocationTargetException, IllegalAccessException {
+        Cell cell = new Cell("address.countryId", "1234");
+        Field field = new Field(EntityInfo.CANDIDATE, cell, true, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE);
+        Assert.assertEquals(field.isExistField(), true);
+        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "countryId");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
+        Assert.assertEquals(field.getFieldType(), Integer.class);
+        Assert.assertEquals(field.getValue(), 1234);
+        Assert.assertEquals(field.getStringValue(), "1234");
+
+        Candidate candidate = new Candidate();
+
+        Assert.assertEquals(candidate.getAddress(), null);
+
+        field.populateFieldOnEntity(candidate);
+
+        Assert.assertEquals(candidate.getAddress().getCountryID(), new Integer(1234));
+    }
+
+    @Test
+    public void testMultipleAddressFields() throws ParseException, InvocationTargetException, IllegalAccessException {
+        Cell address1Cell = new Cell("address.address1", "100 Summer St.");
+        Cell cityCell = new Cell("address.city", "Boston");
+        Cell stateCell = new Cell("address.state", "MA");
+        Cell secAddress1Cell = new Cell("secondaryAddress.address1", "200 S. Hanley");
+        Cell secCityCell = new Cell("secondaryAddress.city", "Clayton");
+        Cell secStateCell = new Cell("secondaryAddress.state", "MO");
+
+        Field address1 = new Field(EntityInfo.CANDIDATE, address1Cell, false, dateTimeFormatter);
+        Field city = new Field(EntityInfo.CANDIDATE, cityCell, false, dateTimeFormatter);
+        Field state = new Field(EntityInfo.CANDIDATE, stateCell, false, dateTimeFormatter);
+        Field secAddress1 = new Field(EntityInfo.CANDIDATE, secAddress1Cell, false, dateTimeFormatter);
+        Field secCity = new Field(EntityInfo.CANDIDATE, secCityCell, false, dateTimeFormatter);
+        Field secState = new Field(EntityInfo.CANDIDATE, secStateCell, false, dateTimeFormatter);
+
+        Candidate candidate = new Candidate();
+
+        Assert.assertEquals(candidate.getAddress(), null);
+        Assert.assertEquals(candidate.getSecondaryAddress(), null);
+
+        address1.populateFieldOnEntity(candidate);
+        city.populateFieldOnEntity(candidate);
+        state.populateFieldOnEntity(candidate);
+        secAddress1.populateFieldOnEntity(candidate);
+        secCity.populateFieldOnEntity(candidate);
+        secState.populateFieldOnEntity(candidate);
+
+        Assert.assertEquals(candidate.getAddress().getAddress1(), "100 Summer St.");
+        Assert.assertEquals(candidate.getAddress().getCity(), "Boston");
+        Assert.assertEquals(candidate.getAddress().getState(), "MA");
+        Assert.assertEquals(candidate.getSecondaryAddress().getAddress1(), "200 S. Hanley");
+        Assert.assertEquals(candidate.getSecondaryAddress().getCity(), "Clayton");
+        Assert.assertEquals(candidate.getSecondaryAddress().getState(), "MO");
+    }
+
+    @Test
     public void testMalformedAddressField() throws ParseException, InvocationTargetException, IllegalAccessException {
         RestApiException expectedException = new RestApiException("Invalid address field format: 'countryName'"
             + " Must use 'address.countryName' in csv header");

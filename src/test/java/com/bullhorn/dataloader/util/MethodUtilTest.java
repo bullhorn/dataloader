@@ -24,7 +24,7 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testGetSetterMethodMap() throws IOException {
+    public void testGetSetterMethodMapAddress() throws IOException {
         Map<String, Method> setterMethodMap = MethodUtil.getSetterMethodMap(Address.class);
         Assert.assertEquals(setterMethodMap.size(), 6);
     }
@@ -34,6 +34,7 @@ public class MethodUtilTest {
         Method setterMethod = MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "id");
         Assert.assertEquals(setterMethod.getName(), "setId");
         Assert.assertEquals(setterMethod.getReturnType(), void.class);
+        Assert.assertEquals(setterMethod.getParameterTypes()[0], Integer.class);
     }
 
     @Test
@@ -45,12 +46,20 @@ public class MethodUtilTest {
     }
 
     @Test
+    public void testGetSetterMethodAddress1() throws IOException {
+        Method setterMethod = MethodUtil.getSetterMethod(EntityInfo.ADDRESS, "address1");
+        Assert.assertEquals(setterMethod.getName(), "setAddress1");
+        Assert.assertEquals(setterMethod.getReturnType(), void.class);
+        Assert.assertEquals(setterMethod.getParameterTypes()[0], String.class);
+    }
+
+    @Test
     public void testGetSetterMethodFailure() throws IOException {
-        RestApiException expectedException = new RestApiException("'bogus' does not exist on Candidate");
+        RestApiException expectedException = new RestApiException("'address1' does not exist on Candidate");
         RestApiException actualException = null;
 
         try {
-            MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "bogus");
+            MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "address1");
         } catch (RestApiException e) {
             actualException = e;
         }

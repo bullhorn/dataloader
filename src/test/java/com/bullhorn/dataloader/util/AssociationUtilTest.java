@@ -81,6 +81,13 @@ public class AssociationUtilTest {
     }
 
     @Test
+    public void testGetFieldEntityCompound() throws IOException {
+        Cell cell = new Cell("address.city", "St. Louis");
+        EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
+        Assert.assertEquals(EntityInfo.ADDRESS, entityInfo);
+    }
+
+    @Test
     public void testGetFieldEntityToMany() throws IOException {
         Cell cell = new Cell("candidates.externalID", "1;2;3;4");
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);

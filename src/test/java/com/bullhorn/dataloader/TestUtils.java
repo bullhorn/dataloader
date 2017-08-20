@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
@@ -227,5 +228,31 @@ public class TestUtils {
             row.addCell(cell);
         }
         return row;
+    }
+
+    /**
+     * Given a comma separated list of IDs and Names, returns a Country list for testing.
+     *
+     * @param countryNames comma separated name list, like: "United States,Canada"
+     * @param countryIDs   comma separated ID list, like: "1,2"
+     * @return the country list that contains these values
+     */
+    public static List<Country> createCountryList(String countryNames, String countryIDs) throws IOException {
+        String[] nameArray = countryNames.split(",");
+        String[] idArray = countryIDs.split(",");
+
+        if (nameArray.length != idArray.length) {
+            throw new IOException("Test Setup Failure - createCountryList called with Names/IDs mismatching in " +
+                "length: " + nameArray.length + " names, " + idArray.length + " IDs.");
+        }
+
+        List<Country> countries = new ArrayList<>();
+        for (int i = 0; i < nameArray.length; i++) {
+            Country country = new Country();
+            country.setId(Integer.valueOf(idArray[i]));
+            country.setName(nameArray[i]);
+            countries.add(country);
+        }
+        return countries;
     }
 }
