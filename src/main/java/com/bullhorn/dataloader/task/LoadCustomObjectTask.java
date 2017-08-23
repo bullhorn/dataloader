@@ -75,12 +75,8 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
         return createResult();
     }
 
-    @Override
-    protected boolean validField(String field) {
-        if (field.contains("_")) {
-            return false;
-        }
-        return super.validField(field);
+    private boolean validField(String field) {
+        return !field.contains("_");
     }
 
     @Override
@@ -152,8 +148,16 @@ public class LoadCustomObjectTask<A extends AssociationEntity, E extends EntityA
     }
 
     @Override
-    protected void handleAssociations(String field) throws Exception {
-        getParentEntity(field);
+    protected void handleFields() throws Exception {
+        for (String field : row.getNames()) {
+            if (validField(field)) {
+                if (field.contains(".")) {
+                    getParentEntity(field);
+                } else {
+                    populateFieldOnEntity(field, row.getValue(field), entity, methodMap);
+                }
+            }
+        }
     }
 
     protected void prepParentEntityForCustomObject() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {

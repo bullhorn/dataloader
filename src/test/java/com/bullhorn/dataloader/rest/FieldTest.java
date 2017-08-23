@@ -212,7 +212,7 @@ public class FieldTest {
 
         Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.isExistField(), true);
-        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "address1");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
@@ -236,7 +236,7 @@ public class FieldTest {
 
         Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.isExistField(), true);
-        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "countryId");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);

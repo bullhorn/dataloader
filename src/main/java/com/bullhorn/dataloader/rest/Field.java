@@ -29,8 +29,8 @@ public class Field {
     private final Boolean existField;
     private final DateTimeFormatter dateTimeFormatter;
     private final Method setMethod;
-    private final Method getAddressMethod;
-    private final Method setAddressMethod;
+    private final Method getAssociationMethod;
+    private final Method setAssociationMethod;
 
     /**
      * Constructor which takes the type of entity and the raw cell data.
@@ -58,15 +58,20 @@ public class Field {
                 + ArrayUtil.getMatchingStringIgnoreCase(addressFields, cell.getName()) + "' in csv header");
         }
 
+        // The setMethod will be the direct method on either the current entity or the associated entity.
+        // For Example:
+        //     'externalID' => <CurrentEntity>:setExternalId()
+        //   'candidate.id' => Candidate:setId()
+        //  'candidates.id' => Candidate:setId()
         this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
 
-        // For direct but compound address fields, use the get/set methods to populate the address object.
-        if (cell.isAddress()) {
-            this.getAddressMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
-            this.setAddressMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
+        // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
+        if (cell.isAssociation()) {
+            this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
+            this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
         } else {
-            this.getAddressMethod = null;
-            this.setAddressMethod = null;
+            this.getAssociationMethod = null;
+            this.setAssociationMethod = null;
         }
     }
 
@@ -79,7 +84,8 @@ public class Field {
     }
 
     public Boolean isToOne() {
-        return cell.isAssociation() && !AssociationUtil.isToMany(entityInfo, cell.getAssociationBaseName());
+        return cell.isAssociation() && !cell.isAddress() &&
+            !AssociationUtil.isToMany(entityInfo, cell.getAssociationBaseName());
     }
 
     public Boolean isToMany() {
@@ -95,6 +101,11 @@ public class Field {
         if (cell.isAssociation()) {
             return cell.getAssociationFieldName();
         }
+        return cell.getName();
+    }
+
+    // TODO: REMOVE ME
+    public String getCellName() {
         return cell.getName();
     }
 
@@ -147,22 +158,36 @@ public class Field {
     /**
      * Calls the appropriate set method on the given SDK-REST entity object in order to send the entity in a REST call.
      *
-     * This only applies to direct or To-One fields, as To-Many fields must be associated with a separate Association
-     * SDK-REST call. For Addresses, we have a special case where we need to set the direct but compound address field.
+     * This only applies to direct or compound (address) fields, that have a simple value type.
      *
      * @param entity the entity object to populate
      */
     public void populateFieldOnEntity(BullhornEntity entity) throws ParseException, InvocationTargetException,
         IllegalAccessException {
         if (cell.isAddress()) {
-            Address address = (Address) getAddressMethod.invoke(entity);
+            Address address = (Address) getAssociationMethod.invoke(entity);
             if (address == null) {
                 address = new Address();
             }
             setMethod.invoke(address, getValue());
-            setAddressMethod.invoke(entity, address);
+            setAssociationMethod.invoke(entity, address);
         } else {
             setMethod.invoke(entity, getValue());
+        }
+    }
+
+    /**
+     * Calls the appropriate set method on the given SDK-REST entity object in order to set an association.
+     *
+     * @param entity the entity object to populate
+     * @param associatedEntity the association entity to set
+     */
+    public void populateAssociationOnEntity(BullhornEntity entity, BullhornEntity associatedEntity) throws
+        InvocationTargetException, IllegalAccessException {
+        if (isToMany()) {
+
+        } else {
+            setAssociationMethod.invoke(entity, associatedEntity);
         }
     }
 }

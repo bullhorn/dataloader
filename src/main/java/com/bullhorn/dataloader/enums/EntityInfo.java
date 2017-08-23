@@ -10,6 +10,7 @@ import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
 import com.bullhornsdk.data.model.entity.core.type.HardDeleteEntity;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.SoftDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
@@ -230,6 +231,13 @@ public enum EntityInfo {
      */
     public boolean isSoftDeletable() {
         return SoftDeleteEntity.class.isAssignableFrom(getEntityClass());
+    }
+
+    /**
+     * True if this entity can be used in /search calls.
+     */
+    public boolean isSearchEntity() {
+        return SearchEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
