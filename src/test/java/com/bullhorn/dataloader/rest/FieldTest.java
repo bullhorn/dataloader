@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.CandidateEducation;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmission;
@@ -299,8 +300,8 @@ public class FieldTest {
 
     @Test
     public void testMalformedAddressField() throws ParseException, InvocationTargetException, IllegalAccessException {
-        RestApiException expectedException = new RestApiException("Invalid address field format: 'countryName'"
-            + " Must use 'address.countryName' in csv header");
+        RestApiException expectedException = new RestApiException(
+            "Invalid address field format: 'countryName'. Must use: 'address.countryName' to set an address field.");
         RestApiException actualException = null;
 
         try {
@@ -316,8 +317,8 @@ public class FieldTest {
 
     @Test
     public void testMalformedAddressFieldCaseInsensitive() throws ParseException, InvocationTargetException, IllegalAccessException {
-        RestApiException expectedException = new RestApiException("Invalid address field format: 'countryname'"
-            + " Must use 'address.countryName' in csv header");
+        RestApiException expectedException = new RestApiException(
+            "Invalid address field format: 'countryname'. Must use: 'address.countryName' to set an address field.");
         RestApiException actualException = null;
 
         try {
@@ -329,5 +330,29 @@ public class FieldTest {
 
         Assert.assertNotNull(actualException);
         Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
+    }
+
+    @Test
+    public void testDirectCityStateFieldsDoNotThrowException() throws ParseException, InvocationTargetException, IllegalAccessException {
+        Cell cell = new Cell("state", "MO");
+        Field field = new Field(EntityInfo.CANDIDATE_EDUCATION, cell, false, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE_EDUCATION);
+        Assert.assertEquals(field.isExistField(), false);
+        Assert.assertEquals(field.isToOne(), false);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "state");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE_EDUCATION);
+        Assert.assertEquals(field.getFieldType(), String.class);
+        Assert.assertEquals(field.getValue(), "MO");
+        Assert.assertEquals(field.getStringValue(), "MO");
+
+        CandidateEducation candidateEducation = new CandidateEducation();
+
+        Assert.assertEquals(candidateEducation.getState(), null);
+
+        field.populateFieldOnEntity(candidateEducation);
+
+        Assert.assertEquals(candidateEducation.getState(), "MO");
     }
 }

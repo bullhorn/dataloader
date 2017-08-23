@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Global String Constants
  */
@@ -18,4 +21,6 @@ public class StringConsts {
     public static final String TIMESTAMP = DateUtil.getTimestamp();
     public static final String TO_MANY = "TO_MANY";
     public static final String TO_ONE = "TO_ONE";
+    public static final List<String> ADDRESS_FIELDS = Arrays.asList(
+        "address1", "address2", "city", "state", "zip", "countryId", "countryName");
 }

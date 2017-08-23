@@ -86,6 +86,14 @@ public class MethodUtil {
                 return setterMethodMap.get(methodName);
             }
         }
+
+        // Check that users are not making a common address field mistake, to provide a better error message
+        if (ArrayUtil.containsIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)) {
+            throw new RestApiException("Invalid address field format: '" + fieldName + "'. Must use: 'address."
+                + ArrayUtil.getMatchingStringIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)
+                + "' to set an address field.");
+        }
+
         throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 

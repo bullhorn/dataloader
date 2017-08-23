@@ -16,7 +16,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
-import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
@@ -48,7 +47,7 @@ import java.util.stream.Collectors;
 /**
  * Handles converting a row of CSV data into REST calls to either insert or update a record in Bullhorn.
  */
-public class LoadTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
+public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     private static final Integer RECORD_RETURN_COUNT = 500;
 
     protected B entity;
@@ -258,7 +257,8 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
         InvocationTargetException, IllegalAccessException {
         List<Integer> newAssociationIdList = getNewAssociationIdList(field, associationField);
         try {
-            restApi.associateWithEntity((Class<A>) entityInfo.getEntityClass(), entityId, associationField, Sets.newHashSet(newAssociationIdList));
+            restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
+                associationField, Sets.newHashSet(newAssociationIdList));
         } catch (RestApiException e) {
             // Provides a simpler duplication error message with all of the essential data
             if (e.getMessage().contains("an association between " + entityInfo.getEntityName())

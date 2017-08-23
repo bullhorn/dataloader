@@ -55,7 +55,8 @@ public class MethodUtilTest {
 
     @Test
     public void testGetSetterMethodFailure() throws IOException {
-        RestApiException expectedException = new RestApiException("'address1' does not exist on Candidate");
+        RestApiException expectedException = new RestApiException(
+            "Invalid address field format: 'address1'. Must use: 'address.address1' to set an address field.");
         RestApiException actualException = null;
 
         try {

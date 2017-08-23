@@ -2,10 +2,8 @@ package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
@@ -14,7 +12,6 @@ import org.joda.time.format.DateTimeFormatter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,14 +47,6 @@ public class Field {
         this.cell = cell;
         this.existField = existField;
         this.dateTimeFormatter = dateTimeFormatter;
-
-        // Check that users are not making a common address field mistake
-        List<String> addressFields = Arrays.asList("address1", "address2", "city", "state", "zip",
-            "countryId", "countryName");
-        if (ArrayUtil.containsIgnoreCase(addressFields, cell.getName())) {
-            throw new RestApiException("Invalid address field format: '" + cell.getName() + "' Must use 'address."
-                + ArrayUtil.getMatchingStringIgnoreCase(addressFields, cell.getName()) + "' in csv header");
-        }
 
         // The setMethod will be the direct method on either the current entity or the associated entity.
         // For Example:
@@ -180,7 +169,7 @@ public class Field {
     /**
      * Calls the appropriate set method on the given SDK-REST entity object in order to set an association.
      *
-     * @param entity the entity object to populate
+     * @param entity           the entity object to populate
      * @param associatedEntity the association entity to set
      */
     @SuppressWarnings("unchecked")

@@ -177,7 +177,7 @@ public enum EntityInfo {
      * @return the address class for use in DataLoader, since we are not loading directly, but need it to be available
      */
     public Class getEntityClass() {
-        if (bullhornEntityInfo == BullhornEntityInfo.ADDRESS ) {
+        if (bullhornEntityInfo == BullhornEntityInfo.ADDRESS) {
             return Address.class;
         }
         return bullhornEntityInfo.getType();
