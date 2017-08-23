@@ -241,8 +241,8 @@ public class LoadTask<A extends AssociationEntity, E extends EntityAssociations,
                     List<AssociationField<AssociationEntity, BullhornEntity>> associationFieldList =
                         AssociationUtil.getToManyFields(entityInfo);
                     for (AssociationField associationField : associationFieldList) {
-                        if (associationField.getAssociationFieldName().equalsIgnoreCase(field.getCellName().substring
-                            (0, field.getCellName().indexOf(".")))) {
+                        if (associationField.getAssociationFieldName().equalsIgnoreCase(
+                            field.getCellName().substring(0, field.getCellName().indexOf(".")))) {
                             addAssociationToEntity(field.getCellName(), associationField);
                         }
                     }

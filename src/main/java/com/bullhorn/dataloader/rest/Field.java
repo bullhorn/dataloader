@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
+import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.InvocationTargetException;
@@ -84,8 +85,8 @@ public class Field {
     }
 
     public Boolean isToOne() {
-        return cell.isAssociation() && !cell.isAddress() &&
-            !AssociationUtil.isToMany(entityInfo, cell.getAssociationBaseName());
+        return cell.isAssociation() && !cell.isAddress()
+            && !AssociationUtil.isToMany(entityInfo, cell.getAssociationBaseName());
     }
 
     public Boolean isToMany() {
@@ -182,12 +183,21 @@ public class Field {
      * @param entity the entity object to populate
      * @param associatedEntity the association entity to set
      */
+    @SuppressWarnings("unchecked")
     public void populateAssociationOnEntity(BullhornEntity entity, BullhornEntity associatedEntity) throws
-        InvocationTargetException, IllegalAccessException {
-        if (isToMany()) {
-
-        } else {
+        ParseException, InvocationTargetException, IllegalAccessException {
+        setMethod.invoke(associatedEntity, getValue());
+        if (isToOne()) {
             setAssociationMethod.invoke(entity, associatedEntity);
+        } else {
+            OneToMany<BullhornEntity> oneToMany = (OneToMany<BullhornEntity>) getAssociationMethod.invoke(entity);
+            if (oneToMany == null) {
+                oneToMany = new OneToMany<>();
+            }
+            List<BullhornEntity> associations = oneToMany.getData();
+            associations.add(associatedEntity);
+            oneToMany.setData(associations);
+            setAssociationMethod.invoke(entity, oneToMany);
         }
     }
 }

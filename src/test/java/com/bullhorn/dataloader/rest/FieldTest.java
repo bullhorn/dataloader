@@ -4,8 +4,10 @@ import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmission;
+import com.bullhornsdk.data.model.entity.core.standard.Note;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -113,13 +115,14 @@ public class FieldTest {
         Assert.assertEquals(field.getValue(), true);
         Assert.assertEquals(field.getStringValue(), "true");
 
+        CandidateWorkHistory candidateWorkHistory = new CandidateWorkHistory();
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getIsDeleted(), null);
+        Assert.assertEquals(candidateWorkHistory.getCandidate(), null);
 
-        field.populateFieldOnEntity(candidate);
+        field.populateAssociationOnEntity(candidateWorkHistory, candidate);
 
-        Assert.assertEquals(candidate.getIsDeleted(), true);
+        Assert.assertEquals(candidateWorkHistory.getCandidate().getIsDeleted(), true);
     }
 
     @Test
@@ -138,13 +141,14 @@ public class FieldTest {
         Assert.assertEquals(actual.doubleValue(), 123.45, 0.0);
         Assert.assertEquals(field.getStringValue(), "123.45");
 
+        CandidateWorkHistory candidateWorkHistory = new CandidateWorkHistory();
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getSalary(), null);
+        Assert.assertEquals(candidateWorkHistory.getCandidate(), null);
 
-        field.populateFieldOnEntity(candidate);
+        field.populateAssociationOnEntity(candidateWorkHistory, candidate);
 
-        Assert.assertEquals(candidate.getSalary().doubleValue(), 123.45, 0.1);
+        Assert.assertEquals(candidateWorkHistory.getCandidate().getSalary().doubleValue(), 123.45, 0.1);
     }
 
     @Test
@@ -162,13 +166,15 @@ public class FieldTest {
         Assert.assertEquals(field.getValue(), 1);
         Assert.assertEquals(field.getStringValue(), "1");
 
+        Note note = new Note();
         Candidate candidate = new Candidate();
 
         Assert.assertEquals(candidate.getId(), null);
+        Assert.assertEquals(note.getCandidates(), null);
 
-        field.populateFieldOnEntity(candidate);
+        field.populateAssociationOnEntity(note, candidate);
 
-        Assert.assertEquals(candidate.getId(), new Integer(1));
+        Assert.assertEquals(note.getCandidates().getData().get(0).getId(), new Integer(1));
     }
 
     @Test
@@ -186,13 +192,15 @@ public class FieldTest {
         Assert.assertEquals(field.getValue(), true);
         Assert.assertEquals(field.getStringValue(), "1");
 
+        Note note = new Note();
         ClientContact clientContact = new ClientContact();
 
         Assert.assertEquals(clientContact.getIsDeleted(), null);
+        Assert.assertEquals(note.getCandidates(), null);
 
-        field.populateFieldOnEntity(clientContact);
+        field.populateAssociationOnEntity(note, clientContact);
 
-        Assert.assertEquals(clientContact.getIsDeleted(), true);
+        Assert.assertEquals(note.getClientContacts().getData().get(0).getIsDeleted(), true);
     }
 
     @Test
