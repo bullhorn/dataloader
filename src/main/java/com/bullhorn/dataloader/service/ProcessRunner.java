@@ -13,7 +13,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
-import com.bullhorn.dataloader.task.DeleteCustomObjectTask;
 import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
@@ -89,11 +88,8 @@ public class ProcessRunner {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
             AbstractTask task;
-            if (entityInfo.isCustomObject()) {
-                task = new DeleteCustomObjectTask(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
-            } else {
-                task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
-            }
+            task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
         }
