@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -79,6 +80,10 @@ public class AssociationUtil {
             }
         }
         throw new RestApiException("'" + associationBaseName + "' does not exist on " + entityInfo.getEntityName());
+    }
+
+    public static AssociationField getToManyField(Field field) {
+        return getToManyField(field.getEntityInfo(), field.getCell().getAssociationBaseName());
     }
 
     /**

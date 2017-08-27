@@ -51,6 +51,10 @@ public class FieldTest {
         field.populateFieldOnEntity(candidate);
 
         Assert.assertEquals(candidate.getFirstName(), "Jack");
+        Assert.assertEquals(field.getValueFromEntity(candidate), "Jack");
+
+        field.setExistField(true);
+        Assert.assertEquals(field.isExistField(), true);
     }
 
     @Test
@@ -75,6 +79,7 @@ public class FieldTest {
         field.populateFieldOnEntity(jobSubmission);
 
         Assert.assertEquals(jobSubmission.getIsDeleted(), false);
+        Assert.assertEquals(field.getValueFromEntity(jobSubmission), false);
     }
 
     @Test
@@ -99,6 +104,7 @@ public class FieldTest {
         field.populateFieldOnEntity(candidate);
 
         Assert.assertEquals(candidate.getDateAvailable(), dateTimeFormatter.parseDateTime("02/09/2001"));
+        Assert.assertEquals(field.getValueFromEntity(candidate), dateTimeFormatter.parseDateTime("02/09/2001"));
     }
 
     @Test
@@ -124,6 +130,7 @@ public class FieldTest {
         field.populateAssociationOnEntity(candidateWorkHistory, candidate);
 
         Assert.assertEquals(candidateWorkHistory.getCandidate().getIsDeleted(), true);
+        Assert.assertEquals(field.getValueFromEntity(candidate), true);
     }
 
     @Test
@@ -150,6 +157,8 @@ public class FieldTest {
         field.populateAssociationOnEntity(candidateWorkHistory, candidate);
 
         Assert.assertEquals(candidateWorkHistory.getCandidate().getSalary().doubleValue(), 123.45, 0.1);
+        BigDecimal valueFromEntity = (BigDecimal) field.getValueFromEntity(candidate);
+        Assert.assertEquals(valueFromEntity.doubleValue(), 123.45, 0.1);
     }
 
     @Test
@@ -176,6 +185,7 @@ public class FieldTest {
         field.populateAssociationOnEntity(note, candidate);
 
         Assert.assertEquals(note.getCandidates().getData().get(0).getId(), new Integer(1));
+        Assert.assertEquals(field.getValueFromEntity(candidate), 1);
     }
 
     @Test
@@ -202,6 +212,7 @@ public class FieldTest {
         field.populateAssociationOnEntity(note, clientContact);
 
         Assert.assertEquals(note.getClientContacts().getData().get(0).getIsDeleted(), true);
+        Assert.assertEquals(field.getValueFromEntity(clientContact), true);
     }
 
     @Test
@@ -354,5 +365,30 @@ public class FieldTest {
         field.populateFieldOnEntity(candidateEducation);
 
         Assert.assertEquals(candidateEducation.getState(), "MO");
+    }
+
+    @Test
+    public void testIgnoredField() throws ParseException, InvocationTargetException, IllegalAccessException {
+        Cell cell = new Cell("person._subtype", "candidate");
+        Field field = new Field(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1, cell, false, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1);
+        Assert.assertEquals(field.getCell().isIgnored(), true);
+        Assert.assertEquals(field.isExistField(), false);
+        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "_subtype");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.PERSON);
+        Assert.assertEquals(field.getStringValue(), "candidate");
+
+        NullPointerException actualException = null;
+
+        try {
+            field.getValue();
+        } catch (NullPointerException e) {
+            actualException = e;
+        }
+
+        Assert.assertNotNull(actualException);
     }
 }

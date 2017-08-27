@@ -24,11 +24,12 @@ public class Field {
 
     private final EntityInfo entityInfo;
     private final Cell cell;
-    private final Boolean existField;
+    private Boolean existField;
     private final DateTimeFormatter dateTimeFormatter;
-    private final Method setMethod;
-    private final Method getAssociationMethod;
-    private final Method setAssociationMethod;
+    private Method getMethod = null;
+    private Method setMethod = null;
+    private Method getAssociationMethod = null;
+    private Method setAssociationMethod = null;
 
     /**
      * Constructor which takes the type of entity and the raw cell data.
@@ -48,21 +49,28 @@ public class Field {
         this.existField = existField;
         this.dateTimeFormatter = dateTimeFormatter;
 
-        // The setMethod will be the direct method on either the current entity or the associated entity.
-        // For Example:
-        //     'externalID' => <CurrentEntity>:setExternalId()
-        //   'candidate.id' => Candidate:setId()
-        //  'candidates.id' => Candidate:setId()
-        this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
+        if (!cell.isIgnored()) {
+            // The getMethod/setMethod will be the direct methods on either the current entity or the associated entity.
+            // For Example:
+            //     'externalID' => <CurrentEntity>:getExternalId() / <CurrentEntity>:setExternalId()
+            //   'candidate.id' => Candidate:getId() / Candidate:setId()
+            //  'candidates.id' => Candidate:getId() / Candidate:setId()
+            this.getMethod = MethodUtil.getGetterMethod(getFieldEntity(), getName());
+            this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
 
-        // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
-        if (cell.isAssociation()) {
-            this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
-            this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
-        } else {
-            this.getAssociationMethod = null;
-            this.setAssociationMethod = null;
+            // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
+            if (cell.isAssociation()) {
+                this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
+                this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
+            } else {
+                this.getAssociationMethod = null;
+                this.setAssociationMethod = null;
+            }
         }
+    }
+
+    public Cell getCell() {
+        return cell;
     }
 
     public EntityInfo getEntityInfo() {
@@ -71,6 +79,10 @@ public class Field {
 
     public Boolean isExistField() {
         return existField;
+    }
+
+    public void setExistField(Boolean existField) {
+        this.existField = existField;
     }
 
     public Boolean isToOne() {
@@ -91,11 +103,6 @@ public class Field {
         if (cell.isAssociation()) {
             return cell.getAssociationFieldName();
         }
-        return cell.getName();
-    }
-
-    // TODO: REMOVE ME
-    public String getCellName() {
         return cell.getName();
     }
 
@@ -188,5 +195,14 @@ public class Field {
             oneToMany.setData(associations);
             setAssociationMethod.invoke(entity, oneToMany);
         }
+    }
+
+    /**
+     * Calls the appropriate get method on the given SDK-REST entity object in order to get the value from an entity.
+     *
+     * @param entity the entity object to get the value of the field from
+     */
+    public Object getValueFromEntity(BullhornEntity entity) throws InvocationTargetException, IllegalAccessException {
+        return getMethod.invoke(entity);
     }
 }

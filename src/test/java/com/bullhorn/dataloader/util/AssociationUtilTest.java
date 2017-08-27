@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -13,6 +14,7 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,7 +48,9 @@ public class AssociationUtilTest {
 
     @Test
     public void testGetToManyField() throws IOException {
-        AssociationField actual = AssociationUtil.getToManyField(EntityInfo.NOTE, "clientContacts");
+        Cell cell = new Cell("clientContacts.id", "1");
+        Field field = new Field(EntityInfo.NOTE, cell, false, null);
+        AssociationField actual = AssociationUtil.getToManyField(field);
         Assert.assertEquals(ClientContact.class, actual.getAssociationType());
         Assert.assertEquals("clientContacts", actual.getAssociationFieldName());
     }

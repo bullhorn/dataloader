@@ -69,6 +69,7 @@ public class MethodUtil {
                 return getterMethodMap.get(methodName);
             }
         }
+        checkMalformedAddressField(fieldName);
         throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 
@@ -86,15 +87,19 @@ public class MethodUtil {
                 return setterMethodMap.get(methodName);
             }
         }
+        checkMalformedAddressField(fieldName);
+        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
+    }
 
-        // Check that users are not making a common address field mistake, to provide a better error message
+    /**
+     * Check that users are not making a common address field mistake, to provide a better error message
+     */
+    private static void checkMalformedAddressField(String fieldName) {
         if (ArrayUtil.containsIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)) {
             throw new RestApiException("Invalid address field format: '" + fieldName + "'. Must use: 'address."
                 + ArrayUtil.getMatchingStringIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)
                 + "' to set an address field.");
         }
-
-        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 
     /**

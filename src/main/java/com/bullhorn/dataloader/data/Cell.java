@@ -30,9 +30,18 @@ public class Cell {
     }
 
     /**
+     * Returns true if the field is ignored in REST, and only used for logic inside DataLoader.
+     *
+     * @return true if the value is to be ignored.
+     */
+    public Boolean isIgnored() {
+        return name.contains("_");
+    }
+
+    /**
      * Returns true if the cell is any type of address field.
      *
-     * @return True if the cell is a field in the compound to-one address field (ex: address.zip)
+     * @return true if the cell is a field in the compound to-one address field (ex: address.zip)
      */
     public Boolean isAddress() {
         return isAssociation() && getAssociationBaseName().toLowerCase().contains("address");
@@ -41,7 +50,7 @@ public class Cell {
     /**
      * If the field is of the format: 'entity.field', then it is an association.
      *
-     * @return True if the cell is an association to another entity (contains a dot)
+     * @return true if the cell is an association to another entity (contains a dot)
      */
     public Boolean isAssociation() {
         return name.contains(".");
@@ -50,7 +59,7 @@ public class Cell {
     /**
      * Returns the name of this entity's field, such as 'candidate' in 'candidate.externalID'.
      *
-     * @return Null if the cell is not an association to another entity (no dot)
+     * @return null if the cell is not an association to another entity (no dot)
      */
     public String getAssociationBaseName() {
         String associationName = null;
@@ -64,7 +73,7 @@ public class Cell {
     /**
      * Returns the name of the reference entity field, such as 'externalID' in 'candidate.externalID'.
      *
-     * @return Null if the cell is not an association to another entity (no dot)
+     * @return null if the cell is not an association to another entity (no dot)
      */
     public String getAssociationFieldName() {
         String associationField = null;

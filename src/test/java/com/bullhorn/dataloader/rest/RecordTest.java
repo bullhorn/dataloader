@@ -40,6 +40,7 @@ public class RecordTest {
         Assert.assertEquals(EntityInfo.CANDIDATE, record.getEntityInfo());
         Assert.assertEquals(new Integer(1), record.getNumber());
         Assert.assertEquals(6, record.getFields().size());
+        Assert.assertEquals(1, record.getToManyFields().size());
     }
 
     @Test

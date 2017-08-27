@@ -143,7 +143,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         for (Field field : record.getFields()) {
             if (field.isToMany()) {
                 if (entityInfo == EntityInfo.NOTE) {
-                    prepopulateNoteAssociation(field.getCellName());
+                    prepopulateNoteAssociation(field.getCell().getName());
                 }
             } else if (field.isToOne()) {
                 B toOneEntity = findToOneEntity(field);
@@ -166,7 +166,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 field.getFieldEntity().getEntityClass(), null);
         }
 
-        validateListFromRestCall(field.getCellName(), list, field.getStringValue());
+        validateListFromRestCall(field.getCell().getName(), list, field.getStringValue());
 
         return list.get(0);
     }
@@ -241,8 +241,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                         AssociationUtil.getToManyFields(entityInfo);
                     for (AssociationField associationField : associationFieldList) {
                         if (associationField.getAssociationFieldName().equalsIgnoreCase(
-                            field.getCellName().substring(0, field.getCellName().indexOf(".")))) {
-                            addAssociationToEntity(field.getCellName(), associationField);
+                            field.getCell().getName().substring(0, field.getCell().getName().indexOf(".")))) {
+                            addAssociationToEntity(field.getCell().getName(), associationField);
                         }
                     }
                 }

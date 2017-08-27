@@ -14,6 +14,20 @@ public class CellTest {
     }
 
     @Test
+    public void testIsIgnoredTrue() {
+        Cell cell = new Cell("person._subtype", "candidate");
+
+        Assert.assertEquals(cell.isIgnored(), true);
+    }
+
+    @Test
+    public void testIsIgnoredFalse() {
+        Cell cell = new Cell("candidate.id", "1");
+
+        Assert.assertEquals(cell.isIgnored(), false);
+    }
+
+    @Test
     public void testAddressTrue() {
         Cell cell = new Cell("secondaryAddress.state", "MO");
 

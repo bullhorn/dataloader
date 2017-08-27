@@ -63,4 +63,13 @@ public class Record {
     public List<Field> getEntityExistFields() {
         return fields.stream().filter(Field::isExistField).collect(Collectors.toList());
     }
+
+    /**
+     * Returns all fields that are To-Many Associations.
+     *
+     * @return an empty list if there are no To-Many fields
+     */
+    public List<Field> getToManyFields() {
+        return fields.stream().filter(Field::isToMany).collect(Collectors.toList());
+    }
 }
