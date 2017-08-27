@@ -10,7 +10,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
-import com.bullhorn.dataloader.task.DeleteCustomObjectTask;
 import com.bullhorn.dataloader.task.DeleteTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadCustomObjectTask;
@@ -127,7 +126,7 @@ public class ProcessRunnerTest {
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
         verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
-        Assert.assertEquals(actualTask.getClass(), DeleteCustomObjectTask.class);
+        Assert.assertEquals(actualTask.getClass(), DeleteTask.class);
     }
 
     @Test
