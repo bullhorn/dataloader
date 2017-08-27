@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.Row;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,10 +9,6 @@ import org.junit.Test;
 import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -27,41 +24,53 @@ public class PreloaderTest {
     private Preloader preloader;
 
     @Before
-    public void setup() throws IOException, InterruptedException {
-        restApiMock = mock(RestApi.class);
+    public void setup() throws IOException {
         RestSession restSessionMock = mock(RestSession.class);
-
-        List<Country> countryList = new ArrayList<>();
-        Country usa = new Country();
-        usa.setId(1);
-        usa.setName("USA");
-        countryList.add(usa);
-
+        restApiMock = mock(RestApi.class);
         preloader = new Preloader(restSessionMock);
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        when(restApiMock.queryForAllRecordsList(eq(Country.class), any(), any(), any())).thenReturn(countryList);
+        when(restApiMock.queryForAllRecordsList(eq(Country.class), any(), any(), any()))
+            .thenReturn(TestUtils.createCountryList("United States,Canada", "1,2"));
     }
 
     @Test
-    public void preloadCandidateWorkHistory() throws IOException, InterruptedException {
-        preloader.preload(EntityInfo.CANDIDATE_WORK_HISTORY);
-        verify(restApiMock, never()).queryForAllRecordsList(any(), any(), any(), any());
-    }
+    public void convertRowSuccess() throws IOException {
+        Row row = TestUtils.createRow("address.city,address.state,address.countryName",
+            "St. Louis,MO,United States");
+        Row expectedRow = TestUtils.createRow("address.city,address.state,address.countryID",
+            "St. Louis,MO,1");
 
-    @Test
-    public void preloadCandidate() throws IOException, InterruptedException {
-        preloader.preload(EntityInfo.CANDIDATE);
+        Row convertedRow = preloader.convertRow(row);
+
+        for (int i = 0; i < expectedRow.getCells().size(); ++i) {
+            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+        }
         verify(restApiMock, times(1)).queryForAllRecordsList(any(), any(), any(), any());
     }
 
     @Test
-    public void getCountryNameToIdMapTest() throws IOException, InterruptedException {
-        Map<String, Integer> expectedMap = new HashMap<>();
-        expectedMap.put("USA", 1);
+    public void convertRowInvalid() throws IOException {
+        Row row = TestUtils.createRow("address.city,address.state,address.countryName",
+            "St. Louis,MO,Nowhere");
+        Row expectedRow = TestUtils.createRow("address.city,address.state,address.countryID",
+            "St. Louis,MO,Nowhere");
 
-        Map<String, Integer> actualMap = preloader.getCountryNameToIdMap();
+        Row convertedRow = preloader.convertRow(row);
 
-        Assert.assertThat(actualMap, new ReflectionEquals(expectedMap));
+        for (int i = 0; i < expectedRow.getCells().size(); ++i) {
+            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+        }
+        verify(restApiMock, times(1)).queryForAllRecordsList(any(), any(), any(), any());
+    }
+
+    @Test
+    public void createRowNoOp() throws IOException {
+        Row row = TestUtils.createRow("address.city,address.state,address.countryID", "St. Louis, MO, 1");
+
+        Row convertedRow = preloader.convertRow(row);
+
+        Assert.assertThat(convertedRow, new ReflectionEquals(row));
+        verify(restApiMock, never()).queryForAllRecordsList(any(), any(), any(), any());
     }
 }

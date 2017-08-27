@@ -10,6 +10,7 @@ import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
 import com.bullhornsdk.data.model.entity.core.type.HardDeleteEntity;
+import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.SoftDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
@@ -106,7 +107,13 @@ public enum EntityInfo {
     PLACEMENT_CUSTOM_OBJECT_INSTANCE_7(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_7, 97),
     PLACEMENT_CUSTOM_OBJECT_INSTANCE_8(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_8, 98),
     PLACEMENT_CUSTOM_OBJECT_INSTANCE_9(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_9, 99),
-    PLACEMENT_CUSTOM_OBJECT_INSTANCE_10(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10, 100);
+    PLACEMENT_CUSTOM_OBJECT_INSTANCE_10(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10, 100),
+
+    // Abstract base class
+    PERSON(BullhornEntityInfo.PERSON, 1000),
+
+    // Compound class
+    ADDRESS(BullhornEntityInfo.ADDRESS, 1001);
 
     /**
      * Comparator for sorting EntityInfo objects in a sorted collection.
@@ -122,7 +129,7 @@ public enum EntityInfo {
 
     private final BullhornEntityInfo bullhornEntityInfo;
     private final Integer loadOrder;
-    private Map<String, Method> methodMap = null;
+    private Map<String, Method> setterMethodMap = null;
 
     /**
      * Constructor for enum containing information about each entity type
@@ -165,9 +172,14 @@ public enum EntityInfo {
     }
 
     /**
-     * The entity class used in the Bullhorn's SDK-REST
+     * The entity class used in the Bullhorn's SDK-REST. For address, we account for the null value in REST-SDK.
+     *
+     * @return the address class for use in DataLoader, since we are not loading directly, but need it to be available
      */
     public Class getEntityClass() {
+        if (bullhornEntityInfo == BullhornEntityInfo.ADDRESS) {
+            return Address.class;
+        }
         return bullhornEntityInfo.getType();
     }
 
@@ -222,6 +234,13 @@ public enum EntityInfo {
     }
 
     /**
+     * True if this entity can be used in /search calls.
+     */
+    public boolean isSearchEntity() {
+        return SearchEntity.class.isAssignableFrom(getEntityClass());
+    }
+
+    /**
      * True if this entity can not be loaded using REST.
      */
     public boolean isReadOnly() {
@@ -255,16 +274,17 @@ public enum EntityInfo {
      * @return A map of field name to setter methods that can invoked generically using `method.invoke`
      */
     public Map<String, Method> getSetterMethodMap() {
-        if (methodMap == null) {
-            methodMap = MethodUtil.getSetterMethodMap(getEntityClass());
+        if (setterMethodMap == null) {
+            setterMethodMap = MethodUtil.getSetterMethodMap(getEntityClass());
 
+            // TODO: Remove this!
             // Add individual address setters for any entity that has an address field, since address is a composite
             // field, not a direct field or an associated record.
-            if (methodMap.containsKey("address")) {
-                methodMap.putAll(MethodUtil.getSetterMethodMap(Address.class));
+            if (setterMethodMap.containsKey("address")) {
+                setterMethodMap.putAll(MethodUtil.getSetterMethodMap(Address.class));
             }
         }
 
-        return methodMap;
+        return setterMethodMap;
     }
 }

@@ -1,23 +1,22 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
+import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
-import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.Category;
+import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance5;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
-import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
-import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
-import com.bullhornsdk.data.model.entity.core.standard.Lead;
-import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
-import com.bullhornsdk.data.model.entity.core.standard.Placement;
-import com.bullhornsdk.data.model.entity.core.standard.Tearsheet;
+import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class AssociationUtilTest {
 
@@ -28,30 +27,99 @@ public class AssociationUtilTest {
     }
 
     @Test
-    public void testGetAssociationFields() throws IOException {
-        Assert.assertEquals(AssociationUtil.getAssociationFields(Category.class), AssociationFactory.categoryAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(Category.class), AssociationFactory.categoryAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(ClientContact.class), AssociationFactory.clientContactAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(CorporateUser.class), AssociationFactory.corporateUserAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(JobOrder.class), AssociationFactory.jobOrderAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(Placement.class), AssociationFactory.placementAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(Opportunity.class), AssociationFactory.opportunityAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(Lead.class), AssociationFactory.leadAssociations().allAssociations());
-        Assert.assertEquals(AssociationUtil.getAssociationFields(Tearsheet.class), AssociationFactory.tearsheetAssociations().allAssociations());
+    public void testGetToManyFields() throws IOException {
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CATEGORY), AssociationFactory.categoryAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CATEGORY), AssociationFactory.categoryAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CLIENT_CONTACT), AssociationFactory.clientContactAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CORPORATE_USER), AssociationFactory.corporateUserAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.JOB_ORDER), AssociationFactory.jobOrderAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.PLACEMENT), AssociationFactory.placementAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.OPPORTUNITY), AssociationFactory.opportunityAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.LEAD), AssociationFactory.leadAssociations().allAssociations());
+        Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.TEARSHEET), AssociationFactory.tearsheetAssociations().allAssociations());
     }
 
     @Test
-    public void testGetAssociationFieldsBadInput() throws IOException {
-        Assert.assertEquals(AssociationUtil.getAssociationFields(AssociationUtilTest.class), new ArrayList<>());
+    public void testGetToManyFieldsEmpty() throws IOException {
+        List<AssociationField<AssociationEntity, BullhornEntity>> associationFields =
+            AssociationUtil.getToManyFields(EntityInfo.CANDIDATE_WORK_HISTORY);
+        Assert.assertTrue(associationFields.isEmpty());
+    }
+
+    @Test
+    public void testGetToManyField() throws IOException {
+        Cell cell = new Cell("clientContacts.id", "1");
+        Field field = new Field(EntityInfo.NOTE, cell, false, null);
+        AssociationField actual = AssociationUtil.getToManyField(field);
+        Assert.assertEquals(ClientContact.class, actual.getAssociationType());
+        Assert.assertEquals("clientContacts", actual.getAssociationFieldName());
+    }
+
+    @Test
+    public void testGetFieldEntityException() throws IOException {
+        RestApiException expectedException = new RestApiException("'trolls' does not exist on Candidate");
+        RestApiException actualException = null;
+
+        try {
+            AssociationUtil.getToManyField(EntityInfo.CANDIDATE, "trolls");
+        } catch (RestApiException e) {
+            actualException = e;
+        }
+
+        Assert.assertNotNull(actualException);
+        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
+    }
+
+    @Test
+    public void testGetFieldEntityDirect() throws IOException {
+        Cell cell = new Cell("externalID", "note-ext-1");
+        EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);
+        Assert.assertEquals(EntityInfo.NOTE, entityInfo);
+    }
+
+    @Test
+    public void testGetFieldEntityToOne() throws IOException {
+        Cell cell = new Cell("commentingPerson.email", "jsmith@example.com");
+        EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);
+        Assert.assertEquals(EntityInfo.PERSON, entityInfo);
+    }
+
+    @Test
+    public void testGetFieldEntityCompound() throws IOException {
+        Cell cell = new Cell("address.city", "St. Louis");
+        EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
+        Assert.assertEquals(EntityInfo.ADDRESS, entityInfo);
+    }
+
+    @Test
+    public void testGetFieldEntityToMany() throws IOException {
+        Cell cell = new Cell("candidates.externalID", "1;2;3;4");
+        EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);
+        Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);
+    }
+
+    @Test
+    public void testGetFieldEntityEmpty() throws IOException {
+        Cell cell = new Cell("", "");
+        EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
+        Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);
+    }
+
+    @Test
+    public void testGetCustomObjectAssociationField() throws IOException {
+        AssociationField actual = AssociationUtil.getCustomObjectField(
+            EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_5, EntityInfo.CLIENT_CORPORATION);
+        Assert.assertEquals(ClientCorporationCustomObjectInstance5.class, actual.getAssociationType());
+        Assert.assertEquals("customObject5s", actual.getAssociationFieldName());
     }
 
     @Test
     public void testGetCustomObjectAssociationFieldException() throws IOException {
-        RestApiException expectedException = new RestApiException("Cannot find association field for association customObjectrs");
+        RestApiException expectedException = new RestApiException("'customObjectrs' does not exist on Candidate");
         RestApiException actualException = null;
 
         try {
-            AssociationUtil.getCustomObjectAssociationField(EntityInfo.BUSINESS_SECTOR, Candidate.class);
+            AssociationUtil.getCustomObjectField(EntityInfo.BUSINESS_SECTOR, EntityInfo.CANDIDATE);
         } catch (RestApiException e) {
             actualException = e;
         }

@@ -12,7 +12,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
-import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Sets;
@@ -22,8 +21,7 @@ import java.io.IOException;
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
-public class DeleteCustomObjectTask<A extends AssociationEntity, E extends EntityAssociations,
-    B extends BullhornEntity> extends LoadCustomObjectTask<A, E, B> {
+public class DeleteCustomObjectTask<B extends BullhornEntity> extends LoadCustomObjectTask<B> {
 
     public DeleteCustomObjectTask(EntityInfo entityInfo,
                                   Row row,
@@ -71,9 +69,9 @@ public class DeleteCustomObjectTask<A extends AssociationEntity, E extends Entit
      * @param parentEntityId The id of the parentEntity
      */
     private void deleteCustomObject(Integer parentEntityId) {
-        AssociationField associationField = AssociationUtil.getCustomObjectAssociationField(entityInfo,
-            parentEntityClass);
-        restApi.disassociateWithEntity((Class<A>) parentEntityClass, parentEntityId, associationField,
+        AssociationField associationField = AssociationUtil.getCustomObjectField(entityInfo,
+            EntityInfo.fromString(parentEntityClass.getSimpleName()));
+        restApi.disassociateWithEntity((Class<AssociationEntity>) parentEntityClass, parentEntityId, associationField,
             Sets.newHashSet(entityId));
     }
 

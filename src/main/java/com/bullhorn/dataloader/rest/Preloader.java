@@ -1,12 +1,13 @@
 package com.bullhorn.dataloader.rest;
 
 
-import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.data.Cell;
+import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,16 +28,36 @@ public class Preloader {
      * Called upon dataloader initialization (before tasks begin executing) in order to load any lookup data
      * required for entity to load.
      *
-     * This method will determine what internal methods to call based on the entity to be loaded
-     *
-     * @param entityInfo The type of entity to be loaded
+     * @param row the user provided row of data
+     * @return the row that has potentially been modified to use internal bullhorn IDs
      */
-    public void preload(EntityInfo entityInfo) {
-        Map<String, Method> methodMap = entityInfo.getSetterMethodMap();
-        if (methodMap.containsKey("countryid")) {
-            getCountryNameToIdMap();
+    public Row convertRow(Row row) {
+        Row convertedRow = new Row(row.getNumber());
+        for (Cell cell : row.getCells()) {
+            convertedRow.addCell(convertCell(cell));
         }
+        return convertedRow;
     }
+
+    /**
+     * Potentially converts a given cell from lookup fields to internal bullhorn ID fields.
+     *
+     * @param cell the user provided cell
+     * @return the cell that has potentially been modified to be an internal bullhorn ID
+     */
+    private Cell convertCell(Cell cell) {
+        if (cell.isAddress() && cell.getAssociationFieldName().equalsIgnoreCase(StringConsts.COUNTRY_NAME)) {
+            String name = cell.getAssociationBaseName() + "." + StringConsts.COUNTRY_ID;
+            String value = cell.getValue();
+            if (getCountryNameToIdMap().containsKey(cell.getValue())) {
+                value = getCountryNameToIdMap().get(cell.getValue()).toString();
+            }
+            return new Cell(name, value);
+        }
+        return cell;
+    }
+
+    // TODO: Make Private
 
     /**
      * Since the REST API only allows us to set the country using `countryID`, we query for all countries by name

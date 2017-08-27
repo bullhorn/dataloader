@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 public class ArrayUtilTest {
 
@@ -15,8 +17,8 @@ public class ArrayUtilTest {
 
     @Test
     public void testPrepend() throws IOException {
-        final String[] original = new String[]{"a", "b", "c"};
-        final String[] actual = ArrayUtil.prepend("x", original);
+        String[] original = new String[]{"a", "b", "c"};
+        String[] actual = ArrayUtil.prepend("x", original);
 
         Assert.assertEquals(actual.length, 4);
         Assert.assertEquals(actual[0], "x");
@@ -28,8 +30,8 @@ public class ArrayUtilTest {
 
     @Test
     public void testAppend() throws IOException {
-        final String[] original = new String[]{"a", "b", "c"};
-        final String[] actual = ArrayUtil.append(original, "x");
+        String[] original = new String[]{"a", "b", "c"};
+        String[] actual = ArrayUtil.append(original, "x");
 
         Assert.assertEquals(actual.length, 4);
         Assert.assertEquals(actual[0], "a");
@@ -37,5 +39,15 @@ public class ArrayUtilTest {
         Assert.assertEquals(actual[2], "c");
         Assert.assertEquals(actual[3], "x");
         Assert.assertEquals(original.length, 3);
+    }
+
+    @Test
+    public void testGetMatchingStringIgnoreCase() throws IOException {
+        List<String> strings = Arrays.asList("name", "firstName", "lastName", "middleName", "last");
+
+        Assert.assertEquals("name", ArrayUtil.getMatchingStringIgnoreCase(strings, "name"));
+        Assert.assertEquals("name", ArrayUtil.getMatchingStringIgnoreCase(strings, "NAME"));
+        Assert.assertEquals(null, ArrayUtil.getMatchingStringIgnoreCase(strings, "nam"));
+        Assert.assertEquals(null, ArrayUtil.getMatchingStringIgnoreCase(strings, "first"));
     }
 }

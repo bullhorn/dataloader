@@ -12,8 +12,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.association.EntityAssociations;
-import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -39,7 +37,7 @@ import java.util.Map;
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
-public class LoadAttachmentTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> extends AbstractTask<A, E, B> {
+public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     private FileMeta fileMeta;
     private boolean isNewEntity = true;

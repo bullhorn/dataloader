@@ -18,6 +18,8 @@ import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
+import com.google.common.collect.Lists;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +29,7 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -52,11 +55,16 @@ public class ProcessRunnerTest {
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 
-        processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock, threadPoolUtilMock);
+        processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock,
+            threadPoolUtilMock);
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);
         when(executorServiceMock.awaitTermination(1, TimeUnit.MINUTES)).thenReturn(true);
+        when(preloaderMock.convertRow(any())).then(returnsFirstArg());
+        when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern("yyyy-mm-dd"));
+        when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
+        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList());
     }
 
     @Test

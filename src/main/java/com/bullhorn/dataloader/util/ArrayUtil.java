@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.util;
 
+import java.util.Collection;
+
 /**
  * Utility for low level array related methods used in DataLoader
  */
@@ -31,5 +33,37 @@ public class ArrayUtil {
         newArray[originalArray.length] = lastElement;
         System.arraycopy(originalArray, 0, newArray, 0, originalArray.length);
         return newArray;
+    }
+
+    /**
+     * Given a collection of string objects, returns true if it contains the given searchString, case insensitive.
+     *
+     * @param strings      the string to search through
+     * @param searchString the string to search for
+     * @return true if found, false otherwise
+     */
+    public static Boolean containsIgnoreCase(Collection<String> strings, String searchString) {
+        for (String string : strings) {
+            if (string.equalsIgnoreCase(searchString)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Given a collection of string objects, returns the first matching string, case insensitive.
+     *
+     * @param strings      the string to search through
+     * @param searchString the string to search for
+     * @return the string that was found, null otherwise
+     */
+    public static String getMatchingStringIgnoreCase(Collection<String> strings, String searchString) {
+        for (String string : strings) {
+            if (string.equalsIgnoreCase(searchString)) {
+                return string;
+            }
+        }
+        return null;
     }
 }

@@ -56,13 +56,10 @@ public class ProcessRunner {
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
-        // Preload any necessary data prior to loading this entity type
-        preloader.preload(entityInfo);
-
         // Loop over each row in the file
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
-            Row row = csvFileReader.getRow();
+            Row row = preloader.convertRow(csvFileReader.getRow());
             AbstractTask task;
             if (entityInfo.isCustomObject()) {
                 task = new LoadCustomObjectTask(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);

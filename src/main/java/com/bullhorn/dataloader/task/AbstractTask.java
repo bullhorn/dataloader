@@ -10,9 +10,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.association.EntityAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
-import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
@@ -42,7 +40,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public abstract class AbstractTask<A extends AssociationEntity, E extends EntityAssociations, B extends BullhornEntity> implements Runnable {
+public abstract class AbstractTask<B extends BullhornEntity> implements Runnable {
     static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     protected EntityInfo entityInfo;
@@ -87,7 +85,8 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
     private void updateRowProcessedCounts() {
         rowProcessedCount.incrementAndGet();
         if (rowProcessedCount.intValue() % 111 == 0) {
-            printUtil.printAndLog("Processed: " + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
+            printUtil.printAndLog("Processed: "
+                + NumberFormat.getNumberInstance(Locale.US).format(rowProcessedCount) + " records.");
         }
     }
 
@@ -175,7 +174,7 @@ public abstract class AbstractTask<A extends AssociationEntity, E extends Entity
         }
 
         if (isAddressField(field) && methodMap.containsKey("address")) {
-            throw new RestApiException("Invalid address field format: '" + field + "' Must use 'address." + field + "' in csv header");
+            throw new RestApiException("Invalid address field format: '" + field + "' Must use: 'address." + field + "' in csv header");
         }
 
         if (value != null) {
