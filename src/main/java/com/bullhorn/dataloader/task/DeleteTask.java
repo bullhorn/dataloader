@@ -1,10 +1,12 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -14,9 +16,8 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
@@ -73,29 +74,24 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
      * @return True if deletable, false otherwise
      */
     private Boolean isEntityDeletable(Integer bullhornId) throws IOException {
-        Map<String, String> existFieldsMap = new HashMap<>();
-        existFieldsMap.put(StringConsts.ID, bullhornId.toString());
+        List<Field> entityExistFields = new ArrayList<>();
+        Cell idCell = new Cell(StringConsts.ID, bullhornId.toString());
+        Field idField = new Field(entityInfo, idCell, true, propertyFileUtil.getDateParser());
+        entityExistFields.add(idField);
 
         if (entityInfo.isSoftDeletable()) {
-            existFieldsMap.putAll(getIsDeletedField());
-            List<B> existingEntityList = findEntityList(existFieldsMap);
+            String isDeletedValue = entityInfo == EntityInfo.NOTE ? "false" : "0";
+            Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, isDeletedValue);
+            Field isDeletedField = new Field(entityInfo, isDeletedCell, true, propertyFileUtil.getDateParser());
+            entityExistFields.add(isDeletedField);
+            List<B> existingEntityList = findEntityList(entityExistFields);
             return !existingEntityList.isEmpty();
         } else if (entityInfo.isHardDeletable()) {
-            List<B> existingEntityList = findEntityList(existFieldsMap);
+            List<B> existingEntityList = findEntityList(entityExistFields);
             return !existingEntityList.isEmpty();
         } else {
             throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
                 + " records are not deletable.");
         }
-    }
-
-    private Map<String, String> getIsDeletedField() {
-        Map<String, String> existFieldsMap = new HashMap<>();
-        if (entityInfo == EntityInfo.NOTE) {
-            existFieldsMap.put(StringConsts.IS_DELETED, "false");
-        } else {
-            existFieldsMap.put(StringConsts.IS_DELETED, "0");
-        }
-        return existFieldsMap;
     }
 }

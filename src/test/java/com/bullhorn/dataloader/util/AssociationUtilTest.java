@@ -14,7 +14,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.util.List;
 

@@ -13,7 +13,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Appointment;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Candidate() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 AND isDeleted:0"), any(), any())).thenReturn(TestUtils.getList(Candidate.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
@@ -59,7 +58,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Appointment() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        when(restApiMock.queryForList(eq(Appointment.class), eq("isDeleted=false AND id=1"), any(), any())).thenReturn(TestUtils.getList(Appointment.class, 1));
+        when(restApiMock.queryForList(eq(Appointment.class), eq("id=1 AND isDeleted=false"), any(), any())).thenReturn(TestUtils.getList(Appointment.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.APPOINTMENT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
@@ -71,7 +70,7 @@ public class DeleteTaskTest {
     @Test
     public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        when(restApiMock.searchForList(eq(Note.class), eq("isDeleted:false AND noteID:1"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
+        when(restApiMock.searchForList(eq(Note.class), eq("noteID:1 AND isDeleted:false"), any(), any())).thenReturn(TestUtils.getList(Note.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
@@ -95,7 +94,7 @@ public class DeleteTaskTest {
     @Test
     public void run_AlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("isDeleted:0 AND id:1"), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 AND isDeleted:0"), any(), any())).thenReturn(TestUtils.getList(Candidate.class));
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
@@ -154,16 +153,5 @@ public class DeleteTaskTest {
         Assert.assertEquals("false", task.getBooleanWhereStatement(zeroString));
         Assert.assertEquals("true", task.getBooleanWhereStatement(oneString));
         Assert.assertEquals("false", task.getBooleanWhereStatement(twoString));
-    }
-
-    @Test
-    public void testGetFieldEntityClassWithAssociation() throws IOException {
-        Row row = TestUtils.createRow("id", "1");
-        String candidateID = "candidate.id";
-
-        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        Class<BullhornEntityInfo> bullhornEntityInfo = task.getFieldEntityClass(candidateID);
-
-        Assert.assertEquals(bullhornEntityInfo.getSimpleName(), EntityInfo.CANDIDATE.getEntityName());
     }
 }

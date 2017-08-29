@@ -30,15 +30,6 @@ public class Cell {
     }
 
     /**
-     * Returns true if the field is ignored in REST, and only used for logic inside DataLoader.
-     *
-     * @return true if the value is to be ignored.
-     */
-    public Boolean isIgnored() {
-        return name.contains("_");
-    }
-
-    /**
      * Returns true if the cell is any type of address field.
      *
      * @return true if the cell is a field in the compound to-one address field (ex: address.zip)
