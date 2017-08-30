@@ -6,7 +6,6 @@ import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Field;
-import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
@@ -36,12 +35,10 @@ import org.apache.logging.log4j.Level;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -51,24 +48,19 @@ import java.util.stream.Collectors;
 public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     private static final Integer RECORD_RETURN_COUNT = 500;
 
-    protected B entity;
-    protected Preloader preloader;
-    protected Map<String, Method> methodMap;
-    boolean isNewEntity = true;
-    Integer entityId;
-    protected Record record;
+    private B entity;
+    private boolean isNewEntity = true;
+    private Integer entityId;
+    private Record record;
 
     public LoadTask(EntityInfo entityInfo,
                     Row row,
-                    Preloader preloader,
                     CsvFileWriter csvFileWriter,
                     PropertyFileUtil propertyFileUtil,
                     RestApi restApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals) {
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
-        this.preloader = preloader;
-        this.methodMap = entityInfo.getSetterMethodMap();
     }
 
     @Override
@@ -82,7 +74,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         writeToResultCsv(result);
     }
 
-    protected Result handle() throws Exception {
+    private Result handle() throws Exception {
         record = new Record(entityInfo, row, propertyFileUtil);
         addParentLocatorExistField(record);
         getOrCreateEntity();
@@ -90,14 +82,14 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         insertAttachmentToDescription();
         insertOrUpdateEntity();
         createAssociations();
-        return createResult();
+        return isNewEntity ? Result.insert(entityId) : Result.update(entityId);
     }
 
     /**
      * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not
      * found will create a new entity.
      */
-    void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
+    private void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
         List<B> existingEntityList = findEntityList(record);
         if (!existingEntityList.isEmpty()) {
             if (existingEntityList.size() > 1) {
@@ -119,7 +111,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Calls rest to insert or update the entity by passing in the filled out entity object.
      */
-    protected void insertOrUpdateEntity() throws IOException {
+    private void insertOrUpdateEntity() throws IOException {
         if (isNewEntity) {
             CrudResponse response = restApi.insertEntity((CreateEntity) entity);
             entityId = response.getChangedEntityId();
@@ -140,7 +132,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * To-One Associations: Get the association object and populate the internal ID field.
      * To-Many Associations: Call the association REST method (unless we are loading notes)
      */
-    void handleFields() throws Exception {
+    private void handleFields() throws Exception {
         for (Field field : record.getFields()) {
             if (field.isToMany()) {
                 if (entityInfo == EntityInfo.NOTE) {
@@ -200,7 +192,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * there is an externalID being used in the input file.
      */
     private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
-        String descriptionMethod = MethodUtil.findBestMatch(methodMap.keySet(), StringConsts.DESCRIPTION);
+        String descriptionMethod = MethodUtil.findBestMatch(entityInfo.getSetterMethodMap().keySet(), StringConsts.DESCRIPTION);
         if (descriptionMethod != null && row.hasValue(StringConsts.EXTERNAL_ID)) {
             String convertedAttachmentFilepath = propertyFileUtil.getConvertedAttachmentFilepath(entityInfo,
                 row.getValue(StringConsts.EXTERNAL_ID));
@@ -208,13 +200,13 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 File convertedAttachmentFile = new File(convertedAttachmentFilepath);
                 if (convertedAttachmentFile.exists()) {
                     String description = FileUtils.readFileToString(convertedAttachmentFile);
-                    methodMap.get(descriptionMethod).invoke(entity, description);
+                    entityInfo.getSetterMethodMap().get(descriptionMethod).invoke(entity, description);
                 }
             }
         }
     }
 
-    void validateListFromRestCall(String field, List<B> list, String value) {
+    private void validateListFromRestCall(String field, List<B> list, String value) {
         if (list == null || list.isEmpty()) {
             throw new RestApiException("Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
         } else if (list.size() > 1) {
@@ -225,7 +217,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Makes association REST calls for all To-Many relationships for the entity.
      */
-    @SuppressWarnings("unchecked")
     private void createAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         // Note associations are filled out in the create call
         if (entityInfo == EntityInfo.NOTE) {
@@ -238,6 +229,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
 
             try {
+                //noinspection unchecked
                 restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
                     associationField, Sets.newHashSet(associationIds));
             } catch (RestApiException exception) {
@@ -343,14 +335,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                     record.getFields().stream().filter(Field::isToOne).findFirst().get().setExistField(true);
                 }
             }
-        }
-    }
-
-    Result createResult() {
-        if (isNewEntity) {
-            return Result.insert(entityId);
-        } else {
-            return Result.update(entityId);
         }
     }
 }

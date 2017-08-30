@@ -59,7 +59,7 @@ public class ProcessRunner {
             // Create an individual task runner (thread) for the row
             Row row = preloader.convertRow(csvFileReader.getRow());
             AbstractTask task;
-            task = new LoadTask(entityInfo, row, preloader, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
