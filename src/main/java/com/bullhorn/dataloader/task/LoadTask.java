@@ -149,7 +149,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     private B findToOneEntity(Field field) {
         List<B> list;
-
         if (field.getFieldEntity().isSearchEntity()) {
             list = searchForEntity(field.getName(), field.getStringValue(), field.getFieldType(),
                 field.getFieldEntity(), null);
@@ -157,53 +156,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             list = queryForEntity(field.getName(), field.getStringValue(), field.getFieldType(),
                 field.getFieldEntity(), null);
         }
-
         validateListFromRestCall(field.getCell().getName(), list, field.getStringValue());
-
         return list.get(0);
-    }
-
-    /**
-     * Special case that handles setting the externalID of the defaultContact that is created on a ClientCorporation.
-     * This allows for easily finding that contact later using the externalID, which will be of the format:
-     * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
-     */
-    private void setDefaultContactExternalId(Integer entityId) {
-        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity(
-            "id", entityId.toString(), Integer.class, EntityInfo.CLIENT_CORPORATION, Sets.newHashSet("id", "externalID"));
-        if (!clientCorporations.isEmpty()) {
-            ClientCorporation clientCorporation = clientCorporations.get(0);
-            if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
-                final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
-                List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query, Sets.newHashSet("id"), ParamFactory.queryParams());
-                if (!clientContacts.isEmpty()) {
-                    ClientContact clientContact = clientContacts.get(0);
-                    String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
-                    clientContact.setExternalID(defaultContactExternalId);
-                    restApi.updateEntity(clientContact);
-                }
-            }
-        }
-    }
-
-    /**
-     * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume
-     * file or description file stored on disk, if a convertAttachments has been done previously. This only works if
-     * there is an externalID being used in the input file.
-     */
-    private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
-        String descriptionMethod = MethodUtil.findBestMatch(entityInfo.getSetterMethodMap().keySet(), StringConsts.DESCRIPTION);
-        if (descriptionMethod != null && row.hasValue(StringConsts.EXTERNAL_ID)) {
-            String convertedAttachmentFilepath = propertyFileUtil.getConvertedAttachmentFilepath(entityInfo,
-                row.getValue(StringConsts.EXTERNAL_ID));
-            if (convertedAttachmentFilepath != null) {
-                File convertedAttachmentFile = new File(convertedAttachmentFilepath);
-                if (convertedAttachmentFile.exists()) {
-                    String description = FileUtils.readFileToString(convertedAttachmentFile);
-                    entityInfo.getSetterMethodMap().get(descriptionMethod).invoke(entity, description);
-                }
-            }
-        }
     }
 
     private void validateListFromRestCall(String field, List<B> list, String value) {
@@ -215,7 +169,20 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     }
 
     /**
-     * Makes association REST calls for all To-Many relationships for the entity.
+     * Populates a given To-Many field for an entity before the entity has been created.
+     *
+     * @param field the To-Many field to populate the entity with
+     */
+    private void prepopulateAssociation(Field field) throws IllegalAccessException, InstantiationException,
+        InvocationTargetException, ParseException {
+        List<B> associations = findAssociations(field);
+        for (B association : associations) {
+            field.populateAssociationOnEntity(entity, association);
+        }
+    }
+
+    /**
+     * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
      */
     private void createAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         // Note associations are filled out in the create call
@@ -246,14 +213,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         }
     }
 
-    private void prepopulateAssociation(Field field) throws IllegalAccessException, InstantiationException,
-        InvocationTargetException, ParseException {
-        List<B> associations = findAssociations(field);
-        for (B association : associations) {
-            field.populateAssociationOnEntity(entity, association);
-        }
-    }
-
     /**
      * Returns the list of entities that match the search criteria in the given To-Many field.
      */
@@ -277,18 +236,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         }
 
         return existingAssociations;
-    }
-
-    /**
-     * Given a list of entity objects, this returns the non-duplicate set of all field values.
-     */
-    private Set<String> getFieldValueSet(Field field, List<B> entities) throws InvocationTargetException, IllegalAccessException {
-        Set<String> values = new HashSet<>();
-        for (B entity : entities) {
-            String value = field.getValueFromEntity(entity).toString();
-            values.add(value);
-        }
-        return values;
     }
 
     /**
@@ -319,6 +266,17 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     }
 
     /**
+     * Given a list of entity objects, this returns the non-duplicate set of all field values.
+     */
+    private Set<String> getFieldValueSet(Field field, List<B> entities) throws InvocationTargetException, IllegalAccessException {
+        Set<String> values = new HashSet<>();
+        for (B entity : entities) {
+            values.add(field.getValueFromEntity(entity).toString());
+        }
+        return values;
+    }
+
+    /**
      * For custom objects, this checks the parent locator field and automatically adds it if unspecified.
      *
      * @param record the record specified by the user, which this method may modify
@@ -333,6 +291,55 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 } else {
                     //noinspection ConstantConditions
                     record.getFields().stream().filter(Field::isToOne).findFirst().get().setExistField(true);
+                }
+            }
+        }
+    }
+
+    /**
+     * Sets a locator for the client contact created by default for a new ClientCorporation.
+     *
+     * Special case that handles setting the externalID of the defaultContact that is created on a ClientCorporation.
+     * This allows for easily finding that contact later using the externalID, which will be of the format:
+     * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
+     */
+    private void setDefaultContactExternalId(Integer entityId) {
+        @SuppressWarnings("unchecked")
+        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id",
+            entityId.toString(), Integer.class, EntityInfo.CLIENT_CORPORATION, Sets.newHashSet("id", "externalID"));
+        if (!clientCorporations.isEmpty()) {
+            ClientCorporation clientCorporation = clientCorporations.get(0);
+            if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
+                final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
+                List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query,
+                    Sets.newHashSet("id"), ParamFactory.queryParams());
+                if (!clientContacts.isEmpty()) {
+                    ClientContact clientContact = clientContacts.get(0);
+                    String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
+                    clientContact.setExternalID(defaultContactExternalId);
+                    restApi.updateEntity(clientContact);
+                }
+            }
+        }
+    }
+
+    /**
+     * Inserts the HTML contents of converted resumes into the description field.
+     *
+     * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume
+     * file or description file stored on disk, if a convertAttachments has been done previously. This only works if
+     * there is an externalID being used in the input file.
+     */
+    private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
+        String descriptionMethod = MethodUtil.findBestMatch(entityInfo.getSetterMethodMap().keySet(), StringConsts.DESCRIPTION);
+        if (descriptionMethod != null && row.hasValue(StringConsts.EXTERNAL_ID)) {
+            String convertedAttachmentFilepath = propertyFileUtil.getConvertedAttachmentFilepath(entityInfo,
+                row.getValue(StringConsts.EXTERNAL_ID));
+            if (convertedAttachmentFilepath != null) {
+                File convertedAttachmentFile = new File(convertedAttachmentFilepath);
+                if (convertedAttachmentFile.exists()) {
+                    String description = FileUtils.readFileToString(convertedAttachmentFile);
+                    entityInfo.getSetterMethodMap().get(descriptionMethod).invoke(entity, description);
                 }
             }
         }
