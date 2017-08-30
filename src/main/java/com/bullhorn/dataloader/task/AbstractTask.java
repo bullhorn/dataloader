@@ -44,7 +44,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected Integer entityId;
     private CsvFileWriter csvFileWriter;
 
-
     AbstractTask(EntityInfo entityInfo,
                  Row row,
                  CsvFileWriter csvFileWriter,
