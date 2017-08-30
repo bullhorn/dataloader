@@ -49,23 +49,21 @@ public class Field {
         this.existField = existField;
         this.dateTimeFormatter = dateTimeFormatter;
 
-        if (!cell.isIgnored()) {
-            // The getMethod/setMethod will be the direct methods on either the current entity or the associated entity.
-            // For Example:
-            //     'externalID' => <CurrentEntity>:getExternalId() / <CurrentEntity>:setExternalId()
-            //   'candidate.id' => Candidate:getId() / Candidate:setId()
-            //  'candidates.id' => Candidate:getId() / Candidate:setId()
-            this.getMethod = MethodUtil.getGetterMethod(getFieldEntity(), getName());
-            this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
+        // The getMethod/setMethod will be the direct methods on either the current entity or the associated entity.
+        // For Example:
+        //     'externalID' => <CurrentEntity>:getExternalId() / <CurrentEntity>:setExternalId()
+        //   'candidate.id' => Candidate:getId() / Candidate:setId()
+        //  'candidates.id' => Candidate:getId() / Candidate:setId()
+        this.getMethod = MethodUtil.getGetterMethod(getFieldEntity(), getName());
+        this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
 
-            // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
-            if (cell.isAssociation()) {
-                this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
-                this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
-            } else {
-                this.getAssociationMethod = null;
-                this.setAssociationMethod = null;
-            }
+        // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
+        if (cell.isAssociation()) {
+            this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
+            this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
+        } else {
+            this.getAssociationMethod = null;
+            this.setAssociationMethod = null;
         }
     }
 

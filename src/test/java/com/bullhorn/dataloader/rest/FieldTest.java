@@ -366,29 +366,4 @@ public class FieldTest {
 
         Assert.assertEquals(candidateEducation.getState(), "MO");
     }
-
-    @Test
-    public void testIgnoredField() throws ParseException, InvocationTargetException, IllegalAccessException {
-        Cell cell = new Cell("person._subtype", "candidate");
-        Field field = new Field(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1, cell, false, dateTimeFormatter);
-
-        Assert.assertEquals(field.getEntityInfo(), EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_1);
-        Assert.assertEquals(field.getCell().isIgnored(), true);
-        Assert.assertEquals(field.isExistField(), false);
-        Assert.assertEquals(field.isToOne(), true);
-        Assert.assertEquals(field.isToMany(), false);
-        Assert.assertEquals(field.getName(), "_subtype");
-        Assert.assertEquals(field.getFieldEntity(), EntityInfo.PERSON);
-        Assert.assertEquals(field.getStringValue(), "candidate");
-
-        NullPointerException actualException = null;
-
-        try {
-            field.getValue();
-        } catch (NullPointerException e) {
-            actualException = e;
-        }
-
-        Assert.assertNotNull(actualException);
-    }
 }
