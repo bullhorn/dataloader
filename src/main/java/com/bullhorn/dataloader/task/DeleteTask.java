@@ -13,7 +13,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.entity.core.type.DeleteEntity;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +22,6 @@ import java.util.List;
  * Responsible for deleting a single row from a CSV input file.
  */
 public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
-    private Integer bullhornId;
 
     public DeleteTask(EntityInfo entityInfo,
                       Row row,
@@ -35,36 +33,20 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
-    /**
-     * Run method on this runnable object called by the thread manager.
-     *
-     * At this point, we should have an entity type that we know we can delete (soft or hard).
-     */
-    @Override
-    public void run() {
-        Result result;
-        try {
-            result = handle();
-        } catch (Exception e) {
-            result = handleFailure(e, bullhornId);
-        }
-        writeToResultCsv(result);
-    }
-
-    private <D extends DeleteEntity> Result handle() throws IOException {
+    protected Result handle() throws IOException, IllegalAccessException, InstantiationException {
         if (!row.hasValue(StringConsts.ID)) {
             throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
-        bullhornId = Integer.parseInt(row.getValue(StringConsts.ID));
-
-        if (!isEntityDeletable(bullhornId)) {
+        entityId = Integer.parseInt(row.getValue(StringConsts.ID));
+        if (!isEntityDeletable(entityId)) {
             throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
-                + " record with ID: " + bullhornId + " does not exist or has already been soft-deleted.");
+                + " record with ID: " + entityId + " does not exist or has already been soft-deleted.");
         }
 
-        restApi.deleteEntity((Class<D>) entityInfo.getEntityClass(), bullhornId);
-        return Result.delete(bullhornId);
+        //noinspection unchecked
+        restApi.deleteEntity(entityInfo.getEntityClass(), entityId);
+        return Result.delete(entityId);
     }
 
     /**

@@ -39,23 +39,7 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
-    @Override
-    public void run() {
-        Result result;
-        try {
-            result = handle();
-        } catch (Exception e) {
-            result = handleFailure(e);
-        }
-        writeToResultCsv(result);
-    }
-
-    private boolean isResume() {
-        String isResumeValue = row.getValue("isResume");
-        return Boolean.valueOf(isResumeValue) || isResumeValue.equalsIgnoreCase("1") || isResumeValue.equalsIgnoreCase("Yes");
-    }
-
-    private Result handle() throws Exception {
+    protected Result handle() throws Exception {
         if (isResume()) {
             String convertedHtml = convertAttachmentToHtml();
             writeHtmlToFile(convertedHtml);
@@ -65,7 +49,12 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         }
     }
 
-    protected void writeHtmlToFile(String convertedHtml) throws IOException {
+    private boolean isResume() {
+        String isResumeValue = row.getValue("isResume");
+        return Boolean.valueOf(isResumeValue) || isResumeValue.equalsIgnoreCase("1") || isResumeValue.equalsIgnoreCase("Yes");
+    }
+
+    void writeHtmlToFile(String convertedHtml) throws IOException {
         File convertedAttachmentFile = getFile();
         write(convertedHtml, convertedAttachmentFile);
     }
@@ -77,7 +66,7 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         return convertedAttachmentFile;
     }
 
-    protected void write(String convertedHtml, File convertedAttachmentFile) throws IOException {
+    private void write(String convertedHtml, File convertedAttachmentFile) throws IOException {
         FileOutputStream fop = new FileOutputStream(convertedAttachmentFile.getAbsoluteFile());
         byte[] convertedHtmlInBytes = convertedHtml.getBytes();
         fop.write(convertedHtmlInBytes);
@@ -85,7 +74,7 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         fop.close();
     }
 
-    protected String getConvertedAttachmentPath() {
+    String getConvertedAttachmentPath() {
         return "convertedAttachments/" + entityInfo.getEntityName() + "/" + getExternalId() + ".html";
     }
 
@@ -93,7 +82,7 @@ public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTas
         return row.getValue(WordUtils.uncapitalize(entityInfo.getEntityName()) + ".externalID");
     }
 
-    public String convertAttachmentToHtml() throws IOException, SAXException, TikaException {
+    String convertAttachmentToHtml() throws IOException, SAXException, TikaException {
         ContentHandler handler = new ToXMLContentHandler();
 
         AutoDetectParser parser = new AutoDetectParser();

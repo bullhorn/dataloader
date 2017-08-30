@@ -82,7 +82,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.failure(new IOException("Missing the 'relativeFilePath' column required for loadAttachments"));
+        Result expectedResult = Result.failure(
+            new IOException("Missing the 'relativeFilePath' column required for loadAttachments"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -98,7 +99,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        Result expectedResult = Result.failure(new RestApiException("Test"));
+        Result expectedResult = Result.failure(new RestApiException("Test"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 

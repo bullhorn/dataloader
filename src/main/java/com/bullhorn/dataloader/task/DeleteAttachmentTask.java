@@ -30,21 +30,7 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
-    /**
-     * Run method on this runnable object called by the thread manager.
-     */
-    @Override
-    public void run() {
-        Result result;
-        try {
-            result = handle();
-        } catch (Exception e) {
-            result = handleFailure(e);
-        }
-        writeToResultCsv(result);
-    }
-
-    private Result handle() throws Exception {
+    protected Result handle() throws Exception {
         FileApiResponse fileApiResponse = deleteFile();
         return Result.delete(fileApiResponse.getFileId());
     }

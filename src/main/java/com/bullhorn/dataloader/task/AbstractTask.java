@@ -37,11 +37,13 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     protected EntityInfo entityInfo;
     protected Row row;
-    protected CsvFileWriter csvFileWriter;
     protected PropertyFileUtil propertyFileUtil;
     protected RestApi restApi;
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
+    protected Integer entityId;
+    private CsvFileWriter csvFileWriter;
+
 
     AbstractTask(EntityInfo entityInfo,
                  Row row,
@@ -59,19 +61,40 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.actionTotals = actionTotals;
     }
 
-    void writeToResultCsv(Result result) {
-        int attempts = 0;
-        while (attempts < 3) {
-            try {
-                csvFileWriter.writeRow(row, result);
-                updateActionTotals(result);
-                updateRowProcessedCounts();
-                break;
-            } catch (IOException e) {
-                printUtil.printAndLog(e);
-                attempts++;
-            }
+    /**
+     * The public method that is called by the Task Executor on this Runnable object.
+     *
+     * Calls the handle method on the derived task, handles errors and writes the output files.
+     */
+    public void run() {
+        Result result;
+        try {
+            result = handle();
+        } catch (Exception e) {
+            result = handleFailure(e);
         }
+        writeToResultCsv(result);
+    }
+
+    /**
+     * The overridden protected method that performs the task's duties.
+     *
+     * @return the result object from the task
+     */
+    protected abstract Result handle() throws Exception;
+
+    /**
+     * Generic handling of an error for the row that fails.
+     *
+     * @param exception the exception that was caught
+     * @return a result object that captures the error text
+     */
+    private Result handleFailure(Exception exception) {
+        printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
+        if (entityId != null) {
+            return Result.failure(exception, entityId);
+        }
+        return Result.failure(exception);
     }
 
     private void updateRowProcessedCounts() {
@@ -86,27 +109,19 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         actionTotals.incrementActionTotal(result.getAction());
     }
 
-    /**
-     * Generic handling of an error for the row that fails.
-     *
-     * @param exception the exception that was caught
-     * @param entityId  the entity ID (or null if it does not exist)
-     * @return a result object that captures the error text
-     */
-    Result handleFailure(Exception exception, Integer entityId) {
-        printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
-        if (entityId != null) {
-            return Result.failure(exception, entityId);
+    private void writeToResultCsv(Result result) {
+        int attempts = 0;
+        while (attempts < 3) {
+            try {
+                csvFileWriter.writeRow(row, result);
+                updateActionTotals(result);
+                updateRowProcessedCounts();
+                break;
+            } catch (IOException e) {
+                printUtil.printAndLog(e);
+                attempts++;
+            }
         }
-        return Result.failure(exception);
-    }
-
-    /**
-     * Generic handling of an error for the row that fails. For the case when there is no internal ID to report.
-     */
-    Result handleFailure(Exception exception) {
-        printUtil.printAndLog(exception);
-        return Result.failure(exception);
     }
 
     // region Entity Lookup Methods
