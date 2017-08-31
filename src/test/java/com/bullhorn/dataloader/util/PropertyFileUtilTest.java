@@ -40,7 +40,8 @@ public class PropertyFileUtilTest {
     public void testGetConvertedAttachmentFileForCandidate() throws IOException {
         String expected = "convertedAttachments/Candidate/candidate-ext-1.html";
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
         String actual = propertyFileUtil.getConvertedAttachmentFilepath(EntityInfo.CANDIDATE, "candidate-ext-1");
 
         Assert.assertEquals(expected, actual);
@@ -50,7 +51,8 @@ public class PropertyFileUtilTest {
     public void testGetConvertedAttachmentFileForClientContact() throws IOException {
         String expected = "convertedAttachments/ClientContact/12345.html";
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
         String actual = propertyFileUtil.getConvertedAttachmentFilepath(EntityInfo.CLIENT_CONTACT, "12345");
 
         Assert.assertEquals(expected, actual);
@@ -58,7 +60,8 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGettersForPropertyFileValues() throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals("john.smith", propertyFileUtil.getUsername());
         Assert.assertEquals("password123", propertyFileUtil.getPassword());
@@ -101,7 +104,8 @@ public class PropertyFileUtilTest {
         envVars.put("numThreads", "bogus");
         envVars.put("waitTimeMSecBetweenFilesInDirectory", "99999999");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals("johnny.appleseed", propertyFileUtil.getUsername());
         Assert.assertEquals("password456", propertyFileUtil.getPassword());
@@ -140,7 +144,8 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("waitTimeMSecBetweenFilesInDirectory", "20");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals("johnny.be-good", propertyFileUtil.getUsername());
         Assert.assertEquals("password789", propertyFileUtil.getPassword());
@@ -219,7 +224,8 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGetEntityExistFields_PropertyFileValues() throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals(Arrays.asList(new String[]{"externalID"}),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -244,7 +250,8 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_Lead_Exist_Field", "customText99");
         envVars.put("Dataloader_Lead_Exist_Field", "bogus");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals(Arrays.asList(new String[]{"customTextField4", "customTextField5"}),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -257,7 +264,8 @@ public class PropertyFileUtilTest {
         envVars.put("candidateExistField", "customTextField4,customTextField5");
         systemProperties.setProperty("candidateExistField", "one,two,buckle,shoe");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals(Arrays.asList(new String[]{"one", "two", "buckle", "shoe"}),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -282,5 +290,24 @@ public class PropertyFileUtilTest {
     public void testPropertyFileSystemPropertyOverride() throws IOException {
         systemProperties.setProperty("propertyfile", "bogus/file/path/to/dataloader.properties");
         new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+    }
+
+    @Test
+    public void testInvalidDateFormat() throws IOException {
+        IllegalArgumentException expectedException = new IllegalArgumentException(
+            "Provided dateFormat is invalid: cannot convert: 'MM/dd/bogus HH:mm' to a valid date format. "
+                + "Valid formats are specified here: http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html");
+
+        systemProperties.setProperty("dateFormat", "MM/dd/bogus HH:mm");
+
+        IllegalArgumentException actualException = null;
+        try {
+            new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        } catch (IllegalArgumentException e) {
+            actualException = e;
+        }
+
+        assert actualException != null;
+        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
     }
 }

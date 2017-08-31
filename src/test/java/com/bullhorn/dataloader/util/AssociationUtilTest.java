@@ -6,8 +6,6 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
-import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
-import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance5;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
