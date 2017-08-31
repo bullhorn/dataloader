@@ -32,7 +32,8 @@ public class Main {
 
         try {
             PropertyValidationUtil propertyValidationUtil = new PropertyValidationUtil();
-            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties", System.getenv(), System.getProperties(), args, propertyValidationUtil, printUtil);
+            PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties",
+                System.getenv(), System.getProperties(), args, propertyValidationUtil, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
             RestApiExtension restApiExtension = new RestApiExtension(printUtil);
             RestSession restSession = new RestSession(restApiExtension, propertyFileUtil);
@@ -40,7 +41,8 @@ public class Main {
             CompleteCall completeCall = new CompleteCall(restSession, httpClient, propertyFileUtil, printUtil);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
             ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil, threadPoolUtil);
-            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, System.in, timer);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
+                completeCall, restSession, processRunner, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
 

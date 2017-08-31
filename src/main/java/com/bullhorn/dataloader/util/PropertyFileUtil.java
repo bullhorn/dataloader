@@ -280,7 +280,8 @@ public class PropertyFileUtil {
         dateParser = getDateTimeFormatter(properties);
         entityExistFieldsMap = createEntityExistFieldsMap(properties);
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
-        waitTimeMSecBetweenFilesInDirectory = propertyValidationUtil.validateWaitTimeMSec(properties.getProperty(Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
+        waitTimeMSecBetweenFilesInDirectory = propertyValidationUtil.validateWaitTimeMSec(properties.getProperty(
+            Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {

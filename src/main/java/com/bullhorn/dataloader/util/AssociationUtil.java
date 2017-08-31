@@ -143,6 +143,7 @@ public class AssociationUtil {
                                     (entityInfo.getEntityClass() == Placement.class ? AssociationFactory.placementAssociations() :
                                         (entityInfo.getEntityClass() == Opportunity.class ? AssociationFactory.opportunityAssociations() :
                                             (entityInfo.getEntityClass() == Lead.class ? AssociationFactory.leadAssociations() :
-                                                entityInfo.getEntityClass() == Tearsheet.class ? AssociationFactory.tearsheetAssociations() : null))))))))));
+                                                entityInfo.getEntityClass() == Tearsheet.class ? AssociationFactory.tearsheetAssociations()
+                                                    : null))))))))));
     }
 }

@@ -96,7 +96,8 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
             fieldName = fieldName.substring(fieldName.indexOf(".") + 1);
         }
         String getMethodName = "get" + fieldName;
-        List<Method> methods = Arrays.stream(fieldType.getMethods()).filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
+        List<Method> methods = Arrays.stream(fieldType.getMethods())
+            .filter(n -> getMethodName.equalsIgnoreCase(n.getName())).collect(Collectors.toList());
         if (methods.isEmpty()) {
             throw new RestApiException("'" + field + "': '" + fieldName + "' does not exist on " + fieldType.getSimpleName());
         }
@@ -174,11 +175,13 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
             List<String> propertiesWithValues = Lists.newArrayList();
             for (String property : properties) {
                 String propertyValue = row.getValue(getEntityAssociatedPropertyName(property));
-                Class fieldType = getFieldType(entityInfo.getEntityClass(), WordUtils.uncapitalize(entityInfo.getEntityClass().getSimpleName()) + "ExistField", property);
+                Class fieldType = getFieldType(entityInfo.getEntityClass(),
+                    WordUtils.uncapitalize(entityInfo.getEntityClass().getSimpleName()) + "ExistField", property);
                 propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityInfo));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
-            List<S> searchList = restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query, Sets.newHashSet("id"), ParamFactory.searchParams());
+            List<S> searchList = restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query,
+                Sets.newHashSet("id"), ParamFactory.searchParams());
             if (!searchList.isEmpty()) {
                 entityId = searchList.get(0).getId();
             } else {

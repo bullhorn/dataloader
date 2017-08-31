@@ -92,7 +92,8 @@ public class RestApiExtension {
         fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
         try {
-            String url = restApi.getRestUrl() + "services/dataLoader/getByExternalID?entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
+            String url = restApi.getRestUrl()
+                + "services/dataLoader/getByExternalID?entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
 
             Map<String, String> urlVariables = new LinkedHashMap<>();
             urlVariables.put("entity", type.getSimpleName());

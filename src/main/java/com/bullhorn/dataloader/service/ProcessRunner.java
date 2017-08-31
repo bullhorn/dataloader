@@ -39,7 +39,11 @@ public class ProcessRunner {
     private final PropertyFileUtil propertyFileUtil;
     private final ThreadPoolUtil threadPoolUtil;
 
-    public ProcessRunner(RestSession restSession, Preloader preloader, PrintUtil printUtil, PropertyFileUtil propertyFileUtil, ThreadPoolUtil threadPoolUtil) {
+    public ProcessRunner(RestSession restSession,
+                         Preloader preloader,
+                         PrintUtil printUtil,
+                         PropertyFileUtil propertyFileUtil,
+                         ThreadPoolUtil threadPoolUtil) {
         this.restSession = restSession;
         this.preloader = preloader;
         this.printUtil = printUtil;
@@ -132,7 +136,8 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
-            ConvertAttachmentTask task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            ConvertAttachmentTask task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter,
+                propertyFileUtil, restApi, printUtil, actionTotals);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
