@@ -76,6 +76,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not
      * found will create a new entity.
      */
+    @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
         List<B> existingEntityList = findEntityList(record);
         if (!existingEntityList.isEmpty()) {
@@ -91,7 +92,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 entityId = entity.getId();
             }
         } else {
-            //noinspection unchecked
             entity = (B) entityInfo.getEntityClass().newInstance();
         }
     }
@@ -170,6 +170,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
      */
+    @SuppressWarnings("unchecked")
     private void createAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         // Note associations are filled out in the create call
         if (entityInfo == EntityInfo.NOTE) {
@@ -182,7 +183,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
 
             try {
-                //noinspection unchecked
                 restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
                     associationField, Sets.newHashSet(associationIds));
             } catch (RestApiException exception) {
@@ -231,6 +231,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      *
      * @param field the To-Many association field to lookup records for
      */
+    @SuppressWarnings("unchecked")
     private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(Field field) {
         List<B> list;
         if (field.getFieldEntity().isSearchEntity()) {
@@ -269,9 +270,9 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * This allows for easily finding that contact later using the externalID, which will be of the format:
      * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
      */
+    @SuppressWarnings("unchecked")
     private void postProcessEntityInsert(Integer entityId) {
         if (entity.getClass() == ClientCorporation.class) {
-            @SuppressWarnings("unchecked")
             List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id",
                 entityId.toString(), Integer.class, EntityInfo.CLIENT_CORPORATION, Sets.newHashSet("id", "externalID"));
             if (!clientCorporations.isEmpty()) {

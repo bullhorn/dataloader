@@ -166,6 +166,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
     }
 
     // attachments are keyed off of the <entity>ExistField property, NOT <entity>AttachmentExistField
+    @SuppressWarnings("unchecked")
     private <S extends SearchEntity> void getAndSetBullhornId(List<String> properties) throws Exception {
         if (properties.contains(getEntityAssociatedPropertyName(StringConsts.ID))) {
             entityId = Integer.parseInt(row.getValue(getEntityAssociatedPropertyName(StringConsts.ID)));
@@ -190,6 +191,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
         return WordUtils.uncapitalize(entityInfo.getEntityName()) + "." + property;
     }
 
+    @SuppressWarnings("unchecked")
     private <F extends FileEntity> void createFileMeta() {
         fileMeta = new StandardFileMeta();
 
@@ -206,6 +208,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <F extends FileEntity> void populateFileMeta() throws Exception {
         File attachmentFile;
 
@@ -249,6 +252,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
         }
     }
 
+    @SuppressWarnings("unchecked")
     private <F extends FileEntity> Result addOrUpdateFile() {
         if (isNewEntity) {
             FileWrapper fileWrapper = restApi.addFile((Class<F>) entityInfo.getEntityClass(), entityId, fileMeta);

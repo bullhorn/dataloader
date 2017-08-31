@@ -33,6 +33,7 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
+    @SuppressWarnings("unchecked")
     protected Result handle() throws IOException, IllegalAccessException, InstantiationException {
         if (!row.hasValue(StringConsts.ID)) {
             throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
@@ -44,7 +45,6 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
                 + " record with ID: " + entityId + " does not exist or has already been soft-deleted.");
         }
 
-        //noinspection unchecked
         restApi.deleteEntity(entityInfo.getEntityClass(), entityId);
         return Result.delete(entityId);
     }

@@ -35,6 +35,7 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
         return Result.delete(fileApiResponse.getFileId());
     }
 
+    @SuppressWarnings("unchecked")
     private <F extends FileEntity> FileApiResponse deleteFile() throws IOException {
         if (!row.hasValue(StringConsts.PARENT_ENTITY_ID) || row.getValue(StringConsts.PARENT_ENTITY_ID).isEmpty()) {
             throw new IOException("Missing the '" + StringConsts.PARENT_ENTITY_ID + "' column required for deleteAttachments");
