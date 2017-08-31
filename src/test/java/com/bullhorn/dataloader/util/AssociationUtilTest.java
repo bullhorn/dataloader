@@ -103,43 +103,4 @@ public class AssociationUtilTest {
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
         Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);
     }
-
-    @Test
-    public void testGetCustomObjectAssociationField() throws IOException {
-        AssociationField actual = AssociationUtil.getCustomObjectField(
-            EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_5, EntityInfo.CLIENT_CORPORATION);
-        Assert.assertEquals(ClientCorporationCustomObjectInstance5.class, actual.getAssociationType());
-        Assert.assertEquals("customObject5s", actual.getAssociationFieldName());
-    }
-
-    @Test
-    public void testGetCustomObjectAssociationFieldException() throws IOException {
-        RestApiException expectedException = new RestApiException("'customObjectrs' does not exist on Candidate");
-        RestApiException actualException = null;
-
-        try {
-            AssociationUtil.getCustomObjectField(EntityInfo.BUSINESS_SECTOR, EntityInfo.CANDIDATE);
-        } catch (RestApiException e) {
-            actualException = e;
-        }
-
-        Assert.assertNotNull(actualException);
-        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
-    }
-
-    @Test
-    public void testGetAssociationGetMethodException() throws IOException {
-        RestApiException expectedException = new RestApiException("'businessSectors.bogus': 'bogus' does not exist on "
-            + "BusinessSector");
-        RestApiException actualException = null;
-
-        try {
-            AssociationUtil.getAssociationGetMethod(CandidateAssociations.getInstance().businessSectors(), "bogus");
-        } catch (RestApiException e) {
-            actualException = e;
-        }
-
-        Assert.assertNotNull(actualException);
-        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
-    }
 }
