@@ -87,18 +87,6 @@ public class AssociationUtil {
     }
 
     /**
-     * Returns the Custom Object AssociationField for a given parent entity type and custom object type.
-     *
-     * @param customObject The type of the custom object
-     * @param parent       The type of the parent
-     * @return The associationField if it exists
-     */
-    public static AssociationField getCustomObjectField(EntityInfo customObject, EntityInfo parent) {
-        String associationName = getCustomObjectAssociationName(customObject);
-        return getToManyField(parent, associationName);
-    }
-
-    /**
      * Returns the associated entity for To-One or To-Many fields, or the current entity for direct fields.
      *
      * For To-Many associations, the AssociationFields are used. For To-One associations, the name of the field is used
@@ -119,25 +107,6 @@ public class AssociationUtil {
             }
         }
         return entityInfo;
-    }
-
-    /**
-     * Returns the 'get' method for getting the associations from an entity.
-     *
-     * @param associationField The association field on the entity
-     * @param associationName  The association field name
-     * @return The get method that returns the association list
-     */
-    @SuppressWarnings("unchecked")
-    public static Method getAssociationGetMethod(AssociationField associationField, String associationName) {
-        String methodName = "get" + associationName.substring(0, 1).toUpperCase() + associationName.substring(1);
-        try {
-            return associationField.getAssociationType().getMethod(methodName);
-        } catch (NoSuchMethodException e) {
-            throw new RestApiException("'" + associationField.getAssociationFieldName()
-                + "." + associationName + "': '" + associationName + "' does not exist on "
-                + associationField.getAssociationType().getSimpleName());
-        }
     }
 
     /**
@@ -174,18 +143,7 @@ public class AssociationUtil {
                                     (entityInfo.getEntityClass() == Placement.class ? AssociationFactory.placementAssociations() :
                                         (entityInfo.getEntityClass() == Opportunity.class ? AssociationFactory.opportunityAssociations() :
                                             (entityInfo.getEntityClass() == Lead.class ? AssociationFactory.leadAssociations() :
-                                                entityInfo.getEntityClass() == Tearsheet.class ? AssociationFactory.tearsheetAssociations() : null))))))))));
-    }
-
-    /**
-     * Returns the name of the custom object association.
-     *
-     * @param customObjectEntityInfo The entityInfo object for a custom object
-     * @return the association name from the parent entity
-     */
-    private static String getCustomObjectAssociationName(EntityInfo customObjectEntityInfo) {
-        String entityName = customObjectEntityInfo.getEntityName();
-        String instanceNumber = entityName.substring(entityName.length() - 1, entityName.length());
-        return "customObject" + instanceNumber + "s";
+                                                entityInfo.getEntityClass() == Tearsheet.class ? AssociationFactory.tearsheetAssociations()
+                                                    : null))))))))));
     }
 }

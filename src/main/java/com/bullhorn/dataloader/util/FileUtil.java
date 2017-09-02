@@ -28,7 +28,9 @@ public class FileUtil {
      * @param comparator     specifies how the sorted map should be sorted by entity
      * @return a Map of entity enums to lists of valid files.
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
+    public static SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath,
+                                                                       ValidationUtil validationUtil,
+                                                                       Comparator<EntityInfo> comparator) {
         File file = new File(filePath);
         if (file.isDirectory()) {
             return getValidCsvFilesFromDirectory(file, validationUtil, comparator);
@@ -46,7 +48,9 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
+    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory,
+                                                                                    ValidationUtil validationUtil,
+                                                                                    Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         String[] fileNames = directory.list();
@@ -76,7 +80,9 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath, ValidationUtil validationUtil, Comparator<EntityInfo> comparator) {
+    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath,
+                                                                                   ValidationUtil validationUtil,
+                                                                                   Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         if (validationUtil.isValidCsvFile(filePath, false)) {

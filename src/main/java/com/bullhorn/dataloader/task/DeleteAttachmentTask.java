@@ -30,25 +30,12 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
-    /**
-     * Run method on this runnable object called by the thread manager.
-     */
-    @Override
-    public void run() {
-        Result result;
-        try {
-            result = handle();
-        } catch (Exception e) {
-            result = handleFailure(e);
-        }
-        writeToResultCsv(result);
-    }
-
-    private Result handle() throws Exception {
+    protected Result handle() throws Exception {
         FileApiResponse fileApiResponse = deleteFile();
         return Result.delete(fileApiResponse.getFileId());
     }
 
+    @SuppressWarnings("unchecked")
     private <F extends FileEntity> FileApiResponse deleteFile() throws IOException {
         if (!row.hasValue(StringConsts.PARENT_ENTITY_ID) || row.getValue(StringConsts.PARENT_ENTITY_ID).isEmpty()) {
             throw new IOException("Missing the '" + StringConsts.PARENT_ENTITY_ID + "' column required for deleteAttachments");

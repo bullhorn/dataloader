@@ -50,7 +50,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     private B entity;
     private boolean isNewEntity = true;
-    private Integer entityId;
     private Record record;
 
     public LoadTask(EntityInfo entityInfo,
@@ -63,18 +62,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
     }
 
-    @Override
-    public void run() {
-        Result result;
-        try {
-            result = handle();
-        } catch (Exception e) {
-            result = handleFailure(e, entityId);
-        }
-        writeToResultCsv(result);
-    }
-
-    private Result handle() throws Exception {
+    protected Result handle() throws Exception {
         record = new Record(entityInfo, row, propertyFileUtil);
         getOrCreateEntity();
         handleFields();
@@ -88,6 +76,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not
      * found will create a new entity.
      */
+    @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
         List<B> existingEntityList = findEntityList(record);
         if (!existingEntityList.isEmpty()) {
@@ -115,9 +104,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             CrudResponse response = restApi.insertEntity((CreateEntity) entity);
             entityId = response.getChangedEntityId();
             entity.setId(entityId);
-            if (entity.getClass() == ClientCorporation.class) {
-                setDefaultContactExternalId(entityId);
-            }
+            postProcessEntityInsert(entity.getId());
         } else {
             restApi.updateEntity((UpdateEntity) entity);
         }
@@ -183,6 +170,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
      */
+    @SuppressWarnings("unchecked")
     private void createAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         // Note associations are filled out in the create call
         if (entityInfo == EntityInfo.NOTE) {
@@ -195,7 +183,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
 
             try {
-                //noinspection unchecked
                 restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
                     associationField, Sets.newHashSet(associationIds));
             } catch (RestApiException exception) {
@@ -244,6 +231,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      *
      * @param field the To-Many association field to lookup records for
      */
+    @SuppressWarnings("unchecked")
     private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(Field field) {
         List<B> list;
         if (field.getFieldEntity().isSearchEntity()) {
@@ -282,21 +270,23 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * This allows for easily finding that contact later using the externalID, which will be of the format:
      * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
      */
-    private void setDefaultContactExternalId(Integer entityId) {
-        @SuppressWarnings("unchecked")
-        List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id",
-            entityId.toString(), Integer.class, EntityInfo.CLIENT_CORPORATION, Sets.newHashSet("id", "externalID"));
-        if (!clientCorporations.isEmpty()) {
-            ClientCorporation clientCorporation = clientCorporations.get(0);
-            if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
-                final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
-                List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query,
-                    Sets.newHashSet("id"), ParamFactory.queryParams());
-                if (!clientContacts.isEmpty()) {
-                    ClientContact clientContact = clientContacts.get(0);
-                    String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
-                    clientContact.setExternalID(defaultContactExternalId);
-                    restApi.updateEntity(clientContact);
+    @SuppressWarnings("unchecked")
+    private void postProcessEntityInsert(Integer entityId) {
+        if (entity.getClass() == ClientCorporation.class) {
+            List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id",
+                entityId.toString(), Integer.class, EntityInfo.CLIENT_CORPORATION, Sets.newHashSet("id", "externalID"));
+            if (!clientCorporations.isEmpty()) {
+                ClientCorporation clientCorporation = clientCorporations.get(0);
+                if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
+                    final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
+                    List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query,
+                        Sets.newHashSet("id"), ParamFactory.queryParams());
+                    if (!clientContacts.isEmpty()) {
+                        ClientContact clientContact = clientContacts.get(0);
+                        String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
+                        clientContact.setExternalID(defaultContactExternalId);
+                        restApi.updateEntity(clientContact);
+                    }
                 }
             }
         }

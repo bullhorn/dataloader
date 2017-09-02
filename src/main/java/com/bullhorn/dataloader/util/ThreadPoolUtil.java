@@ -39,7 +39,8 @@ public class ThreadPoolUtil {
      * @return task pool size limit
      */
     int getTaskPoolSize() {
-        final long memorySize = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
+        final long memorySize = ((com.sun.management.OperatingSystemMXBean)
+            ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
 
         if (memorySize < SIXTEEN_GIGABYTES) {
             return 1000;
