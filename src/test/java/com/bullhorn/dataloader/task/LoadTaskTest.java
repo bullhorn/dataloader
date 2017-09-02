@@ -260,7 +260,7 @@ public class LoadTaskTest {
         when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporation.class, 1));
         when(restApiMock.queryForList(eq(ClientCorporationCustomObjectInstance2.class),
-            eq("clientCorporation.externalID='ext-1' AND text1='Test'"), any(), any()))
+            eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporationCustomObjectInstance2.class));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
@@ -281,7 +281,7 @@ public class LoadTaskTest {
         when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
             .thenReturn(TestUtils.getList(Person.class, 1));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
-            eq("person.customText1=customText1 AND text1='Test'"), any(), any()))
+            eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
         when(propertyFileUtilMock.getEntityExistFields(any()))
