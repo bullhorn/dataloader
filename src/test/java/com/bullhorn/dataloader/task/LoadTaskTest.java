@@ -260,7 +260,7 @@ public class LoadTaskTest {
         when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporation.class, 1));
         when(restApiMock.queryForList(eq(ClientCorporationCustomObjectInstance2.class),
-            eq("clientCorporation.externalID='ext-1' AND text1='Test'"), any(), any()))
+            eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporationCustomObjectInstance2.class));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
@@ -281,7 +281,7 @@ public class LoadTaskTest {
         when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
             .thenReturn(TestUtils.getList(Person.class, 1));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
-            eq("person.customText1=customText1 AND text1='Test'"), any(), any()))
+            eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
         when(propertyFileUtilMock.getEntityExistFields(any()))
@@ -448,7 +448,7 @@ public class LoadTaskTest {
         when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"ext-1\""), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporation.class, 1));
         when(restApiMock.queryForList(eq(ClientCorporationCustomObjectInstance2.class),
-            eq("clientCorporation.externalID='ext-1' AND text1='Test'"), any(), any()))
+            eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporationCustomObjectInstance2.class, 1));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
@@ -458,21 +458,6 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
-    }
-
-    @Test
-    public void testRunCustomObjectParentLocatorMissing() throws IOException {
-        Row row = TestUtils.createRow("text1,text2,date1", "Test,Skip,2016-08-30");
-        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
-
-        LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
-        task.run();
-
-        Result expectedResult = Result.failure(new IOException("Missing parent entity locator column, for example: "
-            + "'candidate.id', 'candidate.externalID', or 'candidate.whatever' so that the custom object can be "
-            + "loaded to the correct parent entity."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
