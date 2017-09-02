@@ -76,7 +76,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     private Result handle() throws Exception {
         record = new Record(entityInfo, row, propertyFileUtil);
-        addParentLocatorExistField(record);
         getOrCreateEntity();
         handleFields();
         insertAttachmentToDescription();
@@ -274,26 +273,6 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             values.add(field.getValueFromEntity(entity).toString());
         }
         return values;
-    }
-
-    /**
-     * For custom objects, this checks the parent locator field and automatically adds it if unspecified.
-     *
-     * @param record the record specified by the user, which this method may modify
-     */
-    private void addParentLocatorExistField(Record record) throws IOException {
-        if (record.getEntityInfo().isCustomObject()) {
-            if (record.getEntityExistFields().stream().noneMatch(Field::isToOne)) {
-                if (record.getFields().stream().noneMatch(Field::isToOne)) {
-                    throw new IOException("Missing parent entity locator column, for example: 'candidate.id', "
-                        + "'candidate.externalID', or 'candidate.whatever' so that the custom object can be loaded "
-                        + "to the correct parent entity.");
-                } else {
-                    //noinspection ConstantConditions
-                    record.getFields().stream().filter(Field::isToOne).findFirst().get().setExistField(true);
-                }
-            }
-        }
     }
 
     /**
