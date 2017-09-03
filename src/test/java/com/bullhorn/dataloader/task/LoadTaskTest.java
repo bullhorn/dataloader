@@ -625,6 +625,22 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunIgnoreEmptyToManyAssociationField() throws Exception {
+        String[] headerArray = new String[]{"externalID", "primarySkills.id"};
+        String[] valueArray = new String[]{"11", ""};
+        Row row = TestUtils.createRow(headerArray, valueArray);
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
     public void testRunInvalidToOneAddressAssociationField() throws Exception {
         Row row = TestUtils.createRow("secondaryAddress.bogus",
             "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");

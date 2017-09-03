@@ -14,21 +14,48 @@ public class CellTest {
     }
 
     @Test
-    public void testAddressTrue() {
+    public void testIsValidDirectField() {
+        Cell nonEmptyCell = new Cell("name", "John Smith");
+        Cell emptyCell = new Cell("name", "");
+
+        Assert.assertEquals(nonEmptyCell.isValid(), true);
+        Assert.assertEquals(emptyCell.isValid(), true);
+    }
+
+    @Test
+    public void testIsValidAddressField() {
+        Cell nonEmptyCell = new Cell("secondaryAddress.address2", "Suite 700");
+        Cell emptyCell = new Cell("secondaryAddress.address2", "");
+
+        Assert.assertEquals(nonEmptyCell.isValid(), true);
+        Assert.assertEquals(emptyCell.isValid(), true);
+    }
+
+    @Test
+    public void testIsValidAssociationField() {
+        Cell nonEmptyCell = new Cell("candidate.externalID", "1");
+        Cell emptyCell = new Cell("candidate.externalID", "");
+
+        Assert.assertEquals(nonEmptyCell.isValid(), true);
+        Assert.assertEquals(emptyCell.isValid(), false);
+    }
+
+    @Test
+    public void testIsAddressTrue() {
         Cell cell = new Cell("secondaryAddress.state", "MO");
 
         Assert.assertEquals(cell.isAddress(), true);
     }
 
     @Test
-    public void testAddressFalseNoAssociation() {
+    public void testIsAddressFalseNoAssociation() {
         Cell cell = new Cell("state", "MO");
 
         Assert.assertEquals(cell.isAddress(), false);
     }
 
     @Test
-    public void testAddressFalseNoAddress() {
+    public void testIsAddressFalseNoAddress() {
         Cell cell = new Cell("secondary.state", "MO");
 
         Assert.assertEquals(cell.isAddress(), false);

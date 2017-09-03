@@ -52,7 +52,7 @@ public class Record {
      * @return only the fields that can be set on the entity
      */
     public List<Field> getFields() {
-        return fields;
+        return fields.stream().filter(Field::isValid).collect(Collectors.toList());
     }
 
     /**
@@ -70,6 +70,6 @@ public class Record {
      * @return an empty list if there are no To-Many fields
      */
     public List<Field> getToManyFields() {
-        return fields.stream().filter(Field::isToMany).collect(Collectors.toList());
+        return fields.stream().filter(f -> f.isToMany() && f.isValid()).collect(Collectors.toList());
     }
 }
