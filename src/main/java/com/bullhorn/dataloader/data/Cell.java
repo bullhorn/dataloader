@@ -30,6 +30,19 @@ public class Cell {
     }
 
     /**
+     * If the cell is an association, but is blank, then don't try to associate to nothing, instead ignore the cell.
+     *
+     * This handles the case where there are associated columns in a CSV file that are not filled out for every row.
+     * Does not apply to direct fields or compound fields (address is the only compound field handled).
+     * See issue: https://github.com/bullhorn/dataloader/issues/186
+     *
+     * @return True if the column should be processed by DataLoader, false otherwise.
+     */
+    public Boolean isValid() {
+        return isAddress() || !isAssociation() || !value.isEmpty();
+    }
+
+    /**
      * Returns true if the cell is any type of address field.
      *
      * @return true if the cell is a field in the compound to-one address field (ex: address.zip)
