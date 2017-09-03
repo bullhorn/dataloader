@@ -201,27 +201,32 @@ public class LoadTaskTest {
         candidate1.setExternalID("1");
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any()))
+        when(restApiMock.searchForList(eq(Candidate.class),
+            eq("(externalID:\"1\" OR externalID:\"2\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(candidate1, candidate2));
 
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        when(restApiMock.searchForList(eq(ClientContact.class), eq("externalID:\"3\""), any(), any()))
+        when(restApiMock.searchForList(eq(ClientContact.class),
+            eq("(externalID:\"3\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(clientContact));
 
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        when(restApiMock.searchForList(eq(Lead.class), eq("customText1:\"4\""), any(), any()))
+        when(restApiMock.searchForList(eq(Lead.class),
+            eq("(customText1:\"4\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(lead));
 
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        when(restApiMock.searchForList(eq(JobOrder.class), eq("externalID:\"5\""), any(), any()))
+        when(restApiMock.searchForList(eq(JobOrder.class),
+            eq("(externalID:\"5\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(jobOrder));
 
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        when(restApiMock.searchForList(eq(Opportunity.class), eq("externalID:\"6\""), any(), any()))
+        when(restApiMock.searchForList(eq(Opportunity.class),
+            eq("(externalID:\"6\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(opportunity));
 
         Placement placement = new Placement(1007);
@@ -278,7 +283,7 @@ public class LoadTaskTest {
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
-        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1' AND isDeleted=false"), any(), any()))
             .thenReturn(TestUtils.getList(Person.class, 1));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
             eq("text1='Test'"), any(), any()))
@@ -300,7 +305,7 @@ public class LoadTaskTest {
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
-        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1' AND isDeleted=false"), any(), any()))
             .thenReturn(TestUtils.getList(Person.class, 1));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
             eq("person.customText1=customText1 AND text1='Test'"), any(), any()))
@@ -338,7 +343,8 @@ public class LoadTaskTest {
     @Test
     public void testRunInsertErrorForNoteMissingRecords() throws Exception {
         Row row = TestUtils.createRow("candidates.id", "1;2");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 OR id:2"), any(), any()))
+        when(restApiMock.searchForList(eq(Candidate.class),
+            eq("(id:1 OR id:2) AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock,
@@ -390,27 +396,32 @@ public class LoadTaskTest {
         candidate1.setExternalID("1");
         Candidate candidate2 = new Candidate(1002);
         candidate2.setExternalID("2");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"1\" OR externalID:\"2\""), any(), any()))
+        when(restApiMock.searchForList(eq(Candidate.class),
+            eq("(externalID:\"1\" OR externalID:\"2\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(candidate1, candidate2));
 
         ClientContact clientContact = new ClientContact(1003);
         clientContact.setExternalID("3");
-        when(restApiMock.searchForList(eq(ClientContact.class), eq("externalID:\"3\""), any(), any()))
+        when(restApiMock.searchForList(eq(ClientContact.class)
+            , eq("(externalID:\"3\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(clientContact));
 
         Lead lead = new Lead(1004);
         lead.setCustomText1("4");
-        when(restApiMock.searchForList(eq(Lead.class), eq("customText1:\"4\""), any(), any()))
+        when(restApiMock.searchForList(eq(Lead.class),
+            eq("(customText1:\"4\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(lead));
 
         JobOrder jobOrder = new JobOrder(1005);
         jobOrder.setExternalID("5");
-        when(restApiMock.searchForList(eq(JobOrder.class), eq("externalID:\"5\""), any(), any()))
+        when(restApiMock.searchForList(eq(JobOrder.class),
+            eq("(externalID:\"5\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(jobOrder));
 
         Opportunity opportunity = new Opportunity(1006);
         opportunity.setExternalID("6");
-        when(restApiMock.searchForList(eq(Opportunity.class), eq("externalID:\"6\""), any(), any()))
+        when(restApiMock.searchForList(eq(Opportunity.class),
+            eq("(externalID:\"6\") AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(opportunity));
 
         Placement placement = new Placement(1007);

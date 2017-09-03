@@ -62,8 +62,7 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
         entityExistFields.add(idField);
 
         if (entityInfo.isSoftDeletable()) {
-            String isDeletedValue = entityInfo == EntityInfo.NOTE ? "false" : "0";
-            Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, isDeletedValue);
+            Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, entityInfo.getSearchIsDeletedValue(false));
             Field isDeletedField = new Field(entityInfo, isDeletedCell, true, propertyFileUtil.getDateParser());
             entityExistFields.add(isDeletedField);
             List<B> existingEntityList = findEntityList(entityExistFields);
