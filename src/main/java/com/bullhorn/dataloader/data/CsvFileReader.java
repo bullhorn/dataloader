@@ -84,9 +84,7 @@ public class CsvFileReader extends CsvReader {
         Row row = new Row(rowNumber);
         for (int i = 0; i < getHeaderCount(); i++) {
             Cell cell = new Cell(getHeader(i), getValues()[i]);
-            if (cell.isValid()) {
-                row.addCell(cell);
-            }
+            row.addCell(cell);
         }
         return row;
     }

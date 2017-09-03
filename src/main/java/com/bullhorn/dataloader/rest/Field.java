@@ -71,6 +71,10 @@ public class Field {
         return cell;
     }
 
+    public Boolean isValid() {
+        return cell.isValid();
+    }
+
     public EntityInfo getEntityInfo() {
         return entityInfo;
     }
