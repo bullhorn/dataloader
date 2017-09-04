@@ -136,14 +136,33 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     private B findToOneEntity(Field field) {
         List<B> list;
         if (field.getFieldEntity().isSearchEntity()) {
-            list = searchForEntity(field.getName(), field.getStringValue(), field.getFieldType(),
-                field.getFieldEntity(), null);
+            list = searchForToOne(field);
         } else {
-            list = queryForEntity(field.getName(), field.getStringValue(), field.getFieldType(),
-                field.getFieldEntity(), null);
+            list = queryForToOne(field);
         }
         validateListFromRestCall(field.getCell().getName(), list, field.getStringValue());
         return list.get(0);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <S extends SearchEntity> List<B> searchForToOne(Field field) {
+        String filter = getQueryStatement(field.getName(), field.getStringValue(), field.getFieldType(),
+            field.getFieldEntity());
+        if (field.getFieldEntity().isSoftDeletable()) {
+            filter += " AND " + StringConsts.IS_DELETED + ":" + field.getFieldEntity().getSearchIsDeletedValue(false);
+        }
+        return (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter,
+            Sets.newHashSet("id"), ParamFactory.searchParams());
+    }
+
+    @SuppressWarnings("unchecked")
+    private <Q extends QueryEntity> List<B> queryForToOne(Field field) {
+        String filter = getWhereStatement(field.getName(), field.getStringValue(), field.getFieldType());
+        if (field.getFieldEntity().isSoftDeletable()) {
+            filter += " AND " + StringConsts.IS_DELETED + "=false";
+        }
+        return (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter,
+            Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
     private void validateListFromRestCall(String field, List<B> list, String value) {
@@ -238,6 +257,10 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             String filter = values.stream().map(n -> getQueryStatement(field.getName(), n, field.getFieldType(),
                 field.getFieldEntity())).collect(Collectors.joining(" OR "));
+            if (field.getFieldEntity().isSoftDeletable()) {
+                filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + ":"
+                    + field.getFieldEntity().getSearchIsDeletedValue(false);
+            }
             SearchParams searchParams = ParamFactory.searchParams();
             searchParams.setCount(RECORD_RETURN_COUNT);
             list = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter, null, searchParams);
@@ -245,6 +268,9 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             String filter = values.stream().map(n -> getWhereStatement(field.getName(), n, field.getFieldType()))
                 .collect(Collectors.joining(" OR "));
+            if (field.getFieldEntity().isSoftDeletable()) {
+                filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + "=false";
+            }
             QueryParams queryParams = ParamFactory.queryParams();
             queryParams.setCount(RECORD_RETURN_COUNT);
             list = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter, null, queryParams);
@@ -273,8 +299,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     @SuppressWarnings("unchecked")
     private void postProcessEntityInsert(Integer entityId) {
         if (entity.getClass() == ClientCorporation.class) {
-            List<ClientCorporation> clientCorporations = (List<ClientCorporation>) queryForEntity("id",
-                entityId.toString(), Integer.class, EntityInfo.CLIENT_CORPORATION, Sets.newHashSet("id", "externalID"));
+            List<ClientCorporation> clientCorporations = restApi.queryForList(ClientCorporation.class,
+                "id=" + entityId.toString(), Sets.newHashSet("id", "externalID"), ParamFactory.queryParams());
             if (!clientCorporations.isEmpty()) {
                 ClientCorporation clientCorporation = clientCorporations.get(0);
                 if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {

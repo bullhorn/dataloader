@@ -56,16 +56,19 @@ public class IntegrationTest {
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
         // Run the sanity to catch quick and obvious failures
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("sanity"));
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("sanity"), false);
 
         // Run a special character test to ensure that we are supporting them in query/search calls
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"));
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"), false);
 
         // Run a test using more than 100,000 characters in a field
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("longFields"));
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("longFields"), false);
+
+        // Run a test for ignoring soft deleted entities
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
 
         // Run the full test of all example files
-        insertUpdateDeleteFromDirectory("examples/load");
+        insertUpdateDeleteFromDirectory("examples/load", false);
     }
 
     /**
@@ -73,10 +76,12 @@ public class IntegrationTest {
      * found in that directory.
      *
      * @param directoryPath The path to the directory to load
+     * @param skipDelete    Set to true if the test directory contains intentionally deleted records
      * @throws IOException For directory cloning
      */
     @SuppressWarnings("ConstantConditions")
-    private void insertUpdateDeleteFromDirectory(String directoryPath) throws IOException, InterruptedException {
+    private void insertUpdateDeleteFromDirectory(String directoryPath, Boolean skipDelete) throws IOException,
+        InterruptedException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
@@ -155,39 +160,41 @@ public class IntegrationTest {
 
         // TODO: UPDATE ATTACHMENTS
 
-        // region ~FIXME~
-        // Deleting Placement records is failing!
-        for (File file : resultsDir.listFiles()) {
-            if (file.getName().contains("Placement_")) {
-                file.delete();
+        if (!skipDelete) {
+            // region ~FIXME~
+            // Deleting Placement records is failing!
+            for (File file : resultsDir.listFiles()) {
+                if (file.getName().contains("Placement_")) {
+                    file.delete();
+                }
             }
-        }
-        // endregion
+            // endregion
 
-        // region DELETE
-        // capture results file directory state
-        File[] resultsFiles = resultsDir.listFiles();
+            // region DELETE
+            // capture results file directory state
+            File[] resultsFiles = resultsDir.listFiles();
 
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
-        consoleOutputCapturer.start();
-        Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
-        String deleteCommandOutput = consoleOutputCapturer.stop();
+            System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
+            String deleteCommandOutput = consoleOutputCapturer.stop();
 
-        Assert.assertFalse("Error messages output during delete step", deleteCommandOutput.contains("ERROR"));
-        Assert.assertFalse("Failed to process records during delete step", deleteCommandOutput.contains("processed: 0"));
-        Assert.assertFalse("Insert performed during delete step", deleteCommandOutput.contains("inserted: 1"));
-        Assert.assertFalse("Update performed during delete step", deleteCommandOutput.contains("updated: 1"));
-        Assert.assertFalse("Failure reported during delete step", deleteCommandOutput.contains("failed: 1"));
+            Assert.assertFalse("Error messages output during delete step", deleteCommandOutput.contains("ERROR"));
+            Assert.assertFalse("Failed to process records during delete step", deleteCommandOutput.contains("processed: 0"));
+            Assert.assertFalse("Insert performed during delete step", deleteCommandOutput.contains("inserted: 1"));
+            Assert.assertFalse("Update performed during delete step", deleteCommandOutput.contains("updated: 1"));
+            Assert.assertFalse("Failure reported during delete step", deleteCommandOutput.contains("failed: 1"));
 
-        // Test that we deleted the results files that were there previously (not the results of our delete)
-        for (File file : resultsFiles) {
-            if (!file.getName().contains("ClientCorporation_")) {
-                TestUtils.checkResultsFile(file, Command.DELETE);
+            // Test that we deleted the results files that were there previously (not the results of our delete)
+            for (File file : resultsFiles) {
+                if (!file.getName().contains("ClientCorporation_")) {
+                    TestUtils.checkResultsFile(file, Command.DELETE);
+                }
             }
-        }
-        // endregion
+            // endregion
 
-        // TODO: DELETE ATTACHMENTS
+            // TODO: DELETE ATTACHMENTS
+        }
 
         // region TEARDOWN
         // Cleanup our temporary directory

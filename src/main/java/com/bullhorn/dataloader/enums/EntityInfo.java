@@ -287,4 +287,18 @@ public enum EntityInfo {
 
         return setterMethodMap;
     }
+
+    /**
+     * Since the 'isDeleted' value is not the same across all entities, this will return the appropiate string to use.
+     *
+     * @param isDeleted the boolean value to convert to a string
+     * @return the isDeleted string value for the given boolean value, for search strings
+     */
+    public String getSearchIsDeletedValue(Boolean isDeleted) {
+        if (bullhornEntityInfo == BullhornEntityInfo.NOTE) {
+            return isDeleted ? "true" : "false";
+        } else {
+            return isDeleted ? "1" : "0";
+        }
+    }
 }

@@ -150,30 +150,12 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     @SuppressWarnings("unchecked")
-    <S extends SearchEntity> List<B> searchForEntity(String field, String value, Class fieldType,
-                                                     EntityInfo fieldEntityInfo, Set<String> fieldsToReturn) {
-        String query = getQueryStatement(field, value, fieldType, fieldEntityInfo);
-        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) restApi.searchForList((Class<S>) fieldEntityInfo.getEntityClass(), query,
-            fieldsToReturn, ParamFactory.searchParams());
-    }
-
-    @SuppressWarnings("unchecked")
     private <Q extends QueryEntity> List<B> queryForEntity(List<Field> entityExistFields) {
         String query = entityExistFields.stream().map(
             n -> getWhereStatement(n.getCell().getName(), n.getStringValue(), n.getFieldType()))
             .collect(Collectors.joining(" AND "));
         return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query,
             Sets.newHashSet("id"), ParamFactory.queryParams());
-    }
-
-    @SuppressWarnings("unchecked")
-    <Q extends QueryEntity> List<B> queryForEntity(String field, String value, Class fieldType,
-                                                   EntityInfo fieldEntityInfo, Set<String> fieldsToReturn) {
-        String where = getWhereStatement(field, value, fieldType);
-        fieldsToReturn = fieldsToReturn == null ? Sets.newHashSet("id") : fieldsToReturn;
-        return (List<B>) restApi.queryForList((Class<Q>) fieldEntityInfo.getEntityClass(), where,
-            fieldsToReturn, ParamFactory.queryParams());
     }
 
     String getQueryStatement(String field, String value, Class fieldType, EntityInfo fieldEntityInfo) {
