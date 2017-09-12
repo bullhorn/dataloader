@@ -17,6 +17,7 @@ import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
+import com.bullhornsdk.data.model.parameter.AssociationParams;
 import com.bullhornsdk.data.model.parameter.QueryParams;
 import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
@@ -130,6 +131,13 @@ public class RestApi {
 
     // region Association Methods
     // The methods DataLoader uses for creating or deleting associations.
+    public <T extends AssociationEntity, E extends BullhornEntity> List<E> getAllAssociationsList(
+        Class<T> type, Set<Integer> entityIds, AssociationField<T, E> associationName, Set<String> fieldSet,
+        AssociationParams params) {
+        ListWrapper<E> listWrapper = bullhornData.getAllAssociations(type, entityIds, associationName, fieldSet, params);
+        return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
+    }
+
     public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(
         Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
         Set<Integer> associationIds) {
