@@ -162,6 +162,7 @@ public class LoadTaskTest {
         // Verify that only one association call got made for all of the associated primarySkills
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), eq(new HashSet<>(Arrays.asList(1, 2, 3))));
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
@@ -250,6 +251,7 @@ public class LoadTaskTest {
         verify(restApiMock, times(1)).insertEntity(any());
         verify(restApiMock, never()).updateEntity(any());
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -791,6 +793,7 @@ public class LoadTaskTest {
         task.run();
 
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
     }
 
     @Test
@@ -809,6 +812,27 @@ public class LoadTaskTest {
 
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
             eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(3)));
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testRunAssociateAndDisassociate() throws Exception {
+        Row row = TestUtils.createRow("externalID,primarySkills.id", "ext-1,3;4");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 100));
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).
+            thenReturn(TestUtils.getList(Skill.class, 3, 4));
+        when(restApiMock.getAllAssociationsList(eq(Candidate.class), any(),
+            eq(CandidateAssociations.getInstance().primarySkills()), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(4)));
+        verify(restApiMock, times(1)).disassociateWithEntity(eq(Candidate.class),
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(1, 2)));
     }
 
     @Test
