@@ -204,12 +204,19 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 Sets.newHashSet(entityId), associationField, Sets.newHashSet("id"), ParamFactory.associationParams());
             List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
             List<Integer> existingIDs = existingAssociations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
-            associationIds = associationIds.stream().filter(id -> !existingIDs.contains(id)).collect(Collectors.toList());
+            List<Integer> addAssociations = associationIds.stream().filter(id -> !existingIDs.contains(id)).collect(Collectors.toList());
+            List<Integer> removeAssociations = existingIDs.stream().filter(id -> !associationIds.contains(id)).collect(Collectors.toList());
 
             // Add the new associations to the entity
-            if (!associationIds.isEmpty()) {
+            if (!addAssociations.isEmpty()) {
                 restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
-                    associationField, Sets.newHashSet(associationIds));
+                    associationField, Sets.newHashSet(addAssociations));
+            }
+
+            // Remove old associations from the entity
+            if (!removeAssociations.isEmpty()) {
+                restApi.disassociateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
+                    associationField, Sets.newHashSet(removeAssociations));
             }
         }
     }
