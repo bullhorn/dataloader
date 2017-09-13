@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.TestUtils;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
+import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
@@ -20,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -146,6 +148,18 @@ public class RestApiTest {
         verify(bullhornDataMock, times(1)).deleteEntity(eq(Candidate.class), eq(1));
         verify(restApiExtensionMock, times(1)).postDelete(eq(restApi), eq(crudResponse));
         verify(restApiExtensionMock, times(2)).checkForRestSdkErrorMessages(eq(crudResponse));
+    }
+
+    @Test
+    public void testGetAllAssociationsList() {
+        Set<Integer> entityIDs = new HashSet<>(Arrays.asList(1, 2, 3));
+        Set<String> fields = new HashSet<>(Collections.singletonList("primarySkills"));
+
+        restApi.getAllAssociationsList(Candidate.class, entityIDs, CandidateAssociations.getInstance().primarySkills(),
+            fields, ParamFactory.associationParams());
+
+        verify(bullhornDataMock, times(1)).getAllAssociations(eq(Candidate.class),
+            eq(entityIDs), eq(CandidateAssociations.getInstance().primarySkills()), eq(fields), any());
     }
 
     @Test

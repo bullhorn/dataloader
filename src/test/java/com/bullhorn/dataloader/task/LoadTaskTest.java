@@ -32,7 +32,6 @@ import com.bullhornsdk.data.model.enums.ChangeType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
-import org.apache.logging.log4j.Level;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
@@ -779,40 +778,37 @@ public class LoadTaskTest {
 
     @Test
     public void testRunAssociationAlreadyExists() throws Exception {
-        Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1");
-        RestApiException thrownException = new RestApiException(
-            "an association between Candidate 1 and Skill 1 already exists");
-        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any())).
-            thenReturn(TestUtils.getList(Skill.class, 1));
-        when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1), eq(CandidateAssociations.getInstance()
-            .primarySkills()), eq(new HashSet<>(Collections.singletonList(1))))).thenThrow(thrownException);
+        Row row = TestUtils.createRow("externalID,primarySkills.id", "ext-1,1;2;3");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 100));
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).
+            thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
+        when(restApiMock.getAllAssociationsList(eq(Candidate.class), any(),
+            eq(CandidateAssociations.getInstance().primarySkills()), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(printUtilMock, times(1)).log(Level.INFO,
-            "Association from Candidate entity 1 to Skill entities [1] already exists.");
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
     }
 
     @Test
     public void testRunAssociationMultipleAlreadyExist() throws Exception {
-        Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1;2;3");
-        RestApiException thrownException = new RestApiException(
-            "an association between Candidate 1 and Skill X already exists");
-        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        Row row = TestUtils.createRow("externalID,primarySkills.id", "ext-1,1;2;3");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 100));
         when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).
             thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
-        when(restApiMock.associateWithEntity(eq(Candidate.class), any(), eq(CandidateAssociations.getInstance()
-            .primarySkills()), any())).thenThrow(thrownException);
+        when(restApiMock.getAllAssociationsList(eq(Candidate.class), any(),
+            eq(CandidateAssociations.getInstance().primarySkills()), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
-        verify(printUtilMock, times(1)).log(Level.INFO,
-            "Association from Candidate entity 1 to Skill entities [1, 2, 3] already exists.");
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(3)));
     }
 
     @Test

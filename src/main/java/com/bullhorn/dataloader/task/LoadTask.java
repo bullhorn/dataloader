@@ -30,7 +30,6 @@ import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Level;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,17 +77,17 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      */
     @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
-        List<B> existingEntityList = findEntityList(record);
-        if (!existingEntityList.isEmpty()) {
-            if (existingEntityList.size() > 1) {
+        List<B> foundEntityList = findEntityList(record);
+        if (!foundEntityList.isEmpty()) {
+            if (foundEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found "
-                    + existingEntityList.size() + " " + entityInfo.getEntityName()
+                    + foundEntityList.size() + " " + entityInfo.getEntityName()
                     + " records with the same ExistField criteria of: " + record.getEntityExistFields().stream()
                     .map(field -> field.getCell().getName() + "=" + field.getStringValue())
                     .collect(Collectors.joining(" AND ")));
             } else {
                 isNewEntity = false;
-                entity = existingEntityList.get(0);
+                entity = foundEntityList.get(0);
                 entityId = entity.getId();
             }
         } else {
@@ -199,37 +198,39 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         for (Field field : record.getToManyFields()) {
             AssociationField associationField = AssociationUtil.getToManyField(field);
             List<B> associations = findAssociations(field);
-            List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
 
-            try {
+            // Filter out any existing associations, down to only new association IDs
+            List<B> existingAssociations = restApi.getAllAssociationsList((Class<AssociationEntity>) entityInfo.getEntityClass(),
+                Sets.newHashSet(entityId), associationField, Sets.newHashSet("id"), ParamFactory.associationParams());
+            List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
+            List<Integer> existingIDs = existingAssociations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
+            associationIds = associationIds.stream().filter(id -> !existingIDs.contains(id)).collect(Collectors.toList());
+
+            // Add the new associations to the entity
+            if (!associationIds.isEmpty()) {
                 restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
                     associationField, Sets.newHashSet(associationIds));
-            } catch (RestApiException exception) {
-                // Provides a simpler duplication error message with all of the essential data
-                if (exception.getMessage().contains("an association between " + entityInfo.getEntityName())
-                    && exception.getMessage().contains(entityId + " and " + field.getFieldEntity().getEntityName() + " ")) {
-                    printUtil.log(Level.INFO, "Association from " + entityInfo.getEntityName()
-                        + " entity " + entityId + " to " + associationField.getAssociationType().getSimpleName()
-                        + " entities " + associationIds.toString() + " already exists.");
-                } else {
-                    throw exception;
-                }
             }
         }
     }
 
     /**
-     * Returns the list of entities that match the search criteria in the given To-Many field.
+     * Returns the list of new entities with ID that match the search criteria in the given To-Many field.
+     *
+     * Given a field like: 'primarySkills' with a value like: 'Skill1;Skill2;Skill3;Skill4', this method will return
+     * the list of Skill objects (in this case, four skills) with their ID field filled out from REST, one object per
+     * value. If any of these associations do not exist in rest, or are duplicated in rest, an error is thrown,
+     * stopping the task from proceeding any further.
      */
     private List<B> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
         Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-        List<B> existingAssociations = getExistingAssociations(field);
-        if (existingAssociations.size() != values.size()) {
-            Set<String> existingAssociationValues = getFieldValueSet(field, existingAssociations);
-            if (existingAssociations.size() > values.size()) {
+        List<B> foundAssociations = doFindAssociations(field);
+        if (foundAssociations.size() != values.size()) {
+            Set<String> existingAssociationValues = getFieldValueSet(field, foundAssociations);
+            if (foundAssociations.size() > values.size()) {
                 String duplicates = existingAssociationValues.stream().map(n -> "\t" + n)
                     .collect(Collectors.joining("\n"));
-                throw new RestApiException("Found " + existingAssociations.size()
+                throw new RestApiException("Found " + foundAssociations.size()
                     + " duplicate To-Many Associations: '" + field.getCell().getName()
                     + "' with value:\n" + duplicates);
             } else {
@@ -240,7 +241,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             }
         }
 
-        return existingAssociations;
+        return foundAssociations;
     }
 
     /**
@@ -251,7 +252,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * @param field the To-Many association field to lookup records for
      */
     @SuppressWarnings("unchecked")
-    private <Q extends QueryEntity, S extends SearchEntity> List<B> getExistingAssociations(Field field) {
+    private <Q extends QueryEntity, S extends SearchEntity> List<B> doFindAssociations(Field field) {
         List<B> list;
         if (field.getFieldEntity().isSearchEntity()) {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
