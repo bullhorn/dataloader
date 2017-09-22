@@ -22,6 +22,8 @@ import java.util.Map;
 
 /**
  * The list of all entities in SDK-REST supported by DataLoader.
+ *
+ * A loadOrder of 0 is used for Read-Only Lookup Entities, that must be configured via BullhornAdmin.
  */
 public enum EntityInfo {
 
@@ -29,6 +31,7 @@ public enum EntityInfo {
     APPOINTMENT_ATTENDEE(BullhornEntityInfo.APPOINTMENT_ATTENDEE, 9),
     BUSINESS_SECTOR(BullhornEntityInfo.BUSINESS_SECTOR, 0),
     CANDIDATE(BullhornEntityInfo.CANDIDATE, 4),
+    CANDIDATE_CERTIFICATION(BullhornEntityInfo.CANDIDATE_CERTIFICATION, 10),
     CANDIDATE_EDUCATION(BullhornEntityInfo.CANDIDATE_EDUCATION, 10),
     CANDIDATE_REFERENCE(BullhornEntityInfo.CANDIDATE_REFERENCE, 11),
     CANDIDATE_WORK_HISTORY(BullhornEntityInfo.CANDIDATE_WORK_HISTORY, 12),
