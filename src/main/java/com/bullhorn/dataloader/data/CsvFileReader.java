@@ -4,6 +4,7 @@ import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +24,7 @@ public class CsvFileReader extends CsvReader {
      * @param filePath the path to the CSV file
      */
     public CsvFileReader(String filePath) throws IOException {
-        super(filePath);
+        super(filePath, ',', Charset.forName("UTF-8"));
         // Turn the SafetySwitch off because it limits the maximum length of any column to 100,000 characters
         setSafetySwitch(false);
         readHeaders();
