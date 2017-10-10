@@ -1,0 +1,2 @@
+name,externalID,companyDescription
+Soft Delete Test,clientCorporation-sd-ext-1,Allows adding a ClientContact that has a Disabled CorporateUser owner

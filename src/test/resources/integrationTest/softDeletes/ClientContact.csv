@@ -1,0 +1,2 @@
+firstName,lastName,clientCorporation.externalID,owner.name,comments
+DisabledUser,IntegrationTest,clientCorporation-sd-ext-1,Disabled CorporateUser,Tests that disabled corporate users can still be referenced

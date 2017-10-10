@@ -8,6 +8,7 @@ These example CSV files reference several reference only entities that must exis
     * Recruiter CorporateUser
     * Manager CorporateUser
     * Sales CorporateUser
+    * Disabled CorporateUser (Disable this user)
 
 * BusinessSector
     * BusinessSector1
