@@ -59,7 +59,7 @@ public class IntegrationTest {
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("sanity"), false);
 
         // Run a special character test to ensure that we are supporting them in query/search calls
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"), false);
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"), true);
 
         // Run a test using more than 100,000 characters in a field
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("longFields"), false);
