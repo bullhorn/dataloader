@@ -61,8 +61,18 @@ public class PropertyValidationUtilTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    public void testMissingUserName() throws IOException {
+        propertyValidationUtil.validateUsername(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
     public void testEmptyPassword() throws IOException {
         propertyValidationUtil.validatePassword("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMissingPassword() throws IOException {
+        propertyValidationUtil.validatePassword(null);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -118,6 +128,11 @@ public class PropertyValidationUtilTest {
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyListDelimiter() throws IOException {
         propertyValidationUtil.validateListDelimiter("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testMissingListDelimiter() throws IOException {
+        propertyValidationUtil.validateListDelimiter(null);
     }
 
     @Test
