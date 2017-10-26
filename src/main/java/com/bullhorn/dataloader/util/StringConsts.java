@@ -9,6 +9,7 @@ import java.util.List;
 public class StringConsts {
     public static final String COUNTRY_ID = "countryID";
     public static final String COUNTRY_NAME = "countryName";
+    public static final String CORPORATE_USER = "CorporateUser";
     public static final String DESCRIPTION = "description";
     public static final String EXTERNAL_ID = "externalID";
     public static final String ID = "id";
