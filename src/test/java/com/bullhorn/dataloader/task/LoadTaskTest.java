@@ -14,6 +14,8 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
+import com.bullhornsdk.data.model.entity.core.standard.Appointment;
+import com.bullhornsdk.data.model.entity.core.standard.AppointmentAttendee;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.Category;
@@ -350,6 +352,48 @@ public class LoadTaskTest {
         Result expectedResult = Result.failure(new RestApiException(
             "Cannot find To-One Association: 'personReference.name' with value: 'Deleted Candidate'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunInsertSuccessForAppointmentAttendee() throws Exception {
+        Row row = TestUtils.createRow(
+            "appointment.subject,attendee.name,acceptanceStatus",
+            "Haunted Elevator,David S. Pumpkins,72");
+
+        // Mock out appointment reference entity
+        Appointment appointment = new Appointment();
+        appointment.setId(1001);
+        appointment.setSubject("Haunted Elevator");
+        when(restApiMock.queryForList(eq(Appointment.class),
+            eq("subject='Haunted Elevator' AND isDeleted=false"), eq(Sets.newHashSet("id")), any()))
+            .thenReturn(TestUtils.getList(appointment));
+
+        // Mock out person reference entity
+        Person person = TestUtils.createPerson(1001, "Candidate", false);
+        person.setName("David S. Pumpkins");
+        when(restApiMock.queryForList(eq(Person.class),
+            eq("name='David S. Pumpkins'"), eq(Sets.newHashSet("isDeleted", "id")), any()))
+            .thenReturn(TestUtils.getList(person));
+
+        // Create expected appointmentAttendee object in insertEntity call
+        AppointmentAttendee expected = new AppointmentAttendee();
+        expected.setAppointment(appointment);
+        expected.setAttendee(person);
+        expected.setAcceptanceStatus(72);
+        when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.APPOINTMENT_ATTENDEE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
