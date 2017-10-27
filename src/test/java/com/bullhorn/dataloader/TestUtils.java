@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
+import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.never;
@@ -88,7 +90,7 @@ public class TestUtils {
         Message message = new Message();
         message.setPropertyName(propertyName);
         message.setDetailMessage(errorMessage);
-        response.setMessages(Arrays.asList(message));
+        response.setMessages(Collections.singletonList(message));
         return response;
     }
 
@@ -254,5 +256,20 @@ public class TestUtils {
             countries.add(country);
         }
         return countries;
+    }
+
+    /**
+     * Convenience constructor that builds up the required Person object data.
+     *
+     * @param id the id of the person object
+     * @param subType the string subtype, like 'Candidate' or 'CorporateUser'
+     * @param isDeleted whether the person is soft-deleted
+     * @return the new Person object
+     */
+    public static Person createPerson(Integer id, String subType, Boolean isDeleted) {
+        Person person = new Person(id);
+        person.setPersonSubtype(subType);
+        person.setIsDeleted(isDeleted);
+        return person;
     }
 }

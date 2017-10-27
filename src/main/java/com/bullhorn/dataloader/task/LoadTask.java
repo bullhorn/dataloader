@@ -17,6 +17,7 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
+import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
@@ -72,8 +73,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     }
 
     /**
-     * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not
-     * found will create a new entity.
+     * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not found
+     * will create a new entity.
      */
     @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
@@ -112,9 +113,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Handles inserting/updating all cells in the row.
      *
-     * Direct Fields: Populate the field on the entity.
-     * Compound Fields (address): Get the address object and populate the field on the address.
-     * To-One Associations: Get the association object and populate the internal ID field.
+     * Direct Fields: Populate the field on the entity. Compound Fields (address): Get the address object and populate
+     * the field on the address. To-One Associations: Get the association object and populate the internal ID field.
      * To-Many Associations: Call the association REST method (unless we are loading notes)
      */
     private void handleFields() throws Exception {
@@ -151,17 +151,42 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             filter += " AND " + StringConsts.IS_DELETED + ":" + field.getFieldEntity().getSearchIsDeletedValue(false);
         }
         return (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter,
-            Sets.newHashSet("id"), ParamFactory.searchParams());
+            Sets.newHashSet(StringConsts.ID), ParamFactory.searchParams());
     }
 
     @SuppressWarnings("unchecked")
     private <Q extends QueryEntity> List<B> queryForToOne(Field field) {
+        Set<String> fieldsToReturn = Sets.newHashSet(StringConsts.ID);
         String filter = getWhereStatement(field.getName(), field.getStringValue(), field.getFieldType());
-        if (field.getFieldEntity().isSoftDeletable()) {
+        if (field.getFieldEntity() == EntityInfo.PERSON) {
+            fieldsToReturn.add(StringConsts.IS_DELETED);
+        } else if (field.getFieldEntity().isSoftDeletable()) {
             filter += " AND " + StringConsts.IS_DELETED + "=false";
         }
-        return (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter,
-            Sets.newHashSet("id"), ParamFactory.queryParams());
+
+        List<B> list = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter,
+            fieldsToReturn, ParamFactory.queryParams());
+
+        if (field.getFieldEntity() == EntityInfo.PERSON) {
+            list = list.stream().filter(this::isPersonActive).collect(Collectors.toList());
+        }
+
+        return list;
+    }
+
+    /**
+     * Used to determine if a person entity is truly soft-deleted or not. CorporateUser persons when disabled have their
+     * deleted flag set to true, but they should always be considered active.
+     *
+     * @return true if the entity is not soft-deleted
+     */
+    private Boolean isPersonActive(B entity) {
+        Boolean active = true;
+        if (entity.getClass() == Person.class) {
+            Person person = (Person) entity;
+            active = person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
+        }
+        return active;
     }
 
     private void validateListFromRestCall(String field, List<B> list, String value) {
@@ -201,7 +226,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
             // Filter out any existing associations, down to only new association IDs
             List<B> existingAssociations = restApi.getAllAssociationsList((Class<AssociationEntity>) entityInfo.getEntityClass(),
-                Sets.newHashSet(entityId), associationField, Sets.newHashSet("id"), ParamFactory.associationParams());
+                Sets.newHashSet(entityId), associationField, Sets.newHashSet(StringConsts.ID), ParamFactory.associationParams());
             List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
             List<Integer> existingIDs = existingAssociations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
             List<Integer> addAssociations = associationIds.stream().filter(id -> !existingIDs.contains(id)).collect(Collectors.toList());
@@ -224,10 +249,10 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Returns the list of new entities with ID that match the search criteria in the given To-Many field.
      *
-     * Given a field like: 'primarySkills' with a value like: 'Skill1;Skill2;Skill3;Skill4', this method will return
-     * the list of Skill objects (in this case, four skills) with their ID field filled out from REST, one object per
-     * value. If any of these associations do not exist in rest, or are duplicated in rest, an error is thrown,
-     * stopping the task from proceeding any further.
+     * Given a field like: 'primarySkills' with a value like: 'Skill1;Skill2;Skill3;Skill4', this method will return the
+     * list of Skill objects (in this case, four skills) with their ID field filled out from REST, one object per value.
+     * If any of these associations do not exist in rest, or are duplicated in rest, an error is thrown, stopping the
+     * task from proceeding any further.
      */
     private List<B> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
         Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
@@ -308,13 +333,13 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     private void postProcessEntityInsert(Integer entityId) {
         if (entity.getClass() == ClientCorporation.class) {
             List<ClientCorporation> clientCorporations = restApi.queryForList(ClientCorporation.class,
-                "id=" + entityId.toString(), Sets.newHashSet("id", "externalID"), ParamFactory.queryParams());
+                "id=" + entityId.toString(), Sets.newHashSet(StringConsts.ID, StringConsts.EXTERNAL_ID), ParamFactory.queryParams());
             if (!clientCorporations.isEmpty()) {
                 ClientCorporation clientCorporation = clientCorporations.get(0);
                 if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
                     final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
                     List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query,
-                        Sets.newHashSet("id"), ParamFactory.queryParams());
+                        Sets.newHashSet(StringConsts.ID), ParamFactory.queryParams());
                     if (!clientContacts.isEmpty()) {
                         ClientContact clientContact = clientContacts.get(0);
                         String defaultContactExternalId = "defaultContact" + clientCorporation.getExternalID();
@@ -329,9 +354,9 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Inserts the HTML contents of converted resumes into the description field.
      *
-     * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume
-     * file or description file stored on disk, if a convertAttachments has been done previously. This only works if
-     * there is an externalID being used in the input file.
+     * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume file
+     * or description file stored on disk, if a convertAttachments has been done previously. This only works if there is
+     * an externalID being used in the input file.
      */
     private void insertAttachmentToDescription() throws IOException, InvocationTargetException, IllegalAccessException {
         String descriptionMethod = MethodUtil.findBestMatch(entityInfo.getSetterMethodMap().keySet(), StringConsts.DESCRIPTION);

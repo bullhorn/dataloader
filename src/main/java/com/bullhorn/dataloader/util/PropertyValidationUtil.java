@@ -17,59 +17,31 @@ public class PropertyValidationUtil {
     }
 
     String validateUsername(String username) {
-        String trimmedUsername = username.trim();
-        if (trimmedUsername.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: username property must not be blank");
-        }
-        return username;
+        return validateStringField("username", username);
     }
 
     String validatePassword(String password) {
-        String trimmedPassword = password.trim();
-        if (trimmedPassword.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: password property must not be blank");
-        }
-        return password;
+        return validateStringField("password", password);
     }
 
     String validateClientId(String clientId) {
-        String trimmedClientId = clientId.trim();
-        if (trimmedClientId.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: clientId property must not be blank");
-        }
-        return clientId;
+        return validateStringField("clientId", clientId);
     }
 
     String validateClientSecret(String clientSecret) {
-        String trimmedClientSecret = clientSecret.trim();
-        if (trimmedClientSecret.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: clientSecret property must not be blank");
-        }
-        return clientSecret;
+        return validateStringField("clientSecret", clientSecret);
     }
 
     String validateAuthorizeUrl(String authorizeUrl) {
-        String trimmedAuthorizeUrl = authorizeUrl.trim();
-        if (trimmedAuthorizeUrl.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: authorizeUrl property must not be blank");
-        }
-        return authorizeUrl;
+        return validateStringField("authorizeUrl", authorizeUrl);
     }
 
     String validateTokenUrl(String tokenUrl) {
-        String trimmedTokenUrl = tokenUrl.trim();
-        if (trimmedTokenUrl.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: tokenUrl property must not be blank");
-        }
-        return tokenUrl;
+        return validateStringField("tokenUrl", tokenUrl);
     }
 
     String validateLoginUrl(String loginUrl) {
-        String trimmedLoginUrl = loginUrl.trim();
-        if (trimmedLoginUrl.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: loginUrl property must not be blank");
-        }
-        return loginUrl;
+        return validateStringField("loginUrl", loginUrl);
     }
 
     void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {
@@ -91,11 +63,7 @@ public class PropertyValidationUtil {
     }
 
     String validateListDelimiter(String listDelimiter) {
-        String trimmedListDelimiter = listDelimiter.trim();
-        if (trimmedListDelimiter.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: listDelimiter property must not be blank");
-        }
-        return listDelimiter;
+        return validateStringField("listDelimiter", listDelimiter);
     }
 
     Integer validateNumThreads(Integer numThreads) {
@@ -119,5 +87,16 @@ public class PropertyValidationUtil {
                     + MAX_WAIT_TIME_SECONDS);
         }
         return waitTime;
+    }
+
+    private String validateStringField(String name, String value) {
+        if (value == null) {
+            throw new IllegalArgumentException("DataLoader Properties Error: missing '" + name + "' property");
+        }
+        String trimmedUsername = value.trim();
+        if (trimmedUsername.isEmpty()) {
+            throw new IllegalArgumentException("DataLoader Properties Error: '" + name + "' property must not be blank");
+        }
+        return value;
     }
 }

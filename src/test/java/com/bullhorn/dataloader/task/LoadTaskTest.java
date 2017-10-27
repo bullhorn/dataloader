@@ -14,6 +14,8 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
+import com.bullhornsdk.data.model.entity.core.standard.Appointment;
+import com.bullhornsdk.data.model.entity.core.standard.AppointmentAttendee;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.Category;
@@ -259,6 +261,142 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunInsertSuccessForDisabledCorporateUser() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,personReference.name,comments",
+            "ext-1,Soft-Deleted,This note should find the disabled corporate user");
+
+        // Mock out all existing reference entities
+        Person corporateUser = TestUtils.createPerson(1001, "CorporateUser", true);
+        corporateUser.setName("Soft-Deleted");
+        Person candidate = TestUtils.createPerson(1002, "Candidate", true);
+        candidate.setName("Soft-Deleted");
+        when(restApiMock.queryForList(eq(Person.class),
+            eq("name='Soft-Deleted'"), eq(Sets.newHashSet("isDeleted", "id")), any()))
+            .thenReturn(TestUtils.getList(corporateUser, candidate));
+
+        // Create expected note object in insertEntity call
+        Note expected = new Note();
+        expected.setExternalID("ext-1");
+        expected.setPersonReference(corporateUser);
+        expected.setComments("This note should find the disabled corporate user");
+        when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunInsertSuccessForActiveCandidatePerson() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,personReference.name,comments",
+            "ext-1,David S. Pumpkins,This note should find the active candidate");
+
+        // Mock out all existing reference entities
+        Person deletedCandidate = TestUtils.createPerson(1001, "Candidate", true);
+        deletedCandidate.setName("David S. Pumpkins");
+        Person activeCandidate = TestUtils.createPerson(1002, "Candidate", false);
+        activeCandidate.setName("David S. Pumpkins");
+        when(restApiMock.queryForList(eq(Person.class),
+            eq("name='David S. Pumpkins'"), eq(Sets.newHashSet("isDeleted", "id")), any()))
+            .thenReturn(TestUtils.getList(deletedCandidate, activeCandidate));
+
+        // Create expected note object in insertEntity call
+        Note expected = new Note();
+        expected.setExternalID("ext-1");
+        expected.setPersonReference(activeCandidate);
+        expected.setComments("This note should find the active candidate");
+        when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunInsertFailureForDeletedPersonRecords() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,personReference.name,comments",
+            "ext-1,Deleted Candidate,This note should fail to find the soft-deleted candidate");
+
+        // Mock out all existing reference entities
+        Person person = TestUtils.createPerson(1001, "Deleted Candidate", true);
+        person.setName("Deleted Candidate");
+        when(restApiMock.queryForList(eq(Person.class),
+            eq("name='Deleted Candidate'"), eq(Sets.newHashSet("isDeleted", "id")), any()))
+            .thenReturn(TestUtils.getList(person));
+
+        LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        Result expectedResult = Result.failure(new RestApiException(
+            "Cannot find To-One Association: 'personReference.name' with value: 'Deleted Candidate'"));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunInsertSuccessForAppointmentAttendee() throws Exception {
+        Row row = TestUtils.createRow(
+            "appointment.subject,attendee.name,acceptanceStatus",
+            "Haunted Elevator,David S. Pumpkins,72");
+
+        // Mock out appointment reference entity
+        Appointment appointment = new Appointment();
+        appointment.setId(1001);
+        appointment.setSubject("Haunted Elevator");
+        when(restApiMock.queryForList(eq(Appointment.class),
+            eq("subject='Haunted Elevator' AND isDeleted=false"), eq(Sets.newHashSet("id")), any()))
+            .thenReturn(TestUtils.getList(appointment));
+
+        // Mock out person reference entity
+        Person person = TestUtils.createPerson(1001, "Candidate", false);
+        person.setName("David S. Pumpkins");
+        when(restApiMock.queryForList(eq(Person.class),
+            eq("name='David S. Pumpkins'"), eq(Sets.newHashSet("isDeleted", "id")), any()))
+            .thenReturn(TestUtils.getList(person));
+
+        // Create expected appointmentAttendee object in insertEntity call
+        AppointmentAttendee expected = new AppointmentAttendee();
+        expected.setAppointment(appointment);
+        expected.setAttendee(person);
+        expected.setAcceptanceStatus(72);
+        when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.APPOINTMENT_ATTENDEE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
     public void testRunInsertSuccessForClientCorporationCustomObjects() throws IOException, InstantiationException,
         IllegalAccessException {
         Row row = TestUtils.createRow("clientCorporation.externalID,text1,text2,date1",
@@ -284,8 +422,8 @@ public class LoadTaskTest {
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
-        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1' AND isDeleted=false"), any(), any()))
-            .thenReturn(TestUtils.getList(Person.class, 1));
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "Candidate", false)));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
             eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class));
@@ -306,8 +444,8 @@ public class LoadTaskTest {
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
-        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1' AND isDeleted=false"), any(), any()))
-            .thenReturn(TestUtils.getList(Person.class, 1));
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "Candidate", false)));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
             eq("person.customText1=customText1 AND text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class));
