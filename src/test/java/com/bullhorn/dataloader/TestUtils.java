@@ -261,8 +261,8 @@ public class TestUtils {
     /**
      * Convenience constructor that builds up the required Person object data.
      *
-     * @param id the id of the person object
-     * @param subType the string subtype, like 'Candidate' or 'CorporateUser'
+     * @param id        the id of the person object
+     * @param subType   the string subtype, like 'Candidate' or 'CorporateUser'
      * @param isDeleted whether the person is soft-deleted
      * @return the new Person object
      */

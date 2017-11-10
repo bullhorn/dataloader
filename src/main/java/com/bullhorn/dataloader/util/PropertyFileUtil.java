@@ -287,7 +287,8 @@ public class PropertyFileUtil {
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
         waitTimeMSecBetweenFilesInDirectory = propertyValidationUtil.validateWaitTimeMSec(properties.getProperty(
             Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
-        processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
+        processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(
+            Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
