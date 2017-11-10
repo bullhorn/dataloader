@@ -42,6 +42,7 @@ public class PropertyFileUtil {
     private DateTimeFormatter dateParser;
     private Integer numThreads;
     private Integer waitTimeMSecBetweenFilesInDirectory;
+    private Boolean processEmptyAssociations;
 
     /**
      * Constructor that assembles the dataloader properties from a variety of possible methods.
@@ -160,6 +161,10 @@ public class PropertyFileUtil {
 
     public Integer getWaitTimeMsecBetweenFilesInDirectory() {
         return waitTimeMSecBetweenFilesInDirectory;
+    }
+
+    public Boolean getProcessEmptyAssociations() {
+        return processEmptyAssociations;
     }
 
     /**
@@ -282,6 +287,7 @@ public class PropertyFileUtil {
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
         waitTimeMSecBetweenFilesInDirectory = propertyValidationUtil.validateWaitTimeMSec(properties.getProperty(
             Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
+        processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {
@@ -335,6 +341,7 @@ public class PropertyFileUtil {
         printUtil.log("# Section 4");
         logPropertyIfExists(properties, Property.LIST_DELIMITER.getName());
         logPropertyIfExists(properties, Property.DATE_FORMAT.getName());
+        logPropertyIfExists(properties, Property.PROCESS_EMPTY_ASSOCIATIONS.getName());
 
         printUtil.log("# Section 5");
         logPropertyIfExists(properties, Property.NUM_THREADS.getName());

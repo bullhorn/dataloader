@@ -72,6 +72,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("https://rest.bullhornstaffing.com/rest-services/login", propertyFileUtil.getLoginUrl());
         Assert.assertEquals(";", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
+        Assert.assertEquals(Boolean.valueOf(false), propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitTimeMsecBetweenFilesInDirectory());
     }
@@ -86,6 +87,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_TOKEN_URL", "https://auth.bullhornstaffing.com/oauth/banana");
         envVars.put("DATALOADER_LOGIN_URL", "https://rest.bullhornstaffing.com/rest-services/cherry");
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
+        envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "true");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY", "15");
 
@@ -100,6 +102,7 @@ public class PropertyFileUtilTest {
         envVars.put("tokenUrl", "bogus");
         envVars.put("loginUrl", "bogus");
         envVars.put("listDelimiter", "bogus");
+        envVars.put("processEmptyAssociations", "false");
         envVars.put("dataloader_numThreads", "bogus");
         envVars.put("numThreads", "bogus");
         envVars.put("waitTimeMSecBetweenFilesInDirectory", "99999999");
@@ -116,6 +119,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("https://rest.bullhornstaffing.com/rest-services/cherry", propertyFileUtil.getLoginUrl());
         Assert.assertEquals(",", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
+        Assert.assertEquals(Boolean.valueOf(true), propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitTimeMsecBetweenFilesInDirectory());
     }
@@ -130,6 +134,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_TOKEN_URL", "https://auth.bullhornstaffing.com/oauth/banana");
         envVars.put("DATALOADER_LOGIN_URL", "https://rest.bullhornstaffing.com/rest-services/cherry");
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
+        envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "false");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY", "15");
 
@@ -141,6 +146,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("tokenUrl", "https://auth.bullhornstaffing.com/oauth/pony");
         systemProperties.setProperty("loginUrl", "https://rest.bullhornstaffing.com/rest-services/wallaby");
         systemProperties.setProperty("listDelimiter", "|");
+        systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("waitTimeMSecBetweenFilesInDirectory", "20");
 
@@ -156,6 +162,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("https://rest.bullhornstaffing.com/rest-services/wallaby", propertyFileUtil.getLoginUrl());
         Assert.assertEquals("|", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
+        Assert.assertEquals(Boolean.valueOf(true), propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(20), propertyFileUtil.getWaitTimeMsecBetweenFilesInDirectory());
     }
@@ -170,6 +177,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_TOKEN_URL", "https://auth.bullhornstaffing.com/oauth/banana");
         envVars.put("DATALOADER_LOGIN_URL", "https://rest.bullhornstaffing.com/rest-services/cherry");
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
+        envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "false");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY", "15");
 
@@ -181,6 +189,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("tokenUrl", "https://auth.bullhornstaffing.com/oauth/pony");
         systemProperties.setProperty("loginUrl", "https://rest.bullhornstaffing.com/rest-services/wallaby");
         systemProperties.setProperty("listDelimiter", "|");
+        systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("waitTimeMSecBetweenFilesInDirectory", "20");
 
@@ -201,6 +210,8 @@ public class PropertyFileUtilTest {
         args.add("https://rest.bullhornstaffing.com/rest-services/sydney");
         args.add("listdelimiter");
         args.add("&");
+        args.add("processEmptyAssociations");
+        args.add("false");
         args.add("-NUM_THREADS");
         args.add("7");
         args.add("-waitTimeMSecBetweenFilesInDirectory");
@@ -218,6 +229,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("https://rest.bullhornstaffing.com/rest-services/sydney", propertyFileUtil.getLoginUrl());
         Assert.assertEquals("&", propertyFileUtil.getListDelimiter());
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
+        Assert.assertEquals(Boolean.valueOf(false), propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(25), propertyFileUtil.getWaitTimeMsecBetweenFilesInDirectory());
     }

@@ -28,6 +28,7 @@ import com.bullhornsdk.data.model.parameter.QueryParams;
 import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -123,7 +124,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 if (entityInfo == EntityInfo.NOTE) {
                     prepopulateAssociation(field);
                 }
-            } else if (field.isToOne()) {
+            } else if (field.isToOne() && !field.getStringValue().isEmpty()) {
                 B toOneEntity = findToOneEntity(field);
                 field.populateAssociationOnEntity(entity, toOneEntity);
             } else {
@@ -255,25 +256,27 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * task from proceeding any further.
      */
     private List<B> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
-        Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-        List<B> foundAssociations = doFindAssociations(field);
-        if (foundAssociations.size() != values.size()) {
-            Set<String> existingAssociationValues = getFieldValueSet(field, foundAssociations);
-            if (foundAssociations.size() > values.size()) {
-                String duplicates = existingAssociationValues.stream().map(n -> "\t" + n)
-                    .collect(Collectors.joining("\n"));
-                throw new RestApiException("Found " + foundAssociations.size()
-                    + " duplicate To-Many Associations: '" + field.getCell().getName()
-                    + "' with value:\n" + duplicates);
-            } else {
-                String missingAssociations = values.stream().filter(n -> !existingAssociationValues.contains(n))
-                    .map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                throw new RestApiException("Error occurred: " + field.getCell().getAssociationBaseName()
-                    + " does not exist with " + field.getName() + " of the following values:\n" + missingAssociations);
+        List<B> associations = Lists.newArrayList();
+        if (!field.getStringValue().isEmpty()) {
+            Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
+            associations = doFindAssociations(field);
+            if (associations.size() != values.size()) {
+                Set<String> existingAssociationValues = getFieldValueSet(field, associations);
+                if (associations.size() > values.size()) {
+                    String duplicates = existingAssociationValues.stream().map(n -> "\t" + n)
+                        .collect(Collectors.joining("\n"));
+                    throw new RestApiException("Found " + associations.size()
+                        + " duplicate To-Many Associations: '" + field.getCell().getName()
+                        + "' with value:\n" + duplicates);
+                } else {
+                    String missingAssociations = values.stream().filter(n -> !existingAssociationValues.contains(n))
+                        .map(n -> "\t" + n).collect(Collectors.joining("\n"));
+                    throw new RestApiException("Error occurred: " + field.getCell().getAssociationBaseName()
+                        + " does not exist with " + field.getName() + " of the following values:\n" + missingAssociations);
+                }
             }
         }
-
-        return foundAssociations;
+        return associations;
     }
 
     /**

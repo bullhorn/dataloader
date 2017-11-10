@@ -76,6 +76,13 @@ public class PropertyValidationUtil {
         return Math.min(numThreads, MAX_NUM_THREADS);
     }
 
+    Boolean validateProcessEmptyAssociations(Boolean processEmptyAssociations) {
+        if (processEmptyAssociations == null) {
+            return false;
+        }
+        return processEmptyAssociations;
+    }
+
     Integer validateWaitTimeMSec(String waitTimeString) {
         Integer waitTime = 0;
         if (waitTimeString != null) {

@@ -136,6 +136,24 @@ public class PropertyValidationUtilTest {
     }
 
     @Test
+    public void testNullProcessEmptyAssociations() {
+        Boolean processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(null);
+        Assert.assertEquals(Boolean.valueOf(false), processEmptyAssociations);
+    }
+
+    @Test
+    public void testValidProcessEmptyAssociationsTrue() {
+        Boolean processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(true);
+        Assert.assertEquals(Boolean.valueOf(true), processEmptyAssociations);
+    }
+
+    @Test
+    public void testValidProcessEmptyAssociationsFalse() {
+        Boolean processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(false);
+        Assert.assertEquals(Boolean.valueOf(false), processEmptyAssociations);
+    }
+
+    @Test
     public void testValidateNumThreads() throws IOException {
         Integer actual = propertyValidationUtil.validateNumThreads(0);
         Assert.assertNotEquals(actual, new Integer(0));
