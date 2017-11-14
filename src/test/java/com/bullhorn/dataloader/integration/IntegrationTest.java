@@ -67,6 +67,11 @@ public class IntegrationTest {
         // Run a test for ignoring soft deleted entities
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
 
+        // Run a test for processing empty association fields
+        System.setProperty("processEmptyAssociations", "true");
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
+        System.setProperty("processEmptyAssociations", "false");
+
         // Run the full test of all example files
         insertUpdateDeleteFromDirectory("examples/load", false);
     }
