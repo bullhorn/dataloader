@@ -124,9 +124,11 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 if (entityInfo == EntityInfo.NOTE) {
                     prepopulateAssociation(field);
                 }
-            } else if (field.isToOne() && !field.getStringValue().isEmpty()) {
-                B toOneEntity = findToOneEntity(field);
-                field.populateAssociationOnEntity(entity, toOneEntity);
+            } else if (field.isToOne()) {
+                if (!field.getStringValue().isEmpty()) {
+                    B toOneEntity = findToOneEntity(field);
+                    field.populateAssociationOnEntity(entity, toOneEntity);
+                }
             } else {
                 field.populateFieldOnEntity(entity);
             }

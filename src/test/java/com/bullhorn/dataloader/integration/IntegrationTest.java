@@ -112,7 +112,7 @@ public class IntegrationTest {
         // endregion SETUP
 
         // region INSERT
-        FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+        FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
@@ -128,7 +128,7 @@ public class IntegrationTest {
 
         // region INSERT ATTACHMENTS
         if (tempAttachmentsDirectory != null) {
-            FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+            FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
 
             consoleOutputCapturer.start();
             Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/Candidate.csv"});
@@ -144,7 +144,7 @@ public class IntegrationTest {
         // endregion
 
         // region UPDATE
-        FileUtils.deleteDirectory(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+        FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
@@ -198,7 +198,7 @@ public class IntegrationTest {
 
         // region TEARDOWN
         // Cleanup our temporary directory
-        FileUtils.deleteDirectory(tempDirectory);
+        FileUtils.deleteQuietly(tempDirectory);
         // endregion
     }
 }
