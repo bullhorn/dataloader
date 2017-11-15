@@ -70,8 +70,7 @@ public class Record {
         if (this.propertyFileUtil.getProcessEmptyAssociations()) {
             return fields.stream().filter(Field::isToMany).collect(Collectors.toList());
         } else {
-            return fields.stream().filter(f -> f.isToMany() && !f.getStringValue().isEmpty()).collect(Collectors.toList());
+            return fields.stream().filter(field -> field.isToMany() && !field.getStringValue().isEmpty()).collect(Collectors.toList());
         }
-
     }
 }
