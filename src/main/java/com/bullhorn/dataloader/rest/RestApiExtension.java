@@ -64,8 +64,8 @@ public class RestApiExtension {
     }
 
     /**
-     * Searches for results by externalID. If the call ever fails due to being unauthorized, don't try again in
-     * the same DataLoader session.
+     * Searches for results by externalID. If the call ever fails due to being unauthorized, don't try again in the same
+     * DataLoader session.
      *
      * @param type       the entity type
      * @param externalId the string field to search for

@@ -18,6 +18,7 @@ public class Record {
     private final EntityInfo entityInfo;
     private final Row row;
     private final List<Field> fields;
+    private final PropertyFileUtil propertyFileUtil;
 
     /**
      * Constructor which takes the type of entity and the raw cell data.
@@ -30,6 +31,7 @@ public class Record {
         this.entityInfo = entityInfo;
         this.row = row;
         this.fields = new ArrayList<>();
+        this.propertyFileUtil = propertyFileUtil;
         List<String> existFields = propertyFileUtil.getEntityExistFields(entityInfo);
         for (Cell cell : row.getCells()) {
             Boolean isExistField = ArrayUtil.containsIgnoreCase(existFields, cell.getName());
@@ -46,13 +48,8 @@ public class Record {
         return row.getNumber();
     }
 
-    /**
-     * Returns all valid fields in this row. This way, empty association and date fields are safely ignored.
-     *
-     * @return only the fields that can be set on the entity
-     */
     public List<Field> getFields() {
-        return fields.stream().filter(Field::isValid).collect(Collectors.toList());
+        return fields;
     }
 
     /**
@@ -70,6 +67,10 @@ public class Record {
      * @return an empty list if there are no To-Many fields
      */
     public List<Field> getToManyFields() {
-        return fields.stream().filter(f -> f.isToMany() && f.isValid()).collect(Collectors.toList());
+        if (this.propertyFileUtil.getProcessEmptyAssociations()) {
+            return fields.stream().filter(Field::isToMany).collect(Collectors.toList());
+        } else {
+            return fields.stream().filter(field -> field.isToMany() && !field.getStringValue().isEmpty()).collect(Collectors.toList());
+        }
     }
 }

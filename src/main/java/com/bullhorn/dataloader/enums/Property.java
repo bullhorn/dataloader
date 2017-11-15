@@ -15,6 +15,7 @@ public enum Property {
     LOGIN_URL("loginUrl"),
     NUM_THREADS("numThreads"),
     PASSWORD("password"),
+    PROCESS_EMPTY_ASSOCIATIONS("processEmptyAssociations"),
     TOKEN_URL("tokenUrl"),
     USERNAME("username"),
     WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY("waitTimeMSecBetweenFilesInDirectory");

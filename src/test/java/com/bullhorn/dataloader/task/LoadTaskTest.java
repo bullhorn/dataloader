@@ -78,6 +78,7 @@ public class LoadTaskTest {
         String dateFormatString = "yyyy-MM-dd";
         when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
+        when(propertyFileUtilMock.getProcessEmptyAssociations()).thenReturn(Boolean.valueOf(false));
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList());
 
         Map<String, Integer> countryNameToIdMap = new LinkedHashMap<>();
@@ -785,6 +786,32 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
         task.run();
 
+        verify(restApiMock, never()).getAllAssociationsList(any(), any(), any(), any(), any());
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunDoNotIgnoreEmptyToManyAssociationField() throws Exception {
+        String[] headerArray = new String[]{"externalID", "primarySkills.id"};
+        String[] valueArray = new String[]{"11", ""};
+        Row row = TestUtils.createRow(headerArray, valueArray);
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(restApiMock.getAllAssociationsList(eq(Candidate.class), any(),
+            eq(CandidateAssociations.getInstance().primarySkills()), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
+        when(propertyFileUtilMock.getProcessEmptyAssociations()).thenReturn(Boolean.valueOf(true));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        task.run();
+
+        verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
+        verify(restApiMock, times(1)).disassociateWithEntity(eq(Candidate.class),
+            eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(1, 2, 3)));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);

@@ -51,9 +51,9 @@ public abstract class AbstractService {
     }
 
     /**
-     * When loading from directory, give the user a chance to hit ENTER or CTRL+C once they see all the files about
-     * to be processed. Handles the case where there are multiple entities with multiple files or one entity with
-     * multiple files.
+     * When loading from directory, give the user a chance to hit ENTER or CTRL+C once they see all the files about to
+     * be processed. Handles the case where there are multiple entities with multiple files or one entity with multiple
+     * files.
      *
      * @param filePath            The user provided directory where these files came from
      * @param entityToFileListMap The list of files that will be loaded

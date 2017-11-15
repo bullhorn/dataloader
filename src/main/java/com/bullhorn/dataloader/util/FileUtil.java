@@ -40,8 +40,8 @@ public class FileUtil {
     }
 
     /**
-     * Given a directory, this method searches the directory for all valid CSV files and returns the map.
-     * Multiple files for a single entity will be sorted alphabetically.
+     * Given a directory, this method searches the directory for all valid CSV files and returns the map. Multiple files
+     * for a single entity will be sorted alphabetically.
      *
      * @param directory      The path to the directory (relative or absolute)
      * @param validationUtil The validation utility
