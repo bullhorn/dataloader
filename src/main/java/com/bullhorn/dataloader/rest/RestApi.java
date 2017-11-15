@@ -32,9 +32,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Encapsulation of the standard SDK-REST BullhornData class for interacting with Bullhorn's REST API
- * Provides an extra layer of functionality needed by DataLoader surrounding SDK-REST calls.
- * This class calls the RestApiExtension to handle any additional behavior on top of the current REST API calls.
+ * Encapsulation of the standard SDK-REST BullhornData class for interacting with Bullhorn's REST API Provides an extra
+ * layer of functionality needed by DataLoader surrounding SDK-REST calls. This class calls the RestApiExtension to
+ * handle any additional behavior on top of the current REST API calls.
  */
 public class RestApi {
 

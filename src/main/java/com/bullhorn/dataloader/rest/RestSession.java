@@ -6,9 +6,9 @@ import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
 
 /**
- * Dependency Injected Wrapper for obtaining the SDK-REST BullhornData class using DataLoader's properties
- * Contains all logic surrounding the creation of a REST Connection and returning the RestApi object.
- * Creates a single instance of the RestApi, so that the cost of authenticating is only paid once per session.
+ * Dependency Injected Wrapper for obtaining the SDK-REST BullhornData class using DataLoader's properties Contains all
+ * logic surrounding the creation of a REST Connection and returning the RestApi object. Creates a single instance of
+ * the RestApi, so that the cost of authenticating is only paid once per session.
  */
 public class RestSession {
 

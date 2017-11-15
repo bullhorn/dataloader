@@ -25,8 +25,8 @@ public class Preloader {
     }
 
     /**
-     * Called upon dataloader initialization (before tasks begin executing) in order to load any lookup data
-     * required for entity to load.
+     * Called upon dataloader initialization (before tasks begin executing) in order to load any lookup data required
+     * for entity to load.
      *
      * @param row the user provided row of data
      * @return the row that has potentially been modified to use internal bullhorn IDs
@@ -60,8 +60,8 @@ public class Preloader {
     // TODO: Make Private
 
     /**
-     * Since the REST API only allows us to set the country using `countryID`, we query for all countries by name
-     * to allow the `countryName` to upload by name instead of just the internal Bullhorn country code.
+     * Since the REST API only allows us to set the country using `countryID`, we query for all countries by name to
+     * allow the `countryName` to upload by name instead of just the internal Bullhorn country code.
      *
      * Makes rest calls and stores the private data the first time through
      */

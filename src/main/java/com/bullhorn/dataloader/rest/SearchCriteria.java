@@ -3,9 +3,9 @@ package com.bullhorn.dataloader.rest;
 import com.bullhorn.dataloader.util.StringConsts;
 
 /**
- * Class that encapsulates the search criteria for looking up existing entities in the system.
- * TODO: Encapsulate all query/where clause building into this class, which will get passed to the RestApi object's
- * EntityList findEntity(entitySearch, fieldSet) call.
+ * Class that encapsulates the search criteria for looking up existing entities in the system. TODO: Encapsulate all
+ * query/where clause building into this class, which will get passed to the RestApi object's EntityList
+ * findEntity(entitySearch, fieldSet) call.
  */
 class SearchCriteria {
 

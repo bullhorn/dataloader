@@ -189,8 +189,7 @@ public enum EntityInfo {
     }
 
     /**
-     * The order in which this entity should be loaded relative to other entities, to avoid
-     * referencing issues.
+     * The order in which this entity should be loaded relative to other entities, to avoid referencing issues.
      */
     public Integer getLoadOrder() {
         return this.loadOrder;

@@ -87,9 +87,9 @@ public class PropertyFileUtil {
     }
 
     /**
-     * Returns a relative path that can be used to persist converted attachments (documents that have been parsed
-     * into HTML files) to disk so that they can be later retrived and added to the description field of entities
-     * when loading.
+     * Returns a relative path that can be used to persist converted attachments (documents that have been parsed into
+     * HTML files) to disk so that they can be later retrived and added to the description field of entities when
+     * loading.
      *
      * @param entityInfo the entity type
      * @param externalId the entity's externalID
@@ -185,8 +185,8 @@ public class PropertyFileUtil {
     /**
      * Parses the environment variables to pull out DataLoader specific properties
      *
-     * Environment Variables must start with "DATALOADER_" in order to be used, and the log will show if an
-     * environment variable has been used to override values from the property file.
+     * Environment Variables must start with "DATALOADER_" in order to be used, and the log will show if an environment
+     * variable has been used to override values from the property file.
      *
      * @param envVars the map of environment variables and their values
      * @return the valid properties
@@ -322,8 +322,8 @@ public class PropertyFileUtil {
 
     /**
      * Logs the contents of the properties files, but only a very select set of properties to keep user login
-     * information safe. Uses the properties object to capture the original value before any transformation
-     * or validation of the properties is done.
+     * information safe. Uses the properties object to capture the original value before any transformation or
+     * validation of the properties is done.
      *
      * @param fileName   The name of the properties file
      * @param properties The properties object

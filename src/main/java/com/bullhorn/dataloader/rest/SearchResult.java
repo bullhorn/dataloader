@@ -3,9 +3,9 @@ package com.bullhorn.dataloader.rest;
 import java.util.List;
 
 /**
- * Represents the result from a search call that contains a flag to indicate whether or not the call was success,
- * or whether the call is unauthorized due to a user settings, and the results if it was successful.
- * This is used for calls that may or may not be enabled for the current user.
+ * Represents the result from a search call that contains a flag to indicate whether or not the call was success, or
+ * whether the call is unauthorized due to a user settings, and the results if it was successful. This is used for calls
+ * that may or may not be enabled for the current user.
  */
 class SearchResult<T> {
 

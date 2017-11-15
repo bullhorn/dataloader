@@ -41,8 +41,8 @@ public class AssociationUtil {
     /**
      * Returns the list of associated fields for the given SDK-REST entity class.
      *
-     * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their
-     * different threads, and all calling this method the first time through.
+     * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their different
+     * threads, and all calling this method the first time through.
      *
      * @param entityInfo The entity type
      * @return The list of this entity (key is always this entity class) to the entity's associated classes
@@ -126,8 +126,8 @@ public class AssociationUtil {
     /**
      * Returns the associations object from SDK-REST for the given entity
      *
-     * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their
-     * different threads, and all calling this method the first time through.
+     * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their different
+     * threads, and all calling this method the first time through.
      *
      * @param entityInfo An SDK-REST class with associations
      * @return The associations list

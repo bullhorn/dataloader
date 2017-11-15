@@ -11,8 +11,8 @@ public class DateUtil {
     private static String timestamp = null;
 
     /**
-     * Returns a timestamp that is set to the time when DataLoader was started. This allows for the same
-     * timestamp to be used throughout the same session.
+     * Returns a timestamp that is set to the time when DataLoader was started. This allows for the same timestamp to be
+     * used throughout the same session.
      *
      * @return The timestamp string
      */
