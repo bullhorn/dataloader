@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -59,8 +60,9 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                     PropertyFileUtil propertyFileUtil,
                     RestApi restApi,
                     PrintUtil printUtil,
-                    ActionTotals actionTotals) {
-        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+                    ActionTotals actionTotals,
+                    CompleteUtil completeUtil) {
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
     }
 
     protected Result handle() throws Exception {

@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -22,7 +22,7 @@ public class ActionFactoryTest {
 
     @Before
     public void setup() throws Exception {
-        CompleteCall completeCallMock = mock(CompleteCall.class);
+        CompleteUtil completeUtilMock = mock(CompleteUtil.class);
         InputStream inputStreamMock = mock(InputStream.class);
         PrintUtil printUtilMock = mock(PrintUtil.class);
         ProcessRunner processRunnerMock = mock(ProcessRunner.class);
@@ -31,7 +31,7 @@ public class ActionFactoryTest {
         Timer timerMock = mock(Timer.class);
         ValidationUtil validationUtilMock = mock(ValidationUtil.class);
 
-        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
+        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
     }
 
     @Test

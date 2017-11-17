@@ -22,11 +22,11 @@ public class CsvFileWriter {
     public static final String REASON_COLUMN = "failure_reason";
     public static final String SUCCESS_CSV = "_success.csv";
     public static final String FAILURE_CSV = "_failure.csv";
+    public static String successFilePath;
+    public static String failureFilePath;
 
     private final Command command;
     private final String[] headers;
-    private final String successFilePath;
-    private final String failureFilePath;
 
     private CsvWriter successCsv = null;
     private CsvWriter failureCsv = null;

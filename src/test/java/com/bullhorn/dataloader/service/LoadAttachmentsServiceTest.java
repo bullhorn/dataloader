@@ -4,7 +4,7 @@ import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 public class LoadAttachmentsServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private CompleteCall completeCallMock;
+    private CompleteUtil completeUtilMock;
     private LoadAttachmentsService loadAttachmentsService;
     private PrintUtil printUtilMock;
     private ProcessRunner processRunnerMock;
@@ -36,7 +36,7 @@ public class LoadAttachmentsServiceTest {
     @Before
     public void setup() throws Exception {
         actionTotalsMock = mock(ActionTotals.class);
-        completeCallMock = mock(CompleteCall.class);
+        completeUtilMock = mock(CompleteUtil.class);
         RestSession restSessionMock = mock(RestSession.class);
         InputStream inputStreamMock = mock(InputStream.class);
         printUtilMock = mock(PrintUtil.class);
@@ -45,7 +45,7 @@ public class LoadAttachmentsServiceTest {
         timerMock = mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        loadAttachmentsService = new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
+        loadAttachmentsService = new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
         doReturn(actionTotalsMock).when(processRunnerMock).runLoadAttachmentsProcess(any(), any());
     }
@@ -59,7 +59,7 @@ public class LoadAttachmentsServiceTest {
 
         verify(processRunnerMock, times(1)).runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
-        verify(completeCallMock, times(1)).complete(Command.LOAD_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        verify(completeUtilMock, times(1)).complete(Command.LOAD_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
     }
 
     @Test(expected = IllegalStateException.class)

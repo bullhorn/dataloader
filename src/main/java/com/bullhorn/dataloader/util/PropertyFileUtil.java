@@ -41,8 +41,11 @@ public class PropertyFileUtil {
     private String listDelimiter;
     private DateTimeFormatter dateParser;
     private Integer numThreads;
-    private Integer waitTimeMSecBetweenFilesInDirectory;
+    private Integer waitSecondsBetweenFilesInDirectory;
     private Boolean processEmptyAssociations;
+    private Boolean resultsFileEnabled;
+    private String resultsFilePath;
+    private Integer resultsFileWriteIntervalMsec;
 
     /**
      * Constructor that assembles the dataloader properties from a variety of possible methods.
@@ -159,12 +162,24 @@ public class PropertyFileUtil {
         return numThreads;
     }
 
-    public Integer getWaitTimeMsecBetweenFilesInDirectory() {
-        return waitTimeMSecBetweenFilesInDirectory;
+    public Integer getWaitSecondsBetweenFilesInDirectory() {
+        return waitSecondsBetweenFilesInDirectory;
     }
 
     public Boolean getProcessEmptyAssociations() {
         return processEmptyAssociations;
+    }
+
+    public Boolean getResultsFileEnabled() {
+        return resultsFileEnabled;
+    }
+
+    public String getResultsFilePath() {
+        return resultsFilePath;
+    }
+
+    public Integer getResultsFileWriteIntervalMsec() {
+        return resultsFileWriteIntervalMsec;
     }
 
     /**
@@ -273,22 +288,36 @@ public class PropertyFileUtil {
      * @param propertyValidationUtil The validation utility
      */
     private void processProperties(Properties properties, PropertyValidationUtil propertyValidationUtil) {
-        numThreads = propertyValidationUtil.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
-        username = propertyValidationUtil.validateUsername(properties.getProperty(Property.USERNAME.getName()));
-        password = propertyValidationUtil.validatePassword(properties.getProperty(Property.PASSWORD.getName()));
-        authorizeUrl = propertyValidationUtil.validateAuthorizeUrl(properties.getProperty(Property.AUTHORIZE_URL.getName()));
-        tokenUrl = propertyValidationUtil.validateTokenUrl(properties.getProperty(Property.TOKEN_URL.getName()));
-        clientId = propertyValidationUtil.validateClientId(properties.getProperty(Property.CLIENT_ID.getName()));
-        clientSecret = propertyValidationUtil.validateClientSecret(properties.getProperty(Property.CLIENT_SECRET.getName()));
-        loginUrl = propertyValidationUtil.validateLoginUrl(properties.getProperty(Property.LOGIN_URL.getName()));
-        listDelimiter = propertyValidationUtil.validateListDelimiter(properties.getProperty(Property.LIST_DELIMITER.getName()));
+        username = propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(),
+            properties.getProperty(Property.USERNAME.getName()));
+        password = propertyValidationUtil.validateRequiredStringField(Property.PASSWORD.getName(),
+            properties.getProperty(Property.PASSWORD.getName()));
+        authorizeUrl = propertyValidationUtil.validateRequiredStringField(Property.AUTHORIZE_URL.getName(),
+            properties.getProperty(Property.AUTHORIZE_URL.getName()));
+        tokenUrl = propertyValidationUtil.validateRequiredStringField(Property.TOKEN_URL.getName(),
+            properties.getProperty(Property.TOKEN_URL.getName()));
+        clientId = propertyValidationUtil.validateRequiredStringField(Property.CLIENT_ID.getName(),
+            properties.getProperty(Property.CLIENT_ID.getName()));
+        clientSecret = propertyValidationUtil.validateRequiredStringField(Property.CLIENT_SECRET.getName(),
+            properties.getProperty(Property.CLIENT_SECRET.getName()));
+        loginUrl = propertyValidationUtil.validateRequiredStringField(Property.LOGIN_URL.getName(),
+            properties.getProperty(Property.LOGIN_URL.getName()));
+        listDelimiter = propertyValidationUtil.validateRequiredStringField(Property.LIST_DELIMITER.getName(),
+            properties.getProperty(Property.LIST_DELIMITER.getName()));
         dateParser = getDateTimeFormatter(properties);
         entityExistFieldsMap = createEntityExistFieldsMap(properties);
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
-        waitTimeMSecBetweenFilesInDirectory = propertyValidationUtil.validateWaitTimeMSec(properties.getProperty(
-            Property.WAIT_TIME_MSEC_BETWEEN_FILES_IN_DIRECTORY.getName()));
-        processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(
+        numThreads = propertyValidationUtil.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
+        waitSecondsBetweenFilesInDirectory = propertyValidationUtil.validateWaitSeconds(properties.getProperty(
+            Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()));
+        processEmptyAssociations = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
+        resultsFileEnabled = propertyValidationUtil.validateBooleanProperty(
+            Boolean.valueOf(properties.getProperty(Property.RESULTS_FILE_ENABLED.getName())));
+        resultsFilePath = propertyValidationUtil.validateResultsFilePath(
+            properties.getProperty(Property.RESULTS_FILE_PATH.getName()));
+        resultsFileWriteIntervalMsec = propertyValidationUtil.validateIntervalMsec(
+            properties.getProperty(Property.RESULTS_FILE_WRITE_INTERVAL_MSEC.getName()));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {

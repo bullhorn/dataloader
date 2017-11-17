@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -36,6 +37,7 @@ public class ConvertAttachmentTaskTest {
     private ActionTotals actionTotalsMock;
     private PropertyFileUtil propertyFileUtilMock;
     private String resumeFilePath;
+    private CompleteUtil completeUtilMock;
 
     @Before
     public void setup() throws Exception {
@@ -45,13 +47,15 @@ public class ConvertAttachmentTaskTest {
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         resumeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
+        completeUtilMock = mock(CompleteUtil.class);
     }
 
     @Test
     public void convertAttachmentToHtmlTest() throws Exception {
         Row row = TestUtils.createRow("id,relativeFilePath,isResume", "1," + resumeFilePath + ",1");
 
-        ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
 
         String result = task.convertAttachmentToHtml();
         Assert.assertNotNull(result);
@@ -61,7 +65,8 @@ public class ConvertAttachmentTaskTest {
     public void run_Success() throws IOException {
         Row row = TestUtils.createRow("id,relativeFilePath,isResume", "1," + resumeFilePath + ",1");
 
-        ConvertAttachmentTask task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock));
+        ConvertAttachmentTask task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock));
         doNothing().when(task).writeHtmlToFile(anyString());
         task.run();
 
@@ -74,7 +79,8 @@ public class ConvertAttachmentTaskTest {
     public void run_Success_Skip() throws IOException {
         Row row = TestUtils.createRow("id,relativeFilePath,isResume", "1," + resumeFilePath + ",0");
 
-        ConvertAttachmentTask task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock));
+        ConvertAttachmentTask task = spy(new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock));
         doNothing().when(task).writeHtmlToFile(anyString());
         task.run();
 
@@ -87,7 +93,8 @@ public class ConvertAttachmentTaskTest {
     public void getConvertedAttachmentPathTest() throws IOException {
         Row row = TestUtils.createRow("clientContact.externalID,relativeFilePath,isResume", "1," + resumeFilePath + ",0");
 
-        ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CLIENT_CONTACT, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CLIENT_CONTACT, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
 
         String expectedResult = "convertedAttachments/ClientContact/1.html";
         String actualResult = task.getConvertedAttachmentPath();
@@ -97,9 +104,11 @@ public class ConvertAttachmentTaskTest {
     @Test
     public void convertAttachmentNoRelativeFilePathTest() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2016Ext\""), any(), anyObject())).thenReturn(TestUtils.getList(Candidate.class, 1001));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2016Ext\""), any(), anyObject()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1001));
 
-        ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock);
+        ConvertAttachmentTask task = new ConvertAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
         final Result expectedResult = Result.failure(new IOException("Missing the 'relativeFilePath' column required for convertAttachments"));

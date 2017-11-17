@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.enums.Property;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,47 +58,18 @@ public class PropertyValidationUtilTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyUserName() throws IOException {
-        propertyValidationUtil.validateUsername("");
+        propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMissingUserName() throws IOException {
-        propertyValidationUtil.validateUsername(null);
+        propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), null);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyPassword() throws IOException {
-        propertyValidationUtil.validatePassword("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMissingPassword() throws IOException {
-        propertyValidationUtil.validatePassword(null);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyClientId() throws IOException {
-        propertyValidationUtil.validateClientId("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyClientSecret() throws IOException {
-        propertyValidationUtil.validateClientSecret("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyAuthorizeUrl() throws IOException {
-        propertyValidationUtil.validateAuthorizeUrl("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyTokenUrl() throws IOException {
-        propertyValidationUtil.validateTokenUrl("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyLoginUrl() throws IOException {
-        propertyValidationUtil.validateLoginUrl("");
+    @Test
+    public void testMissingOptionalStringField() throws IOException {
+        String value = propertyValidationUtil.validateOptionalStringField(null);
+        Assert.assertEquals("", value);
     }
 
     @Test
@@ -125,32 +97,40 @@ public class PropertyValidationUtilTest {
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testEmptyListDelimiter() throws IOException {
-        propertyValidationUtil.validateListDelimiter("");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMissingListDelimiter() throws IOException {
-        propertyValidationUtil.validateListDelimiter(null);
+    @Test
+    public void testNullBooleanProperty() {
+        Boolean value = propertyValidationUtil.validateBooleanProperty(null);
+        Assert.assertEquals(Boolean.FALSE, value);
     }
 
     @Test
-    public void testNullProcessEmptyAssociations() {
-        Boolean processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(null);
-        Assert.assertEquals(Boolean.valueOf(false), processEmptyAssociations);
+    public void testValidBooleanPropertyTrue() {
+        Boolean value = propertyValidationUtil.validateBooleanProperty(true);
+        Assert.assertEquals(Boolean.TRUE, value);
     }
 
     @Test
-    public void testValidProcessEmptyAssociationsTrue() {
-        Boolean processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(true);
-        Assert.assertEquals(Boolean.valueOf(true), processEmptyAssociations);
+    public void testValidBooleanPropertyFalse() {
+        Boolean value = propertyValidationUtil.validateBooleanProperty(false);
+        Assert.assertEquals(Boolean.FALSE, value);
     }
 
     @Test
-    public void testValidProcessEmptyAssociationsFalse() {
-        Boolean processEmptyAssociations = propertyValidationUtil.validateProcessEmptyAssociations(false);
-        Assert.assertEquals(Boolean.valueOf(false), processEmptyAssociations);
+    public void testMissingResultsFilePath() {
+        String value = propertyValidationUtil.validateResultsFilePath(null);
+        Assert.assertEquals("./results.json", value);
+    }
+
+    @Test
+    public void testMissingIntervalMsec() {
+        Integer value = propertyValidationUtil.validateIntervalMsec(null);
+        Assert.assertEquals(new Integer(500), value);
+    }
+
+    @Test
+    public void testValidIntervalMsec() {
+        Integer value = propertyValidationUtil.validateIntervalMsec("250");
+        Assert.assertEquals(new Integer(250), value);
     }
 
     @Test
@@ -175,24 +155,24 @@ public class PropertyValidationUtilTest {
     }
 
     @Test
-    public void testNullWaitTime() {
-        Integer waitTimeMSec = propertyValidationUtil.validateWaitTimeMSec(null);
-        Assert.assertEquals(Integer.valueOf(0), waitTimeMSec);
+    public void testNullWaitSeconds() {
+        Integer waitSeconds = propertyValidationUtil.validateWaitSeconds(null);
+        Assert.assertEquals(Integer.valueOf(0), waitSeconds);
     }
 
     @Test
-    public void testValidWaitTime() {
-        Integer waitTimeMSec = propertyValidationUtil.validateWaitTimeMSec("3000");
-        Assert.assertEquals(Integer.valueOf(3000), waitTimeMSec);
+    public void testValidWaitSeconds() {
+        Integer waitSeconds = propertyValidationUtil.validateWaitSeconds("3000");
+        Assert.assertEquals(Integer.valueOf(3000), waitSeconds);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLowerBoundWaitTime() throws IOException {
-        propertyValidationUtil.validateWaitTimeMSec("-1");
+    public void testLowerBoundWaitSeconds() throws IOException {
+        propertyValidationUtil.validateWaitSeconds("-1");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testUpperBoundWaitTime() throws IOException {
-        propertyValidationUtil.validateWaitTimeMSec("3600001");
+    public void testUpperBoundWaitSeconds() throws IOException {
+        propertyValidationUtil.validateWaitSeconds("3601");
     }
 }

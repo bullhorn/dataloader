@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader;
 
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApiExtension;
 import com.bullhorn.dataloader.rest.RestSession;
@@ -38,11 +38,12 @@ public class Main {
             RestApiExtension restApiExtension = new RestApiExtension(printUtil);
             RestSession restSession = new RestSession(restApiExtension, propertyFileUtil);
             Preloader preloader = new Preloader(restSession);
-            CompleteCall completeCall = new CompleteCall(restSession, httpClient, propertyFileUtil, printUtil);
+            CompleteUtil completeUtil = new CompleteUtil(restSession, httpClient, propertyFileUtil, printUtil, timer);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
-            ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil, threadPoolUtil);
+            ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil,
+                threadPoolUtil, completeUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
-                completeCall, restSession, processRunner, System.in, timer);
+                completeUtil, restSession, processRunner, System.in, timer);
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
 

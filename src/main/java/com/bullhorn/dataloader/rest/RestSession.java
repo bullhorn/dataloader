@@ -28,8 +28,7 @@ public class RestSession {
      */
     public RestApi getRestApi() {
         if (restApi == null) {
-            StandardBullhornData bullhornData = createRestSession();
-            restApi = new RestApi(bullhornData, restApiExtension);
+            restApi = new RestApi(createRestSession(), restApiExtension);
         }
         return restApi;
     }

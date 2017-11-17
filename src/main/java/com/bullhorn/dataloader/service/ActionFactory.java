@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -19,7 +19,7 @@ public class ActionFactory {
     private final PrintUtil printUtil;
     private final ValidationUtil validationUtil;
     private final PropertyFileUtil propertyFileUtil;
-    private final CompleteCall completeCall;
+    private final CompleteUtil completeUtil;
     private final RestSession restSession;
     private final ProcessRunner processRunner;
     private final InputStream inputStream;
@@ -28,7 +28,7 @@ public class ActionFactory {
     public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ValidationUtil validationUtil,
-                         CompleteCall completeCall,
+                         CompleteUtil completeUtil,
                          RestSession restSession,
                          ProcessRunner processRunner,
                          InputStream inputStream,
@@ -36,7 +36,7 @@ public class ActionFactory {
         this.printUtil = printUtil;
         this.validationUtil = validationUtil;
         this.propertyFileUtil = propertyFileUtil;
-        this.completeCall = completeCall;
+        this.completeUtil = completeUtil;
         this.restSession = restSession;
         this.processRunner = processRunner;
         this.inputStream = inputStream;
@@ -54,22 +54,22 @@ public class ActionFactory {
         if (command.equals(Command.HELP)) {
             action = new HelpService(printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeCall,
+            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeCall,
+            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeCall,
+            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE)) {
-            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeCall,
+            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeCall,
+            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeCall,
+            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         }
         return action;

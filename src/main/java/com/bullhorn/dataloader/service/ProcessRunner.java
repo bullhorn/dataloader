@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
@@ -38,17 +39,20 @@ public class ProcessRunner {
     private final PrintUtil printUtil;
     private final PropertyFileUtil propertyFileUtil;
     private final ThreadPoolUtil threadPoolUtil;
+    private final CompleteUtil completeUtil;
 
     public ProcessRunner(RestSession restSession,
                          Preloader preloader,
                          PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
-                         ThreadPoolUtil threadPoolUtil) {
+                         ThreadPoolUtil threadPoolUtil,
+                         CompleteUtil completeUtil) {
         this.restSession = restSession;
         this.preloader = preloader;
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.threadPoolUtil = threadPoolUtil;
+        this.completeUtil = completeUtil;
     }
 
     ActionTotals runLoadProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
@@ -62,8 +66,8 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = preloader.convertRow(csvFileReader.getRow());
-            AbstractTask task;
-            task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            AbstractTask task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil,
+                actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -87,8 +91,8 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
-            AbstractTask task;
-            task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            AbstractTask task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil,
+                actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -112,7 +116,8 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
-            LoadAttachmentTask task = new LoadAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            LoadAttachmentTask task = new LoadAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil,
+                restApi, printUtil, actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -137,7 +142,7 @@ public class ProcessRunner {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
             ConvertAttachmentTask task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter,
-                propertyFileUtil, restApi, printUtil, actionTotals);
+                propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -161,7 +166,8 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
-            DeleteAttachmentTask task = new DeleteAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+            DeleteAttachmentTask task = new DeleteAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil,
+                restApi, printUtil, actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
