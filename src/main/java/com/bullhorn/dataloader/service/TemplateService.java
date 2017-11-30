@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -21,12 +21,12 @@ public class TemplateService extends AbstractService implements Action {
     public TemplateService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
-                           CompleteCall completeCall,
+                           CompleteUtil completeUtil,
                            RestSession restSession,
                            ProcessRunner processRunner,
                            InputStream inputStream,
                            Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
     @Override

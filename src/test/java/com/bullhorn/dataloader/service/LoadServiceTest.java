@@ -4,7 +4,7 @@ import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.verify;
 public class LoadServiceTest {
 
     private ActionTotals actionTotalsMock;
-    private CompleteCall completeCallMock;
+    private CompleteUtil completeUtilMock;
     private RestSession restSessionMock;
     private InputStream inputStreamFake;
     private LoadService loadService;
@@ -42,7 +42,7 @@ public class LoadServiceTest {
     @Before
     public void setup() throws Exception {
         actionTotalsMock = mock(ActionTotals.class);
-        completeCallMock = mock(CompleteCall.class);
+        completeUtilMock = mock(CompleteUtil.class);
         restSessionMock = mock(RestSession.class);
         inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
         printUtilMock = mock(PrintUtil.class);
@@ -51,7 +51,7 @@ public class LoadServiceTest {
         timerMock = mock(Timer.class);
         validationUtil = new ValidationUtil(printUtilMock);
 
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         doReturn(actionTotalsMock).when(processRunnerMock).runLoadProcess(any(), any());
     }
@@ -65,7 +65,7 @@ public class LoadServiceTest {
 
         verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
-        verify(completeCallMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock, timerMock);
+        verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class LoadServiceTest {
 
         verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
-        verify(completeCallMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
+        verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
     }
 
     @Test
@@ -86,14 +86,14 @@ public class LoadServiceTest {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         final String filePath = directoryPath + "/ClientContact.csv";
         final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
-        doReturn(1).when(propertyFileUtilMock).getWaitTimeMsecBetweenFilesInDirectory();
+        doReturn(2).when(propertyFileUtilMock).getWaitSecondsBetweenFilesInDirectory();
 
         loadService.run(testArgs);
 
         verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
         verify(printUtilMock, times(3)).printAndLog(anyString());
-        verify(printUtilMock, times(1)).printAndLog("...Waiting 0 seconds for indexers to catch up...");
-        verify(completeCallMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock, timerMock);
+        verify(printUtilMock, times(1)).printAndLog("...Waiting 2 seconds for indexers to catch up...");
+        verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
     }
 
     @Test
@@ -129,7 +129,7 @@ public class LoadServiceTest {
     @Test
     public void testRun_directory_fourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeCallMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};

@@ -3,7 +3,7 @@ package com.bullhorn.dataloader.service;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -24,12 +24,12 @@ public class LoadAttachmentsService extends AbstractService implements Action {
     public LoadAttachmentsService(PrintUtil printUtil,
                                   PropertyFileUtil propertyFileUtil,
                                   ValidationUtil validationUtil,
-                                  CompleteCall completeCall,
+                                  CompleteUtil completeUtil,
                                   RestSession restSession,
                                   ProcessRunner processRunner,
                                   InputStream inputStream,
                                   Timer timer) throws IOException {
-        super(printUtil, propertyFileUtil, validationUtil, completeCall, restSession, processRunner, inputStream, timer);
+        super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
             timer.start();
             ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
             printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHms());
-            completeCall.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals, timer);
+            completeUtil.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals);
         } catch (Exception e) {
             printUtil.printAndLog("FAILED to load " + entityInfo + " attachments");
             printUtil.printAndLog(e);

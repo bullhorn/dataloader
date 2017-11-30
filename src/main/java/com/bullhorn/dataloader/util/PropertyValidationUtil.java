@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.Property;
 import org.apache.commons.lang.WordUtils;
 
 import java.util.List;
@@ -11,37 +12,11 @@ import java.util.Map;
  */
 public class PropertyValidationUtil {
     private static final Integer MAX_NUM_THREADS = 15;
-    private static final Integer MAX_WAIT_TIME_SECONDS = 3600 * 1000; // 1 hour
+    private static final Integer MAX_WAIT_SECONDS = 3600; // 1 hour
+    private static final Integer DEFAULT_INTERVAL_MSEC = 500; // Wait for half a second
+    private static final String DEFAULT_RESULTS_FILE_PATH = "./results.json";
 
     public PropertyValidationUtil() {
-    }
-
-    String validateUsername(String username) {
-        return validateStringField("username", username);
-    }
-
-    String validatePassword(String password) {
-        return validateStringField("password", password);
-    }
-
-    String validateClientId(String clientId) {
-        return validateStringField("clientId", clientId);
-    }
-
-    String validateClientSecret(String clientSecret) {
-        return validateStringField("clientSecret", clientSecret);
-    }
-
-    String validateAuthorizeUrl(String authorizeUrl) {
-        return validateStringField("authorizeUrl", authorizeUrl);
-    }
-
-    String validateTokenUrl(String tokenUrl) {
-        return validateStringField("tokenUrl", tokenUrl);
-    }
-
-    String validateLoginUrl(String loginUrl) {
-        return validateStringField("loginUrl", loginUrl);
     }
 
     void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {
@@ -62,10 +37,6 @@ public class PropertyValidationUtil {
         }
     }
 
-    String validateListDelimiter(String listDelimiter) {
-        return validateStringField("listDelimiter", listDelimiter);
-    }
-
     Integer validateNumThreads(Integer numThreads) {
         if (numThreads < 0 || numThreads > MAX_NUM_THREADS) {
             throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
@@ -76,27 +47,32 @@ public class PropertyValidationUtil {
         return Math.min(numThreads, MAX_NUM_THREADS);
     }
 
-    Boolean validateProcessEmptyAssociations(Boolean processEmptyAssociations) {
-        if (processEmptyAssociations == null) {
-            return false;
+    Integer validateWaitSeconds(String waitSecondsString) {
+        Integer waitSeconds = 0;
+        if (waitSecondsString != null) {
+            waitSeconds = Integer.valueOf(waitSecondsString);
         }
-        return processEmptyAssociations;
-    }
-
-    Integer validateWaitTimeMSec(String waitTimeString) {
-        Integer waitTime = 0;
-        if (waitTimeString != null) {
-            waitTime = Integer.valueOf(waitTimeString);
-        }
-        if (waitTime < 0 || waitTime > MAX_WAIT_TIME_SECONDS) {
+        if (waitSeconds < 0 || waitSeconds > MAX_WAIT_SECONDS) {
             throw new IllegalArgumentException(
-                "DataLoader Properties Error: waitTimeMSecBetweenFilesInDirectory property must be in the range of 0 to "
-                    + MAX_WAIT_TIME_SECONDS);
+                "DataLoader Properties Error: " + Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()
+                    + " property must be in the range of 0 to " + MAX_WAIT_SECONDS);
         }
-        return waitTime;
+        return waitSeconds;
     }
 
-    private String validateStringField(String name, String value) {
+    String validateResultsFilePath(String resultsFilePath) {
+        return resultsFilePath == null ? DEFAULT_RESULTS_FILE_PATH : resultsFilePath;
+    }
+
+    Integer validateIntervalMsec(String intervalMsecString) {
+        return intervalMsecString == null ? DEFAULT_INTERVAL_MSEC : Integer.valueOf(intervalMsecString);
+    }
+
+    Boolean validateBooleanProperty(Boolean value) {
+        return value == null ? false : value;
+    }
+
+    String validateRequiredStringField(String name, String value) {
         if (value == null) {
             throw new IllegalArgumentException("DataLoader Properties Error: missing '" + name + "' property");
         }
@@ -105,5 +81,9 @@ public class PropertyValidationUtil {
             throw new IllegalArgumentException("DataLoader Properties Error: '" + name + "' property must not be blank");
         }
         return value;
+    }
+
+    String validateOptionalStringField(String value) {
+        return value == null ? "" : value;
     }
 }

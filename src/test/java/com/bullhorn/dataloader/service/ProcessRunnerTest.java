@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
@@ -42,6 +43,7 @@ public class ProcessRunnerTest {
     private Preloader preloaderMock;
     private PrintUtil printUtilMock;
     private ProcessRunner processRunner;
+    private CompleteUtil completeUtilMock;
 
     @Before
     public void setup() throws InterruptedException {
@@ -50,11 +52,12 @@ public class ProcessRunnerTest {
         executorServiceMock = mock(ExecutorService.class);
         preloaderMock = mock(Preloader.class);
         printUtilMock = mock(PrintUtil.class);
+        completeUtilMock = mock(CompleteUtil.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 
         processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock,
-            threadPoolUtilMock);
+            threadPoolUtilMock, completeUtilMock);
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);

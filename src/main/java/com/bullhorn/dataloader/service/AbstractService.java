@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -26,7 +26,7 @@ public abstract class AbstractService {
     protected final PrintUtil printUtil;
     protected final PropertyFileUtil propertyFileUtil;
     protected final ValidationUtil validationUtil;
-    protected final CompleteCall completeCall;
+    protected final CompleteUtil completeUtil;
     protected final RestSession restSession;
     protected final ProcessRunner processRunner;
     protected final InputStream inputStream;
@@ -35,7 +35,7 @@ public abstract class AbstractService {
     public AbstractService(PrintUtil printUtil,
                            PropertyFileUtil propertyFileUtil,
                            ValidationUtil validationUtil,
-                           CompleteCall completeCall,
+                           CompleteUtil completeUtil,
                            RestSession restSession,
                            ProcessRunner processRunner,
                            InputStream inputStream,
@@ -43,7 +43,7 @@ public abstract class AbstractService {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
-        this.completeCall = completeCall;
+        this.completeUtil = completeUtil;
         this.restSession = restSession;
         this.processRunner = processRunner;
         this.inputStream = inputStream;

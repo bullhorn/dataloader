@@ -8,6 +8,10 @@ import java.util.concurrent.TimeUnit;
 public class Timer {
     private long startTime;
 
+    public long getStartTime() {
+        return startTime;
+    }
+
     /**
      * Initializes the timer to the point when the timer is created.
      */

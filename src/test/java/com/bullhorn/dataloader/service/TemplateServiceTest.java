@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteCall;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -41,7 +41,7 @@ public class TemplateServiceTest {
 
     @Before
     public void setup() throws Exception {
-        CompleteCall completeCallMock = mock(CompleteCall.class);
+        CompleteUtil completeUtilMock = mock(CompleteUtil.class);
         InputStream inputStreamMock = mock(InputStream.class);
         printUtilMock = mock(PrintUtil.class);
         ProcessRunner processRunnerMock = mock(ProcessRunner.class);
@@ -52,7 +52,7 @@ public class TemplateServiceTest {
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
         templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil,
-            completeCallMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
+            completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
         // Mock out meta
         Field externalIdField = new Field();

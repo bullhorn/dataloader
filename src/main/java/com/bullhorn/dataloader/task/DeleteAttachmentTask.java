@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -26,8 +27,9 @@ public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask
                                 PropertyFileUtil propertyFileUtil,
                                 RestApi restApi,
                                 PrintUtil printUtil,
-                                ActionTotals actionTotals) {
-        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals);
+                                ActionTotals actionTotals,
+                                CompleteUtil completeUtil) {
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
     }
 
     protected Result handle() throws Exception {

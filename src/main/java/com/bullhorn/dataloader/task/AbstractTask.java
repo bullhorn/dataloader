@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -41,6 +42,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     protected PrintUtil printUtil;
     protected ActionTotals actionTotals;
     protected Integer entityId;
+    protected CompleteUtil completeUtil;
     private CsvFileWriter csvFileWriter;
 
     AbstractTask(EntityInfo entityInfo,
@@ -49,7 +51,8 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                  PropertyFileUtil propertyFileUtil,
                  RestApi restApi,
                  PrintUtil printUtil,
-                 ActionTotals actionTotals) {
+                 ActionTotals actionTotals,
+                 CompleteUtil completeUtil) {
         this.entityInfo = entityInfo;
         this.row = row;
         this.csvFileWriter = csvFileWriter;
@@ -57,6 +60,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         this.restApi = restApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
+        this.completeUtil = completeUtil;
     }
 
     /**
@@ -72,6 +76,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             result = handleFailure(e);
         }
         writeToResultCsv(result);
+        if (propertyFileUtil.getResultsFileEnabled()) {
+            completeUtil.rowComplete(row, result, actionTotals);
+        }
     }
 
     /**
@@ -103,17 +110,15 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    private void updateActionTotals(Result result) {
-        actionTotals.incrementActionTotal(result.getAction());
-    }
-
     private void writeToResultCsv(Result result) {
+        actionTotals.incrementActionTotal(result.getAction());
+        updateRowProcessedCounts();
+
+        // Handle the situation where the results files are locked for a brief period of time
         int attempts = 0;
         while (attempts < 3) {
             try {
                 csvFileWriter.writeRow(row, result);
-                updateActionTotals(result);
-                updateRowProcessedCounts();
                 break;
             } catch (IOException e) {
                 printUtil.printAndLog(e);
