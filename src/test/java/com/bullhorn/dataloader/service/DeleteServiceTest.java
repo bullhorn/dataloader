@@ -15,7 +15,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.InputStream;
+import java.nio.file.Path;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -66,7 +68,8 @@ public class DeleteServiceTest {
     @Test
     public void testRun_directoryOneFile() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
-        final String expectedFileName = filePath + "/ClientContact.csv";
+        File file = new File(filePath, "ClientContact.csv");
+        final String expectedFileName =  file.getPath();
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
@@ -78,8 +81,10 @@ public class DeleteServiceTest {
     @Test
     public void testRun_directoryFourFiles() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final String expectedCandidateFileName = filePath + "/Candidate_Valid_File.csv";
-        final String expectedCandidateWorkHistoryFileName = filePath + "/CandidateWorkHistory.csv";
+        File validFile = new File(filePath, "Candidate_Valid_File.csv");
+        File workHistoryFile = new File(filePath, "CandidateWorkHistory.csv");
+        final String expectedCandidateFileName = validFile.getPath();
+        final String expectedCandidateWorkHistoryFileName = workHistoryFile.getPath();
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath};
 
         deleteService.run(testArgs);
