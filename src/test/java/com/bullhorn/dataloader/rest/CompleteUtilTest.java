@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -110,7 +111,6 @@ public class CompleteUtilTest {
     public void testResultsFileSuccess() throws IOException {
         String resultsFilePath = TestUtils.getResourceFilePath("results.json");
         File resultsFile = new File(resultsFilePath);
-        String expectedEmptyResults = "{}\n";
 
         try {
             Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
@@ -124,7 +124,7 @@ public class CompleteUtilTest {
             when(propertyFileUtilMock.getResultsFileWriteIntervalMsec()).thenReturn(10000);
 
             String fileContents = FileUtils.readFileToString(resultsFile);
-            Assert.assertEquals(expectedEmptyResults, fileContents);
+            Assert.assertTrue(fileContents.startsWith("{}"));
 
             completeUtil = new CompleteUtil(restSessionMock, httpClientMock, propertyFileUtilMock, printUtilMock, timerMock);
             completeUtil.rowComplete(row, result, actionTotalsMock);
@@ -141,7 +141,7 @@ public class CompleteUtilTest {
             Assert.assertEquals(jsonObject.has("errors"), false);
         } finally {
             // Reset resource file
-            FileUtils.writeStringToFile(resultsFile, expectedEmptyResults);
+            FileUtils.writeStringToFile(resultsFile, "{}");
         }
     }
 
@@ -149,7 +149,6 @@ public class CompleteUtilTest {
     public void testResultsFileFailure() throws IOException {
         String resultsFilePath = TestUtils.getResourceFilePath("results.json");
         File resultsFile = new File(resultsFilePath);
-        String expectedEmptyResults = "{}\n";
 
         try {
             Row row = TestUtils.createRow("bogus", "1;2");
@@ -164,7 +163,7 @@ public class CompleteUtilTest {
             when(propertyFileUtilMock.getResultsFileWriteIntervalMsec()).thenReturn(10000);
 
             String fileContents = FileUtils.readFileToString(resultsFile);
-            Assert.assertEquals(expectedEmptyResults, fileContents);
+            Assert.assertTrue(fileContents.startsWith("{}"));
 
             completeUtil = new CompleteUtil(restSessionMock, httpClientMock, propertyFileUtilMock, printUtilMock, timerMock);
             completeUtil.rowComplete(row, result, actionTotalsMock);
@@ -186,7 +185,7 @@ public class CompleteUtilTest {
                 "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
         } finally {
             // Reset resource file
-            FileUtils.writeStringToFile(resultsFile, expectedEmptyResults);
+            FileUtils.writeStringToFile(resultsFile, "{}");
         }
     }
 
@@ -202,6 +201,6 @@ public class CompleteUtilTest {
         completeUtil.rowComplete(row, result, actionTotalsMock);
         completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock);
 
-        verify(printUtilMock, times(1)).printAndLog("Error writing results file: java.io.FileNotFoundException:  (No such file or directory)");
+        verify(printUtilMock, times(1)).printAndLog(contains("Error writing results file: java.io.FileNotFoundException:"));
     }
 }

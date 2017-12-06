@@ -15,6 +15,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.InputStream;
 
 import static org.mockito.Matchers.any;
@@ -71,7 +72,8 @@ public class LoadServiceTest {
     @Test
     public void testRun_directoryOneFile() throws Exception {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
-        final String filePath = directoryPath + "/ClientContact.csv";
+        File file = new File(directoryPath, "ClientContact.csv");
+        final String filePath = file.getPath();
         final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
 
         loadService.run(testArgs);
@@ -84,7 +86,8 @@ public class LoadServiceTest {
     @Test
     public void testRun_directory_oneFile_withWait() throws Exception {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
-        final String filePath = directoryPath + "/ClientContact.csv";
+        File file = new File(directoryPath, "ClientContact.csv");
+        final String filePath = file.getPath();
         final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
         doReturn(2).when(propertyFileUtilMock).getWaitSecondsBetweenFilesInDirectory();
 
