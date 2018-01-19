@@ -1,32 +1,29 @@
 ##### DataLoader Developer Documentation
 
-## How to Create a Release
+### Standard Commit Messages on Master
 
-DataLoader provides a release binary which allows end users to use DataLoader without having to build from source using the JDK. We use the Maven Assembly plugin to package the DataLoader jar file along with the directory structure, README.md, LICENSE, and other supporting files into `target/dataloader.zip`.
+Commits to master use the [Conventional Commits Specification](https://conventionalcommits.org/). Admins select the _Squash and Merge_ option when merging in Pull Requests and rename the commit to follow the format: _type_(_scope_): _description_. 
 
- 1. Create release branch: `release/vX.Y.Z`
+__Examples:__ 
+
+`feat(Candidate): Added field 'xyz'`
+
+`fix(To-Many Associations): fixed xyz`
+
+`chore(cleanup): cleaned up xyz`
+
+`chore(release): X.Y.Z`
+
+### Creating a Release
+
+[standard-version](https://www.npmjs.com/package/standard-version) is used to calculate the version number, update the `package.json` version, 
+generate the `CHANGELOG.md` file, generate a GitHub release, and push tags to Master, which allows TravisCI to generate the build artifacts and upload them to a GitHub release.
+
+ 1. Checkout master
   
-    1. Remove the `-SNAPSHOT` from the pom.xml `<version>X.Y.Z-SNAPSHOT</version>` tag
-    
- 2. Create release package
-
-    1. Start with a clean checkout of the release branch
-  
-        1. Remove any local uncommitted changes to files
-     
-        2. Remove any local changes to the dataloader.properties file
-     
-        3. Remove all local files from the log and data folders
+ 2. Run release script: `npm run release`
  
-    2. Run package command: `mvn clean package`
-
-    3. Run assembly command: `mvn assembly:single` to generate the release zip file: `target/dataloader.zip`
-
- 3. Test the new release package by stepping through the Quick Start Guide on both Windows and Mac/Linux
-
- 4. Merge the release branch
-
- 5. Create the wiki zipfile which includes PDFs of the wiki pages
+ 3. Create the wiki zipfile which includes PDFs of the wiki pages
  
     1. Clone the wiki repo: `git clone https://github.com/bullhorn/dataloader.wiki.git`
      
@@ -34,7 +31,7 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
 
     3. Create the wiki.zip file: `npm start`
 
- 6. Create release in GitHub
+ 4. Create release in GitHub
 
     1. From the [Releases Page](https://github.com/bullhorn/dataloader/releases) click [Draft a New Release](https://github.com/bullhorn/dataloader/releases/new).
     
@@ -43,5 +40,3 @@ DataLoader provides a release binary which allows end users to use DataLoader wi
     3. In the Attach Binaries section of the release page, attach the release package file: `target/dataloader.zip`
  
     4. In the Attach Binaries section of the release page, attach the wiki package file: `wiki.zip`
- 
- 7. Make a new commit to master to bump the version and add `-SNAPSHOT` to the pom.xml version

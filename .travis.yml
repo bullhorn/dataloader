@@ -4,7 +4,7 @@ jdk:
   - oraclejdk8
 
 env:
-  - NODE_VERSION="5.12.0"
+  - NODE_VERSION="9.4.0"
 
 cache:
   directories:
@@ -26,3 +26,17 @@ after_success:
 notifications:
   slack:
     secure: f1OJnqs2/JBo/rmxan7ta9SXjXEagAU6PQjj92nJ7Bccbk50EHdHuTWh3kcGAsOAjL/JG4KDu3vk0bpLvEJf4/+obIo9nrPWyYZidKhkU79bOB7xU+Ca73sFy2VHDrqL9bDrBdO+iGmjdKaKKU6mc0HKzozBvuY8x5P0lQYuvhWRBjeCInnPAHB7hilszEz5m9/HxrmKDn38zXCO6oTFevoU5t5I5jtREiqDjkSdCTrWw1VnrymuvyCey8T0UWLhbmOWPp+xMl6nyPSPqMhISfe1SX0i1kZghSmumdV7Sg5wlEWoAVB4DtNXYHmFsgC8N/kTjqw1HsWKSPg2JnbIDOMofUZ97/OvnYg1kGAoUGl1SjiUww9qvFo2okqqK4dsJeMYuEmnawbRKkNRlqZTWVW24qAIBJWAoanszGTsiZGYOFTaRFDKBbG3vhWrlma2+lxmH3kiqTEkFB4pvfZOLQ+VEpmcTxuNGWA+WtshQ4CU0ietH3RXMe96GVj4rmMo9VlIflzJp5EsguSjSepaeUOV0PkrVLm/Kyc3oEPPOdoMgvs2m4ATFDYHM64F17y+giDOj/i3MqsJrWHmWEs6/HU7xsjNsmZiKoCtSUIXi+PDSr9PbFVRQWsYf7OByocu6kcgNFF1F6B/52tpr6ICrlJ13YqKfEQxRaX3V2voB1I=
+
+before_deploy:
+  - mvn clean package
+  - mvn assembly:single
+
+deploy:
+  provider: releases
+  api_key:
+    secure: x3EMIpn9nZ20wcuyiwekl+ALgSEwIaMeJjlkWqFe7Wq0WknjfA8lwVDE+D7FYWtl0xU5a1wmYuAULQtKGusDYEDl7lULUXdKuhvHzsLalHoyj98Uo2ccNjjglZVBW72ujtnWF2MOEEkH6cFspi00lfan9xWJpRBZhdvXbl9dI3wrw5N9EfU+KuHeo/5TPULtyYDHLch+RnCo2/Kz2pBaqukafXgnPCxGQLoZ9tt+dlOUJnJL03lXnat61N8lG+4yCFI+x6e8HYlj1yGtVbEc6zPaomOuGAngDC+w2PfU43jWKN5cIDwDoKP+4f2IAGar435jaIXtQqG8xcd/oVXoAe7jvKXlCu2auRFf+hePj522+4GokLF4/P/zQX+fiy4nkvO7OzzlAnqITbKlJz53HMdIbpfk61eSgycUXkDRMoU9bM91QqlJRizqi39wJlAUGKg/QEpXweJzE1ZIvUNSlYOPC9pMMtLTaRmYTZ7cLHvikWdADyQ7wTjRd2rOL58LtnMn2UiFl7lkuESX25BY2hIWvIDkuJqcs4xKcyx9WIqmtgZjsf2o3OhgIBflMw1JFZQHUUIXC4h5v3GNd4xTQRJp2qNFzS11YjYI1cxbtsUcTrO3SIf5XlwnPH6gd7hnasqOy3A1NHvw8dmEUseCo0rr0AZdXCRMkh47qp7DyBU=
+  file: target/dataloader.zip
+  on:
+    repo: bullhorn/dataloader
+    branch: master
+    tags: true
