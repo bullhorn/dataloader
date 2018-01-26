@@ -25,6 +25,7 @@ Creates a Release Package with our Release Binary (the dataloader jar file).  Fo
             <includes>
                 <include>README.md</include>
                 <include>LICENSE</include>
+                <include>CHANGELOG.md</include>
                 <include>${project.name}</include>
                 <include>${project.name}.bat</include>
                 <include>${project.name}.properties</include>

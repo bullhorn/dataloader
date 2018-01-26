@@ -231,6 +231,7 @@ There are multiple ways to contribute to Bullhorn DataLoader:
 1. Install Prerequisites
  * [Apache Maven 3.0](https://maven.apache.org/)
  * [Java SDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+ * [Node.js](https://nodejs.org/en/)
 
 2. Clone the repo:
 

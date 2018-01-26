@@ -1,12 +1,26 @@
 {
-  "name": "dataloader-coverage-reporter",
-  "version": "1.0.0",
-  "description": "Code Coverage Reporting to Galaxy",
+  "name": "dataloader-build-tools",
+  "version": "3.7.1",
+  "description": "Extra build tools outside of Maven, including code coverage reporting to Galaxy, release tools, and git hooks.",
+  "license": "UNLICENSED",
   "scripts": {
     "loc": "sloc src/ --format json > ./target/site/jacoco/sloc.json",
+    "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
+    "precommit-validate": "mvn validate",
+    "release": "standard-version -a",
     "pregalaxy": "npm run loc",
     "galaxy": "galaxy analyze"
   },
+  "standard-version": {
+    "scripts": {
+      "postbump": "update-pom-version.sh",
+      "precommit": "git add pom.xml"
+    }
+  },
+  "pre-commit": [
+    "precommit-msg",
+    "precommit-validate"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/bullhorn/dataloader.git"
@@ -16,7 +30,9 @@
   },
   "homepage": "https://github.com/bullhorn/dataloader#readme",
   "devDependencies": {
-    "galaxy-parser": "^1.0.4"
+    "galaxy-parser": "^1.0.45",
+    "pre-commit": "^1.2.2",
+    "standard-version": "^4.3.0"
   },
   "galaxy": {
     "display": "DataLoader",
