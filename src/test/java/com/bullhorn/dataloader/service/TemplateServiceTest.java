@@ -97,10 +97,6 @@ public class TemplateServiceTest {
         csvReader.readRecord();
         Assert.assertEquals(2, csvReader.getHeaders().length);
         Assert.assertEquals(2, csvReader.getValues().length);
-
-        // Cleanup test files
-        Boolean isDeleted = outputFile.delete();
-        Assert.assertTrue(isDeleted);
     }
 
     @Test
@@ -122,10 +118,6 @@ public class TemplateServiceTest {
         Assert.assertEquals(1, csvReader.getValues().length);
         Assert.assertEquals("comments", csvReader.getHeaders()[0]);
         Assert.assertEquals("String", csvReader.getValues()[0]);
-
-        // Cleanup test files
-        Boolean isDeleted = outputFile.delete();
-        Assert.assertTrue(isDeleted);
     }
 
     @Test
