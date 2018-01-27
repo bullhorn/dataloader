@@ -2,7 +2,7 @@
   "name": "dataloader-build-tools",
   "version": "3.7.2",
   "description": "Extra build tools outside of Maven, including code coverage reporting to Galaxy, release tools, and git hooks.",
-  "license": "UNLICENSED",
+  "license": "AGPL-3.0",
   "scripts": {
     "loc": "sloc src/ --format json > ./target/site/jacoco/sloc.json",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
