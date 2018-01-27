@@ -14,7 +14,7 @@
   },
   "standard-version": {
     "scripts": {
-      "postbump": "update-pom-version.sh",
+      "postbump": "node update-pom-version.js",
       "precommit": "git add pom.xml"
     }
   },
