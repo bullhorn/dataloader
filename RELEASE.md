@@ -36,4 +36,4 @@ __Examples:__
 
     3. In the Attach Binaries section of the release page, attach the wiki package file: `wiki.zip`
 
-    4. Post a slack message in `#dataloader-community` that the new release is available with the release notes.
+ 5. Post a slack message in `#dataloader-community` that the new release is available with the release notes.
