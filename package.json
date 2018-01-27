@@ -9,7 +9,8 @@
     "precommit-validate": "mvn validate",
     "release": "standard-version -a",
     "pregalaxy": "npm run loc",
-    "galaxy": "galaxy analyze"
+    "galaxy": "galaxy analyze",
+    "postrelease": "git push --follow-tags origin master"
   },
   "standard-version": {
     "scripts": {
