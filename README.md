@@ -4,6 +4,7 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 
 [![Build Status](https://travis-ci.com/bullhorn/dataloader.svg?token=Ta7yXSf1ut1W7VuGXTKA&branch=master)](https://travis-ci.com/bullhorn/dataloader)
 [![Coverage Status](https://coveralls.io/repos/github/bullhorn/dataloader/badge.svg?branch=master&t=gVrMsY)](https://coveralls.io/github/bullhorn/dataloader?branch=master)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
 ## Quick Start Guide
 
