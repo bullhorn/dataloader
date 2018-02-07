@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file. See [standa
 <a name="3.7.3"></a>
 ## [3.7.3](https://github.com/bullhorn/dataloader/compare/v3.7.2...v3.7.3) (2018-02-07)
 
+### Bug Fixes
+
+* **Docs:** Update example file with linkedinProfileName field
 
 
 <a name="3.7.2"></a>
