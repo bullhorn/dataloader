@@ -14,6 +14,8 @@ import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
 
 public class Main {
 
@@ -36,7 +38,7 @@ public class Main {
                 System.getenv(), System.getProperties(), args, propertyValidationUtil, printUtil);
             ValidationUtil validationUtil = new ValidationUtil(printUtil);
             RestApiExtension restApiExtension = new RestApiExtension(printUtil);
-            RestSession restSession = new RestSession(restApiExtension, propertyFileUtil);
+            RestSession restSession = new RestSession(restApiExtension, propertyFileUtil, printUtil);
             Preloader preloader = new Preloader(restSession);
             CompleteUtil completeUtil = new CompleteUtil(restSession, httpClient, propertyFileUtil, printUtil, timer);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
@@ -44,6 +46,11 @@ public class Main {
                 threadPoolUtil, completeUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
                 completeUtil, restSession, processRunner, System.in, timer);
+
+
+            if (propertyFileUtil.getVerbose()) {
+                Configurator.setLevel(PrintUtil.class.getName(), Level.DEBUG);
+            }
 
             CommandLineInterface commandLineInterface = new CommandLineInterface(printUtil, actionFactory);
 

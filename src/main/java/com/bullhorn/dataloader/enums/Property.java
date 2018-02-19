@@ -21,6 +21,7 @@ public enum Property {
     RESULTS_FILE_WRITE_INTERVAL_MSEC("resultsFileWriteIntervalMsec"),
     TOKEN_URL("tokenUrl"),
     USERNAME("username"),
+    VERBOSE("verbose"),
     WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitSecondsBetweenFilesInDirectory");
 
     private final String propertyName;

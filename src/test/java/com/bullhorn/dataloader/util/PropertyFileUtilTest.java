@@ -75,6 +75,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getVerbose());
     }
 
     @Test
@@ -90,6 +91,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "true");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
+        envVars.put("DATALOADER_VERBOSE", "FALSE");
 
         // Ensure that values that do not begin with "DATALOADER_" do not get used
         envVars.put("dataloader_username", "bogus");
@@ -122,6 +124,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getVerbose());
     }
 
     @Test
@@ -137,6 +140,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "false");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
+        envVars.put("DATALOADER_VERBOSE", "FALSE");
 
         systemProperties.setProperty("username", "johnny.be-good");
         systemProperties.setProperty("password", "password789");
@@ -149,6 +153,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("waitSecondsBetweenFilesInDirectory", "20");
+        systemProperties.setProperty("verbose", "false");
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
             propertyValidationUtil, printUtilMock);
@@ -168,6 +173,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getResultsFileEnabled());
         Assert.assertEquals("./results.json", propertyFileUtil.getResultsFilePath());
         Assert.assertEquals(new Integer(500), propertyFileUtil.getResultsFileWriteIntervalMsec());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getVerbose());
     }
 
     @Test
@@ -183,6 +189,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "false");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
+        envVars.put("DATALOADER_VERBOSE", "FALSE");
 
         systemProperties.setProperty("username", "johnny.be-good");
         systemProperties.setProperty("password", "password789");
@@ -195,6 +202,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("waitSecondsBetweenFilesInDirectory", "20");
+        systemProperties.setProperty("verbose", "false");
 
         ArrayList<String> args = new ArrayList<>();
         args.add("username");
@@ -225,6 +233,8 @@ public class PropertyFileUtilTest {
         args.add("../results/output.json");
         args.add("-resultsFileWriteIntervalMSEC");
         args.add("100");
+        args.add("--verbose");
+        args.add("true");
         String[] argsArray = args.toArray(new String[]{});
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidationUtil, printUtilMock);
@@ -244,6 +254,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getResultsFileEnabled());
         Assert.assertEquals("../results/output.json", propertyFileUtil.getResultsFilePath());
         Assert.assertEquals(new Integer(100), propertyFileUtil.getResultsFileWriteIntervalMsec());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getVerbose());
     }
 
     @Test
