@@ -46,6 +46,7 @@ public class PropertyFileUtil {
     private Boolean resultsFileEnabled;
     private String resultsFilePath;
     private Integer resultsFileWriteIntervalMsec;
+    private Boolean verbose;
 
     /**
      * Constructor that assembles the dataloader properties from a variety of possible methods.
@@ -180,6 +181,10 @@ public class PropertyFileUtil {
 
     public Integer getResultsFileWriteIntervalMsec() {
         return resultsFileWriteIntervalMsec;
+    }
+
+    public Boolean getVerbose() {
+        return verbose;
     }
 
     /**
@@ -318,6 +323,8 @@ public class PropertyFileUtil {
             properties.getProperty(Property.RESULTS_FILE_PATH.getName()));
         resultsFileWriteIntervalMsec = propertyValidationUtil.validateIntervalMsec(
             properties.getProperty(Property.RESULTS_FILE_WRITE_INTERVAL_MSEC.getName()));
+        verbose = propertyValidationUtil.validateBooleanProperty(
+            Boolean.valueOf(properties.getProperty(Property.VERBOSE.getName())));
     }
 
     private DateTimeFormatter getDateTimeFormatter(Properties properties) {

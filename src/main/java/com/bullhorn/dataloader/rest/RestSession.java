@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
 
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
 import com.bullhornsdk.data.api.StandardBullhornData;
@@ -14,11 +15,13 @@ public class RestSession {
 
     private final RestApiExtension restApiExtension;
     private final PropertyFileUtil propertyFileUtil;
+    private final PrintUtil printUtil;
     private RestApi restApi = null;
 
-    public RestSession(RestApiExtension restApiExtension, PropertyFileUtil propertyFileUtil) {
+    public RestSession(RestApiExtension restApiExtension, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) {
         this.restApiExtension = restApiExtension;
         this.propertyFileUtil = propertyFileUtil;
+        this.printUtil = printUtil;
     }
 
     /**
@@ -28,7 +31,7 @@ public class RestSession {
      */
     public RestApi getRestApi() {
         if (restApi == null) {
-            restApi = new RestApi(createRestSession(), restApiExtension);
+            restApi = new RestApi(createRestSession(), restApiExtension, printUtil);
         }
         return restApi;
     }

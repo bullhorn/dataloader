@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -38,13 +39,15 @@ import static org.mockito.Mockito.when;
 public class RestApiTest {
     private StandardBullhornData bullhornDataMock;
     private RestApiExtension restApiExtensionMock;
+    private PrintUtil printUtilMock;
     private RestApi restApi;
 
     @Before
     public void setup() {
         bullhornDataMock = mock(StandardBullhornData.class);
         restApiExtensionMock = mock(RestApiExtension.class);
-        restApi = new RestApi(bullhornDataMock, restApiExtensionMock);
+        printUtilMock = mock(PrintUtil.class);
+        restApi = new RestApi(bullhornDataMock, restApiExtensionMock, printUtilMock);
     }
 
     @Test
@@ -67,6 +70,7 @@ public class RestApiTest {
         restApi.searchForList(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
         verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): name:\"Data Loader\""));
     }
 
     @Test
@@ -81,6 +85,7 @@ public class RestApiTest {
         verify(bullhornDataMock, times(1)).searchForList(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(bullhornDataMock, times(1)).searchForList(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Lead Search): externalID:\"ext 1\""));
     }
 
     @Test
@@ -94,6 +99,7 @@ public class RestApiTest {
 
         verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
         verify(bullhornDataMock, never()).searchForList(any(), any(), any(), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\""));
     }
 
     @Test
@@ -107,18 +113,21 @@ public class RestApiTest {
 
         verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
         verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(null), eq(searchParams));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\""));
     }
 
     @Test
     public void testQueryForList() {
         restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).queryForList(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader'"));
     }
 
     @Test
     public void testQueryForAllRecords() {
-        restApi.queryForAllRecordsList(Country.class, "id IS NOT nulls", null, ParamFactory.queryParams());
-        verify(bullhornDataMock, times(1)).queryForAllRecords(eq(Country.class), eq("id IS NOT nulls"), eq(null), any());
+        restApi.queryForAllRecordsList(Country.class, "id IS NOT null", null, ParamFactory.queryParams());
+        verify(bullhornDataMock, times(1)).queryForAllRecords(eq(Country.class), eq("id IS NOT null"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Country Query): id IS NOT null"));
     }
 
     @Test
@@ -129,16 +138,18 @@ public class RestApiTest {
 
         verify(bullhornDataMock, times(1)).insertEntity(eq(candidate));
         verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(eq(crudResponse));
+        verify(printUtilMock, times(1)).log(any(), eq("Insert(Candidate)"));
     }
 
     @Test
     public void testUpdateEntity() {
-        Candidate candidate = new Candidate();
+        Candidate candidate = new Candidate(123);
 
         CrudResponse crudResponse = restApi.updateEntity(candidate);
 
         verify(bullhornDataMock, times(1)).updateEntity(eq(candidate));
         verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(eq(crudResponse));
+        verify(printUtilMock, times(1)).log(any(), eq("Update(Candidate): #123"));
     }
 
     @Test

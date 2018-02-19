@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
 
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import org.junit.Assert;
@@ -16,12 +17,14 @@ public class RestSessionTest {
     private RestApi restApiMock;
     private RestApiExtension restApiExtensionMock;
     private PropertyFileUtil propertyFileUtilMock;
+    private PrintUtil printUtilMock;
 
     @Before
     public void setup() {
         restApiMock = mock(RestApi.class);
         restApiExtensionMock = mock(RestApiExtension.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
+        printUtilMock = mock(PrintUtil.class);
     }
 
     @Test
@@ -29,7 +32,7 @@ public class RestSessionTest {
         RestApiException expectedException = new RestApiException("Failed to create rest session");
         RestApiException actualException = null;
 
-        RestSession restSession = new RestSession(restApiExtensionMock, propertyFileUtilMock);
+        RestSession restSession = new RestSession(restApiExtensionMock, propertyFileUtilMock, printUtilMock);
         try {
             restSession.getRestApi();
         } catch (RestApiException e) {

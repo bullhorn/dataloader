@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.rest;
 
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
@@ -25,6 +26,7 @@ import com.bullhornsdk.data.model.response.file.FileApiResponse;
 import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
+import org.apache.logging.log4j.Level;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,18 +34,20 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Encapsulation of the standard SDK-REST BullhornData class for interacting with Bullhorn's REST API Provides an extra
- * layer of functionality needed by DataLoader surrounding SDK-REST calls. This class calls the RestApiExtension to
- * handle any additional behavior on top of the current REST API calls.
+ * Encapsulation of the standard SDK-REST BullhornData class for interacting with Bullhorn's REST API Provides an extra layer of functionality needed
+ * by DataLoader surrounding SDK-REST calls. This class calls the RestApiExtension to handle any additional behavior on top of the current REST API
+ * calls.
  */
 public class RestApi {
 
     private final StandardBullhornData bullhornData;
     private final RestApiExtension restApiExtension;
+    private final PrintUtil printUtil;
 
-    public RestApi(StandardBullhornData bullhornData, RestApiExtension restApiExtension) {
+    public RestApi(StandardBullhornData bullhornData, RestApiExtension restApiExtension, PrintUtil printUtil) {
         this.bullhornData = bullhornData;
         this.restApiExtension = restApiExtension;
+        this.printUtil = printUtil;
     }
 
     // region Getters
@@ -76,6 +80,7 @@ public class RestApi {
                                                           String query,
                                                           Set<String> fieldSet,
                                                           SearchParams params) {
+        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query);
         Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
         String externalId = SearchCriteria.getExternalIdValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
@@ -91,6 +96,7 @@ public class RestApi {
                                                         String where,
                                                         Set<String> fieldSet,
                                                         QueryParams params) {
+        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where);
         return bullhornData.queryForList(type, where, fieldSet, params);
     }
 
@@ -98,6 +104,7 @@ public class RestApi {
                                                                               String where,
                                                                               Set<String> fieldSet,
                                                                               QueryParams params) {
+        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where);
         ListWrapper<T> listWrapper = bullhornData.queryForAllRecords(type, where, fieldSet, params);
         return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }
@@ -106,12 +113,14 @@ public class RestApi {
     // region CRUD Operations
     // The methods DataLoader uses to Create, Read, Update, and Delete.
     public <C extends CrudResponse, T extends CreateEntity> C insertEntity(T entity) {
+        printUtil.log(Level.DEBUG, "Insert(" + entity.getClass().getSimpleName() + ")");
         C crudResponse = bullhornData.insertEntity(entity);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
     }
 
     public <C extends CrudResponse, T extends UpdateEntity> C updateEntity(T entity) {
+        printUtil.log(Level.DEBUG, "Update(" + entity.getClass().getSimpleName() + "): #" + entity.getId());
         C crudResponse = bullhornData.updateEntity(entity);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
@@ -121,6 +130,7 @@ public class RestApi {
      * Performs postDelete operations defined in the RestApiExtension.
      */
     public <C extends CrudResponse, T extends DeleteEntity> C deleteEntity(Class<T> type, Integer id) {
+        printUtil.log(Level.DEBUG, "Delete(" + type.getSimpleName() + "): #" + id);
         C crudResponse = bullhornData.deleteEntity(type, id);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         C postDeleteCrudResponse = restApiExtension.postDelete(this, crudResponse);
@@ -134,6 +144,8 @@ public class RestApi {
     public <T extends AssociationEntity, E extends BullhornEntity> List<E> getAllAssociationsList(
         Class<T> type, Set<Integer> entityIds, AssociationField<T, E> associationName, Set<String> fieldSet,
         AssociationParams params) {
+        printUtil.log(Level.DEBUG, "FindAssociations(" + type.getSimpleName() + "): #" + entityIds + " - "
+            + associationName.getAssociationFieldName());
         ListWrapper<E> listWrapper = bullhornData.getAllAssociations(type, entityIds, associationName, fieldSet, params);
         return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }
@@ -141,6 +153,7 @@ public class RestApi {
     public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(
         Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
         Set<Integer> associationIds) {
+        printUtil.log(Level.DEBUG, "Associate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName());
         C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
@@ -149,6 +162,7 @@ public class RestApi {
     public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(
         Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
         Set<Integer> associationIds) {
+        printUtil.log(Level.DEBUG, "Disassociate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName());
         C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
