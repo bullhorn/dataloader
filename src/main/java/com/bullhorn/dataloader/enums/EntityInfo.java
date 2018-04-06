@@ -51,7 +51,7 @@ public enum EntityInfo {
     NOTE_ENTITY(BullhornEntityInfo.NOTE_ENTITY, 16),
     OPPORTUNITY(BullhornEntityInfo.OPPORTUNITY, 5),
     PLACEMENT(BullhornEntityInfo.PLACEMENT, 7),
-    PLACEMENT_CHANGE_REQUEST(BullhornEntityInfo.PLACEMENT_CHANGE_REQUEST, 0),
+    PLACEMENT_CHANGE_REQUEST(BullhornEntityInfo.PLACEMENT_CHANGE_REQUEST, 22),
     PLACEMENT_COMMISSION(BullhornEntityInfo.PLACEMENT_COMMISSION, 18),
     SENDOUT(BullhornEntityInfo.SENDOUT, 19),
     SKILL(BullhornEntityInfo.SKILL, 0),
