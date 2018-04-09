@@ -1,2 +1,2 @@
-dateAdded,email,migrateGUID,candidate.externalID,clientContact.externalID,clientCorporation.externalID,jobOrder.externalID,user.name,isRead
-02/09/16 11:22,jsmith@example.com,12345678-1234-1234-1234-1234567890AB,candidate-ext-1,clientContact-ext-1,clientCorporation-ext-1,jobOrder-ext-1,Manager CorporateUser,false
+dateAdded     ,email             ,migrateGUID                         ,candidate.externalID,clientContact.externalID,clientCorporation.externalID,jobOrder.externalID,user.name            ,isRead
+02/09/16 11:22,jsmith@example.com,12345678-1234-1234-1234-1234567890AB,candidate-ext-1     ,clientContact-ext-1     ,clientCorporation-ext-1     ,jobOrder-ext-1     ,Manager CorporateUser,false

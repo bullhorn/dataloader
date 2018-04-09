@@ -1,3 +1,3 @@
-candidate.externalID,relativeFilePath,isResume
-candidate-ext-1,examples/loadAttachments/sampleFiles/SampleResume.doc,1
-candidate-ext-1,examples/loadAttachments/sampleFiles/SampleFile.doc,0
+candidate.externalID,relativeFilePath                                     ,isResume
+candidate-ext-1     ,examples/loadAttachments/sampleFiles/SampleResume.doc,1
+candidate-ext-1     ,examples/loadAttachments/sampleFiles/SampleFile.doc  ,0
