@@ -25,8 +25,6 @@ import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
-import com.bullhornsdk.data.model.parameter.QueryParams;
-import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Lists;
@@ -48,8 +46,6 @@ import java.util.stream.Collectors;
  * Handles converting a row of CSV data into REST calls to either insert or update a record in Bullhorn.
  */
 public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
-    private static final Integer RECORD_RETURN_COUNT = 500;
-
     private B entity;
     private boolean isNewEntity = true;
     private Record record;
@@ -80,7 +76,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * will create a new entity.
      */
     @SuppressWarnings("unchecked")
-    private void getOrCreateEntity() throws IOException, IllegalAccessException, InstantiationException {
+    private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
         List<B> foundEntityList = findEntityList(record);
         if (!foundEntityList.isEmpty()) {
             if (foundEntityList.size() > 1) {
@@ -102,7 +98,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Calls rest to insert or update the entity by passing in the filled out entity object.
      */
-    private void insertOrUpdateEntity() throws IOException {
+    private void insertOrUpdateEntity() {
         if (isNewEntity) {
             CrudResponse response = restApi.insertEntity((CreateEntity) entity);
             entityId = response.getChangedEntityId();
@@ -207,8 +203,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      *
      * @param field the To-Many field to populate the entity with
      */
-    private void prepopulateAssociation(Field field) throws IllegalAccessException, InstantiationException,
-        InvocationTargetException, ParseException {
+    private void prepopulateAssociation(Field field) throws IllegalAccessException, InvocationTargetException, ParseException {
         List<B> associations = findAssociations(field);
         for (B association : associations) {
             field.populateAssociationOnEntity(entity, association);
@@ -219,7 +214,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
      */
     @SuppressWarnings("unchecked")
-    private void createAssociations() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    private void createAssociations() throws IllegalAccessException, InvocationTargetException {
         // Note associations are filled out in the create call
         if (entityInfo == EntityInfo.NOTE) {
             return;
@@ -301,9 +296,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + ":"
                     + field.getFieldEntity().getSearchIsDeletedValue(false);
             }
-            SearchParams searchParams = ParamFactory.searchParams();
-            searchParams.setCount(RECORD_RETURN_COUNT);
-            list = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter, null, searchParams);
+            list = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter, null, ParamFactory.searchParams());
         } else {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             String filter = values.stream().map(n -> getWhereStatement(field.getName(), n, field.getFieldType()))
@@ -311,9 +304,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             if (field.getFieldEntity().isSoftDeletable()) {
                 filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + "=false";
             }
-            QueryParams queryParams = ParamFactory.queryParams();
-            queryParams.setCount(RECORD_RETURN_COUNT);
-            list = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter, null, queryParams);
+            list = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter, null, ParamFactory.queryParams());
         }
         return list;
     }

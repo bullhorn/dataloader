@@ -15,9 +15,9 @@ import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
-import com.bullhornsdk.data.model.parameter.SearchParams;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,8 +25,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -66,36 +68,42 @@ public class RestApiTest {
     }
 
     @Test
-    public void testSearchForListNoExternalID() {
+    public void testSearchForListNoExternalID() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.search(eq(Candidate.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(Candidate.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
         restApi.searchForList(Candidate.class, "name:\"Data Loader\"", null, ParamFactory.searchParams());
         verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
-        verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).search(eq(Candidate.class), eq("name:\"Data Loader\""), eq(null), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): name:\"Data Loader\""));
     }
 
     @Test
     public void testSearchForListExternalIdUnsupportedEntity() throws InstantiationException, IllegalAccessException {
-        SearchParams searchParams = ParamFactory.searchParams();
+        when(bullhornDataMock.search(eq(Lead.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(Lead.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
+        when(bullhornDataMock.search(eq(Opportunity.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(Opportunity.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
+        when(bullhornDataMock.search(eq(JobOrder.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(JobOrder.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
 
-        restApi.searchForList(Lead.class, "externalID:\"ext 1\"", null, searchParams);
-        restApi.searchForList(Opportunity.class, "externalID:\"ext 1\"", null, searchParams);
-        restApi.searchForList(JobOrder.class, "externalID:\"ext 1\"", null, searchParams);
+        restApi.searchForList(Lead.class, "externalID:\"ext 1\"", null, ParamFactory.searchParams());
+        restApi.searchForList(Opportunity.class, "externalID:\"ext 1\"", null, ParamFactory.searchParams());
+        restApi.searchForList(JobOrder.class, "externalID:\"ext 1\"", null, ParamFactory.searchParams());
 
-        verify(bullhornDataMock, times(1)).searchForList(eq(Lead.class), eq("externalID:\"ext 1\""), eq(null), any());
-        verify(bullhornDataMock, times(1)).searchForList(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
-        verify(bullhornDataMock, times(1)).searchForList(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).search(eq(Lead.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).search(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(null), any());
+        verify(bullhornDataMock, times(1)).search(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(Lead Search): externalID:\"ext 1\""));
     }
 
     @Test
     public void testSearchForListExternalIdSuccess() throws InstantiationException, IllegalAccessException {
-        SearchParams searchParams = ParamFactory.searchParams();
         SearchResult<Candidate> searchResult = new SearchResult<>();
         searchResult.setList(TestUtils.getList(Candidate.class, 1));
         when(restApiExtensionMock.getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
 
-        restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
+        restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, ParamFactory.searchParams());
 
         verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
         verify(bullhornDataMock, never()).searchForList(any(), any(), any(), any());
@@ -103,24 +111,116 @@ public class RestApiTest {
     }
 
     @Test
-    public void testSearchForListExternalIdFailure() {
-        SearchParams searchParams = ParamFactory.searchParams();
+    public void testSearchForListExternalIdFailure() throws InstantiationException, IllegalAccessException {
         SearchResult<Candidate> searchResult = new SearchResult<>();
         searchResult.setSuccess(false);
-        when(restApiExtensionMock.getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null))).thenReturn(searchResult);
+        when(restApiExtensionMock.getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null)))
+            .thenReturn(searchResult);
+        when(bullhornDataMock.search(eq(Candidate.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(Candidate.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
 
-        restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, searchParams);
+        restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", null, ParamFactory.searchParams());
 
         verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(null));
-        verify(bullhornDataMock, times(1)).searchForList(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(null), eq(searchParams));
+        verify(bullhornDataMock, times(1)).search(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(null), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\""));
     }
 
     @Test
-    public void testQueryForList() {
+    public void testSearchForListMultipleCalls() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.search(eq(ClientContact.class), any(), any(), any())).thenReturn(
+            TestUtils.getListWrapper(ClientContact.class, 0, 600, IntStream.rangeClosed(1, 500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 500, 600, IntStream.rangeClosed(501, 600).toArray()));
+        List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
+        verify(bullhornDataMock, times(2)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader'"));
+        Assert.assertEquals(600, list.size());
+    }
+
+    @Test
+    public void testQueryForList() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.query(eq(ClientContact.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(ClientContact.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
         restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
-        verify(bullhornDataMock, times(1)).queryForList(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(bullhornDataMock, times(1)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader'"));
+    }
+
+    @Test
+    public void testQueryForListMultipleCalls() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.query(eq(ClientContact.class), any(), any(), any())).thenReturn(
+            TestUtils.getListWrapper(ClientContact.class, 0, 600, IntStream.rangeClosed(1, 500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 500, 600, IntStream.rangeClosed(501, 600).toArray()));
+        List<ClientContact> list = restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
+        verify(bullhornDataMock, times(2)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader'"));
+        Assert.assertEquals(600, list.size());
+    }
+
+    /**
+     * A test to ensure that the Data Loader stops making new requests to get more data if there are more than 20,000 matching records.
+     * In this test, there are 25,000 records (50 calls) that can be made, but only 20,000 records (40 calls) should be made.
+     */
+    @Test
+    public void testQueryForListMaximumReturnSize() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.query(eq(ClientContact.class), any(), any(), any())).thenReturn(
+            TestUtils.getListWrapper(ClientContact.class, 0, 25000, IntStream.rangeClosed(1, 500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 500, 25000, IntStream.rangeClosed(501, 1000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 1000, 25000, IntStream.rangeClosed(1001, 1500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 1500, 25000, IntStream.rangeClosed(1501, 2000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 2000, 25000, IntStream.rangeClosed(2001, 2500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 2500, 25000, IntStream.rangeClosed(2501, 3000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 3000, 25000, IntStream.rangeClosed(3001, 3500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 3500, 25000, IntStream.rangeClosed(3501, 4000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 4000, 25000, IntStream.rangeClosed(4001, 4500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 4500, 25000, IntStream.rangeClosed(4501, 5000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 5000, 25000, IntStream.rangeClosed(5001, 5500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 5500, 25000, IntStream.rangeClosed(5501, 6000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 6000, 25000, IntStream.rangeClosed(6001, 6500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 6500, 25000, IntStream.rangeClosed(6501, 7000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 7000, 25000, IntStream.rangeClosed(7001, 7500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 7500, 25000, IntStream.rangeClosed(7501, 8000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 8000, 25000, IntStream.rangeClosed(8001, 8500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 8500, 25000, IntStream.rangeClosed(8501, 9000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 9000, 25000, IntStream.rangeClosed(9001, 9500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 9500, 25000, IntStream.rangeClosed(9501, 10000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 10000, 25000, IntStream.rangeClosed(10001, 10500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 10500, 25000, IntStream.rangeClosed(10501, 11000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 11000, 25000, IntStream.rangeClosed(11001, 11500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 11500, 25000, IntStream.rangeClosed(11501, 12000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 12000, 25000, IntStream.rangeClosed(12001, 12500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 12500, 25000, IntStream.rangeClosed(12501, 13000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 13000, 25000, IntStream.rangeClosed(13001, 13500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 13500, 25000, IntStream.rangeClosed(13501, 14000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 14000, 25000, IntStream.rangeClosed(14001, 14500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 14500, 25000, IntStream.rangeClosed(14501, 15000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 15000, 25000, IntStream.rangeClosed(15001, 15500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 15500, 25000, IntStream.rangeClosed(15501, 16000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 16000, 25000, IntStream.rangeClosed(16001, 16500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 16500, 25000, IntStream.rangeClosed(16501, 17000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 17000, 25000, IntStream.rangeClosed(17001, 17500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 17500, 25000, IntStream.rangeClosed(17501, 18000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 18000, 25000, IntStream.rangeClosed(18001, 18500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 18500, 25000, IntStream.rangeClosed(18501, 19000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 19000, 25000, IntStream.rangeClosed(19001, 19500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 19500, 25000, IntStream.rangeClosed(19501, 20000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 20000, 25000, IntStream.rangeClosed(20001, 20000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 20500, 25000, IntStream.rangeClosed(20501, 21000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 21000, 25000, IntStream.rangeClosed(21001, 21500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 21500, 25000, IntStream.rangeClosed(21501, 22000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 22000, 25000, IntStream.rangeClosed(22001, 22500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 22500, 25000, IntStream.rangeClosed(22501, 23000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 23000, 25000, IntStream.rangeClosed(23001, 23500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 23500, 25000, IntStream.rangeClosed(23501, 24000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 24000, 25000, IntStream.rangeClosed(24001, 24500).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 24500, 25000, IntStream.rangeClosed(24501, 25000).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 25000, 25000, IntStream.rangeClosed(25001, 25500).toArray()));
+
+        List<ClientContact> list = restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
+
+        verify(bullhornDataMock, times(40)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader'"));
+        Assert.assertEquals(20000, list.size());
     }
 
     @Test
