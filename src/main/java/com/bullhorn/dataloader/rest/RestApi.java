@@ -243,7 +243,12 @@ public class RestApi {
         Integer total = response.getTotal();
         Integer start = response.getStart();
         Integer count = response.getCount();
-        return (start + count < total) && count != 0;
+        if ((start + count < total) && count != 0) {
+            Integer end = Math.min(start + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
+            printUtil.log(Level.DEBUG, "Recursive Find(" + start + " - " + end + ")");
+            return true;
+        }
+        return false;
     }
 
     /**
