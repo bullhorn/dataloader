@@ -134,7 +134,35 @@ public class RestApiTest {
         List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
         verify(bullhornDataMock, times(2)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader'"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(500 - 600)"));
         Assert.assertEquals(600, list.size());
+    }
+
+    @Test
+    public void testSearchForListMultipleCallsPartialReturn() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.search(eq(ClientContact.class), any(), any(), any())).thenReturn(
+            TestUtils.getListWrapper(ClientContact.class, 0, 600, IntStream.rangeClosed(1, 200).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 200, 600, IntStream.rangeClosed(201, 400).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 400, 600, IntStream.rangeClosed(401, 600).toArray()));
+        List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
+        verify(bullhornDataMock, times(3)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader'"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(200 - 600)"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(400 - 600)"));
+        Assert.assertEquals(600, list.size());
+    }
+
+    @Test
+    public void testSearchForListMultipleCallsEmptyReturn() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.search(eq(ClientContact.class), any(), any(), any())).thenReturn(
+            TestUtils.getListWrapper(ClientContact.class, 0, 600, IntStream.rangeClosed(1, 200).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 200, 600, IntStream.rangeClosed(201, 400).toArray()),
+            TestUtils.getListWrapper(ClientContact.class, 400, 600));
+        List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
+        verify(bullhornDataMock, times(3)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader'"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(200 - 600)"));
+        Assert.assertEquals(400, list.size());
     }
 
     @Test
@@ -220,6 +248,12 @@ public class RestApiTest {
 
         verify(bullhornDataMock, times(40)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader'"));
+        verify(printUtilMock, never()).log(any(), eq("--> Follow On Find(0 - 500)"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(500 - 1000)"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(1000 - 1500)"));
+        verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(19500 - 20000)"));
+        verify(printUtilMock, never()).log(any(), eq("--> Follow On Find(20000 - 20500)"));
+        verify(printUtilMock, never()).log(any(), eq("--> Follow On Find(20500 - 21000)"));
         Assert.assertEquals(20000, list.size());
     }
 

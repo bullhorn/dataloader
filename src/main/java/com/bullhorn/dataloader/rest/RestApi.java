@@ -217,7 +217,7 @@ public class RestApi {
                                                               SearchParams params) {
         ListWrapper<T> onePull = bullhornData.search(type, query, fieldSet, params);
         allEntities.addAll(onePull.getData());
-        if (moreRecordsExist(onePull) && ceilingNotReached(allEntities)) {
+        if (shouldPullMoreRecords(onePull)) {
             params.setStart(allEntities.size());
             recursiveSearchPull(allEntities, type, query, fieldSet, params);
         }
@@ -233,28 +233,22 @@ public class RestApi {
                                                             QueryParams params) {
         ListWrapper<T> onePull = bullhornData.query(type, where, fieldSet, params);
         allEntities.addAll(onePull.getData());
-        if (moreRecordsExist(onePull) && ceilingNotReached(allEntities)) {
+        if (shouldPullMoreRecords(onePull)) {
             params.setStart(allEntities.size());
             recursiveQueryPull(allEntities, type, where, fieldSet, params);
         }
     }
 
-    private boolean moreRecordsExist(ListWrapper<?> response) {
+    private boolean shouldPullMoreRecords(ListWrapper<?> response) {
         Integer total = response.getTotal();
         Integer start = response.getStart();
         Integer count = response.getCount();
-        if ((start + count < total) && count != 0) {
-            Integer end = Math.min(start + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
-            printUtil.log(Level.DEBUG, "Recursive Find(" + start + " - " + end + ")");
+        Integer nextStart = start + count;
+        Integer nextEnd = Math.min(nextStart + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
+        if (nextStart < total && count != 0 && nextStart < MAX_RECORDS_TO_RETURN_TOTAL) {
+            printUtil.log(Level.DEBUG, "--> Follow On Find(" + nextStart + " - " + nextEnd + ")");
             return true;
         }
         return false;
-    }
-
-    /**
-     * Safety catch so that we will never pull more records than MAX_RECORDS_TO_RETURN_TOTAL
-     */
-    private boolean ceilingNotReached(List<?> allEntities) {
-        return allEntities.size() < MAX_RECORDS_TO_RETURN_TOTAL;
     }
 }
