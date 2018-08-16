@@ -4,18 +4,18 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.helper.RestJsonConverter;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.standard.JobSubmission;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
-import com.bullhornsdk.data.model.parameter.QueryParams;
-import com.bullhornsdk.data.model.parameter.standard.StandardQueryParams;
+import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
+import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,13 +25,6 @@ import java.util.Set;
  * Performs additional REST behavior details for operations in the RestApi.
  */
 public class RestApiExtension {
-
-    private static final String CHANGETYPE_UPDATE = "UPDATE";
-    private static final String FIELDNAME_ID = "id";
-    private static final Integer QUERYPARAM_MAX_COUNT = 500;
-    private static final String ENTITY_JOBSUBMISSION = "JobSubmission";
-    private static final String RESPONSETYPE_DELETERESPONSE = "DeleteResponse";
-    private static final String WHERECLAUSETEMPLATE_JOBSUBMISSION_ID = "jobSubmission.id=%s";
 
     private final PrintUtil printUtil;
     private final RestJsonConverter restJsonConverter;
@@ -124,28 +117,25 @@ public class RestApiExtension {
                 searchResult.setSuccess(false);
             }
         }
-
         return searchResult;
     }
 
     /**
-     * Performs additional checks after a record has been deleted. For deleted job records, deletes the job submission
-     * history as well.*
+     * Performs additional checks after a record has been deleted. For deleted job records, deletes the job submission history records.
      *
      * @param restApi      the bullhorn rest api
      * @param crudResponse the response from the RestApi
      * @return the updated crud response after additional behavior
      */
     <C extends CrudResponse> C postDelete(RestApi restApi, C crudResponse) {
-        if (null != crudResponse &&                                                         // CrudResponse is not null
-            crudResponse.getMessages().isEmpty() &&                                         // and has no errors
-            CHANGETYPE_UPDATE.equals(crudResponse.getChangeType()) &&                       // if we updated
-            RESPONSETYPE_DELETERESPONSE.equals(crudResponse.getClass().getSimpleName()) &&  // when we tried to delete, then it was a soft delete
-            ENTITY_JOBSUBMISSION.equals(crudResponse.getChangedEntityType())                // and we soft deleted a Job Submission record
-            ) {
+        // If the crud response is an updated response where we soft deleted the job submission record, then hard delete it's history records
+        if (crudResponse != null
+            && crudResponse.getMessages().isEmpty()
+            && crudResponse.getChangeType().equals("UPDATE")
+            && crudResponse.getClass().equals(DeleteResponse.class)
+            && crudResponse.getChangedEntityType().equals(JobSubmission.class.getSimpleName())) {
             crudResponse = deleteJobSubmissionHistoryRecords(restApi, crudResponse.getChangedEntityId());
         }
-
         return crudResponse;
     }
 
@@ -159,27 +149,9 @@ public class RestApiExtension {
     @SuppressWarnings("unchecked")
     private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(RestApi restApi, Integer jobSubmissionId) {
         C crudResponse = null;
-
-        // queryForList arg1
-        final Class jshClass = JobSubmissionHistory.class;
-
-        // queryForList arg2
-        final String whereClause = String.format(WHERECLAUSETEMPLATE_JOBSUBMISSION_ID, jobSubmissionId);
-
-        // queryForList arg3
-        final Set<String> fieldSet = new HashSet<>();
-        fieldSet.add(FIELDNAME_ID);
-
-        // queryForList arg4
-        final QueryParams queryParams = StandardQueryParams.getInstance();
-        queryParams.setCount(QUERYPARAM_MAX_COUNT);
-        queryParams.setOrderBy(FIELDNAME_ID);
-        queryParams.setShowTotalMatched(false);
-        queryParams.setStart(0);
-        queryParams.setUseDefaultQueryFilter(false);
-
-        // List of JobSubmissionHistory records to hard-delete
-        List<JobSubmissionHistory> jobSubmissionHistories = restApi.queryForList(jshClass, whereClause, fieldSet, queryParams);
+        final String filter = "jobSubmission.id=" + jobSubmissionId;
+        List<JobSubmissionHistory> jobSubmissionHistories = restApi.queryForList(JobSubmissionHistory.class, filter,
+            Sets.newHashSet(StringConsts.ID), ParamFactory.queryParams());
 
         for (JobSubmissionHistory jsh : jobSubmissionHistories) {
             // Hard Delete JobSubmissionHistory record

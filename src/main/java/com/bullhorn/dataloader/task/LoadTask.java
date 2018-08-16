@@ -335,8 +335,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             if (!clientCorporations.isEmpty()) {
                 ClientCorporation clientCorporation = clientCorporations.get(0);
                 if (StringUtils.isNotBlank(clientCorporation.getExternalID())) {
-                    final String query = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
-                    List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, query,
+                    final String filter = "clientCorporation.id=" + clientCorporation.getId() + " AND status='Archive'";
+                    List<ClientContact> clientContacts = restApi.queryForList(ClientContact.class, filter,
                         Sets.newHashSet(StringConsts.ID), ParamFactory.queryParams());
                     if (!clientContacts.isEmpty()) {
                         ClientContact clientContact = clientContacts.get(0);
