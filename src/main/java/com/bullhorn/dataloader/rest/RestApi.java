@@ -243,6 +243,15 @@ public class RestApi {
         Integer total = response.getTotal();
         Integer start = response.getStart();
         Integer count = response.getCount();
+
+        // Handle missing values
+        if (start == null) {
+            start = 0;
+        }
+        if (total == null) {
+            total = count;
+        }
+
         Integer nextStart = start + count;
         Integer nextEnd = Math.min(nextStart + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
         if (nextStart < total && count != 0 && nextStart < MAX_RECORDS_TO_RETURN_TOTAL) {

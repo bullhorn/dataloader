@@ -10,6 +10,7 @@ import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
+import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.enums.MetaParameter;
@@ -172,6 +173,33 @@ public class RestApiTest {
         restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(null), any());
         verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader'"));
+    }
+
+    @Test
+    public void testQueryForListNullStartValue() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.query(eq(JobSubmissionHistory.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(JobSubmissionHistory.class, null, 1, IntStream.rangeClosed(1, 10).toArray()));
+        restApi.queryForList(JobSubmissionHistory.class, "name='Data Loader'", null, ParamFactory.queryParams());
+        verify(bullhornDataMock, times(1)).query(eq(JobSubmissionHistory.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader'"));
+    }
+
+    @Test
+    public void testQueryForListNullTotalValue() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.query(eq(JobSubmissionHistory.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(JobSubmissionHistory.class, 0, null, IntStream.rangeClosed(1, 10).toArray()));
+        restApi.queryForList(JobSubmissionHistory.class, "name='Data Loader'", null, ParamFactory.queryParams());
+        verify(bullhornDataMock, times(1)).query(eq(JobSubmissionHistory.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader'"));
+    }
+
+    @Test
+    public void testQueryForListNullStartAndTotalValue() throws InstantiationException, IllegalAccessException {
+        when(bullhornDataMock.query(eq(JobSubmissionHistory.class), any(), any(), any())).
+            thenReturn(TestUtils.getListWrapper(JobSubmissionHistory.class, null, null, IntStream.rangeClosed(1, 10).toArray()));
+        restApi.queryForList(JobSubmissionHistory.class, "name='Data Loader'", null, ParamFactory.queryParams());
+        verify(bullhornDataMock, times(1)).query(eq(JobSubmissionHistory.class), eq("name='Data Loader'"), eq(null), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader'"));
     }
 
     @Test
