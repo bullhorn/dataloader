@@ -12,6 +12,8 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
+import com.bullhornsdk.data.model.response.list.ListWrapper;
+import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Assert;
@@ -35,31 +37,48 @@ public class TestUtils {
     static private final String CSV = "csv";
 
     /**
-     * Given a list of entity objects, this method constructs the listWrapper returned by SDK-REST
+     * Given a list of entity objects, this method constructs the list returned by SDK-REST
      *
      * @param entityList The list of entity objects
-     * @return The listWrapper from the SDK-REST that contains the entities
+     * @return The list from the SDK-REST that contains the entities
      */
     @SafeVarargs
-    public static <B extends BullhornEntity> List<B> getList(B... entityList) throws IllegalAccessException, InstantiationException {
+    public static <B extends BullhornEntity> List<B> getList(B... entityList) {
         return new ArrayList<>(Arrays.asList(entityList));
     }
 
     /**
-     * Given an entity type and list of ids, this method constructs the listWrapper returned by SDK-REST
+     * Given an entity type and list of ids, this method constructs the list returned by SDK-REST
      *
      * @param entityClass The type of entity to create a list wrapper for
      * @param idList      The array of IDs to assign to new entity objects
-     * @return The listWrapper from the SDK-REST that contains the entities
+     * @return The list from the SDK-REST that contains the entities
      */
-    public static <B extends BullhornEntity> List<B> getList(Class<B> entityClass, Integer... idList) throws IllegalAccessException, InstantiationException {
+    public static <B extends BullhornEntity> List<B> getList(Class<B> entityClass, int... idList) throws IllegalAccessException, InstantiationException {
         List<B> list = new ArrayList<>();
-        for (Integer id : idList) {
+        for (int id : idList) {
             B entity = entityClass.newInstance();
             entity.setId(id);
             list.add(entity);
         }
         return list;
+    }
+
+    /**
+     * Given an entity type, the total return count, start and list of ids, this method constructs the list wrapper returned by SDK-REST
+     *
+     * @param entityClass The type of entity to create a list wrapper for
+     * @param start       The first record to start at in the list
+     * @param total       The total number of records that match the search criteria
+     * @param idList      The array of IDs to assign to new entity objects - count is set to the length of this list
+     * @return The listWrapper from the SDK-REST that contains the entity data and count/total/start
+     */
+    public static <B extends BullhornEntity> ListWrapper<B> getListWrapper(Class<B> entityClass, Integer start, Integer total, int... idList)
+        throws IllegalAccessException, InstantiationException {
+        ListWrapper<B> listWrapper = new StandardListWrapper<>(TestUtils.getList(entityClass, idList));
+        listWrapper.setTotal(total);
+        listWrapper.setStart(start);
+        return listWrapper;
     }
 
     /**
@@ -167,9 +186,8 @@ public class TestUtils {
      *
      * @param directory The directory to recurse through
      * @param command   The command used when running DataLoader
-     * @throws IOException In case the directory is null
      */
-    public static void checkResultsFiles(File directory, Command command) throws IOException {
+    public static void checkResultsFiles(File directory, Command command) {
         File[] directoryListing = directory.listFiles();
         if (directoryListing != null) {
             for (File file : directoryListing) {
@@ -188,9 +206,8 @@ public class TestUtils {
      *
      * @param file    The file to check
      * @param command The command used when running DataLoader
-     * @throws IOException In case the file is null
      */
-    public static void checkResultsFile(File file, Command command) throws IOException {
+    public static void checkResultsFile(File file, Command command) {
         String successFilePath = CsvFileWriter.getResultsFilePath(file.getPath(), command, Result.Status.SUCCESS);
         String failureFilePath = CsvFileWriter.getResultsFilePath(file.getPath(), command, Result.Status.FAILURE);
 

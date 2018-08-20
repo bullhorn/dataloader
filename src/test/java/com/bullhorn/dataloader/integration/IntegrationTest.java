@@ -48,26 +48,29 @@ public class IntegrationTest {
      * @throws IOException For directory cloning
      */
     @Test
-    public void testIntegration() throws IOException, InterruptedException {
+    public void testIntegration() throws IOException {
         // Use the properties file from the test/resources directory
         System.setProperty("propertyfile", TestUtils.getResourceFilePath("integrationTest.properties"));
 
         // Capture command line output as a string without stopping the real-time printout
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
-        // Run the sanity to catch quick and obvious failures
+        // Sanity to catch quick and obvious failures
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("sanity"), false);
 
-        // Run a special character test to ensure that we are supporting them in query/search calls
+        // Special character test to ensure that we are supporting them in query/search calls
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"), true);
 
-        // Run a test using more than 100,000 characters in a field
+        // Test using more than 100,000 characters in a field
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("longFields"), false);
 
-        // Run a test for ignoring soft deleted entities
+        // Test using more than 500 associations in a To-Many field
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("associationsOver500"), false);
+
+        // Test for ignoring soft deleted entities
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
 
-        // Run a test for processing empty association fields
+        // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
         System.setProperty("processEmptyAssociations", "false");
@@ -85,8 +88,7 @@ public class IntegrationTest {
      * @throws IOException For directory cloning
      */
     @SuppressWarnings("ConstantConditions")
-    private void insertUpdateDeleteFromDirectory(String directoryPath, Boolean skipDelete) throws IOException,
-        InterruptedException {
+    private void insertUpdateDeleteFromDirectory(String directoryPath, Boolean skipDelete) throws IOException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;

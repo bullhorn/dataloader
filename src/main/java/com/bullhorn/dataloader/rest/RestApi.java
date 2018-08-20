@@ -28,6 +28,7 @@ import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
 import org.apache.logging.log4j.Level;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ import java.util.Set;
  */
 public class RestApi {
 
+    private static final Integer MAX_RECORDS_TO_RETURN_IN_ONE_PULL = 500;
+    private static final Integer MAX_RECORDS_TO_RETURN_TOTAL = 20000;
     private final StandardBullhornData bullhornData;
     private final RestApiExtension restApiExtension;
     private final PrintUtil printUtil;
@@ -89,7 +92,10 @@ public class RestApi {
                 return searchResult.getList();
             }
         }
-        return bullhornData.searchForList(type, query, fieldSet, params);
+        List<T> list = new ArrayList<>();
+        params.setCount(MAX_RECORDS_TO_RETURN_IN_ONE_PULL);
+        recursiveSearchPull(list, type, query, fieldSet, params);
+        return list;
     }
 
     public <T extends QueryEntity> List<T> queryForList(Class<T> type,
@@ -97,7 +103,10 @@ public class RestApi {
                                                         Set<String> fieldSet,
                                                         QueryParams params) {
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where);
-        return bullhornData.queryForList(type, where, fieldSet, params);
+        List<T> list = new ArrayList<>();
+        params.setCount(MAX_RECORDS_TO_RETURN_IN_ONE_PULL);
+        recursiveQueryPull(list, type, where, fieldSet, params);
+        return list;
     }
 
     <T extends QueryEntity & AllRecordsEntity> List<T> queryForAllRecordsList(Class<T> type,
@@ -197,4 +206,58 @@ public class RestApi {
         return bullhornData.performGetRequest(url, returnType, uriVariables);
     }
     // endregion
+
+    /**
+     * The recursive search pull for more than 500 records, applied to all entities, not just AllRecordsEntity entities.
+     */
+    private <T extends SearchEntity> void recursiveSearchPull(List<T> allEntities,
+                                                              Class<T> type,
+                                                              String query,
+                                                              Set<String> fieldSet,
+                                                              SearchParams params) {
+        ListWrapper<T> onePull = bullhornData.search(type, query, fieldSet, params);
+        allEntities.addAll(onePull.getData());
+        if (shouldPullMoreRecords(onePull)) {
+            params.setStart(allEntities.size());
+            recursiveSearchPull(allEntities, type, query, fieldSet, params);
+        }
+    }
+
+    /**
+     * The recursive query pull for more than 500 records, applied to all entities, not just AllRecordsEntity entities.
+     */
+    private <T extends QueryEntity> void recursiveQueryPull(List<T> allEntities,
+                                                            Class<T> type,
+                                                            String where,
+                                                            Set<String> fieldSet,
+                                                            QueryParams params) {
+        ListWrapper<T> onePull = bullhornData.query(type, where, fieldSet, params);
+        allEntities.addAll(onePull.getData());
+        if (shouldPullMoreRecords(onePull)) {
+            params.setStart(allEntities.size());
+            recursiveQueryPull(allEntities, type, where, fieldSet, params);
+        }
+    }
+
+    private boolean shouldPullMoreRecords(ListWrapper<?> response) {
+        Integer total = response.getTotal();
+        Integer start = response.getStart();
+        Integer count = response.getCount();
+
+        // Handle missing values
+        if (start == null) {
+            start = 0;
+        }
+        if (total == null) {
+            total = count;
+        }
+
+        Integer nextStart = start + count;
+        Integer nextEnd = Math.min(nextStart + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
+        if (nextStart < total && count != 0 && nextStart < MAX_RECORDS_TO_RETURN_TOTAL) {
+            printUtil.log(Level.DEBUG, "--> Follow On Find(" + nextStart + " - " + nextEnd + ")");
+            return true;
+        }
+        return false;
+    }
 }

@@ -155,10 +155,10 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     @SuppressWarnings("unchecked")
     private <Q extends QueryEntity> List<B> queryForEntity(List<Field> entityExistFields) {
-        String query = entityExistFields.stream().map(
+        String filter = entityExistFields.stream().map(
             n -> getWhereStatement(n.getCell().getName(), n.getStringValue(), n.getFieldType()))
             .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), query,
+        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), filter,
             Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 

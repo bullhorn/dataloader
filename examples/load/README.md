@@ -27,6 +27,8 @@ These example CSV files reference several reference only entities that must exis
         * Skill3
         * Skill4
     * Category3
+    * 1001 Skills
+        * Skill_1 ... Skill_1001 (copy/paste from associationsOver500 integration test)
 
 * Certification
     * Certification1
