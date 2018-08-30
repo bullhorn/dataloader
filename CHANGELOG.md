@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.9.0"></a>
+# [3.9.0](https://github.com/bullhorn/dataloader/compare/v3.8.0...v3.9.0) (2018-08-30)
+
+
+### Features
+
+* **Associations:** Allowing up to 20,000 associations per cell ([#264](https://github.com/bullhorn/dataloader/issues/264)) ([c415316](https://github.com/bullhorn/dataloader/commit/c415316))
+* **New Entities/Fields:** Updated Rest SDK to get new fields/entities ([#265](https://github.com/bullhorn/dataloader/issues/265)) ([39f830d](https://github.com/bullhorn/dataloader/commit/39f830d))
+
+
+
 <a name="3.8.0"></a>
 # [3.8.0](https://github.com/bullhorn/dataloader/compare/v3.7.3...v3.8.0) (2018-04-09)
 
