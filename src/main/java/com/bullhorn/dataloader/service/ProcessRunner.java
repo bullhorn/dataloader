@@ -58,7 +58,7 @@ public class ProcessRunner {
     ActionTotals runLoadProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath);
+        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil);
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
@@ -83,7 +83,7 @@ public class ProcessRunner {
     ActionTotals runDeleteProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath);
+        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil);
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
@@ -108,7 +108,7 @@ public class ProcessRunner {
     ActionTotals runLoadAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath);
+        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil);
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
@@ -133,7 +133,7 @@ public class ProcessRunner {
     ActionTotals runConvertAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath);
+        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil);
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
@@ -158,7 +158,7 @@ public class ProcessRunner {
     ActionTotals runDeleteAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath);
+        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil);
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
