@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.data;
 
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
 
@@ -23,8 +24,8 @@ public class CsvFileReader extends CsvReader {
      *
      * @param filePath the path to the CSV file
      */
-    public CsvFileReader(String filePath) throws IOException {
-        super(filePath, ',', Charset.forName("UTF-8"));
+    public CsvFileReader(String filePath, PropertyFileUtil propertyFileUtil) throws IOException {
+        super(filePath, ',', propertyFileUtil.getSingleByteEncoding() ? Charset.forName("ISO-8859-1") : Charset.forName("UTF-8"));
         // Turn the SafetySwitch off because it limits the maximum length of any column to 100,000 characters
         setSafetySwitch(false);
         readHeaders();

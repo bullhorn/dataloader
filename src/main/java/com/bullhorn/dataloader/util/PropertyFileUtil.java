@@ -43,6 +43,7 @@ public class PropertyFileUtil {
     private Integer numThreads;
     private Integer waitSecondsBetweenFilesInDirectory;
     private Boolean processEmptyAssociations;
+    private Boolean singleByteEncoding;
     private Boolean resultsFileEnabled;
     private String resultsFilePath;
     private Integer resultsFileWriteIntervalMsec;
@@ -169,6 +170,10 @@ public class PropertyFileUtil {
 
     public Boolean getProcessEmptyAssociations() {
         return processEmptyAssociations;
+    }
+
+    public Boolean getSingleByteEncoding() {
+        return singleByteEncoding;
     }
 
     public Boolean getResultsFileEnabled() {
@@ -317,6 +322,8 @@ public class PropertyFileUtil {
             Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()));
         processEmptyAssociations = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
+        singleByteEncoding = propertyValidationUtil.validateBooleanProperty(
+            Boolean.valueOf(properties.getProperty(Property.SINGLE_BYTE_ENCODING.getName())));
         resultsFileEnabled = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.RESULTS_FILE_ENABLED.getName())));
         resultsFilePath = propertyValidationUtil.validateResultsFilePath(
