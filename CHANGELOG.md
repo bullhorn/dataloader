@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.10.0"></a>
+# [3.10.0](https://github.com/bullhorn/dataloader/compare/v3.9.0...v3.10.0) (2018-09-14)
+
+
+### Features
+
+* **Single Byte Encoding:** New option for using single byte encoding ([#266](https://github.com/bullhorn/dataloader/issues/266)) ([eabd0b8](https://github.com/bullhorn/dataloader/commit/eabd0b8))
+
+
+
 <a name="3.9.0"></a>
 # [3.9.0](https://github.com/bullhorn/dataloader/compare/v3.8.0...v3.9.0) (2018-08-30)
 
