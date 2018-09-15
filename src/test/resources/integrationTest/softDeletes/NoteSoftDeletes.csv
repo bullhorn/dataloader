@@ -1,0 +1,3 @@
+externalID    ,personReference.name   ,candidates.customText1,comments
+note-sd1-ext-1,Recruiter CorporateUser,candidate-sd-ext-1    ,Note that targets 2 candidates with one being soft-deleted
+note-sd2-ext-1,Disabled CorporateUser ,                      ,Note that targets a disabled corporate user

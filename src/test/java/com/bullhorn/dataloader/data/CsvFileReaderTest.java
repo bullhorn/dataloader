@@ -1,8 +1,10 @@
 package com.bullhorn.dataloader.data;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,7 +13,14 @@ import static org.mockito.Mockito.mock;
 
 public class CsvFileReaderTest {
 
-    private PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
+    private PropertyFileUtil propertyFileUtilMock;
+    private PrintUtil printUtilMock;
+
+    @Before
+    public void setup() {
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        printUtilMock = mock(PrintUtil.class);
+    }
 
     @Test
     public void duplicateHeaders() throws IOException {
@@ -20,7 +29,7 @@ public class CsvFileReaderTest {
 
         IllegalStateException actualException = null;
         try {
-            new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_DuplicateColumns.csv"), propertyFileUtilMock);
+            new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_DuplicateColumns.csv"), propertyFileUtilMock, printUtilMock);
         } catch (IllegalStateException e) {
             actualException = e;
         }
@@ -32,7 +41,7 @@ public class CsvFileReaderTest {
     @Test
     public void missingHeader() throws IOException, InterruptedException {
         IOException expectedException = new IOException("Header column count 2 is not equal to row column count 3");
-        CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_MissingHeader.csv"), propertyFileUtilMock);
+        CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_MissingHeader.csv"), propertyFileUtilMock, printUtilMock);
 
         IOException actualException = null;
         try {

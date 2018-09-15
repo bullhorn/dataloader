@@ -70,6 +70,9 @@ public class IntegrationTest {
         // Test for ignoring soft deleted entities
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
 
+        // Test that column header name mapping is working properly
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("columnMapping"), false);
+
         // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);

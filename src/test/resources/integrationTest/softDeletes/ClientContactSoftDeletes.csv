@@ -1,0 +1,3 @@
+externalID             ,firstName   ,lastName       ,clientCorporation.externalID,owner.name            ,linkedPerson.name     ,comments
+clientContact-sd1-ext-1,DisabledUser,IntegrationTest,clientCorporation-sd-ext-1  ,Disabled CorporateUser,                      ,Tests that disabled corporate users can still be referenced
+clientContact-sd2-ext-1,DisabledUser,IntegrationTest,clientCorporation-sd-ext-1  ,Disabled CorporateUser,Disabled CorporateUser,Tests that disabled corporate users can be referenced as a linkedPerson

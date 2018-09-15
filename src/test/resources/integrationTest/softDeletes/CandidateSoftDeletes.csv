@@ -1,0 +1,3 @@
+externalID          ,customText1       ,firstName,lastName,name       ,isDeleted
+candidate-sd-1-ext-1,candidate-sd-ext-1,Not      ,Deleted ,Not Deleted,0
+candidate-sd-2-ext-1,candidate-sd-ext-1,Is       ,Deleted ,Is Deleted ,1
