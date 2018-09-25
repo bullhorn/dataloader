@@ -75,6 +75,9 @@ public class IntegrationTest {
         // Test that column header name mapping is working properly
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("columnMapping"), false);
 
+        // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
+
         // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
