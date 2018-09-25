@@ -1,0 +1,2 @@
+id,dataloader_action,firstName,lastName,email              ,recruiterUserID
+1 ,INSERT           ,John     ,Smith   ,j.smith@example.com,101

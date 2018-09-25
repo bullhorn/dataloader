@@ -270,8 +270,7 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGetEntityExistFields_PropertyFileValues() throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals(Arrays.asList(new String[]{"externalID"}),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -296,8 +295,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_Lead_Exist_Field", "customText99");
         envVars.put("Dataloader_Lead_Exist_Field", "bogus");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
 
         Assert.assertEquals(Arrays.asList(new String[]{"customTextField4", "customTextField5"}),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -330,6 +328,73 @@ public class PropertyFileUtilTest {
 
         Assert.assertEquals(Arrays.asList(new String[]{"externalID"}),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
+    }
+
+    @Test
+    public void testGetColumnNameMapping_PropertyFileValues() throws IOException {
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
+            propertyValidationUtil, printUtilMock);
+
+        Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("recruiterUserID"));
+        Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("userID"));
+        Assert.assertEquals("clientContact.id", propertyFileUtil.getColumnNameMapping("clientUserID"));
+
+        Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("owner.id"));
+        Assert.assertEquals("primarySkills.name", propertyFileUtil.getColumnNameMapping("primarySkills.name"));
+        Assert.assertEquals("firstName", propertyFileUtil.getColumnNameMapping("firstName"));
+    }
+
+    @Test
+    public void testGetColumnNameMapping_EnvironmentVariableOverrides() throws IOException {
+        envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
+        envVars.put("DATALOADER_statementUserID_Column", "billingUser.id");
+        envVars.put("DATALOADER_sendingOwnerNameColumn", "reference.name");
+        envVars.put("DATALOADER_City Location_Column", "address.city");
+        envVars.put("Dataloader_Bogus_Column", "address.zip");
+        envVars.put("bogus_COLUMN", "reference.name");
+
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+
+        Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("billingUserID"));
+        Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("statementUserID"));
+        Assert.assertEquals("clientContact.id", propertyFileUtil.getColumnNameMapping("clientUserID"));
+        Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("userID"));
+        Assert.assertEquals("address.city", propertyFileUtil.getColumnNameMapping("City Location"));
+        Assert.assertEquals("bogus", propertyFileUtil.getColumnNameMapping("bogus"));
+    }
+
+    @Test
+    public void testGetColumnNameMapping_SystemPropertyOverrides() throws IOException {
+        envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
+        envVars.put("DATALOADER_statementUserID_COLUMN", "billingUser.id");
+        systemProperties.setProperty("oneColumn", "billingUser.id");
+        systemProperties.setProperty("userIDColumn", "recruiter.name");
+
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+
+        Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("billingUserID"));
+        Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("one"));
+        Assert.assertEquals("recruiter.name", propertyFileUtil.getColumnNameMapping("userID"));
+    }
+
+    @Test
+    public void testGetColumnNameMapping_ArgumentOverrides() throws IOException {
+        envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
+        systemProperties.setProperty("columnOneColumn", "job.title");
+        ArrayList<String> args = new ArrayList<>();
+        args.add("columnTwoColumn");
+        args.add("address.state");
+        args.add("userIDColumn");
+        args.add("person.username");
+        String[] argsArray = args.toArray(new String[]{});
+
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidationUtil, printUtilMock);
+
+        Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("billingUserID"));
+        Assert.assertEquals("job.title", propertyFileUtil.getColumnNameMapping("columnOne"));
+        Assert.assertEquals("address.state", propertyFileUtil.getColumnNameMapping("columnTwo"));
+        Assert.assertEquals("person.username", propertyFileUtil.getColumnNameMapping("userID"));
+        Assert.assertEquals("address.address1", propertyFileUtil.getColumnNameMapping("address.address1"));
     }
 
     @Test(expected = FileNotFoundException.class)

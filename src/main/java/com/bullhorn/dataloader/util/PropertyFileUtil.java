@@ -23,6 +23,7 @@ import java.util.Properties;
  */
 public class PropertyFileUtil {
     private static final String EXIST_FIELD_SUFFIX = "ExistField";
+    private static final String COLUMN_NAME_ALIAS_SUFFIX = "Column";
     private static final String DATALOADER_PREFIX = "DATALOADER_";
     private static final String CONVERTED_ATTACHMENTS_DIRECTORY = "convertedAttachments";
 
@@ -38,6 +39,7 @@ public class PropertyFileUtil {
     private String tokenUrl;
     private String loginUrl;
     private Map<String, List<String>> entityExistFieldsMap = Maps.newHashMap();
+    private Map<String, String> columnNameMap = Maps.newHashMap();
     private String listDelimiter;
     private DateTimeFormatter dateParser;
     private Integer numThreads;
@@ -152,6 +154,23 @@ public class PropertyFileUtil {
         return entityExistFields == null ? Lists.newArrayList() : entityExistFields;
     }
 
+    /**
+     * Returns true if the given column name is mapped to a different column name.
+     */
+    public Boolean hasColumnNameMapping(String columnName) {
+        return columnNameMap.containsKey(columnName.toLowerCase());
+    }
+
+    /**
+     * If the given column name is mapped to a different column name, returns the mapped name.
+     *
+     * @param columnName The user provided name of the column
+     * @return The mapped column name if it exists, otherwise the given name.
+     */
+    public String getColumnNameMapping(String columnName) {
+        return columnNameMap.getOrDefault(columnName.toLowerCase(), columnName);
+    }
+
     public String getListDelimiter() {
         return listDelimiter;
     }
@@ -226,10 +245,10 @@ public class PropertyFileUtil {
                 Property propertyEnum = Property.fromString(name);
                 if (propertyEnum != null) {
                     properties.setProperty(propertyEnum.getName(), value);
-                    printUtil.printAndLog("Using Environment Variable \'" + key + "\' to Override Property File Value");
-                } else if (name.endsWith(EXIST_FIELD_SUFFIX)) {
+                    printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
+                } else if (name.endsWith(EXIST_FIELD_SUFFIX) || name.endsWith(COLUMN_NAME_ALIAS_SUFFIX)) {
                     properties.setProperty(name, value);
-                    printUtil.printAndLog("Using Environment Variable \'" + key + "\' to Override Property File Value");
+                    printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
                 }
             }
         }
@@ -249,7 +268,7 @@ public class PropertyFileUtil {
             String propertyValue = properties.getProperty(propertyName);
             if (propertyEnum != null) {
                 validProperties.setProperty(propertyEnum.getName(), propertyValue);
-            } else if (propertyName.endsWith(EXIST_FIELD_SUFFIX)) {
+            } else if (propertyName.endsWith(EXIST_FIELD_SUFFIX) || propertyName.endsWith(COLUMN_NAME_ALIAS_SUFFIX)) {
                 validProperties.setProperty(propertyName, propertyValue);
             }
         }
@@ -276,7 +295,7 @@ public class PropertyFileUtil {
                 consumedArgs.add(argValue);
                 properties.setProperty(property.getName(), argValue);
                 ++i; // skip over value
-            } else if (argName.contains(EXIST_FIELD_SUFFIX)) {
+            } else if (argName.contains(EXIST_FIELD_SUFFIX) || argName.contains(COLUMN_NAME_ALIAS_SUFFIX)) {
                 consumedArgs.add(argName);
                 consumedArgs.add(argValue);
                 properties.setProperty(argName, argValue);
@@ -317,6 +336,7 @@ public class PropertyFileUtil {
         dateParser = getDateTimeFormatter(properties);
         entityExistFieldsMap = createEntityExistFieldsMap(properties);
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        columnNameMap = createColumnNameMap(properties);
         numThreads = propertyValidationUtil.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
         waitSecondsBetweenFilesInDirectory = propertyValidationUtil.validateWaitSeconds(properties.getProperty(
             Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()));
@@ -349,7 +369,7 @@ public class PropertyFileUtil {
      * Creates a Map of EntityName to Exist Fields. The exist fields are a String List of fields.
      *
      * @param properties The properties object
-     * @return The newly created map
+     * @return The newly created one-to-many map
      */
     private Map<String, List<String>> createEntityExistFieldsMap(Properties properties) {
         Map<String, List<String>> entityExistFields = Maps.newHashMap();
@@ -364,6 +384,24 @@ public class PropertyFileUtil {
     }
 
     /**
+     * Creates a Map of property values to property name where the property name have a given suffix.
+     *
+     * @param properties The properties object
+     * @return The newly created one-to-many map
+     */
+    private Map<String, String> createColumnNameMap(Properties properties) {
+        Map<String, String> map = Maps.newHashMap();
+        for (String propertyName : properties.stringPropertyNames()) {
+            if (propertyName.endsWith(COLUMN_NAME_ALIAS_SUFFIX)) {
+                String alias = propertyName.split(COLUMN_NAME_ALIAS_SUFFIX)[0];
+                String columnName = properties.getProperty(propertyName);
+                map.put(alias.toLowerCase(), columnName);
+            }
+        }
+        return map;
+    }
+
+    /**
      * Logs the contents of the properties files, but only a very select set of properties to keep user login
      * information safe. Uses the properties object to capture the original value before any transformation or
      * validation of the properties is done.
@@ -374,20 +412,24 @@ public class PropertyFileUtil {
     private void logProperties(String fileName, Properties properties) {
         printUtil.log("Using properties file: " + fileName);
 
-        printUtil.log("# Section 2");
+        printUtil.log("# Section 2 -- Environment URLs");
         logPropertyIfExists(properties, Property.AUTHORIZE_URL.getName());
         logPropertyIfExists(properties, Property.TOKEN_URL.getName());
         logPropertyIfExists(properties, Property.LOGIN_URL.getName());
 
-        printUtil.log("# Section 3");
+        printUtil.log("# Section 3 -- Exist Fields");
         logPropertiesEndingWith(properties, EXIST_FIELD_SUFFIX);
 
-        printUtil.log("# Section 4");
+        printUtil.log("# Section 4 -- Column Mapping");
+        logPropertiesEndingWith(properties, COLUMN_NAME_ALIAS_SUFFIX);
+
+        printUtil.log("# Section 5 -- Formatting");
         logPropertyIfExists(properties, Property.LIST_DELIMITER.getName());
         logPropertyIfExists(properties, Property.DATE_FORMAT.getName());
         logPropertyIfExists(properties, Property.PROCESS_EMPTY_ASSOCIATIONS.getName());
+        logPropertyIfExists(properties, Property.SINGLE_BYTE_ENCODING.getName());
 
-        printUtil.log("# Section 5");
+        printUtil.log("# Section 6 -- Performance");
         logPropertyIfExists(properties, Property.NUM_THREADS.getName());
     }
 
