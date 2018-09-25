@@ -427,6 +427,7 @@ public class PropertyFileUtil {
         logPropertyIfExists(properties, Property.LIST_DELIMITER.getName());
         logPropertyIfExists(properties, Property.DATE_FORMAT.getName());
         logPropertyIfExists(properties, Property.PROCESS_EMPTY_ASSOCIATIONS.getName());
+        logPropertyIfExists(properties, Property.SINGLE_BYTE_ENCODING.getName());
 
         printUtil.log("# Section 6 -- Performance");
         logPropertyIfExists(properties, Property.NUM_THREADS.getName());
