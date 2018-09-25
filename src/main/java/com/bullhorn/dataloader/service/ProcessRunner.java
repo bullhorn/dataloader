@@ -59,7 +59,7 @@ public class ProcessRunner {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, filePath, csvFileReader.getMappedHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
@@ -84,7 +84,7 @@ public class ProcessRunner {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, filePath, csvFileReader.getMappedHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
@@ -109,7 +109,7 @@ public class ProcessRunner {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, filePath, csvFileReader.getMappedHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
@@ -134,7 +134,7 @@ public class ProcessRunner {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getMappedHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file
@@ -159,7 +159,7 @@ public class ProcessRunner {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getMappedHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file

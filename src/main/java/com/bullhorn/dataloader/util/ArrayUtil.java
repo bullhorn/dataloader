@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -65,5 +66,24 @@ public class ArrayUtil {
             }
         }
         return null;
+    }
+
+    /**
+     * Given a collection of strings, returns the collection of duplicate strings.
+     *
+     * @param strings the collection of strings
+     * @return the duplicate strings
+     */
+    public static Collection<String> getDuplicates(Collection<String> strings) {
+        Collection<String> uniques = new ArrayList<>();
+        Collection<String> duplicates = new ArrayList<>();
+        for (String string : strings) {
+            if (uniques.contains(string)) {
+                duplicates.add(string);
+            } else {
+                uniques.add(string);
+            }
+        }
+        return duplicates;
     }
 }

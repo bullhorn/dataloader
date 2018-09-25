@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.data;
 
+import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.csvreader.CsvReader;
@@ -10,6 +11,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * An extension to the CsvFileReader that adds our extra functionality, like duplicate checking and returning the CSV
@@ -41,13 +43,14 @@ public class CsvFileReader extends CsvReader {
     }
 
     @Override
+    public String[] getHeaders() {
+        return mappedHeaders.toArray(new String[0]);
+    }
+
+    @Override
     public boolean readRecord() throws IOException {
         rowNumber++;
         return super.readRecord();
-    }
-
-    public String[] getMappedHeaders() throws IOException {
-        return mappedHeaders.toArray(new String[0]);
     }
 
     /**
@@ -61,14 +64,23 @@ public class CsvFileReader extends CsvReader {
      */
     public Row getRow() throws IOException {
         if (getHeaderCount() != getValues().length) {
-            throw new IOException("Header column count " + getHeaderCount()
+            throw new IOException("Row " + rowNumber + ": Header column count " + getHeaderCount()
                 + " is not equal to row column count " + getValues().length);
         }
 
         Row row = new Row(rowNumber);
         for (int i = 0; i < getHeaderCount(); i++) {
-            Cell cell = new Cell(mappedHeaders.get(i), getValues()[i]);
-            row.addCell(cell);
+            String header = getHeader(i);
+            if (propertyFileUtil.hasColumnNameMapping(header)) {
+                String mappedHeader = propertyFileUtil.getColumnNameMapping(header);
+                if (!mappedHeader.isEmpty()) {
+                    Cell cell = new Cell(mappedHeader, getValues()[i]);
+                    row.addCell(cell);
+                }
+            } else {
+                Cell cell = new Cell(header, getValues()[i]);
+                row.addCell(cell);
+            }
         }
         return row;
     }
@@ -77,11 +89,15 @@ public class CsvFileReader extends CsvReader {
      * Creates a set of mapped headers (changing the name of a column) based on column mappings setup in user properties
      */
     private void mapHeaders() throws IOException {
-        for (String header : getHeaders()) {
+        for (String header : super.getHeaders()) {
             if (propertyFileUtil.hasColumnNameMapping(header)) {
                 String mappedHeader = propertyFileUtil.getColumnNameMapping(header);
-                printUtil.printAndLog("Mapping column: '" + header + "' to: '" + mappedHeader + "'");
-                mappedHeaders.add(mappedHeader);
+                if (mappedHeader.isEmpty()) {
+                    printUtil.printAndLog("Skipping column: '" + header + "' because it is mapped to an empty value");
+                } else {
+                    printUtil.printAndLog("Mapping column: '" + header + "' to: '" + mappedHeader + "'");
+                    mappedHeaders.add(mappedHeader);
+                }
             } else {
                 mappedHeaders.add(header);
             }
@@ -90,28 +106,12 @@ public class CsvFileReader extends CsvReader {
 
     /**
      * Ensures that user's don't accidentally have duplicate columns
-     *
-     * @throws IOException if there are duplicates
      */
-    private void checkForDuplicateHeaders() throws IOException {
+    private void checkForDuplicateHeaders() {
         Set<String> uniqueHeaders = Sets.newHashSet(mappedHeaders);
         if (mappedHeaders.size() != uniqueHeaders.size()) {
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n" + printDuplicateHeaders());
+            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n"
+                + ArrayUtil.getDuplicates(mappedHeaders).stream().map(s -> "\t" + s + "\n").collect(Collectors.joining()));
         }
-    }
-
-    private String printDuplicateHeaders() throws IOException {
-        String duplicateString = "";
-        List<String> uniqueHeaders = new ArrayList<>();
-
-        for (String header : mappedHeaders) {
-            if (uniqueHeaders.contains(header)) {
-                duplicateString = duplicateString.concat("\t" + header + "\n");
-            } else {
-                uniqueHeaders.add(header);
-            }
-        }
-
-        return duplicateString;
     }
 }
