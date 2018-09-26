@@ -37,6 +37,12 @@ public class CsvFileReaderTest {
     }
 
     @Test
+    public void testByteOrderMarkRemoval() throws IOException {
+        CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("CandidateByteOrderMark.csv"), propertyFileUtil, printUtilMock);
+        Assert.assertArrayEquals(new String[]{"externalID", "name", "firstName", "lastName", "email"}, csvFileReader.getHeaders());
+    }
+
+    @Test
     public void testMappedColumns() throws IOException {
         CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("Candidate_MappedColumns.csv"), propertyFileUtil, printUtilMock);
         Assert.assertArrayEquals(new String[]{"id", "firstName", "lastName", "email", "owner.id"}, csvFileReader.getHeaders());
