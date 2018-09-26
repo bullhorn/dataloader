@@ -5,7 +5,9 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.csvreader.CsvReader;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.input.BOMInputStream;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -31,7 +33,8 @@ public class CsvFileReader extends CsvReader {
      * @param filePath the path to the CSV file
      */
     public CsvFileReader(String filePath, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) throws IOException {
-        super(filePath, ',', propertyFileUtil.getSingleByteEncoding() ? Charset.forName("ISO-8859-1") : Charset.forName("UTF-8"));
+        super(new BOMInputStream(new FileInputStream(filePath)), ',',
+            propertyFileUtil.getSingleByteEncoding() ? Charset.forName("ISO-8859-1") : Charset.forName("UTF-8"));
         this.propertyFileUtil = propertyFileUtil;
         this.printUtil = printUtil;
 
