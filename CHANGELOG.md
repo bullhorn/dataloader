@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.11.0"></a>
+# [3.11.0](https://github.com/bullhorn/dataloader/compare/v3.10.0...v3.11.0) (2018-09-26)
+
+
+### Features
+
+* **Column Mapping:** Allowing for column headers to be changed in app ([#267](https://github.com/bullhorn/dataloader/issues/267)) ([a4b0d14](https://github.com/bullhorn/dataloader/commit/a4b0d14))
+* **Input File:** Removing the Byte Order Mark if it is present ([#268](https://github.com/bullhorn/dataloader/issues/268)) ([be900f3](https://github.com/bullhorn/dataloader/commit/be900f3))
+
+
+
 <a name="3.10.0"></a>
 # [3.10.0](https://github.com/bullhorn/dataloader/compare/v3.9.0...v3.10.0) (2018-09-14)
 
