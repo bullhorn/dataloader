@@ -1,0 +1,2 @@
+personReference.name ,externalID         ,action,candidates.externalID     ,comments
+Manager CorporateUser,note-wildcard-ext-1,Call 1,candidate-wildcard-ext-1-*,Data Loader Wildcard Matching Comment - Matches multiple existing candidates using a single search using a wildcard

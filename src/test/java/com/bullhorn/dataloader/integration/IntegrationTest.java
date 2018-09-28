@@ -64,10 +64,10 @@ public class IntegrationTest {
         // Test using more than 100,000 characters in a field
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("longFields"), false);
 
-        // Test using more than 500 associations in a To-Many field
-        // TODO: This is broken right now - can't use 1000 OR statements in where clause
-        // TODO: This will be fixed when wildcard searching for multiple records is enabled
-        //insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("associationsOver500"), false);
+        // Test using more than 500 associations in a To-Many field - requires that wildcard matching is enabled
+        System.setProperty("wildcardMatching", "true");
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("associationsOver500"), false);
+        System.setProperty("wildcardMatching", "false");
 
         // Test for ignoring soft deleted entities
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
@@ -77,6 +77,9 @@ public class IntegrationTest {
 
         // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
+
+        // Test for wildcard associations for candidates in a note
+        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("wildcardMatching"), false);
 
         // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");

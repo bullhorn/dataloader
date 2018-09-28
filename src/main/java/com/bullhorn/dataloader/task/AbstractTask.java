@@ -162,28 +162,41 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
+    // TODO: Move to utility
     String getQueryStatement(String field, String value, Class fieldType, EntityInfo fieldEntityInfo) {
+        // Fix for the Note entity doing it's own thing when it comes to the 'id' field
         if (fieldEntityInfo == EntityInfo.NOTE && field.equals(StringConsts.ID)) {
             field = StringConsts.NOTE_ID;
         }
 
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
             return field + ":" + value;
-        } else if (DateTime.class.equals(fieldType) || String.class.equals(fieldType)) {
+        } else if (DateTime.class.equals(fieldType)) {
             return field + ":\"" + value + "\"";
+        } else if (String.class.equals(fieldType)) {
+            if (propertyFileUtil.getWildcardMatching()) {
+                return field + ": " + value; // Flexible match - non quoted string (falls back to whatever text exists in the cell)
+            } else {
+                return field + ":\"" + value + "\""; // Literal match - equals quoted string
+            }
         } else {
             throw new RestApiException("Failed to create lucene search string for: '" + field
                 + "' with unsupported field type: " + fieldType);
         }
     }
 
+    // TODO: Move to utility
     String getWhereStatement(String field, String value, Class fieldType) {
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
         } else if (Boolean.class.equals(fieldType)) {
             return field + "=" + getBooleanWhereStatement(value);
         } else if (String.class.equals(fieldType)) {
-            return field + "='" + value + "'";
+            if (propertyFileUtil.getWildcardMatching()) {
+                return field + " like '" + value.replaceAll("[*]", "%") + "'"; // Flexible match - using like syntax always
+            } else {
+                return field + "='" + value + "'"; // Literal match - equals quoted string
+            }
         } else if (DateTime.class.equals(fieldType)) {
             // TODO: This needs to be of the format: `dateOfBirth:[20170808 TO 20170808235959]` for dates
             // Format: [yyyyMMdd TO yyyyMMddHHmmss] - a date range of one day
