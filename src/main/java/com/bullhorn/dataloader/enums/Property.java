@@ -16,7 +16,6 @@ public enum Property {
     NUM_THREADS("numThreads"),
     PASSWORD("password"),
     PROCESS_EMPTY_ASSOCIATIONS("processEmptyAssociations"),
-    WILDCARD_MATCHING("wildcardMatching"),
     RESULTS_FILE_ENABLED("resultsFileEnabled"),
     RESULTS_FILE_PATH("resultsFilePath"),
     RESULTS_FILE_WRITE_INTERVAL_MSEC("resultsFileWriteIntervalMsec"),
@@ -24,7 +23,8 @@ public enum Property {
     TOKEN_URL("tokenUrl"),
     USERNAME("username"),
     VERBOSE("verbose"),
-    WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitSecondsBetweenFilesInDirectory");
+    WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitSecondsBetweenFilesInDirectory"),
+    WILDCARD_MATCHING("wildcardMatching");
 
     private final String propertyName;
 
