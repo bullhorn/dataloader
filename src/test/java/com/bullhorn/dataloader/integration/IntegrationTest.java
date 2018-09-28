@@ -79,7 +79,9 @@ public class IntegrationTest {
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
 
         // Test for wildcard associations for candidates in a note
+        System.setProperty("wildcardMatching", "true");
         insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("wildcardMatching"), false);
+        System.setProperty("wildcardMatching", "false");
 
         // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");
