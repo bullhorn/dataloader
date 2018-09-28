@@ -1248,21 +1248,94 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunDatabaseQueryWhereStatementWildcardMatching() throws Exception {
+    public void testRunDatabaseQueryWhereStatementToManyWildcardMatching() throws Exception {
         String[] headerArray = new String[]{"firstName", "lastName", "primarySkills.name"};
-        String[] valueArray = new String[]{"Stephanie", "Scribbles", "Sales*;Market*;IT%"};
+        String[] valueArray = new String[]{"Stephanie", "Scribbles", "Sales*;Market*;IT"};
         Row row = TestUtils.createRow(headerArray, valueArray);
         when(propertyFileUtilMock.getWildcardMatching()).thenReturn(true);
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList
+            (Skill.class, 1, 2, 3, 4, 5, 6));
+        when(restApiMock.getAllAssociationsList(eq(Candidate.class), any(),
+            eq(CandidateAssociations.getInstance().primarySkills()), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 100));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        String expectedQuery = "name like 'Sales%' OR name like 'Market%' OR name like 'IT%'";
+        String expectedQuery = "name like 'Sales%' OR name like 'Market%' OR name='IT'";
         verify(restApiMock, times(1)).queryForList(eq(Skill.class), eq(expectedQuery),
             any(), any());
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(3, 4, 5, 6)));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 100, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunDatabaseQueryWhereStatementToOneWildcardMatching() throws Exception {
+        String[] headerArray = new String[]{"firstName", "lastName", "category.name"};
+        String[] valueArray = new String[]{"Stephanie", "Scribbles", "Sales*"};
+        Row row = TestUtils.createRow(headerArray, valueArray);
+        when(propertyFileUtilMock.getWildcardMatching()).thenReturn(true);
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 100));
+        when(restApiMock.queryForList(eq(Category.class), any(), any(), any())).thenReturn(TestUtils.getList
+            (Category.class, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        String expectedQuery = "name like 'Sales%'";
+        verify(restApiMock, times(1)).queryForList(eq(Category.class), eq(expectedQuery),
+            any(), any());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 100, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunDatabaseQueryWhereStatementLimitWildcardMatching() throws Exception {
+        String[] headerArray = new String[]{"firstName", "lastName", "owner.name"};
+        String[] valueArray = new String[]{"Stephanie", "Scribbles", "Bob Smiley"};
+        Row row = TestUtils.createRow(headerArray, valueArray);
+        when(propertyFileUtilMock.getWildcardMatching()).thenReturn(true);
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 80));
+        when(restApiMock.queryForList(eq(CorporateUser.class), any(), any(), any())).thenReturn(TestUtils.getList
+            (CorporateUser.class, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        String expectedQuery = "name='Bob Smiley'";
+        verify(restApiMock, times(1)).queryForList(eq(CorporateUser.class), eq(expectedQuery),
+            any(), any());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 80, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunDatabaseQueryWhereStatementLimitWildcardMatchingWhenEscaped() throws Exception {
+        String[] headerArray = new String[]{"firstName", "lastName", "owner.name"};
+        String[] valueArray = new String[]{"Stephanie", "Scribbles", "\\*Bob Smiley\\*"};
+        Row row = TestUtils.createRow(headerArray, valueArray);
+        when(propertyFileUtilMock.getWildcardMatching()).thenReturn(true);
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 80));
+        when(restApiMock.queryForList(eq(CorporateUser.class), any(), any(), any())).thenReturn(TestUtils.getList
+            (CorporateUser.class, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        String expectedQuery = "name='*Bob Smiley*'";
+        verify(restApiMock, times(1)).queryForList(eq(CorporateUser.class), eq(expectedQuery),
+            any(), any());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 80, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }

@@ -193,7 +193,12 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             return field + "=" + getBooleanWhereStatement(value);
         } else if (String.class.equals(fieldType)) {
             if (propertyFileUtil.getWildcardMatching()) {
-                return field + " like '" + value.replaceAll("[*]", "%") + "'"; // Flexible match - using like syntax always
+                // Not all string fields in query entities support the like syntax. Only use it if there is a non-escaped asterisk.
+                if (value.matches(".*[^\\\\][*].*")) {
+                    return field + " like '" + value.replaceAll("[*]", "%") + "'"; // Flexible match - using like syntax
+                } else {
+                    return field + "='" + value.replaceAll("[\\\\][*]", "*") + "'"; // Literal match after unescaping asterisks
+                }
             } else {
                 return field + "='" + value + "'"; // Literal match - equals quoted string
             }
