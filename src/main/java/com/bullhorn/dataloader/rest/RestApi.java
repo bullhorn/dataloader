@@ -109,6 +109,7 @@ public class RestApi {
         return list;
     }
 
+    // TODO: Remove this now that the regular queryForList is recursive
     <T extends QueryEntity & AllRecordsEntity> List<T> queryForAllRecordsList(Class<T> type,
                                                                               String where,
                                                                               Set<String> fieldSet,
@@ -162,7 +163,8 @@ public class RestApi {
     public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(
         Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
         Set<Integer> associationIds) {
-        printUtil.log(Level.DEBUG, "Associate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName());
+        printUtil.log(Level.DEBUG, "Associate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName()
+            + " (" + associationIds.size() + " associations)");
         C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
@@ -171,7 +173,8 @@ public class RestApi {
     public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(
         Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
         Set<Integer> associationIds) {
-        printUtil.log(Level.DEBUG, "Disassociate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName());
+        printUtil.log(Level.DEBUG, "Disassociate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName()
+            + " (" + associationIds.size() + " associations)");
         C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, associationIds);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;

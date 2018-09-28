@@ -259,7 +259,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         if (!field.getStringValue().isEmpty()) {
             Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             associations = doFindAssociations(field);
-            if (associations.size() != values.size()) {
+            if (!propertyFileUtil.getWildcardMatching() && associations.size() != values.size()) {
                 Set<String> existingAssociationValues = getFieldValueSet(field, associations);
                 if (associations.size() > values.size()) {
                     String duplicates = existingAssociationValues.stream().map(n -> "\t" + n)
@@ -280,8 +280,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     /**
      * Makes the lookup call to check that all associated values are present, and there are no duplicates. This will
-     * work with up to 500 associated records, such as candidates or businessSectors. It will perform the lookup using
-     * the field given after the period, like: 'businessSector.name' or 'candidate.id'
+     * perform the lookup using the field given after the period, like 'name' from 'businessSector.name'.
      *
      * @param field the To-Many association field to lookup records for
      */

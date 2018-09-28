@@ -23,7 +23,8 @@ public enum Property {
     TOKEN_URL("tokenUrl"),
     USERNAME("username"),
     VERBOSE("verbose"),
-    WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitSecondsBetweenFilesInDirectory");
+    WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY("waitSecondsBetweenFilesInDirectory"),
+    WILDCARD_MATCHING("wildcardMatching");
 
     private final String propertyName;
 

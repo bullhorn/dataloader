@@ -45,6 +45,7 @@ public class PropertyFileUtil {
     private Integer numThreads;
     private Integer waitSecondsBetweenFilesInDirectory;
     private Boolean processEmptyAssociations;
+    private Boolean wildcardMatching;
     private Boolean singleByteEncoding;
     private Boolean resultsFileEnabled;
     private String resultsFilePath;
@@ -189,6 +190,10 @@ public class PropertyFileUtil {
 
     public Boolean getProcessEmptyAssociations() {
         return processEmptyAssociations;
+    }
+
+    public Boolean getWildcardMatching() {
+        return wildcardMatching;
     }
 
     public Boolean getSingleByteEncoding() {
@@ -342,6 +347,8 @@ public class PropertyFileUtil {
             Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()));
         processEmptyAssociations = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
+        wildcardMatching = propertyValidationUtil.validateBooleanProperty(
+            Boolean.valueOf(properties.getProperty(Property.WILDCARD_MATCHING.getName())));
         singleByteEncoding = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.SINGLE_BYTE_ENCODING.getName())));
         resultsFileEnabled = propertyValidationUtil.validateBooleanProperty(
