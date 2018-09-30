@@ -10,6 +10,7 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -146,8 +147,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
     @SuppressWarnings("unchecked")
     private <S extends SearchEntity> List<B> searchForToOne(Field field) {
-        String filter = getQueryStatement(field.getName(), field.getStringValue(), field.getFieldType(),
-            field.getFieldEntity());
+        String filter = FindUtil.getLuceneSearch(field.getName(), field.getStringValue(), field.getFieldType(),
+            field.getFieldEntity(), propertyFileUtil);
         if (field.getFieldEntity().isSoftDeletable()) {
             filter += " AND " + StringConsts.IS_DELETED + ":" + field.getFieldEntity().getSearchIsDeletedValue(false);
         }
@@ -158,7 +159,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     @SuppressWarnings("unchecked")
     private <Q extends QueryEntity> List<B> queryForToOne(Field field) {
         Set<String> fieldsToReturn = Sets.newHashSet(StringConsts.ID);
-        String filter = getWhereStatement(field.getName(), field.getStringValue(), field.getFieldType());
+        String filter = FindUtil.getSqlQuery(field.getName(), field.getStringValue(), field.getFieldType(), propertyFileUtil);
         if (field.getFieldEntity() == EntityInfo.PERSON) {
             fieldsToReturn.add(StringConsts.IS_DELETED);
         } else if (field.getFieldEntity().isSoftDeletable()) {
@@ -289,8 +290,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         List<B> list;
         if (field.getFieldEntity().isSearchEntity()) {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-            String filter = values.stream().map(n -> getQueryStatement(field.getName(), n, field.getFieldType(),
-                field.getFieldEntity())).collect(Collectors.joining(" OR "));
+            String filter = values.stream().map(n -> FindUtil.getLuceneSearch(field.getName(), n, field.getFieldType(),
+                field.getFieldEntity(), propertyFileUtil)).collect(Collectors.joining(" OR "));
             if (field.getFieldEntity().isSoftDeletable()) {
                 filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + ":"
                     + field.getFieldEntity().getSearchIsDeletedValue(false);
@@ -298,7 +299,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             list = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter, null, ParamFactory.searchParams());
         } else {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-            String filter = values.stream().map(n -> getWhereStatement(field.getName(), n, field.getFieldType()))
+            String filter = values.stream().map(n -> FindUtil.getSqlQuery(field.getName(), n, field.getFieldType(), propertyFileUtil))
                 .collect(Collectors.joining(" OR "));
             if (field.getFieldEntity().isSoftDeletable()) {
                 filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + "=false";
