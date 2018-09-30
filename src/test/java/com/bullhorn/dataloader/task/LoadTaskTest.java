@@ -1120,7 +1120,7 @@ public class LoadTaskTest {
         task.run();
 
         String expectedQuery = "dayRate:123.45 AND isLockedOut:true AND customInt1:12345 AND "
-            + "customFloat1:123.45 AND customDate1:\"2017-08-01\"";
+            + "customFloat1:123.45 AND customDate1:2017-08-01";
         verify(restApiMock, times(1)).searchForList(eq(Candidate.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -1161,7 +1161,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        String expectedQuery = "dayRate: AND isLockedOut: AND customInt1: AND customFloat1: AND customDate1:\"\"";
+        String expectedQuery = "dayRate: AND isLockedOut: AND customInt1: AND customFloat1: AND customDate1:";
         verify(restApiMock, times(1)).searchForList(eq(Candidate.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -1204,7 +1204,7 @@ public class LoadTaskTest {
     @Test
     public void testRunDatabaseQueryWhereStatementAllFieldTypes() throws Exception {
         Row row = TestUtils.createRow("salary1,isLastJob,customInt1,companyName,startDate",
-            "123.45,true,12345,Acme Inc.,2017-08-01");
+            "123.45,true,12345,Acme Inc.,<1500144555510");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE_WORK_HISTORY))
             .thenReturn(Arrays.asList("salary1", "isLastJob", "customInt1", "companyName", "startDate"));
         when(restApiMock.queryForList(eq(CandidateWorkHistory.class), any(), any(), any())).thenReturn(TestUtils.getList
@@ -1216,7 +1216,7 @@ public class LoadTaskTest {
         task.run();
 
         String expectedQuery = "salary1=123.45 AND isLastJob=true AND customInt1=12345 AND companyName='Acme Inc.'" +
-            " AND startDate=2017-08-01 00:00:00.000";
+            " AND startDate<1500144555510";
         verify(restApiMock, times(1)).queryForList(eq(CandidateWorkHistory.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -1341,9 +1341,25 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunDatabaseQueryWhereStatementInvalidValues() throws Exception {
+    public void testRunDatabaseQueryWhereStatementInvalidNumberValue() throws Exception {
         Row row = TestUtils.createRow("salary1,isLastJob,customInt1,companyName,startDate",
-            "bogus,bogus,bogus,bogus,bogus");
+            "bogus,true,12345,Acme Inc.,<1500144555510");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE_WORK_HISTORY))
+            .thenReturn(Arrays.asList("salary1", "isLastJob", "customInt1", "companyName", "startDate"));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE_WORK_HISTORY, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "java.text.ParseException: Unparseable number: \"bogus\"");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunDatabaseQueryWhereStatementInvalidDateValue() throws Exception {
+        Row row = TestUtils.createRow("salary1,isLastJob,customInt1,companyName,startDate",
+            "123.45,true,12345,Acme Inc.,bogus");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE_WORK_HISTORY))
             .thenReturn(Arrays.asList("salary1", "isLastJob", "customInt1", "companyName", "startDate"));
 

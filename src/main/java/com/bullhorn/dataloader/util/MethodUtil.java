@@ -126,6 +126,9 @@ public class MethodUtil {
     /**
      * Converts the given string value to the given type, and if it's a date, using the given dateTimeFormatter.
      *
+     * If the date is being used to query for existing records, then it does not need to be in the form of
+     * the date time format, it can stay as a string until used in the find call.
+     *
      * @param value             the user supplied string value
      * @param type              the type to convert to for rest calls
      * @param dateTimeFormatter the user supplied date time format
@@ -134,6 +137,8 @@ public class MethodUtil {
      */
     public static Object convertStringToObject(String value, Class type, DateTimeFormatter dateTimeFormatter)
         throws ParseException {
+        String searchDateRange = "\\[.* TO .*\\]";
+        String queryDateRange = "[<=>].*";
         String trimmedValue = value.trim();
 
         if (String.class.equals(type)) {
@@ -142,7 +147,9 @@ public class MethodUtil {
             return (StringUtils.isEmpty(trimmedValue)) ? 0 : Integer.parseInt(trimmedValue);
         } else if (Boolean.class.equals(type)) {
             return (trimmedValue.equals("1")) || Boolean.parseBoolean(trimmedValue);
-        } else if (DateTime.class.equals(type)) {
+        } else if (DateTime.class.equals(type)
+            && !trimmedValue.matches(searchDateRange)
+            && !trimmedValue.matches(queryDateRange)) {
             return StringUtils.isEmpty(trimmedValue) ? null : dateTimeFormatter.parseDateTime(trimmedValue);
         } else if (BigDecimal.class.equals(type)) {
             DecimalFormat decimalFormat = new DecimalFormat();

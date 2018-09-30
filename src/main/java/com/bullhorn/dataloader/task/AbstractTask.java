@@ -19,13 +19,10 @@ import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -169,10 +166,9 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
             field = StringConsts.NOTE_ID;
         }
 
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
+        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Boolean.class.equals(fieldType)
+            || DateTime.class.equals(fieldType)) {
             return field + ":" + value;
-        } else if (DateTime.class.equals(fieldType)) {
-            return field + ":\"" + value + "\"";
         } else if (String.class.equals(fieldType)) {
             if (propertyFileUtil.getWildcardMatching()) {
                 return field + ": " + value; // Flexible match - non quoted string (falls back to whatever text exists in the cell)
@@ -190,7 +186,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
         } else if (Boolean.class.equals(fieldType)) {
-            return field + "=" + getBooleanWhereStatement(value);
+            return field + "=" + (value.equals("1") ? "true" : Boolean.toString(Boolean.valueOf(value)));
         } else if (String.class.equals(fieldType)) {
             if (propertyFileUtil.getWildcardMatching()) {
                 // Not all string fields in query entities support the like syntax. Only use it if there is a non-escaped asterisk.
@@ -203,33 +199,10 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
                 return field + "='" + value + "'"; // Literal match - equals quoted string
             }
         } else if (DateTime.class.equals(fieldType)) {
-            // TODO: This needs to be of the format: `dateOfBirth:[20170808 TO 20170808235959]` for dates
-            // Format: [yyyyMMdd TO yyyyMMddHHmmss] - a date range of one day
-            return field + "=" + getDateQuery(value);
+            return field + value; // Allow the cell value to dictate the operation: <, >, or =
         } else {
             throw new RestApiException("Failed to create query where clause for: '" + field
                 + "' with unsupported field type: " + fieldType);
-        }
-    }
-
-    String getBooleanWhereStatement(String value) {
-        if (value.equals("1")) {
-            return "true";
-        } else {
-            return Boolean.toString(Boolean.valueOf(value));
-        }
-    }
-
-    private String getDateQuery(String value) {
-        if (entityInfo.isCustomObject()) {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            DateTime dateTime = formatter.parseDateTime(value);
-            return String.valueOf(dateTime.toDate().getTime());
-        } else {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            DateTime dateTime = formatter.parseDateTime(value);
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            return df.format(dateTime.toDate());
         }
     }
     // endregion
