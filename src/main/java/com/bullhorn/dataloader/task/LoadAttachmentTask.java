@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -179,7 +180,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
                 String propertyValue = row.getValue(getEntityAssociatedPropertyName(property));
                 Class fieldType = getFieldType(entityInfo.getEntityClass(),
                     WordUtils.uncapitalize(entityInfo.getEntityClass().getSimpleName()) + "ExistField", property);
-                propertiesWithValues.add(getQueryStatement(property, propertyValue, fieldType, entityInfo));
+                propertiesWithValues.add(FindUtil.getLuceneSearch(property, propertyValue, fieldType, entityInfo, propertyFileUtil));
             }
             String query = Joiner.on(" AND ").join(propertiesWithValues);
             List<S> searchList = restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query,

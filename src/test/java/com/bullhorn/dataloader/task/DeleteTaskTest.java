@@ -14,7 +14,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Appointment;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -156,24 +155,5 @@ public class DeleteTaskTest {
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang" +
             ".IllegalArgumentException: Cannot Perform Delete: missing 'id' column.");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
-    }
-
-    @Test
-    public void getBooleanWhereStatement() throws IOException {
-        Row row = TestUtils.createRow("id", "1");
-        String falseString = "false";
-        String trueString = "true";
-        String zeroString = "0";
-        String oneString = "1";
-        String twoString = "2";
-
-        DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
-
-        Assert.assertEquals("false", task.getBooleanWhereStatement(falseString));
-        Assert.assertEquals("true", task.getBooleanWhereStatement(trueString));
-        Assert.assertEquals("false", task.getBooleanWhereStatement(zeroString));
-        Assert.assertEquals("true", task.getBooleanWhereStatement(oneString));
-        Assert.assertEquals("false", task.getBooleanWhereStatement(twoString));
     }
 }

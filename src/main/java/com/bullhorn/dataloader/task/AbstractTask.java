@@ -9,23 +9,17 @@ import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -147,7 +141,7 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     @SuppressWarnings("unchecked")
     private <S extends SearchEntity> List<B> searchForEntity(List<Field> entityExistFields) {
         String query = entityExistFields.stream().map(
-            n -> getQueryStatement(n.getCell().getName(), n.getStringValue(), n.getFieldType(), n.getFieldEntity()))
+            n -> FindUtil.getLuceneSearch(n.getCell().getName(), n.getStringValue(), n.getFieldType(), n.getFieldEntity(), propertyFileUtil))
             .collect(Collectors.joining(" AND "));
         return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query,
             Sets.newHashSet("id"), ParamFactory.searchParams());
@@ -156,81 +150,11 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     @SuppressWarnings("unchecked")
     private <Q extends QueryEntity> List<B> queryForEntity(List<Field> entityExistFields) {
         String filter = entityExistFields.stream().map(
-            n -> getWhereStatement(n.getCell().getName(), n.getStringValue(), n.getFieldType()))
+            n -> FindUtil.getSqlQuery(n.getCell().getName(), n.getStringValue(), n.getFieldType(), propertyFileUtil))
             .collect(Collectors.joining(" AND "));
         return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), filter,
             Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
-    // TODO: Move to utility
-    String getQueryStatement(String field, String value, Class fieldType, EntityInfo fieldEntityInfo) {
-        // Fix for the Note entity doing it's own thing when it comes to the 'id' field
-        if (fieldEntityInfo == EntityInfo.NOTE && field.equals(StringConsts.ID)) {
-            field = StringConsts.NOTE_ID;
-        }
-
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Boolean.class.equals(fieldType)) {
-            return field + ":" + value;
-        } else if (DateTime.class.equals(fieldType)) {
-            return field + ":\"" + value + "\"";
-        } else if (String.class.equals(fieldType)) {
-            if (propertyFileUtil.getWildcardMatching()) {
-                return field + ": " + value; // Flexible match - non quoted string (falls back to whatever text exists in the cell)
-            } else {
-                return field + ":\"" + value + "\""; // Literal match - equals quoted string
-            }
-        } else {
-            throw new RestApiException("Failed to create lucene search string for: '" + field
-                + "' with unsupported field type: " + fieldType);
-        }
-    }
-
-    // TODO: Move to utility
-    String getWhereStatement(String field, String value, Class fieldType) {
-        if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
-            return field + "=" + value;
-        } else if (Boolean.class.equals(fieldType)) {
-            return field + "=" + getBooleanWhereStatement(value);
-        } else if (String.class.equals(fieldType)) {
-            if (propertyFileUtil.getWildcardMatching()) {
-                // Not all string fields in query entities support the like syntax. Only use it if there is a non-escaped asterisk.
-                if (value.matches(".*[^\\\\][*].*")) {
-                    return field + " like '" + value.replaceAll("[*]", "%") + "'"; // Flexible match - using like syntax
-                } else {
-                    return field + "='" + value.replaceAll("[\\\\][*]", "*") + "'"; // Literal match after unescaping asterisks
-                }
-            } else {
-                return field + "='" + value + "'"; // Literal match - equals quoted string
-            }
-        } else if (DateTime.class.equals(fieldType)) {
-            // TODO: This needs to be of the format: `dateOfBirth:[20170808 TO 20170808235959]` for dates
-            // Format: [yyyyMMdd TO yyyyMMddHHmmss] - a date range of one day
-            return field + "=" + getDateQuery(value);
-        } else {
-            throw new RestApiException("Failed to create query where clause for: '" + field
-                + "' with unsupported field type: " + fieldType);
-        }
-    }
-
-    String getBooleanWhereStatement(String value) {
-        if (value.equals("1")) {
-            return "true";
-        } else {
-            return Boolean.toString(Boolean.valueOf(value));
-        }
-    }
-
-    private String getDateQuery(String value) {
-        if (entityInfo.isCustomObject()) {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            DateTime dateTime = formatter.parseDateTime(value);
-            return String.valueOf(dateTime.toDate().getTime());
-        } else {
-            DateTimeFormatter formatter = propertyFileUtil.getDateParser();
-            DateTime dateTime = formatter.parseDateTime(value);
-            DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-            return df.format(dateTime.toDate());
-        }
-    }
     // endregion
 }
