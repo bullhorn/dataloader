@@ -15,13 +15,13 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable {
@@ -119,32 +119,19 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    // region Entity Lookup Methods
-    List<B> findEntityList(List<Field> entityExistFields) {
+    @SuppressWarnings("unchecked")
+    <S extends SearchEntity, Q extends QueryEntity> List<B> findEntities(List<Field> entityExistFields, Set<String> returnFields) {
         if (!entityExistFields.isEmpty()) {
             if (entityExistFields.get(0).getEntityInfo().isSearchEntity()) {
-                return searchForEntity(entityExistFields);
+                return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
+                    FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil), returnFields, ParamFactory.searchParams());
             } else {
-                return queryForEntity(entityExistFields);
+                return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
+                    FindUtil.getSqlQuery(entityExistFields, propertyFileUtil), returnFields, ParamFactory.queryParams());
             }
         }
 
         return new ArrayList<>();
-    }
 
-    @SuppressWarnings("unchecked")
-    private <S extends SearchEntity> List<B> searchForEntity(List<Field> entityExistFields) {
-        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
-            FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil),
-            Sets.newHashSet("id"), ParamFactory.searchParams());
     }
-
-    @SuppressWarnings("unchecked")
-    private <Q extends QueryEntity> List<B> queryForEntity(List<Field> entityExistFields) {
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
-            FindUtil.getSqlQuery(entityExistFields, propertyFileUtil),
-            Sets.newHashSet("id"), ParamFactory.queryParams());
-    }
-
-    // endregion
 }
