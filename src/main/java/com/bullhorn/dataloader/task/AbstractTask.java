@@ -7,7 +7,6 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
-import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -16,15 +15,14 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable {
     static AtomicInteger rowProcessedCount = new AtomicInteger(0);
@@ -121,40 +119,19 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
-    // region Entity Lookup Methods
-    List<B> findEntityList(Record record) {
-        return findEntityList(record.getEntityExistFields());
-    }
-
-    List<B> findEntityList(List<Field> entityExistFields) {
+    @SuppressWarnings("unchecked")
+    <S extends SearchEntity, Q extends QueryEntity> List<B> findEntities(List<Field> entityExistFields, Set<String> returnFields) {
         if (!entityExistFields.isEmpty()) {
             if (entityExistFields.get(0).getEntityInfo().isSearchEntity()) {
-                return searchForEntity(entityExistFields);
+                return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
+                    FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil), returnFields, ParamFactory.searchParams());
             } else {
-                return queryForEntity(entityExistFields);
+                return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
+                    FindUtil.getSqlQuery(entityExistFields, propertyFileUtil), returnFields, ParamFactory.queryParams());
             }
         }
 
         return new ArrayList<>();
-    }
 
-    @SuppressWarnings("unchecked")
-    private <S extends SearchEntity> List<B> searchForEntity(List<Field> entityExistFields) {
-        String query = entityExistFields.stream().map(
-            n -> FindUtil.getLuceneSearch(n.getCell().getName(), n.getStringValue(), n.getFieldType(), n.getFieldEntity(), propertyFileUtil))
-            .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query,
-            Sets.newHashSet("id"), ParamFactory.searchParams());
     }
-
-    @SuppressWarnings("unchecked")
-    private <Q extends QueryEntity> List<B> queryForEntity(List<Field> entityExistFields) {
-        String filter = entityExistFields.stream().map(
-            n -> FindUtil.getSqlQuery(n.getCell().getName(), n.getStringValue(), n.getFieldType(), propertyFileUtil))
-            .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), filter,
-            Sets.newHashSet("id"), ParamFactory.queryParams());
-    }
-
-    // endregion
 }

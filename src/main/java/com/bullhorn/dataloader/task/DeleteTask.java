@@ -14,6 +14,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,10 +67,10 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
             Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, entityInfo.getSearchIsDeletedValue(false));
             Field isDeletedField = new Field(entityInfo, isDeletedCell, true, propertyFileUtil.getDateParser());
             entityExistFields.add(isDeletedField);
-            List<B> existingEntityList = findEntityList(entityExistFields);
+            List<B> existingEntityList = findEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
             return !existingEntityList.isEmpty();
         } else if (entityInfo.isHardDeletable()) {
-            List<B> existingEntityList = findEntityList(entityExistFields);
+            List<B> existingEntityList = findEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
             return !existingEntityList.isEmpty();
         } else {
             throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()

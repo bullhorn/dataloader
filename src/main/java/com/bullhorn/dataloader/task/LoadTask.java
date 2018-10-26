@@ -78,7 +78,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      */
     @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
-        List<B> foundEntityList = findEntityList(record);
+        List<B> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
         if (!foundEntityList.isEmpty()) {
             if (foundEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found "
