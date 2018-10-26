@@ -1,15 +1,19 @@
 package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Utility for constructing find call syntax (Search/Query statements)
  */
 public class FindUtil {
+    // Returns the format of a single term in a lucene search
     public static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo, PropertyFileUtil propertyFileUtil) {
         // Fix for the Note entity doing it's own thing when it comes to the 'id' field
         if (fieldEntityInfo == EntityInfo.NOTE && field.equals(StringConsts.ID)) {
@@ -31,6 +35,14 @@ public class FindUtil {
         }
     }
 
+    // Returns the search string for a list of terms in a lucene search
+    public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil) {
+        return entityExistFields.stream().map(
+            n -> FindUtil.getLuceneSearch(n.getCell().getName(), n.getStringValue(), n.getFieldType(), n.getFieldEntity(), propertyFileUtil))
+            .collect(Collectors.joining(" AND "));
+    }
+
+    // Returns the format of a single term in a query where clause
     public static String getSqlQuery(String field, String value, Class fieldType, PropertyFileUtil propertyFileUtil) {
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
@@ -53,5 +65,12 @@ public class FindUtil {
             throw new RestApiException("Failed to create query where clause for: '" + field
                 + "' with unsupported field type: " + fieldType);
         }
+    }
+
+    // Returns the search string for a list of terms in a query where clause
+    public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil) {
+        return entityExistFields.stream().map(
+            n -> FindUtil.getSqlQuery(n.getCell().getName(), n.getStringValue(), n.getFieldType(), propertyFileUtil))
+            .collect(Collectors.joining(" AND "));
     }
 }

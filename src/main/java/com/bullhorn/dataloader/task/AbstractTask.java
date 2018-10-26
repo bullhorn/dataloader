@@ -7,7 +7,6 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
-import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -24,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 public abstract class AbstractTask<B extends BullhornEntity> implements Runnable {
     static AtomicInteger rowProcessedCount = new AtomicInteger(0);
@@ -122,10 +120,6 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
     }
 
     // region Entity Lookup Methods
-    List<B> findEntityList(Record record) {
-        return findEntityList(record.getEntityExistFields());
-    }
-
     List<B> findEntityList(List<Field> entityExistFields) {
         if (!entityExistFields.isEmpty()) {
             if (entityExistFields.get(0).getEntityInfo().isSearchEntity()) {
@@ -140,19 +134,15 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
 
     @SuppressWarnings("unchecked")
     private <S extends SearchEntity> List<B> searchForEntity(List<Field> entityExistFields) {
-        String query = entityExistFields.stream().map(
-            n -> FindUtil.getLuceneSearch(n.getCell().getName(), n.getStringValue(), n.getFieldType(), n.getFieldEntity(), propertyFileUtil))
-            .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(), query,
+        return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
+            FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil),
             Sets.newHashSet("id"), ParamFactory.searchParams());
     }
 
     @SuppressWarnings("unchecked")
     private <Q extends QueryEntity> List<B> queryForEntity(List<Field> entityExistFields) {
-        String filter = entityExistFields.stream().map(
-            n -> FindUtil.getSqlQuery(n.getCell().getName(), n.getStringValue(), n.getFieldType(), propertyFileUtil))
-            .collect(Collectors.joining(" AND "));
-        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(), filter,
+        return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
+            FindUtil.getSqlQuery(entityExistFields, propertyFileUtil),
             Sets.newHashSet("id"), ParamFactory.queryParams());
     }
 
