@@ -10,7 +10,6 @@ import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.apache.commons.lang.WordUtils;
 import org.apache.tika.exception.TikaException;
 import org.apache.tika.metadata.Metadata;
@@ -28,7 +27,7 @@ import java.io.InputStream;
 /**
  * Responsible for converting a single row from a CSV input file.
  */
-public class ConvertAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class ConvertAttachmentTask extends AbstractTask {
 
     public ConvertAttachmentTask(EntityInfo entityInfo,
                                  Row row,

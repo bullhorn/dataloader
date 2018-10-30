@@ -9,6 +9,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -23,7 +24,7 @@ import java.util.List;
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
-public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class DeleteTask extends AbstractTask {
 
     public DeleteTask(EntityInfo entityInfo,
                       Row row,
@@ -64,13 +65,15 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
         entityExistFields.add(idField);
 
         if (entityInfo.isSoftDeletable()) {
-            Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, entityInfo.getSearchIsDeletedValue(false));
+            Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, FindUtil.getSearchIsDeletedValue(entityInfo, false));
             Field isDeletedField = new Field(entityInfo, isDeletedCell, true, propertyFileUtil.getDateParser());
             entityExistFields.add(isDeletedField);
-            List<B> existingEntityList = findEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
+            List<BullhornEntity> existingEntityList = findEntities(entityInfo, entityExistFields, Sets.newHashSet(StringConsts.ID),
+                propertyFileUtil, restApi);
             return !existingEntityList.isEmpty();
         } else if (entityInfo.isHardDeletable()) {
-            List<B> existingEntityList = findEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
+            List<BullhornEntity> existingEntityList = findEntities(entityInfo, entityExistFields, Sets.newHashSet(StringConsts.ID),
+                propertyFileUtil, restApi);
             return !existingEntityList.isEmpty();
         } else {
             throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()

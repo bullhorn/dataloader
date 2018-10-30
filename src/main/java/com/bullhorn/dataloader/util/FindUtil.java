@@ -73,4 +73,21 @@ public class FindUtil {
             n -> FindUtil.getSqlQuery(n.getCell().getName(), n.getStringValue(), n.getFieldType(), propertyFileUtil))
             .collect(Collectors.joining(" AND "));
     }
+
+    // TODO: Move down to lower level code
+
+    /**
+     * Since the 'isDeleted' value is not the same across all entities (Notes are different), this will return the appropriate string to use.
+     *
+     * @param entityInfo the type of entity being searched for
+     * @param isDeleted  the boolean value to convert to a string
+     * @return the isDeleted string value for the given boolean value, for search strings
+     */
+    public static String getSearchIsDeletedValue(EntityInfo entityInfo, Boolean isDeleted) {
+        if (entityInfo == EntityInfo.NOTE) {
+            return isDeleted ? "true" : "false";
+        } else {
+            return isDeleted ? "1" : "0";
+        }
+    }
 }

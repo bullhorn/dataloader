@@ -46,8 +46,8 @@ import java.util.stream.Collectors;
 /**
  * Handles converting a row of CSV data into REST calls to either insert or update a record in Bullhorn.
  */
-public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
-    private B entity;
+public class LoadTask extends AbstractTask {
+    private BullhornEntity entity;
     private boolean isNewEntity = true;
     private Record record;
 
@@ -78,7 +78,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      */
     @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
-        List<B> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> foundEntityList = findEntities(
+            entityInfo, record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), propertyFileUtil, restApi);
         if (!foundEntityList.isEmpty()) {
             if (foundEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found "
@@ -92,7 +93,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 entityId = entity.getId();
             }
         } else {
-            entity = (B) entityInfo.getEntityClass().newInstance();
+            entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
         }
     }
 
@@ -125,7 +126,7 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
                 }
             } else if (field.isToOne()) {
                 if (!field.getStringValue().isEmpty()) {
-                    B toOneEntity = findToOneEntity(field);
+                    BullhornEntity toOneEntity = findToOneEntity(field);
                     field.populateAssociationOnEntity(entity, toOneEntity);
                 }
             } else {
@@ -134,30 +135,32 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
         }
     }
 
-    private B findToOneEntity(Field field) {
-        List<B> list;
+    @SuppressWarnings("unchecked")
+    private <B extends BullhornEntity> BullhornEntity findToOneEntity(Field field) {
+        List<B> returnedList;
         if (field.getFieldEntity().isSearchEntity()) {
-            list = searchForToOne(field);
+            returnedList = searchForToOne(field);
         } else {
-            list = queryForToOne(field);
+            returnedList = queryForToOne(field);
         }
+        List<BullhornEntity> list = (List<BullhornEntity>) returnedList;
         validateListFromRestCall(field.getCell().getName(), list, field.getStringValue());
         return list.get(0);
     }
 
     @SuppressWarnings("unchecked")
-    private <S extends SearchEntity> List<B> searchForToOne(Field field) {
+    private <B extends BullhornEntity, S extends SearchEntity> List<B> searchForToOne(Field field) {
         String filter = FindUtil.getLuceneSearch(field.getName(), field.getStringValue(), field.getFieldType(),
             field.getFieldEntity(), propertyFileUtil);
         if (field.getFieldEntity().isSoftDeletable()) {
-            filter += " AND " + StringConsts.IS_DELETED + ":" + field.getFieldEntity().getSearchIsDeletedValue(false);
+            filter += " AND " + StringConsts.IS_DELETED + ":" + FindUtil.getSearchIsDeletedValue(field.getFieldEntity(), false);
         }
         return (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter,
             Sets.newHashSet(StringConsts.ID), ParamFactory.searchParams());
     }
 
     @SuppressWarnings("unchecked")
-    private <Q extends QueryEntity> List<B> queryForToOne(Field field) {
+    private <B extends BullhornEntity, Q extends QueryEntity> List<B> queryForToOne(Field field) {
         Set<String> fieldsToReturn = Sets.newHashSet(StringConsts.ID);
         String filter = FindUtil.getSqlQuery(field.getName(), field.getStringValue(), field.getFieldType(), propertyFileUtil);
         if (field.getFieldEntity() == EntityInfo.PERSON) {
@@ -182,16 +185,15 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      *
      * @return true if the entity is not soft-deleted
      */
-    private Boolean isPersonActive(B entity) {
-        Boolean active = true;
+    private Boolean isPersonActive(BullhornEntity entity) {
         if (entity.getClass() == Person.class) {
             Person person = (Person) entity;
-            active = person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
+            return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
         }
-        return active;
+        return true;
     }
 
-    private void validateListFromRestCall(String field, List<B> list, String value) {
+    private void validateListFromRestCall(String field, List<BullhornEntity> list, String value) {
         if (list == null || list.isEmpty()) {
             throw new RestApiException("Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
         } else if (list.size() > 1) {
@@ -205,8 +207,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * @param field the To-Many field to populate the entity with
      */
     private void prepopulateAssociation(Field field) throws IllegalAccessException, InvocationTargetException, ParseException {
-        List<B> associations = findAssociations(field);
-        for (B association : associations) {
+        List<BullhornEntity> associations = findAssociations(field);
+        for (BullhornEntity association : associations) {
             field.populateAssociationOnEntity(entity, association);
         }
     }
@@ -223,10 +225,10 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
 
         for (Field field : record.getToManyFields()) {
             AssociationField associationField = AssociationUtil.getToManyField(field);
-            List<B> associations = findAssociations(field);
+            List<BullhornEntity> associations = findAssociations(field);
 
             // Filter out any existing associations, down to only new association IDs
-            List<B> existingAssociations = restApi.getAllAssociationsList((Class<AssociationEntity>) entityInfo.getEntityClass(),
+            List<BullhornEntity> existingAssociations = restApi.getAllAssociationsList((Class<AssociationEntity>) entityInfo.getEntityClass(),
                 Sets.newHashSet(entityId), associationField, Sets.newHashSet(StringConsts.ID), ParamFactory.associationParams());
             List<Integer> associationIds = associations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
             List<Integer> existingIDs = existingAssociations.stream().map(BullhornEntity::getId).collect(Collectors.toList());
@@ -255,8 +257,8 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * If any of these associations do not exist in rest, or are duplicated in rest, an error is thrown, stopping the
      * task from proceeding any further.
      */
-    private List<B> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
-        List<B> associations = Lists.newArrayList();
+    private List<BullhornEntity> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
+        List<BullhornEntity> associations = Lists.newArrayList();
         if (!field.getStringValue().isEmpty()) {
             Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             associations = doFindAssociations(field);
@@ -286,17 +288,18 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
      * @param field the To-Many association field to lookup records for
      */
     @SuppressWarnings("unchecked")
-    private <Q extends QueryEntity, S extends SearchEntity> List<B> doFindAssociations(Field field) {
-        List<B> list;
+    private <B extends BullhornEntity, Q extends QueryEntity, S extends SearchEntity> List<BullhornEntity> doFindAssociations(Field field) {
+        List<BullhornEntity> list;
         if (field.getFieldEntity().isSearchEntity()) {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             String filter = values.stream().map(n -> FindUtil.getLuceneSearch(field.getName(), n, field.getFieldType(),
                 field.getFieldEntity(), propertyFileUtil)).collect(Collectors.joining(" OR "));
             if (field.getFieldEntity().isSoftDeletable()) {
-                filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + ":"
-                    + field.getFieldEntity().getSearchIsDeletedValue(false);
+                filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + ":" + FindUtil.getSearchIsDeletedValue(field.getFieldEntity(), false);
             }
-            list = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter, null, ParamFactory.searchParams());
+            List<B> returnedList = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(),
+                filter, null, ParamFactory.searchParams());
+            list = (List<BullhornEntity>) returnedList;
         } else {
             List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             String filter = values.stream().map(n -> FindUtil.getSqlQuery(field.getName(), n, field.getFieldType(), propertyFileUtil))
@@ -304,7 +307,9 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
             if (field.getFieldEntity().isSoftDeletable()) {
                 filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + "=false";
             }
-            list = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter, null, ParamFactory.queryParams());
+            List<B> returnedList = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(),
+                filter, null, ParamFactory.queryParams());
+            list = (List<BullhornEntity>) returnedList;
         }
         return list;
     }
@@ -312,9 +317,9 @@ public class LoadTask<B extends BullhornEntity> extends AbstractTask<B> {
     /**
      * Given a list of entity objects, this returns the non-duplicate set of all field values.
      */
-    private Set<String> getFieldValueSet(Field field, List<B> entities) throws InvocationTargetException, IllegalAccessException {
+    private Set<String> getFieldValueSet(Field field, List<BullhornEntity> entities) throws InvocationTargetException, IllegalAccessException {
         Set<String> values = new HashSet<>();
-        for (B entity : entities) {
+        for (BullhornEntity entity : entities) {
             values.add(field.getValueFromEntity(entity).toString());
         }
         return values;

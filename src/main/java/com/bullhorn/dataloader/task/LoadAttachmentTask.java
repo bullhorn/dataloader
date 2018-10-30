@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Responsible for attaching a single row from a CSV input file.
  */
-public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class LoadAttachmentTask extends AbstractTask {
 
     private FileMeta fileMeta;
     private boolean isNewEntity = true;
@@ -93,7 +93,7 @@ public class LoadAttachmentTask<B extends BullhornEntity> extends AbstractTask<B
      * @param fieldName The part of the field after the '.', like: 'id'
      * @return The class type of the field retrieved from the SDK-REST object.
      */
-    private Class getFieldType(Class<B> fieldType, String field, String fieldName) {
+    private Class getFieldType(Class<BullhornEntity> fieldType, String field, String fieldName) {
         if (fieldName.contains(".")) {
             fieldType = BullhornEntityInfo.getTypeFromName(fieldName.substring(0, fieldName.indexOf("."))).getType();
             fieldName = fieldName.substring(fieldName.indexOf(".") + 1);

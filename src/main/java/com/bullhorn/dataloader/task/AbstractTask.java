@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public abstract class AbstractTask<B extends BullhornEntity> implements Runnable {
+public abstract class AbstractTask implements Runnable {
     static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
     protected EntityInfo entityInfo;
@@ -119,19 +119,21 @@ public abstract class AbstractTask<B extends BullhornEntity> implements Runnable
         }
     }
 
+    // TODO: Verify here with current unit tests, then move and update unit tests
     @SuppressWarnings("unchecked")
-    <S extends SearchEntity, Q extends QueryEntity> List<B> findEntities(List<Field> entityExistFields, Set<String> returnFields) {
+    public static <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntities(
+        EntityInfo entityInfo, List<Field> entityExistFields, Set<String> returnFields, PropertyFileUtil propertyFileUtil, RestApi restApi) {
         if (!entityExistFields.isEmpty()) {
             if (entityExistFields.get(0).getEntityInfo().isSearchEntity()) {
-                return (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
+                List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
                     FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil), returnFields, ParamFactory.searchParams());
+                return (List<BullhornEntity>) list;
             } else {
-                return (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
+                List<B> list = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
                     FindUtil.getSqlQuery(entityExistFields, propertyFileUtil), returnFields, ParamFactory.queryParams());
+                return (List<BullhornEntity>) list;
             }
         }
-
         return new ArrayList<>();
-
     }
 }
