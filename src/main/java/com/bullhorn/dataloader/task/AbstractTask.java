@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.task;
 
 import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
@@ -11,10 +12,12 @@ import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.google.common.collect.Lists;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -23,6 +26,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public abstract class AbstractTask implements Runnable {
     static AtomicInteger rowProcessedCount = new AtomicInteger(0);
@@ -119,21 +123,56 @@ public abstract class AbstractTask implements Runnable {
         }
     }
 
-    // TODO: Verify here with current unit tests, then move and update unit tests
+    /**
+     * Abstract find call that calls the low-level search/query methods in the RestAPI
+     *
+     * @param entityExistFields the key/value pairs that make up the search/query string
+     * @param returnFields      the field names that make up the fields string
+     */
     @SuppressWarnings("unchecked")
-    public static <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntities(
-        EntityInfo entityInfo, List<Field> entityExistFields, Set<String> returnFields, PropertyFileUtil propertyFileUtil, RestApi restApi) {
+    <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntities(
+        List<Field> entityExistFields, Set<String> returnFields) {
         if (!entityExistFields.isEmpty()) {
-            if (entityExistFields.get(0).getEntityInfo().isSearchEntity()) {
+            EntityInfo entityInfo = entityExistFields.get(0).getFieldEntity();
+            if (entityInfo.isSearchEntity()) {
+                String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil);
                 List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
-                    FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil), returnFields, ParamFactory.searchParams());
+                    searchString, returnFields, ParamFactory.searchParams());
                 return (List<BullhornEntity>) list;
             } else {
+                String searchString = FindUtil.getSqlQuery(entityExistFields, propertyFileUtil);
                 List<B> list = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
-                    FindUtil.getSqlQuery(entityExistFields, propertyFileUtil), returnFields, ParamFactory.queryParams());
+                    searchString, returnFields, ParamFactory.queryParams());
                 return (List<BullhornEntity>) list;
             }
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * Calls findEntities for only active entities that are not soft-deleted, with special check for disabled corporate users still being active.
+     *
+     * @param entityExistFields the key/value pairs that make up the search/query string
+     * @param returnFields      the field names that make up the fields string
+     */
+    List<BullhornEntity> findActiveEntities(List<Field> entityExistFields, Set<String> returnFields) {
+        List<BullhornEntity> entities = Lists.newArrayList();
+        if (!entityExistFields.isEmpty()) {
+            EntityInfo entityInfo = entityExistFields.get(0).getFieldEntity();
+            if (entityInfo == EntityInfo.PERSON) {
+                returnFields.add(StringConsts.IS_DELETED);
+            } else if (entityInfo.isSoftDeletable()) {
+                Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, FindUtil.getIsDeletedValue(entityInfo, false));
+                Field isDeletedField = new Field(entityInfo, isDeletedCell, true, propertyFileUtil.getDateParser());
+                entityExistFields.add(isDeletedField);
+            }
+
+            entities = findEntities(entityExistFields, returnFields);
+
+            if (entityInfo == EntityInfo.PERSON) {
+                entities = entities.stream().filter(FindUtil::isPersonActive).collect(Collectors.toList());
+            }
+        }
+        return entities;
     }
 }

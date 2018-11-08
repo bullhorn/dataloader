@@ -10,7 +10,6 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
-import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -19,12 +18,9 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
-import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
-import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
-import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
@@ -78,8 +74,7 @@ public class LoadTask extends AbstractTask {
      */
     @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
-        List<BullhornEntity> foundEntityList = findEntities(
-            entityInfo, record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), propertyFileUtil, restApi);
+        List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
         if (!foundEntityList.isEmpty()) {
             if (foundEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found "
@@ -135,70 +130,26 @@ public class LoadTask extends AbstractTask {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <B extends BullhornEntity> BullhornEntity findToOneEntity(Field field) {
-        List<B> returnedList;
-        if (field.getFieldEntity().isSearchEntity()) {
-            returnedList = searchForToOne(field);
-        } else {
-            returnedList = queryForToOne(field);
-        }
-        List<BullhornEntity> list = (List<BullhornEntity>) returnedList;
-        validateListFromRestCall(field.getCell().getName(), list, field.getStringValue());
-        return list.get(0);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <B extends BullhornEntity, S extends SearchEntity> List<B> searchForToOne(Field field) {
-        String filter = FindUtil.getLuceneSearch(field.getName(), field.getStringValue(), field.getFieldType(),
-            field.getFieldEntity(), propertyFileUtil);
-        if (field.getFieldEntity().isSoftDeletable()) {
-            filter += " AND " + StringConsts.IS_DELETED + ":" + FindUtil.getSearchIsDeletedValue(field.getFieldEntity(), false);
-        }
-        return (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(), filter,
-            Sets.newHashSet(StringConsts.ID), ParamFactory.searchParams());
-    }
-
-    @SuppressWarnings("unchecked")
-    private <B extends BullhornEntity, Q extends QueryEntity> List<B> queryForToOne(Field field) {
-        Set<String> fieldsToReturn = Sets.newHashSet(StringConsts.ID);
-        String filter = FindUtil.getSqlQuery(field.getName(), field.getStringValue(), field.getFieldType(), propertyFileUtil);
-        if (field.getFieldEntity() == EntityInfo.PERSON) {
-            fieldsToReturn.add(StringConsts.IS_DELETED);
-        } else if (field.getFieldEntity().isSoftDeletable()) {
-            filter += " AND " + StringConsts.IS_DELETED + "=false";
-        }
-
-        List<B> list = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(), filter,
-            fieldsToReturn, ParamFactory.queryParams());
-
-        if (field.getFieldEntity() == EntityInfo.PERSON) {
-            list = list.stream().filter(this::isPersonActive).collect(Collectors.toList());
-        }
-
-        return list;
-    }
-
     /**
-     * Used to determine if a person entity is truly soft-deleted or not. CorporateUser persons when disabled have their
-     * deleted flag set to true, but they should always be considered active.
+     * Right now, we are only allowing a single field search for to-one entities
      *
-     * @return true if the entity is not soft-deleted
+     * @param field the field to use to search for an existing entity
+     * @return The entity if found, throws a RestApiException if not found
      */
-    private Boolean isPersonActive(BullhornEntity entity) {
-        if (entity.getClass() == Person.class) {
-            Person person = (Person) entity;
-            return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
-        }
-        return true;
-    }
+    @SuppressWarnings("unchecked")
+    private BullhornEntity findToOneEntity(Field field) {
+        List<Field> entityExistFields = Lists.newArrayList(field);
+        Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
+        List<BullhornEntity> entities = findActiveEntities(entityExistFields, returnFields);
 
-    private void validateListFromRestCall(String field, List<BullhornEntity> list, String value) {
-        if (list == null || list.isEmpty()) {
-            throw new RestApiException("Cannot find To-One Association: '" + field + "' with value: '" + value + "'");
-        } else if (list.size() > 1) {
-            throw new RestApiException("Found " + list.size() + " duplicate To-One Associations: '" + field + "' with value: '" + value + "'");
+        if (entities == null || entities.isEmpty()) {
+            throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
+                + "' with value: '" + field.getStringValue() + "'");
+        } else if (entities.size() > 1) {
+            throw new RestApiException("Found " + entities.size() + " duplicate To-One Associations: '" + field.getCell().getName()
+                + "' with value: '" + field.getStringValue() + "'");
         }
+        return entities.get(0);
     }
 
     /**
@@ -260,16 +211,17 @@ public class LoadTask extends AbstractTask {
     private List<BullhornEntity> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> associations = Lists.newArrayList();
         if (!field.getStringValue().isEmpty()) {
-            Set<String> values = Sets.newHashSet(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-            associations = doFindAssociations(field);
+            List<Field> entityExistFields = Lists.newArrayList(field);
+            Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
+            associations = findActiveEntities(entityExistFields, returnFields);
+
+            List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
             if (!propertyFileUtil.getWildcardMatching() && associations.size() != values.size()) {
                 Set<String> existingAssociationValues = getFieldValueSet(field, associations);
                 if (associations.size() > values.size()) {
-                    String duplicates = existingAssociationValues.stream().map(n -> "\t" + n)
-                        .collect(Collectors.joining("\n"));
+                    String duplicates = existingAssociationValues.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
                     throw new RestApiException("Found " + associations.size()
-                        + " duplicate To-Many Associations: '" + field.getCell().getName()
-                        + "' with value:\n" + duplicates);
+                        + " duplicate To-Many Associations: '" + field.getCell().getName() + "' with value:\n" + duplicates);
                 } else {
                     String missingAssociations = values.stream().filter(n -> !existingAssociationValues.contains(n))
                         .map(n -> "\t" + n).collect(Collectors.joining("\n"));
@@ -279,39 +231,6 @@ public class LoadTask extends AbstractTask {
             }
         }
         return associations;
-    }
-
-    /**
-     * Makes the lookup call to check that all associated values are present, and there are no duplicates. This will
-     * perform the lookup using the field given after the period, like 'name' from 'businessSector.name'.
-     *
-     * @param field the To-Many association field to lookup records for
-     */
-    @SuppressWarnings("unchecked")
-    private <B extends BullhornEntity, Q extends QueryEntity, S extends SearchEntity> List<BullhornEntity> doFindAssociations(Field field) {
-        List<BullhornEntity> list;
-        if (field.getFieldEntity().isSearchEntity()) {
-            List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-            String filter = values.stream().map(n -> FindUtil.getLuceneSearch(field.getName(), n, field.getFieldType(),
-                field.getFieldEntity(), propertyFileUtil)).collect(Collectors.joining(" OR "));
-            if (field.getFieldEntity().isSoftDeletable()) {
-                filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + ":" + FindUtil.getSearchIsDeletedValue(field.getFieldEntity(), false);
-            }
-            List<B> returnedList = (List<B>) restApi.searchForList((Class<S>) field.getFieldEntity().getEntityClass(),
-                filter, null, ParamFactory.searchParams());
-            list = (List<BullhornEntity>) returnedList;
-        } else {
-            List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
-            String filter = values.stream().map(n -> FindUtil.getSqlQuery(field.getName(), n, field.getFieldType(), propertyFileUtil))
-                .collect(Collectors.joining(" OR "));
-            if (field.getFieldEntity().isSoftDeletable()) {
-                filter = "(" + filter + ") AND " + StringConsts.IS_DELETED + "=false";
-            }
-            List<B> returnedList = (List<B>) restApi.queryForList((Class<Q>) field.getFieldEntity().getEntityClass(),
-                filter, null, ParamFactory.queryParams());
-            list = (List<BullhornEntity>) returnedList;
-        }
-        return list;
     }
 
     /**

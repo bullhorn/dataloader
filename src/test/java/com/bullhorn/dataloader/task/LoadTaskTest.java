@@ -69,7 +69,7 @@ public class LoadTaskTest {
     private CompleteUtil completeUtilMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         actionTotalsMock = mock(ActionTotals.class);
         restApiMock = mock(RestApi.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
@@ -237,7 +237,7 @@ public class LoadTaskTest {
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any()))
+        when(restApiMock.searchForList(eq(Placement.class), eq("(customText1:\"7\")"), any(), any()))
             .thenReturn(TestUtils.getList(placement));
 
         // Create expected note object in insertEntity call
@@ -569,7 +569,7 @@ public class LoadTaskTest {
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any()))
+        when(restApiMock.searchForList(eq(Placement.class), eq("(customText1:\"7\")"), any(), any()))
             .thenReturn(TestUtils.getList(placement));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
@@ -895,7 +895,7 @@ public class LoadTaskTest {
 
         verify(restApiMock).insertEntity(candidateArgumentCaptor.capture());
         Candidate actualCandidate = candidateArgumentCaptor.getValue();
-        Assert.assertEquals(null, actualCandidate.getDescription());
+        Assert.assertNull(actualCandidate.getDescription());
     }
 
     @Test
@@ -927,7 +927,7 @@ public class LoadTaskTest {
 
         verify(restApiMock).insertEntity(clientCorporationArgumentCaptor.capture());
         ClientCorporation actualClientCorporation = clientCorporationArgumentCaptor.getValue();
-        Assert.assertEquals(null, actualClientCorporation.getCompanyDescription());
+        Assert.assertNull(actualClientCorporation.getCompanyDescription());
     }
 
     @Test
@@ -1076,8 +1076,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1");
         RestApiException restApiException = new RestApiException("Flagrant Error");
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any()))
-            .thenReturn(TestUtils.getList(Skill.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
 
