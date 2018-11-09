@@ -103,7 +103,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class));
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -157,7 +157,7 @@ public class LoadTaskTest {
             .thenReturn(Collections.singletonList("externalID"));
         when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1 OR id=2 OR id=3"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1 OR id=2 OR id=3)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -182,7 +182,7 @@ public class LoadTaskTest {
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -514,7 +514,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 1));
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
@@ -1263,7 +1263,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        String expectedQuery = "name like 'Sales%' OR name like 'Market%' OR name='IT'";
+        String expectedQuery = "(name like 'Sales%' OR name like 'Market%' OR name='IT')";
         verify(restApiMock, times(1)).queryForList(eq(Skill.class), eq(expectedQuery),
             any(), any());
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),

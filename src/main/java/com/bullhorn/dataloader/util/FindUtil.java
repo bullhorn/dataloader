@@ -115,9 +115,10 @@ public class FindUtil {
      */
     private static String getSqlQuery(Field field, PropertyFileUtil propertyFileUtil) {
         if (field.isToMany()) {
-            return Arrays.stream(field.getStringValue().split(propertyFileUtil.getListDelimiter()))
+            String orClause = Arrays.stream(field.getStringValue().split(propertyFileUtil.getListDelimiter()))
                 .map(value -> FindUtil.getSqlQuery(field.getName(), value, field.getFieldType(), propertyFileUtil))
                 .collect(Collectors.joining(" OR "));
+            return "(" + orClause + ")";
         } else {
             return FindUtil.getSqlQuery(field.getName(), field.getStringValue(), field.getFieldType(), propertyFileUtil);
         }
