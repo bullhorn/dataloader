@@ -169,7 +169,7 @@ Performs delete for every valid CSV file in the given directory. The order that 
 dataloader convertAttachments path/to/<EntityName>.csv
 ```
 
-Converts locally stored files (txt, doc/x, opend, odt, rtf, html or pdf) to html. Writes out converted attachments to: `convertedAttachments\<EntityName>\<ExternalID>` in the current working directory. ExternalID is the value of the `<entityName>.externalID` column in the CSV input file. This action is to be followed by the `loadAttachments` command, which will check the `convertedAttachments` folder that was created and load any converted attachments that match the `externalID` in the CSV input file. All converted attachments will be set as the description field for the entity. Currently supports Candidate, ClientContact, and ClientCorporation. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#convertattachments).
+Converts locally stored files (txt, doc/x, opend, odt, rtf, html or pdf) to html. Writes out converted attachments to: `convertedAttachments\<EntityName>\<ExternalID>` in the current working directory. ExternalID is the value of the `<entityName>.externalID` column in the CSV input file. This action is to be followed by the `load` command, which will check the `convertedAttachments` folder that was created and load any converted attachments that match the `externalID` in the CSV input file. All converted attachments will be set as the description field for the entity. Currently supports Candidate, ClientContact, and ClientCorporation. For more information, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#convertattachments).
 
 ## Load Attachments
 
