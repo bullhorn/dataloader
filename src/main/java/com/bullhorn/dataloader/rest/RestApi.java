@@ -72,7 +72,8 @@ public class RestApi {
     // endregion
 
     // region Lookup Calls
-    // The search/query calls that DataLoader uses to lookup existing data
+    // The search/query calls that DataLoader uses to lookup existing data. These are wrappers around the SDK Rest API
+    // that add recursive pulls for retrieving more than the max 500 records in one pull.
     public <T extends SearchEntity> List<T> searchForList(Class<T> type,
                                                           String query,
                                                           Set<String> fieldSet,
