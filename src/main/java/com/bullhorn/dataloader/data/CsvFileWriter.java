@@ -17,7 +17,6 @@ import java.util.List;
 public class CsvFileWriter {
 
     public static final String RESULTS_DIR = "results/";
-    public static final String BULLHORN_ID_COLUMN = "id";
     public static final String ACTION_COLUMN = "dataloader_action";
     public static final String REASON_COLUMN = "failure_reason";
     public static final String SUCCESS_CSV = "_success.csv";
@@ -101,11 +100,11 @@ public class CsvFileWriter {
 
             if (command.equals(Command.LOAD_ATTACHMENTS)) {
                 String[] successHeaders = ArrayUtil.append(headers, StringConsts.PARENT_ENTITY_ID);
-                successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, ArrayUtil.prepend(ACTION_COLUMN, successHeaders)));
+                successCsv.writeRecord(ArrayUtil.prepend(StringConsts.ID, ArrayUtil.prepend(ACTION_COLUMN, successHeaders)));
             } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
                 successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
             } else {
-                successCsv.writeRecord(ArrayUtil.prepend(BULLHORN_ID_COLUMN, ArrayUtil.prepend(ACTION_COLUMN, headers)));
+                successCsv.writeRecord(ArrayUtil.prepend(StringConsts.ID, ArrayUtil.prepend(ACTION_COLUMN, headers)));
             }
         }
 
