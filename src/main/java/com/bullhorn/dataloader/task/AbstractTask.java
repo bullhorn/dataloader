@@ -126,21 +126,27 @@ public abstract class AbstractTask implements Runnable {
     /**
      * Abstract find call that calls the low-level search/query methods in the RestAPI
      *
+     * Find calls must be different between primary and associated entities. This affects custom objects, primarily.
+     * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
+     * - When looking for existing Person records to check for existance, we need a Person lookup for `externalID=`
+     * - When looking for existing PersonCustomObjectInstance1 records, we need a PersonCustomObjectInstance1 lookup for `person.externalID=`
+     *
      * @param entityExistFields the key/value pairs that make up the search/query string
      * @param returnFields      the field names that make up the fields string
+     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      */
     @SuppressWarnings("unchecked")
     <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntities(
-        List<Field> entityExistFields, Set<String> returnFields) {
+        List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
         if (!entityExistFields.isEmpty()) {
-            EntityInfo entityInfo = entityExistFields.get(0).getFieldEntity();
+            EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
             if (entityInfo.isSearchEntity()) {
-                String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil);
+                String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil, isPrimaryEntity);
                 List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
                     searchString, returnFields, ParamFactory.searchParams());
                 return (List<BullhornEntity>) list;
             } else {
-                String searchString = FindUtil.getSqlQuery(entityExistFields, propertyFileUtil);
+                String searchString = FindUtil.getSqlQuery(entityExistFields, propertyFileUtil, isPrimaryEntity);
                 List<B> list = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
                     searchString, returnFields, ParamFactory.queryParams());
                 return (List<BullhornEntity>) list;
@@ -154,11 +160,12 @@ public abstract class AbstractTask implements Runnable {
      *
      * @param entityExistFields the key/value pairs that make up the search/query string
      * @param returnFields      the field names that make up the fields string
+     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      */
-    List<BullhornEntity> findActiveEntities(List<Field> entityExistFields, Set<String> returnFields) {
+    List<BullhornEntity> findActiveEntities(List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
         List<BullhornEntity> entities = Lists.newArrayList();
         if (!entityExistFields.isEmpty()) {
-            EntityInfo entityInfo = entityExistFields.get(0).getFieldEntity();
+            EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
             if (entityInfo == EntityInfo.PERSON) {
                 returnFields.add(StringConsts.IS_DELETED);
             } else if (entityInfo.isSoftDeletable()) {
@@ -167,7 +174,7 @@ public abstract class AbstractTask implements Runnable {
                 entityExistFields.add(isDeletedField);
             }
 
-            entities = findEntities(entityExistFields, returnFields);
+            entities = findEntities(entityExistFields, returnFields, isPrimaryEntity);
 
             if (entityInfo == EntityInfo.PERSON) {
                 entities = entities.stream().filter(FindUtil::isPersonActive).collect(Collectors.toList());

@@ -17,6 +17,7 @@ import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCust
 import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.standard.Appointment;
 import com.bullhornsdk.data.model.entity.core.standard.AppointmentAttendee;
+import com.bullhornsdk.data.model.entity.core.standard.BusinessSector;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.Category;
@@ -422,7 +423,7 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunInsertSuccessForCandidateCustomObjects() throws IOException, InstantiationException,
+    public void testRunInsertSuccessForPersonCustomObjects() throws IOException, InstantiationException,
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
@@ -444,12 +445,12 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunInsertSuccessForClientContactCustomObjects() throws IOException, InstantiationException,
+    public void testRunInsertSuccessForPersonCustomObjectsWithParentExistField() throws IOException, InstantiationException,
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
         when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
-            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "Candidate", false)));
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "ClientContact", false)));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
             eq("person.customText1=customText1 AND text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class));
@@ -608,6 +609,50 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row,
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.update(1);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunUpdateSuccessForPersonCustomObjects() throws IOException, InstantiationException,
+        IllegalAccessException {
+        Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
+            "ext-1,Test,Skip,2016-08-30");
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "ClientContact", false)));
+        when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
+            eq("text1='Test'"), any(), any()))
+            .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class, 1));
+        when(propertyFileUtilMock.getEntityExistFields(any()))
+            .thenReturn(Arrays.asList("text1"));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.update(1);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunUpdateSuccessForPersonCustomObjectsWithParentExistField() throws IOException, InstantiationException,
+        IllegalAccessException {
+        Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
+            "ext-1,Test,Skip,2016-08-30");
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "ClientContact", false)));
+        when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
+            eq("person.customText1='ext-1' AND text1='Test'"), any(), any()))
+            .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class, 1));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+        when(propertyFileUtilMock.getEntityExistFields(any()))
+            .thenReturn(Arrays.asList("person.customText1", "text1"));
+
+        LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
@@ -1051,6 +1096,30 @@ public class LoadTaskTest {
             "com.bullhornsdk.data.exception.RestApiException: Found 2 duplicate To-Many Associations: " +
                 "'primarySkills.name' with value:\n\thacking");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunRepeatedToManyAssociations() throws Exception {
+        Row row = TestUtils.createRow("externalID,businessSectors.name", "12,BusinessSector 1;BusinessSector 1");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
+            .thenReturn(Collections.singletonList("externalID"));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"12\""), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class));
+        when(restApiMock.queryForList(eq(BusinessSector.class), eq("(name='BusinessSector 1')"), any(), any()))
+            .thenReturn(TestUtils.getList(BusinessSector.class, 1));
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        // Verify that only returning a single business sector when two identical ones were entered in the field is OK
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
+            eq(CandidateAssociations.getInstance().businessSectors()), eq(new HashSet<>(Collections.singletonList(1))));
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test

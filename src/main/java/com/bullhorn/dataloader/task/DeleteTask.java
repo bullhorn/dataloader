@@ -50,7 +50,7 @@ public class DeleteTask extends AbstractTask {
         List<Field> entityExistFields = new ArrayList<>();
         entityExistFields.add(idField);
 
-        List<BullhornEntity> existingEntities = findActiveEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> existingEntities = findActiveEntities(entityExistFields, Sets.newHashSet(StringConsts.ID), true);
         if (existingEntities.isEmpty()) {
             throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
                 + " record with ID: " + entityId + " does not exist or has already been soft-deleted.");

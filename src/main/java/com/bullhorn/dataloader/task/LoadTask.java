@@ -33,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -74,7 +73,7 @@ public class LoadTask extends AbstractTask {
      */
     @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
-        List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), true);
         if (!foundEntityList.isEmpty()) {
             if (foundEntityList.size() > 1) {
                 throw new RestApiException("Cannot Perform Update - Multiple Records Exist. Found "
@@ -140,7 +139,7 @@ public class LoadTask extends AbstractTask {
     private BullhornEntity findToOneEntity(Field field) {
         List<Field> entityExistFields = Lists.newArrayList(field);
         Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
-        List<BullhornEntity> entities = findActiveEntities(entityExistFields, returnFields);
+        List<BullhornEntity> entities = findActiveEntities(entityExistFields, returnFields, false);
 
         if (entities == null || entities.isEmpty()) {
             throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
@@ -213,11 +212,14 @@ public class LoadTask extends AbstractTask {
         if (!field.getStringValue().isEmpty()) {
             List<Field> entityExistFields = Lists.newArrayList(field);
             Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
-            associations = findActiveEntities(entityExistFields, returnFields);
+            associations = findActiveEntities(entityExistFields, returnFields, false);
 
-            List<String> values = Arrays.asList(field.getStringValue().split(propertyFileUtil.getListDelimiter()));
+            List<String> values = field.split(propertyFileUtil.getListDelimiter());
             if (!propertyFileUtil.getWildcardMatching() && associations.size() != values.size()) {
-                Set<String> existingAssociationValues = getFieldValueSet(field, associations);
+                Set<String> existingAssociationValues = new HashSet<>();
+                for (BullhornEntity entity : associations) {
+                    existingAssociationValues.add(String.valueOf(field.getValueFromEntity(entity)));
+                }
                 if (associations.size() > values.size()) {
                     String duplicates = existingAssociationValues.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
                     throw new RestApiException("Found " + associations.size()
@@ -231,17 +233,6 @@ public class LoadTask extends AbstractTask {
             }
         }
         return associations;
-    }
-
-    /**
-     * Given a list of entity objects, this returns the non-duplicate set of all field values.
-     */
-    private Set<String> getFieldValueSet(Field field, List<BullhornEntity> entities) throws InvocationTargetException, IllegalAccessException {
-        Set<String> values = new HashSet<>();
-        for (BullhornEntity entity : entities) {
-            values.add(field.getValueFromEntity(entity).toString());
-        }
-        return values;
     }
 
     /**

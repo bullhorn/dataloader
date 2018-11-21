@@ -8,7 +8,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,27 +43,32 @@ public class FindUtil {
      *
      * @param entityExistFields the key/value pair list of fields to search on
      * @param propertyFileUtil  the propertyFile settings
+     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
      * @return the formatted lucene search string
      */
-    public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil) {
-        return entityExistFields.stream().map(field -> getLuceneSearch(field, propertyFileUtil)).collect(Collectors.joining(" AND "));
+    public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
+        return entityExistFields.stream()
+            .map(field -> getLuceneSearch(field, propertyFileUtil, isPrimaryEntity))
+            .collect(Collectors.joining(" AND "));
     }
 
     /**
      * Generates the lucene search string for a single field.
      *
-     * For non-to-many fields: externalID: "1234567"
+     * For primary entity non-to-many fields: person.externalID: "1234567"
+     * For association non-to-many fields: externalID: "1234567"
      * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
      * TODO: For to-many id fields only: id: 1 2 3 4 5
      */
-    private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil) {
+    private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
         if (field.isToMany()) {
-            String orClause = Arrays.stream(field.getStringValue().split(propertyFileUtil.getListDelimiter()))
+            String orClause = field.split(propertyFileUtil.getListDelimiter()).stream()
                 .map(value -> FindUtil.getLuceneSearch(field.getName(), value, field.getFieldType(), field.getFieldEntity(), propertyFileUtil))
                 .collect(Collectors.joining(" OR "));
             return "(" + orClause + ")";
         } else {
-            return FindUtil.getLuceneSearch(field.getName(), field.getStringValue(), field.getFieldType(), field.getFieldEntity(), propertyFileUtil);
+            String fieldName = isPrimaryEntity ? field.getCell().getName() : field.getName();
+            return FindUtil.getLuceneSearch(fieldName, field.getStringValue(), field.getFieldType(), field.getFieldEntity(), propertyFileUtil);
         }
     }
 
@@ -101,26 +105,31 @@ public class FindUtil {
      *
      * @param entityExistFields the key/value pair list of fields to search on
      * @param propertyFileUtil  the propertyFile settings
+     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
      * @return the formatted where clause for the query string
      */
-    public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil) {
-        return entityExistFields.stream().map(field -> FindUtil.getSqlQuery(field, propertyFileUtil)).collect(Collectors.joining(" AND "));
+    public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
+        return entityExistFields.stream()
+            .map(field -> FindUtil.getSqlQuery(field, propertyFileUtil, isPrimaryEntity))
+            .collect(Collectors.joining(" AND "));
     }
 
     /**
      * Generates the query where clause for a single field
      *
-     * For non-to-many fields: externalID='1234567'
-     * For to-many fields: name='Jack' OR name='Jill' OR name='Spot'
+     * For primary entity non-to-many fields: person.externalID='1234567'
+     * For association non-to-many fields: externalID='1234567'
+     * For to-many fields: (name='Jack' OR name='Jill' OR name='Spot')
      */
-    private static String getSqlQuery(Field field, PropertyFileUtil propertyFileUtil) {
+    private static String getSqlQuery(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
         if (field.isToMany()) {
-            String orClause = Arrays.stream(field.getStringValue().split(propertyFileUtil.getListDelimiter()))
+            String orClause = field.split(propertyFileUtil.getListDelimiter()).stream()
                 .map(value -> FindUtil.getSqlQuery(field.getName(), value, field.getFieldType(), propertyFileUtil))
                 .collect(Collectors.joining(" OR "));
             return "(" + orClause + ")";
         } else {
-            return FindUtil.getSqlQuery(field.getName(), field.getStringValue(), field.getFieldType(), propertyFileUtil);
+            String fieldName = isPrimaryEntity ? field.getCell().getName() : field.getName();
+            return FindUtil.getSqlQuery(fieldName, field.getStringValue(), field.getFieldType(), propertyFileUtil);
         }
     }
 

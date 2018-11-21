@@ -7,12 +7,14 @@ import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
+import com.google.common.collect.Lists;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The data from a Cell applied to a specific entity and field (direct or associated to-one) on an entity.
@@ -148,6 +150,19 @@ public class Field {
      */
     public String getStringValue() {
         return cell.getValue();
+    }
+
+    /**
+     * Given a delimiter, returns the list of unique values, for example:
+     *
+     * 'Skill1;Skill2;Skill3' = ['Skill1', 'Skill2', 'Skill3']
+     * 'Skill1;Skill1' = ['Skill1']
+     *
+     * @param delimiter the character(s) to split on
+     * @return the list of unique values
+     */
+    public List<String> split(String delimiter) {
+        return Lists.newArrayList(getStringValue().split(delimiter)).stream().distinct().collect(Collectors.toList());
     }
 
     /**
