@@ -95,7 +95,7 @@ public class ResultTest {
     public void testToString() {
         Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
 
-        Assert.assertEquals(result.toString(), "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, failureText=''}");
+        Assert.assertEquals(result.toString(), "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, bullhornParentId=-1, failureText=''}");
     }
 
     @Test
@@ -161,6 +161,17 @@ public class ResultTest {
         Result result2 = Result.insert(1);
         Result different = Result.insert(1);
         different.setBullhornId(2);
+
+        Assert.assertEquals(result1, result2);
+        Assert.assertNotEquals(result1, different);
+    }
+
+    @Test
+    public void testEquals_bullhornParentId_setter() {
+        Result result1 = Result.insert(1);
+        Result result2 = Result.insert(1);
+        Result different = Result.insert(1);
+        different.setBullhornParentId(2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);

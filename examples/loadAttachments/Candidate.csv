@@ -1,3 +1,7 @@
-candidate.externalID,relativeFilePath                                     ,isResume
-candidate-ext-1     ,examples/loadAttachments/sampleFiles/SampleResume.doc,1
-candidate-ext-1     ,examples/loadAttachments/sampleFiles/SampleFile.doc  ,0
+candidate.externalID,externalID,relativeFilePath                                     ,isResume
+candidate-ext-1     ,resume-001,examples/loadAttachments/sampleFiles/SampleResume.doc,1
+candidate-ext-1     ,file-001  ,examples/loadAttachments/sampleFiles/SampleFile.doc  ,0
+candidate-2-ext-1   ,resume-002,examples/loadAttachments/sampleFiles/SampleResume.doc,1
+candidate-2-ext-1   ,file-002  ,examples/loadAttachments/sampleFiles/SampleFile.doc  ,0
+candidate-3-ext-1   ,resume-003,examples/loadAttachments/sampleFiles/SampleResume.doc,1
+candidate-3-ext-1   ,file-003  ,examples/loadAttachments/sampleFiles/SampleFile.doc  ,0

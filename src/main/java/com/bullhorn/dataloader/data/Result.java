@@ -11,12 +11,21 @@ public class Result {
     private Status status = Status.NOT_SET;
     private Action action = Action.NOT_SET;
     private Integer bullhornId = -1;
+    private Integer bullhornParentId = -1;
     private String failureText = "";
 
     public Result(Status status, Action action, Integer bullhornId, String failureText) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
+        this.failureText = failureText;
+    }
+
+    public Result(Status status, Action action, Integer bullhornId, Integer bullhornParentId, String failureText) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+        this.bullhornParentId = bullhornParentId;
         this.failureText = failureText;
     }
 
@@ -31,6 +40,17 @@ public class Result {
     }
 
     /**
+     * Insert convenience constructor with bullhorn internal ID of the record and the parent record
+     *
+     * @param bullhornId       The bullhorn internal ID of the record
+     * @param bullhornParentId The bullhorn internal ID of the parent record (for example: file attachments)
+     * @return The new Result object
+     */
+    public static Result insert(Integer bullhornId, Integer bullhornParentId) {
+        return new Result(Status.SUCCESS, Action.INSERT, bullhornId, bullhornParentId, "");
+    }
+
+    /**
      * Update convenience constructor
      *
      * @param bullhornId The bullhorn internal ID of the record
@@ -38,6 +58,17 @@ public class Result {
      */
     public static Result update(Integer bullhornId) {
         return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+    }
+
+    /**
+     * Update convenience constructor with bullhorn internal ID of the record and the parent record
+     *
+     * @param bullhornId       The bullhorn internal ID of the record
+     * @param bullhornParentId The bullhorn internal ID of the parent record (for example: file attachments)
+     * @return The new Result object
+     */
+    public static Result update(Integer bullhornId, Integer bullhornParentId) {
+        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, bullhornParentId, "");
     }
 
     /**
@@ -135,6 +166,19 @@ public class Result {
     }
 
     /**
+     * Will be set for loading attachments if the record was processed successfully. Valid values are 1 to n.
+     *
+     * @return -1 if the value is invalid or not present
+     */
+    public Integer getBullhornParentId() {
+        return bullhornParentId;
+    }
+
+    public void setBullhornParentId(Integer bullhornParentId) {
+        this.bullhornParentId = bullhornParentId;
+    }
+
+    /**
      * Will be set if the record had an error in processing.
      */
     public String getFailureText() {
@@ -160,6 +204,7 @@ public class Result {
         return (getStatus().equals(that.getStatus())
             && getAction().equals(that.getAction())
             && getBullhornId().equals(that.getBullhornId())
+            && getBullhornParentId().equals(that.getBullhornParentId())
             && getFailureText().equals(that.getFailureText()));
     }
 
@@ -168,6 +213,7 @@ public class Result {
         int result = getStatus().hashCode();
         result = 31 * result + getAction().hashCode();
         result = 31 * result + getBullhornId().hashCode();
+        result = 31 * result + getBullhornParentId().hashCode();
         result = 31 * result + getFailureText().hashCode();
         return result;
     }
@@ -178,6 +224,7 @@ public class Result {
             + "status=" + getStatus()
             + ", action=" + getAction()
             + ", bullhornId=" + getBullhornId()
+            + ", bullhornParentId=" + getBullhornParentId()
             + ", failureText='" + getFailureText() + "'"
             + '}';
     }

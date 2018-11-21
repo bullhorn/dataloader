@@ -83,6 +83,9 @@ public class CsvFileWriter {
         if (result.isSuccess()) {
             csvWriter = getOrCreateSuccessCsvWriter();
             values.add(0, result.getAction().toString());
+            if (command.equals(Command.LOAD_ATTACHMENTS)) {
+                values.add(0, result.getBullhornParentId().toString());
+            }
             values.add(0, result.getBullhornId().toString());
         } else {
             csvWriter = getOrCreateFailureCsvWriter();
@@ -99,8 +102,8 @@ public class CsvFileWriter {
             successCsv = new CsvWriter(fileWriter, ',');
 
             if (command.equals(Command.LOAD_ATTACHMENTS)) {
-                String[] successHeaders = ArrayUtil.append(headers, StringConsts.PARENT_ENTITY_ID);
-                successCsv.writeRecord(ArrayUtil.prepend(StringConsts.ID, ArrayUtil.prepend(ACTION_COLUMN, successHeaders)));
+                successCsv.writeRecord(ArrayUtil.prepend(StringConsts.ID, ArrayUtil.prepend(StringConsts.PARENT_ENTITY_ID,
+                    ArrayUtil.prepend(ACTION_COLUMN, headers))));
             } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
                 successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
             } else {

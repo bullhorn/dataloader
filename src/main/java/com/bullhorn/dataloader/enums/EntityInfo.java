@@ -15,6 +15,7 @@ import com.bullhornsdk.data.model.entity.core.type.SoftDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
+import com.bullhornsdk.data.model.file.FileMeta;
 
 import java.lang.reflect.Method;
 import java.util.Comparator;
@@ -143,7 +144,10 @@ public enum EntityInfo {
     PERSON(BullhornEntityInfo.PERSON, 1000),
 
     // Compound class
-    ADDRESS(BullhornEntityInfo.ADDRESS, 1001);
+    ADDRESS(BullhornEntityInfo.ADDRESS, 1001),
+
+    // File Class - Handles Setting/Getting File Meta
+    FILE(BullhornEntityInfo.FILE, 1002);
 
     /**
      * Comparator for sorting EntityInfo objects in a sorted collection.
@@ -203,12 +207,15 @@ public enum EntityInfo {
 
     /**
      * The entity class used in the Bullhorn's SDK-REST. For address, we account for the null value in REST-SDK.
+     * For files, we swap out the file itself for the FileMeta object that DataLoader sets/gets.
      *
      * @return the address class for use in DataLoader, since we are not loading directly, but need it to be available
      */
     public Class getEntityClass() {
         if (bullhornEntityInfo == BullhornEntityInfo.ADDRESS) {
             return Address.class;
+        } else if (bullhornEntityInfo == BullhornEntityInfo.FILE) {
+            return FileMeta.class;
         }
         return bullhornEntityInfo.getType();
     }

@@ -161,4 +161,15 @@ public class FindUtil {
         }
         return true;
     }
+
+    /**
+     * Simple method for getting a nicely formatted user message about multiple existing records to choose from.
+     */
+    public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, Integer numRecords) {
+        return "Cannot Perform Update - Multiple Records Exist. Found "
+            + numRecords + " " + entityInfo.getEntityName()
+            + " records with the same ExistField criteria of: " + entityExistFields.stream()
+            .map(field -> field.getCell().getName() + "=" + field.getStringValue())
+            .collect(Collectors.joining(" AND "));
+    }
 }

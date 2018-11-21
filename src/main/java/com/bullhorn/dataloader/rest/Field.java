@@ -172,8 +172,7 @@ public class Field {
      *
      * @param entity the entity object to populate
      */
-    public void populateFieldOnEntity(BullhornEntity entity) throws ParseException, InvocationTargetException,
-        IllegalAccessException {
+    public void populateFieldOnEntity(Object entity) throws ParseException, InvocationTargetException, IllegalAccessException {
         if (cell.isAddress()) {
             Address address = (Address) getAssociationMethod.invoke(entity);
             if (address == null) {

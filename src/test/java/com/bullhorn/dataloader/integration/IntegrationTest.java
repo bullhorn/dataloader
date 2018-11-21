@@ -3,10 +3,10 @@ package com.bullhorn.dataloader.integration;
 import com.bullhorn.dataloader.Main;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.CsvFileWriter;
+import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.File;
@@ -136,49 +136,34 @@ public class IntegrationTest {
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
-        String insertCommandOutput = consoleOutputCapturer.stop();
-
-        Assert.assertFalse("Error messages output during insert step", insertCommandOutput.contains("ERROR"));
-        Assert.assertFalse("Failed to process records during insert step", insertCommandOutput.contains("processed: 0"));
-        Assert.assertFalse("Update performed during insert step", insertCommandOutput.contains("updated: 1"));
-        Assert.assertFalse("Delete performed during insert step", insertCommandOutput.contains("deleted: 1"));
-        Assert.assertFalse("Failure reported during insert step", insertCommandOutput.contains("failed: 1"));
+        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
 
-        // region INSERT ATTACHMENTS
         if (tempAttachmentsDirectory != null) {
+            // region INSERT ATTACHMENTS
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-
             consoleOutputCapturer.start();
             Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/Candidate.csv"});
-            String loadAttachmentsCommandOutput = consoleOutputCapturer.stop();
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
+            // endregion
 
-            Assert.assertFalse("Error messages output during load attachments step", loadAttachmentsCommandOutput.contains("ERROR"));
-            Assert.assertFalse("Failed to process records during load attachments step", loadAttachmentsCommandOutput.contains("processed: 0"));
-            Assert.assertFalse("Update performed during load attachments step", loadAttachmentsCommandOutput.contains("updated: 1"));
-            Assert.assertFalse("Delete performed during load attachments step", loadAttachmentsCommandOutput.contains("deleted: 1"));
-            Assert.assertFalse("Failure reported during load attachments step", loadAttachmentsCommandOutput.contains("failed: 1"));
+            // region UPDATE ATTACHMENTS
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/CandidateUpdate.csv"});
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
             TestUtils.checkResultsFiles(tempAttachmentsDirectory, Command.LOAD_ATTACHMENTS);
+            // endregion
         }
-        // endregion
 
         // region UPDATE
         FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
-        String updateCommandOutput = consoleOutputCapturer.stop();
-
-        Assert.assertFalse("Error messages output during update step", updateCommandOutput.contains("ERROR"));
-        Assert.assertFalse("Failed to process records during update step", updateCommandOutput.contains("processed: 0"));
-        Assert.assertFalse("Insert performed during update step", updateCommandOutput.contains("inserted: 1"));
-        Assert.assertFalse("Delete performed during update step", updateCommandOutput.contains("deleted: 1"));
-        Assert.assertFalse("Failure reported during update step", updateCommandOutput.contains("failed: 1"));
+        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
-
-        // TODO: UPDATE ATTACHMENTS
 
         if (!skipDelete) {
             // region ~FIXME~
@@ -197,13 +182,7 @@ public class IntegrationTest {
             System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
             consoleOutputCapturer.start();
             Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
-            String deleteCommandOutput = consoleOutputCapturer.stop();
-
-            Assert.assertFalse("Error messages output during delete step", deleteCommandOutput.contains("ERROR"));
-            Assert.assertFalse("Failed to process records during delete step", deleteCommandOutput.contains("processed: 0"));
-            Assert.assertFalse("Insert performed during delete step", deleteCommandOutput.contains("inserted: 1"));
-            Assert.assertFalse("Update performed during delete step", deleteCommandOutput.contains("updated: 1"));
-            Assert.assertFalse("Failure reported during delete step", deleteCommandOutput.contains("failed: 1"));
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.DELETE);
 
             // Test that we deleted the results files that were there previously (not the results of our delete)
             for (File file : resultsFiles) {

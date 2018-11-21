@@ -45,7 +45,7 @@ public class LoadAttachmentTaskTest {
     private String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         printUtilMock = mock(PrintUtil.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
         restApiMock = mock(RestApi.class);
@@ -57,13 +57,13 @@ public class LoadAttachmentTaskTest {
     }
 
     @Test
-    public void loadAttachmentSuccessTest() throws Exception {
+    public void testRunInsertSuccessIdLookup() throws Exception {
         Row row = TestUtils.createRow("candidate.id,relativeFilePath,isResume", "1001," + relativeFilePath + ",0");
         FileContent mockedFileContent = mock(FileContent.class);
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("id"));
-        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1001"), any(), any()))
+        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1001 AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class, 1001));
         when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
 
@@ -71,49 +71,18 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(0);
+        Result expectedResult = Result.insert(0, 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void loadAttachmentNoRelativeFilePathTest() throws Exception {
-        Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
-        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2016Ext\""), any(), any()))
-            .thenReturn(TestUtils.getList(Candidate.class, 1001));
-
-        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
-        task.run();
-
-        Result expectedResult = Result.failure(
-            new IOException("Missing the 'relativeFilePath' column required for loadAttachments"), 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
-    }
-
-    @Test
-    public void loadAttachmentFailureTest() throws Exception {
-        Row row = TestUtils.createRow("candidate.id,relativeFilePath,isResume", "1001," + relativeFilePath + ",0");
-        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("id"));
-        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1001"), any(), any()))
-            .thenReturn(TestUtils.getList(Candidate.class, 1001));
-        when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
-
-        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
-        task.run();
-
-        Result expectedResult = Result.failure(new RestApiException("Test"), 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
-    }
-
-    @Test
-    public void existPropertyConfiguredCorrectlyTest() throws Exception {
+    public void testRunInsertSuccessExternalIdLookup() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
             "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
         FileContent mockedFileContent = mock(FileContent.class);
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\""), any(), any()))
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class, 1001));
         when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
 
@@ -121,12 +90,97 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(0);
+        Result expectedResult = Result.insert(0, 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void existPropertyMissingTest() throws Exception {
+    public void testRunUpdateSuccessFileContent() throws Exception {
+        Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
+            "2011Ext," + relativeFilePath + ",1,extFileId1,Updated Filename");
+        FileMeta file1 = new StandardFileMeta();
+        file1.setName("original name");
+        file1.setId(222);
+        file1.setExternalID("extFileId1");
+        List<FileMeta> fileList = Lists.newArrayList(file1);
+        StandardFileContent mockedFileContent = new StandardFileContent();
+        mockedFileContent.setFileContent("thisisafilecontent");
+        FileMeta mockedFileMeta = mock(FileMeta.class);
+        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1001));
+        when(restApiMock.updateFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
+        when(restApiMock.getFileMetaData(any(), any())).thenReturn(fileList);
+        when(restApiMock.getFileContent(any(), any(), any())).thenReturn(mockedFileContent);
+
+        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.update(0, 1001);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunUpdateSuccessName() throws Exception {
+        Row row = TestUtils.createRow("candidate.externalID,externalID,name",
+            "2011Ext,extFileId1,Updated Filename");
+        FileMeta file1 = new StandardFileMeta();
+        file1.setName("original name");
+        file1.setId(222);
+        file1.setExternalID("extFileId1");
+        List<FileMeta> fileList = Lists.newArrayList(file1);
+        StandardFileContent mockedFileContent = new StandardFileContent();
+        mockedFileContent.setFileContent("thisisafilecontent");
+        FileMeta mockedFileMeta = mock(FileMeta.class);
+        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1001));
+        when(restApiMock.updateFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
+        when(restApiMock.getFileMetaData(any(), any())).thenReturn(fileList);
+        when(restApiMock.getFileContent(any(), any(), any())).thenReturn(mockedFileContent);
+
+        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.update(0, 1001);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunFailureParentEntityNotFound() throws Exception {
+        Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
+            "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
+
+        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "com.bullhornsdk.data.exception.RestApiException: Parent Entity not found.");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunFailureMultipleParentEntitiesFound() throws Exception {
+        Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
+            "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1001, 1002));
+
+        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Update - Multiple Records Exist. "
+                + "Found 2 Candidate records with the same ExistField criteria of: externalID=2011Ext AND isDeleted=0");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunFailureMissingExistField() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
             "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Lists.newArrayList());
@@ -142,7 +196,7 @@ public class LoadAttachmentTaskTest {
     }
 
     @Test
-    public void existPropertyConfiguredIncorrectlyTest() throws Exception {
+    public void testRunFailureFieldDoesNotExist() throws Exception {
         Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
             "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("bogus"));
@@ -152,35 +206,58 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'candidateExistField': 'bogus' does not exist on Candidate");
+            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void updateAttachmentSuccessTest() throws Exception {
-        Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
-            "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
-        FileMeta file1 = new StandardFileMeta();
-        file1.setName("original name");
-        file1.setId(222);
-        file1.setExternalID("extFileId1");
-        List<FileMeta> fileList = Lists.newArrayList();
-        fileList.add(file1);
-        StandardFileContent mockedFileContent = new StandardFileContent();
-        mockedFileContent.setFileContent("thisisafilecontent");
-        FileMeta mockedFileMeta = mock(FileMeta.class);
-        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
-        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\""), any(), any()))
+    public void testRunFailureNoRelativeFilePath() throws Exception {
+        Row row = TestUtils.createRow("candidate.externalID,isResume", "2016Ext,1");
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2016Ext\" AND isDeleted:0"), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class, 1001));
-        when(restApiMock.updateFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
-        when(restApiMock.getFileMetaData(any(), any())).thenReturn(fileList);
-        when(restApiMock.getFileContent(any(), any(), any())).thenReturn(mockedFileContent);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(0);
+        Result expectedResult = Result.failure(
+            new IOException("Missing the 'relativeFilePath' column required for loadAttachments"), 1001);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunFailureCannotReadFileFromDisk() throws Exception {
+        Row row = TestUtils.createRow("candidate.externalID,relativeFilePath,isResume,externalID,name",
+            "2011Ext,bogus/bogus.txt,1,extFileId1,new filename");
+        FileContent mockedFileContent = mock(FileContent.class);
+        FileMeta mockedFileMeta = mock(FileMeta.class);
+        StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1001));
+        when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
+
+        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.failure(
+            new RestApiException("Cannot read file from disk: bogus/bogus.txt"), 1001);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunFailureRestError() throws Exception {
+        Row row = TestUtils.createRow("candidate.id,relativeFilePath,isResume", "1001," + relativeFilePath + ",0");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("id"));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1001 AND isDeleted:0"), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1001));
+        when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
+
+        task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
+            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.failure(new RestApiException("Test"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

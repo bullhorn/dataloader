@@ -22,10 +22,6 @@ import java.util.Properties;
  * Wrapper around the properties that handles all interaction with properties throughout a session.
  */
 public class PropertyFileUtil {
-    private static final String EXIST_FIELD_SUFFIX = "ExistField";
-    private static final String COLUMN_NAME_ALIAS_SUFFIX = "Column";
-    private static final String DATALOADER_PREFIX = "DATALOADER_";
-    private static final String CONVERTED_ATTACHMENTS_DIRECTORY = "convertedAttachments";
 
     private final PrintUtil printUtil;
     private String[] remainingArgs;
@@ -72,8 +68,8 @@ public class PropertyFileUtil {
         this.printUtil = printUtil;
 
         // If the users has specified a -Dpropertyfile command line parameter, use that fileName instead
-        if (null != systemProperties.getProperty(StringConsts.PROPERTYFILE_ARG)) {
-            fileName = systemProperties.getProperty(StringConsts.PROPERTYFILE_ARG);
+        if (null != systemProperties.getProperty(StringConsts.PROPERTY_FILE_ARG)) {
+            fileName = systemProperties.getProperty(StringConsts.PROPERTY_FILE_ARG);
         }
 
         // Read in from file and environment variables
@@ -104,7 +100,7 @@ public class PropertyFileUtil {
      * @return a string containing the filepath to read to or write from
      */
     public String getConvertedAttachmentFilepath(EntityInfo entityInfo, String externalId) {
-        return CONVERTED_ATTACHMENTS_DIRECTORY + "/" + entityInfo.getEntityName() + "/" + externalId + ".html";
+        return StringConsts.CONVERTED_ATTACHMENTS_DIRECTORY + "/" + entityInfo.getEntityName() + "/" + externalId + ".html";
     }
 
     /**
@@ -245,13 +241,13 @@ public class PropertyFileUtil {
         for (Map.Entry<String, String> envVar : envVars.entrySet()) {
             String key = envVar.getKey();
             String value = envVar.getValue();
-            if (key.startsWith(DATALOADER_PREFIX)) {
-                String name = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, key.split(DATALOADER_PREFIX)[1]);
+            if (key.startsWith(StringConsts.DATALOADER_PREFIX)) {
+                String name = CaseFormat.UPPER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, key.split(StringConsts.DATALOADER_PREFIX)[1]);
                 Property propertyEnum = Property.fromString(name);
                 if (propertyEnum != null) {
                     properties.setProperty(propertyEnum.getName(), value);
                     printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
-                } else if (name.endsWith(EXIST_FIELD_SUFFIX) || name.endsWith(COLUMN_NAME_ALIAS_SUFFIX)) {
+                } else if (name.endsWith(StringConsts.EXIST_FIELD_SUFFIX) || name.endsWith(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)) {
                     properties.setProperty(name, value);
                     printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
                 }
@@ -273,7 +269,7 @@ public class PropertyFileUtil {
             String propertyValue = properties.getProperty(propertyName);
             if (propertyEnum != null) {
                 validProperties.setProperty(propertyEnum.getName(), propertyValue);
-            } else if (propertyName.endsWith(EXIST_FIELD_SUFFIX) || propertyName.endsWith(COLUMN_NAME_ALIAS_SUFFIX)) {
+            } else if (propertyName.endsWith(StringConsts.EXIST_FIELD_SUFFIX) || propertyName.endsWith(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)) {
                 validProperties.setProperty(propertyName, propertyValue);
             }
         }
@@ -300,7 +296,7 @@ public class PropertyFileUtil {
                 consumedArgs.add(argValue);
                 properties.setProperty(property.getName(), argValue);
                 ++i; // skip over value
-            } else if (argName.contains(EXIST_FIELD_SUFFIX) || argName.contains(COLUMN_NAME_ALIAS_SUFFIX)) {
+            } else if (argName.contains(StringConsts.EXIST_FIELD_SUFFIX) || argName.contains(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)) {
                 consumedArgs.add(argName);
                 consumedArgs.add(argValue);
                 properties.setProperty(argName, argValue);
@@ -381,8 +377,8 @@ public class PropertyFileUtil {
     private Map<String, List<String>> createEntityExistFieldsMap(Properties properties) {
         Map<String, List<String>> entityExistFields = Maps.newHashMap();
         for (String propertyName : properties.stringPropertyNames()) {
-            if (propertyName.endsWith(EXIST_FIELD_SUFFIX)) {
-                String entityName = propertyName.split(EXIST_FIELD_SUFFIX)[0];
+            if (propertyName.endsWith(StringConsts.EXIST_FIELD_SUFFIX)) {
+                String entityName = propertyName.split(StringConsts.EXIST_FIELD_SUFFIX)[0];
                 String upperCaseEntityName = WordUtils.capitalize(entityName);
                 entityExistFields.put(upperCaseEntityName, Arrays.asList(properties.getProperty(propertyName).split(",")));
             }
@@ -399,8 +395,8 @@ public class PropertyFileUtil {
     private Map<String, String> createColumnNameMap(Properties properties) {
         Map<String, String> map = Maps.newHashMap();
         for (String propertyName : properties.stringPropertyNames()) {
-            if (propertyName.endsWith(COLUMN_NAME_ALIAS_SUFFIX)) {
-                String alias = propertyName.split(COLUMN_NAME_ALIAS_SUFFIX)[0];
+            if (propertyName.endsWith(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)) {
+                String alias = propertyName.split(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)[0];
                 String columnName = properties.getProperty(propertyName);
                 map.put(alias.toLowerCase(), columnName);
             }
@@ -425,10 +421,10 @@ public class PropertyFileUtil {
         logPropertyIfExists(properties, Property.LOGIN_URL.getName());
 
         printUtil.log("# Section 3 -- Exist Fields");
-        logPropertiesEndingWith(properties, EXIST_FIELD_SUFFIX);
+        logPropertiesEndingWith(properties, StringConsts.EXIST_FIELD_SUFFIX);
 
         printUtil.log("# Section 4 -- Column Mapping");
-        logPropertiesEndingWith(properties, COLUMN_NAME_ALIAS_SUFFIX);
+        logPropertiesEndingWith(properties, StringConsts.COLUMN_NAME_ALIAS_SUFFIX);
 
         printUtil.log("# Section 5 -- Formatting");
         logPropertyIfExists(properties, Property.LIST_DELIMITER.getName());
