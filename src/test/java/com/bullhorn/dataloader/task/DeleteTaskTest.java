@@ -36,7 +36,7 @@ public class DeleteTaskTest {
     private CompleteUtil completeUtilMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
         restApiMock = mock(RestApi.class);
@@ -132,14 +132,14 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_NonDeletableEntityFailure() throws IOException, InstantiationException, IllegalAccessException {
+    public void run_NonDeletableEntityFailure() throws IOException {
         Row row = TestUtils.createRow("id", "1");
 
         DeleteTask task = new DeleteTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
             "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: ClientCorporation records are not deletable.");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }

@@ -10,7 +10,6 @@ import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.response.file.FileApiResponse;
 
@@ -19,7 +18,7 @@ import java.io.IOException;
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
-public class DeleteAttachmentTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class DeleteAttachmentTask extends AbstractTask {
 
     public DeleteAttachmentTask(EntityInfo entityInfo,
                                 Row row,

@@ -16,14 +16,13 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Sets;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
  */
-public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
+public class DeleteTask extends AbstractTask {
 
     public DeleteTask(EntityInfo entityInfo,
                       Row row,
@@ -36,45 +35,28 @@ public class DeleteTask<B extends BullhornEntity> extends AbstractTask<B> {
     }
 
     @SuppressWarnings("unchecked")
-    protected Result handle() throws IOException, IllegalAccessException, InstantiationException {
+    protected Result handle() {
         if (!row.hasValue(StringConsts.ID)) {
             throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }
 
+        if (!entityInfo.isSoftDeletable() && !entityInfo.isHardDeletable()) {
+            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName() + " records are not deletable.");
+        }
+
         entityId = Integer.parseInt(row.getValue(StringConsts.ID));
-        if (!isEntityDeletable(entityId)) {
+        Cell idCell = new Cell(StringConsts.ID, entityId.toString());
+        Field idField = new Field(entityInfo, idCell, true, propertyFileUtil.getDateParser());
+        List<Field> entityExistFields = new ArrayList<>();
+        entityExistFields.add(idField);
+
+        List<BullhornEntity> existingEntities = findActiveEntities(entityExistFields, Sets.newHashSet(StringConsts.ID), true);
+        if (existingEntities.isEmpty()) {
             throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
                 + " record with ID: " + entityId + " does not exist or has already been soft-deleted.");
         }
 
         restApi.deleteEntity(entityInfo.getEntityClass(), entityId);
         return Result.delete(entityId);
-    }
-
-    /**
-     * Returns true if the given internal ID corresponds to a record that can be deleted
-     *
-     * @param bullhornId The internal ID
-     * @return True if deletable, false otherwise
-     */
-    private Boolean isEntityDeletable(Integer bullhornId) throws IOException {
-        List<Field> entityExistFields = new ArrayList<>();
-        Cell idCell = new Cell(StringConsts.ID, bullhornId.toString());
-        Field idField = new Field(entityInfo, idCell, true, propertyFileUtil.getDateParser());
-        entityExistFields.add(idField);
-
-        if (entityInfo.isSoftDeletable()) {
-            Cell isDeletedCell = new Cell(StringConsts.IS_DELETED, entityInfo.getSearchIsDeletedValue(false));
-            Field isDeletedField = new Field(entityInfo, isDeletedCell, true, propertyFileUtil.getDateParser());
-            entityExistFields.add(isDeletedField);
-            List<B> existingEntityList = findEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
-            return !existingEntityList.isEmpty();
-        } else if (entityInfo.isHardDeletable()) {
-            List<B> existingEntityList = findEntities(entityExistFields, Sets.newHashSet(StringConsts.ID));
-            return !existingEntityList.isEmpty();
-        } else {
-            throw new RestApiException("Cannot Perform Delete: " + entityInfo.getEntityName()
-                + " records are not deletable.");
-        }
     }
 }

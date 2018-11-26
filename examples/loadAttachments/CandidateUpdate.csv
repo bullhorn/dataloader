@@ -1,0 +1,7 @@
+candidate.externalID,externalID,name                    ,relativeFilePath
+candidate-ext-1     ,resume-001,Resume with Updated Name,examples/loadAttachments/sampleFiles/SampleResume.txt
+candidate-ext-1     ,file-001  ,File with Updated Name  ,examples/loadAttachments/sampleFiles/SampleFile.txt
+candidate-2-ext-1   ,resume-002,Resume with Updated Name,examples/loadAttachments/sampleFiles/SampleResume.txt
+candidate-2-ext-1   ,file-002  ,File with Updated Name  ,examples/loadAttachments/sampleFiles/SampleFile.txt
+candidate-3-ext-1   ,resume-003,Resume with Updated Name,examples/loadAttachments/sampleFiles/SampleResume.txt
+candidate-3-ext-1   ,file-003  ,File with Updated Name  ,examples/loadAttachments/sampleFiles/SampleFile.txt

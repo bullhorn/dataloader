@@ -17,6 +17,7 @@ import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCust
 import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.standard.Appointment;
 import com.bullhornsdk.data.model.entity.core.standard.AppointmentAttendee;
+import com.bullhornsdk.data.model.entity.core.standard.BusinessSector;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.Category;
@@ -69,7 +70,7 @@ public class LoadTaskTest {
     private CompleteUtil completeUtilMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         actionTotalsMock = mock(ActionTotals.class);
         restApiMock = mock(RestApi.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
@@ -103,7 +104,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class));
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -157,7 +158,7 @@ public class LoadTaskTest {
             .thenReturn(Collections.singletonList("externalID"));
         when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1 OR id=2 OR id=3"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1 OR id=2 OR id=3)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -182,7 +183,7 @@ public class LoadTaskTest {
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
@@ -237,7 +238,7 @@ public class LoadTaskTest {
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any()))
+        when(restApiMock.searchForList(eq(Placement.class), eq("(customText1:\"7\")"), any(), any()))
             .thenReturn(TestUtils.getList(placement));
 
         // Create expected note object in insertEntity call
@@ -422,7 +423,7 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunInsertSuccessForCandidateCustomObjects() throws IOException, InstantiationException,
+    public void testRunInsertSuccessForPersonCustomObjects() throws IOException, InstantiationException,
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
@@ -444,12 +445,12 @@ public class LoadTaskTest {
     }
 
     @Test
-    public void testRunInsertSuccessForClientContactCustomObjects() throws IOException, InstantiationException,
+    public void testRunInsertSuccessForPersonCustomObjectsWithParentExistField() throws IOException, InstantiationException,
         IllegalAccessException {
         Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
             "ext-1,Test,Skip,2016-08-30");
         when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
-            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "Candidate", false)));
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "ClientContact", false)));
         when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
             eq("person.customText1=customText1 AND text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class));
@@ -514,7 +515,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 1));
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
             .thenReturn(TestUtils.getList(Skill.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
@@ -569,7 +570,7 @@ public class LoadTaskTest {
 
         Placement placement = new Placement(1007);
         placement.setCustomText1("7");
-        when(restApiMock.searchForList(eq(Placement.class), eq("customText1:\"7\""), any(), any()))
+        when(restApiMock.searchForList(eq(Placement.class), eq("(customText1:\"7\")"), any(), any()))
             .thenReturn(TestUtils.getList(placement));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
@@ -608,6 +609,50 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row,
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.update(1);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunUpdateSuccessForPersonCustomObjects() throws IOException, InstantiationException,
+        IllegalAccessException {
+        Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
+            "ext-1,Test,Skip,2016-08-30");
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "ClientContact", false)));
+        when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
+            eq("text1='Test'"), any(), any()))
+            .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class, 1));
+        when(propertyFileUtilMock.getEntityExistFields(any()))
+            .thenReturn(Arrays.asList("text1"));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.update(1);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunUpdateSuccessForPersonCustomObjectsWithParentExistField() throws IOException, InstantiationException,
+        IllegalAccessException {
+        Row row = TestUtils.createRow("person.customText1,text1,text2,date1",
+            "ext-1,Test,Skip,2016-08-30");
+        when(restApiMock.queryForList(eq(Person.class), eq("customText1='ext-1'"), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createPerson(1, "ClientContact", false)));
+        when(restApiMock.queryForList(eq(PersonCustomObjectInstance2.class),
+            eq("person.customText1='ext-1' AND text1='Test'"), any(), any()))
+            .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class, 1));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+        when(propertyFileUtilMock.getEntityExistFields(any()))
+            .thenReturn(Arrays.asList("person.customText1", "text1"));
+
+        LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
@@ -895,7 +940,7 @@ public class LoadTaskTest {
 
         verify(restApiMock).insertEntity(candidateArgumentCaptor.capture());
         Candidate actualCandidate = candidateArgumentCaptor.getValue();
-        Assert.assertEquals(null, actualCandidate.getDescription());
+        Assert.assertNull(actualCandidate.getDescription());
     }
 
     @Test
@@ -927,7 +972,7 @@ public class LoadTaskTest {
 
         verify(restApiMock).insertEntity(clientCorporationArgumentCaptor.capture());
         ClientCorporation actualClientCorporation = clientCorporationArgumentCaptor.getValue();
-        Assert.assertEquals(null, actualClientCorporation.getCompanyDescription());
+        Assert.assertNull(actualClientCorporation.getCompanyDescription());
     }
 
     @Test
@@ -1054,6 +1099,30 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunRepeatedToManyAssociations() throws Exception {
+        Row row = TestUtils.createRow("externalID,businessSectors.name", "12,BusinessSector 1;BusinessSector 1");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
+            .thenReturn(Collections.singletonList("externalID"));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"12\""), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class));
+        when(restApiMock.queryForList(eq(BusinessSector.class), eq("(name='BusinessSector 1')"), any(), any()))
+            .thenReturn(TestUtils.getList(BusinessSector.class, 1));
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        // Verify that only returning a single business sector when two identical ones were entered in the field is OK
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
+            eq(CandidateAssociations.getInstance().businessSectors()), eq(new HashSet<>(Collections.singletonList(1))));
+        verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
     public void testRunUpdateEntityException() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("clientCorporation.id,text1,text2,date1", "1,Test,Skip,2016-08-30");
         when(restApiMock.searchForList(eq(ClientCorporation.class), any(), any(), any()))
@@ -1076,8 +1145,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("externalID,primarySkills.id", "11,1");
         RestApiException restApiException = new RestApiException("Flagrant Error");
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
-        when(restApiMock.queryForList(eq(Skill.class), any(), eq(null), any()))
-            .thenReturn(TestUtils.getList(Skill.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any())).thenReturn(TestUtils.getList(Skill.class, 1));
         when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
 
@@ -1264,7 +1332,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
         task.run();
 
-        String expectedQuery = "name like 'Sales%' OR name like 'Market%' OR name='IT'";
+        String expectedQuery = "(name like 'Sales%' OR name like 'Market%' OR name='IT')";
         verify(restApiMock, times(1)).queryForList(eq(Skill.class), eq(expectedQuery),
             any(), any());
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),

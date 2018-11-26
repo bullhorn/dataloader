@@ -72,13 +72,8 @@ public class RestApi {
     // endregion
 
     // region Lookup Calls
-
-    // TODO: Refactor to:
-    // <T extends BullhornEntity> List<T> findEntities(SearchCriteria entitySearch, Set<String> fieldSet)
-    // Where SearchCriteria contains the EntityType, and query/where clause builder logic, and this method does the
-    // check to determine whether to call search or query on bullhornData.
-
-    // The search/query calls that DataLoader uses to lookup existing data
+    // The search/query calls that DataLoader uses to lookup existing data. These are wrappers around the SDK Rest API
+    // that add recursive pulls for retrieving more than the max 500 records in one pull.
     public <T extends SearchEntity> List<T> searchForList(Class<T> type,
                                                           String query,
                                                           Set<String> fieldSet,
@@ -210,6 +205,8 @@ public class RestApi {
     }
     // endregion
 
+    // region Search/Query For All Records
+
     /**
      * The recursive search pull for more than 500 records, applied to all entities, not just AllRecordsEntity entities.
      */
@@ -263,4 +260,5 @@ public class RestApi {
         }
         return false;
     }
+    // endregion
 }

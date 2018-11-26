@@ -42,7 +42,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
         try {
-            printUtil.printAndLog("Loading " + entityInfo + " attachments from: " + filePath + "...");
+            printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
             timer.start();
             ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
             printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHms());

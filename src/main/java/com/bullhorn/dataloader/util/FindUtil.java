@@ -3,6 +3,8 @@ package com.bullhorn.dataloader.util;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.standard.Person;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
@@ -35,14 +37,44 @@ public class FindUtil {
         }
     }
 
-    // Returns the search string for a list of terms in a lucene search
-    public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil) {
-        return entityExistFields.stream().map(
-            n -> FindUtil.getLuceneSearch(n.getCell().getName(), n.getStringValue(), n.getFieldType(), n.getFieldEntity(), propertyFileUtil))
+    /**
+     * Given a list of Fields, generates the lucene query string for /Search calls. To-Many fields will be split and turned into an OR statement.
+     * All fields will be AND'ed together.
+     *
+     * @param entityExistFields the key/value pair list of fields to search on
+     * @param propertyFileUtil  the propertyFile settings
+     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
+     * @return the formatted lucene search string
+     */
+    public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
+        return entityExistFields.stream()
+            .map(field -> getLuceneSearch(field, propertyFileUtil, isPrimaryEntity))
             .collect(Collectors.joining(" AND "));
     }
 
-    // Returns the format of a single term in a query where clause
+    /**
+     * Generates the lucene search string for a single field.
+     *
+     * For primary entity non-to-many fields: person.externalID: "1234567"
+     * For association non-to-many fields: externalID: "1234567"
+     * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
+     * TODO: For to-many id fields only: id: 1 2 3 4 5
+     */
+    private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
+        if (field.isToMany()) {
+            String orClause = field.split(propertyFileUtil.getListDelimiter()).stream()
+                .map(value -> FindUtil.getLuceneSearch(field.getName(), value, field.getFieldType(), field.getFieldEntity(), propertyFileUtil))
+                .collect(Collectors.joining(" OR "));
+            return "(" + orClause + ")";
+        } else {
+            String fieldName = isPrimaryEntity ? field.getCell().getName() : field.getName();
+            return FindUtil.getLuceneSearch(fieldName, field.getStringValue(), field.getFieldType(), field.getFieldEntity(), propertyFileUtil);
+        }
+    }
+
+    /**
+     * Returns the format of a single term in a query where clause
+     */
     public static String getSqlQuery(String field, String value, Class fieldType, PropertyFileUtil propertyFileUtil) {
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
@@ -67,10 +99,77 @@ public class FindUtil {
         }
     }
 
-    // Returns the search string for a list of terms in a query where clause
-    public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil) {
-        return entityExistFields.stream().map(
-            n -> FindUtil.getSqlQuery(n.getCell().getName(), n.getStringValue(), n.getFieldType(), propertyFileUtil))
+    /**
+     * Given a list of Fields, generates the sql query string for /Query calls. To-Many fields will be split and turned into an OR statement.
+     * All fields will be AND'ed together.
+     *
+     * @param entityExistFields the key/value pair list of fields to search on
+     * @param propertyFileUtil  the propertyFile settings
+     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
+     * @return the formatted where clause for the query string
+     */
+    public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
+        return entityExistFields.stream()
+            .map(field -> FindUtil.getSqlQuery(field, propertyFileUtil, isPrimaryEntity))
+            .collect(Collectors.joining(" AND "));
+    }
+
+    /**
+     * Generates the query where clause for a single field
+     *
+     * For primary entity non-to-many fields: person.externalID='1234567'
+     * For association non-to-many fields: externalID='1234567'
+     * For to-many fields: (name='Jack' OR name='Jill' OR name='Spot')
+     */
+    private static String getSqlQuery(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
+        if (field.isToMany()) {
+            String orClause = field.split(propertyFileUtil.getListDelimiter()).stream()
+                .map(value -> FindUtil.getSqlQuery(field.getName(), value, field.getFieldType(), propertyFileUtil))
+                .collect(Collectors.joining(" OR "));
+            return "(" + orClause + ")";
+        } else {
+            String fieldName = isPrimaryEntity ? field.getCell().getName() : field.getName();
+            return FindUtil.getSqlQuery(fieldName, field.getStringValue(), field.getFieldType(), propertyFileUtil);
+        }
+    }
+
+    /**
+     * Since the 'isDeleted' value is not the same across all entities (Notes are different), this will return the appropriate string to use.
+     *
+     * @param entityInfo the type of entity being searched for
+     * @param isDeleted  the boolean value to convert to a string
+     * @return the isDeleted string value for the given boolean value, for search strings
+     */
+    public static String getIsDeletedValue(EntityInfo entityInfo, Boolean isDeleted) {
+        if (entityInfo == EntityInfo.NOTE) {
+            return isDeleted ? "true" : "false";
+        } else {
+            return isDeleted ? "1" : "0";
+        }
+    }
+
+    /**
+     * Used to determine if a person entity is truly soft-deleted or not. CorporateUser persons when disabled have their
+     * deleted flag set to true, but they should always be considered active.
+     *
+     * @return true if the entity is not soft-deleted
+     */
+    public static Boolean isPersonActive(BullhornEntity entity) {
+        if (entity.getClass() == Person.class) {
+            Person person = (Person) entity;
+            return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
+        }
+        return true;
+    }
+
+    /**
+     * Simple method for getting a nicely formatted user message about multiple existing records to choose from.
+     */
+    public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, Integer numRecords) {
+        return "Cannot Perform Update - Multiple Records Exist. Found "
+            + numRecords + " " + entityInfo.getEntityName()
+            + " records with the same ExistField criteria of: " + entityExistFields.stream()
+            .map(field -> field.getCell().getName() + "=" + field.getStringValue())
             .collect(Collectors.joining(" AND "));
     }
 }

@@ -219,6 +219,29 @@ public class TestUtils {
     }
 
     /**
+     * Checks that the command line output has only the desired action.
+     *
+     * @param output the command line output
+     * @param action the action that should be in the output (and only that action)
+     */
+    public static void checkCommandLineOutput(String output, Result.Action action) {
+        String actionString = action.toString().toLowerCase();
+        Assert.assertFalse("Error messages output during " + actionString + " step", output.contains("ERROR"));
+        Assert.assertFalse("Failed to process any records during " + actionString + " step", output.contains("processed: 0"));
+        Assert.assertTrue("There are failures during " + actionString + " step", output.contains("failed: 0"));
+
+        if (action != Result.Action.INSERT) {
+            Assert.assertTrue("Insert performed during " + actionString + " step", output.contains("inserted: 0"));
+        }
+        if (action != Result.Action.UPDATE) {
+            Assert.assertTrue("Update performed during " + actionString + " step", output.contains("updated: 0"));
+        }
+        if (action != Result.Action.DELETE) {
+            Assert.assertTrue("Delete performed during " + actionString + " step", output.contains("deleted: 0"));
+        }
+    }
+
+    /**
      * Given a comma separated list of headers and values, just as you would see in the CSV file itself, this
      * convenience method constructs the Row object that represents that data.
      *
