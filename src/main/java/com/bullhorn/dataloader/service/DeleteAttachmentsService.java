@@ -33,7 +33,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
     }
 
     @Override
-    public void run(String[] args) {
+    public void run(String[] args) throws IOException, InterruptedException {
         if (!isValidArguments(args)) {
             throw new IllegalStateException("invalid command line arguments");
         }
@@ -41,16 +41,11 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
         String filePath = args[1];
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
-        try {
-            printUtil.printAndLog("Deleting " + entityInfo + " attachments from: " + filePath + "...");
-            timer.start();
-            ActionTotals actionTotals = processRunner.runDeleteAttachmentsProcess(entityInfo, filePath);
-            printUtil.printAndLog("Finished deleting " + entityInfo + " attachments in " + timer.getDurationStringHms());
-            completeUtil.complete(Command.DELETE_ATTACHMENTS, filePath, entityInfo, actionTotals);
-        } catch (Exception e) {
-            printUtil.printAndLog("FAILED to delete " + entityInfo + " attachments");
-            printUtil.printAndLog(e);
-        }
+        printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
+        timer.start();
+        ActionTotals actionTotals = processRunner.runDeleteAttachmentsProcess(entityInfo, filePath);
+        printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());
+        completeUtil.complete(Command.DELETE_ATTACHMENTS, filePath, entityInfo, actionTotals);
     }
 
     @Override

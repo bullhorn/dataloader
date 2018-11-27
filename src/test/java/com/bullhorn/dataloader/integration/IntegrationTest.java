@@ -154,6 +154,14 @@ public class IntegrationTest {
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
             TestUtils.checkResultsFiles(tempAttachmentsDirectory, Command.LOAD_ATTACHMENTS);
             // endregion
+
+            // region DELETE ATTACHMENTS
+            consoleOutputCapturer.start();
+            File successResultsFile = resultsDir.listFiles()[0];
+            Main.main(new String[]{"deleteAttachments", successResultsFile.getPath()});
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.DELETE);
+            TestUtils.checkResultsFile(successResultsFile, Command.DELETE_ATTACHMENTS);
+            // endregion
         }
 
         // region UPDATE
@@ -176,7 +184,7 @@ public class IntegrationTest {
             // endregion
 
             // region DELETE
-            // capture results file directory state
+            // Capture results file directory state
             File[] resultsFiles = resultsDir.listFiles();
 
             System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
@@ -191,8 +199,6 @@ public class IntegrationTest {
                 }
             }
             // endregion
-
-            // TODO: DELETE ATTACHMENTS
         }
 
         // region TEARDOWN

@@ -33,7 +33,7 @@ public class ConvertAttachmentsService extends AbstractService implements Action
     }
 
     @Override
-    public void run(String[] args) {
+    public void run(String[] args) throws IOException, InterruptedException {
         if (!isValidArguments(args)) {
             throw new IllegalStateException("invalid command line arguments");
         }
@@ -41,16 +41,11 @@ public class ConvertAttachmentsService extends AbstractService implements Action
         String filePath = args[1];
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
-        try {
-            printUtil.printAndLog("Converting " + entityInfo + " attachments from: " + filePath + "...");
-            timer.start();
-            ActionTotals actionTotals = processRunner.runConvertAttachmentsProcess(entityInfo, filePath);
-            printUtil.printAndLog("Finished converting " + entityInfo + " attachments in " + timer.getDurationStringHms());
-            completeUtil.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals);
-        } catch (Exception e) {
-            printUtil.printAndLog("FAILED to convert " + entityInfo + " attachments");
-            printUtil.printAndLog(e);
-        }
+        printUtil.printAndLog("Converting " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
+        timer.start();
+        ActionTotals actionTotals = processRunner.runConvertAttachmentsProcess(entityInfo, filePath);
+        printUtil.printAndLog("Finished converting " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());
+        completeUtil.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals);
     }
 
     @Override

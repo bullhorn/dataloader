@@ -16,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import static org.mockito.Matchers.any;
@@ -41,7 +42,7 @@ public class LoadServiceTest {
     private ValidationUtil validationUtil;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() throws IOException, InterruptedException {
         actionTotalsMock = mock(ActionTotals.class);
         completeUtilMock = mock(CompleteUtil.class);
         restSessionMock = mock(RestSession.class);
@@ -58,7 +59,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_file() throws Exception {
+    public void testRunFile() throws IOException, InterruptedException {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -70,7 +71,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_directoryOneFile() throws Exception {
+    public void testRunDirectoryOneFile() throws IOException, InterruptedException {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         File file = new File(directoryPath, "ClientContact.csv");
         final String filePath = file.getPath();
@@ -84,7 +85,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_directory_oneFile_withWait() throws Exception {
+    public void testRunDirectoryOneFileWithWait() throws IOException, InterruptedException {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         File file = new File(directoryPath, "ClientContact.csv");
         final String filePath = file.getPath();
@@ -100,7 +101,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_directory_fourFilesSameEntity() throws Exception {
+    public void testRunDirectoryFourFilesSameEntity() throws IOException, InterruptedException {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/opportunity");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -115,7 +116,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_directory_fourFiles() throws Exception {
+    public void testRunDirectoryFourFiles() throws IOException, InterruptedException {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -130,7 +131,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRun_directory_fourFilesContinueNo() throws Exception {
+    public void testRunDirectoryFourFilesContinueNo() throws IOException, InterruptedException {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
         loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
@@ -144,13 +145,13 @@ public class LoadServiceTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testRun_invalidThrowsException() throws Exception {
+    public void testRunInvalidThrowsException() throws IOException, InterruptedException {
         final String[] testArgs = {Command.LOAD.getMethodName()};
         loadService.run(testArgs);
     }
 
     @Test
-    public void testIsValidArguments_File() throws Exception {
+    public void testIsValidArgumentsFile() {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -161,7 +162,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_BadEntity() throws Exception {
+    public void testIsValidArgumentsBadEntity() {
         final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -172,7 +173,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_MissingArgument() throws Exception {
+    public void testIsValidArgumentsMissingArgument() {
         final String[] testArgs = {Command.LOAD.getMethodName()};
 
         final boolean actualResult = loadService.isValidArguments(testArgs);
@@ -182,7 +183,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_TooManyArgments() throws Exception {
+    public void testIsValidArgumentsTooManyArgments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath, "tooMany"};
 
@@ -193,7 +194,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_InvalidFile() throws Exception {
+    public void testIsValidArgumentsInvalidFile() {
         final String filePath = "filePath";
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -204,7 +205,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_EmptyFile() throws Exception {
+    public void testIsValidArgumentsEmptyFile() {
         final String filePath = "";
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -215,7 +216,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_ReadOnlyEntity() throws Exception {
+    public void testIsValidArgumentsReadOnlyEntity() {
         final String filePath = TestUtils.getResourceFilePath("BusinessSector.csv");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -226,7 +227,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_Directory() throws Exception {
+    public void testIsValidArgumentsDirectory() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -237,7 +238,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_noCsvFiles() throws Exception {
+    public void testIsValidArgumentsNoCsvFiles() {
         final String filePath = TestUtils.getResourceFilePath("testResume");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 
@@ -248,7 +249,7 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_noLoadableCsvFiles() throws Exception {
+    public void testIsValidArgumentsNoLoadableCsvFiles() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/businessSector");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
 

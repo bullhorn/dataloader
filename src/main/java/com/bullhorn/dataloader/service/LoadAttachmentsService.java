@@ -33,7 +33,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
     }
 
     @Override
-    public void run(String[] args) {
+    public void run(String[] args) throws IOException, InterruptedException {
         if (!isValidArguments(args)) {
             throw new IllegalStateException("invalid command line arguments");
         }
@@ -41,16 +41,11 @@ public class LoadAttachmentsService extends AbstractService implements Action {
         String filePath = args[1];
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
-        try {
-            printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
-            timer.start();
-            ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
-            printUtil.printAndLog("Finished loading " + entityInfo + " attachments in " + timer.getDurationStringHms());
-            completeUtil.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals);
-        } catch (Exception e) {
-            printUtil.printAndLog("FAILED to load " + entityInfo + " attachments");
-            printUtil.printAndLog(e);
-        }
+        printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
+        timer.start();
+        ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
+        printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());
+        completeUtil.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals);
     }
 
     @Override

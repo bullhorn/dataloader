@@ -195,6 +195,7 @@ public class RestApi {
     }
 
     public FileApiResponse deleteFile(Class<? extends FileEntity> type, Integer entityId, Integer fileId) {
+        // TODO: Return better error than "An internal error has occurred" when file does not exist or has already been deleted.
         return bullhornData.deleteFile(type, entityId, fileId);
     }
     // endregion

@@ -37,7 +37,7 @@ public class DeleteService extends AbstractService implements Action {
     }
 
     @Override
-    public void run(String[] args) {
+    public void run(String[] args) throws IOException, InterruptedException {
         if (!isValidArguments(args)) {
             throw new IllegalStateException("invalid command line arguments");
         }
@@ -48,16 +48,11 @@ public class DeleteService extends AbstractService implements Action {
             for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
                 EntityInfo entityInfo = entityFileEntry.getKey();
                 for (String fileName : entityFileEntry.getValue()) {
-                    try {
-                        printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
-                        timer.start();
-                        ActionTotals actionTotals = processRunner.runDeleteProcess(entityInfo, fileName);
-                        printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
-                        completeUtil.complete(Command.DELETE, fileName, entityInfo, actionTotals);
-                    } catch (Exception e) {
-                        printUtil.printAndLog("FAILED to delete " + entityInfo.getEntityName() + " records");
-                        printUtil.printAndLog(e);
-                    }
+                    printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
+                    timer.start();
+                    ActionTotals actionTotals = processRunner.runDeleteProcess(entityInfo, fileName);
+                    printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
+                    completeUtil.complete(Command.DELETE, fileName, entityInfo, actionTotals);
                 }
             }
         }
