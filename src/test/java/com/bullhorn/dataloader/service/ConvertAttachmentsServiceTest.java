@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import static org.mockito.Matchers.any;
@@ -51,32 +52,26 @@ public class ConvertAttachmentsServiceTest {
     }
 
     @Test
-    public void testRun() throws Exception {
+    public void testRunSuccess() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
         convertAttachmentsService.run(testArgs);
 
         verify(processRunnerMock, times(1)).runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
-        verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.CONVERT_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
+        verify(printUtilMock, never()).printAndLog((Exception) any());
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testRun_missingArgument_ThrowsException() throws Exception {
+    public void testRunMissingArgumentException() throws IOException, InterruptedException {
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName()};
         convertAttachmentsService.run(testArgs);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testIsValidArguments_badEntityFile() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
-        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
-        convertAttachmentsService.run(testArgs);
-    }
-
     @Test
-    public void testIsValidArguments() throws Exception {
+    public void testIsValidArgumentsSuccess() {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
@@ -84,10 +79,18 @@ public class ConvertAttachmentsServiceTest {
 
         Assert.assertTrue(actualResult);
         verify(printUtilMock, never()).printAndLog(anyString());
+        verify(printUtilMock, never()).printAndLog((Exception) any());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testIsValidArgumentsBadEntityFile() throws IOException, InterruptedException {
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
+        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
+        convertAttachmentsService.run(testArgs);
     }
 
     @Test
-    public void testIsValidArguments_BadEntity() throws Exception {
+    public void testIsValidArgumentsBadEntity() {
         final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
@@ -98,7 +101,7 @@ public class ConvertAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_MissingArgument() throws Exception {
+    public void testIsValidArgumentsMissingArgument() {
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName()};
 
         final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
@@ -108,7 +111,7 @@ public class ConvertAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_TooManyArgments() throws Exception {
+    public void testIsValidArgumentsTooManyArgments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 
@@ -119,7 +122,7 @@ public class ConvertAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_InvalidFile() throws Exception {
+    public void testIsValidArgumentsInvalidFile() {
         final String filePath = "filePath";
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 
@@ -130,7 +133,7 @@ public class ConvertAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_EmptyFile() throws Exception {
+    public void testIsValidArgumentsEmptyFile() {
         final String filePath = "";
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
 

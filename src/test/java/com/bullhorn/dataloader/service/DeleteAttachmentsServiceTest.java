@@ -14,6 +14,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import static org.mockito.Matchers.any;
@@ -34,7 +35,7 @@ public class DeleteAttachmentsServiceTest {
     private Timer timerMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() throws IOException, InterruptedException {
         actionTotalsMock = mock(ActionTotals.class);
         completeUtilMock = mock(CompleteUtil.class);
         RestSession restSessionMock = mock(RestSession.class);
@@ -51,32 +52,25 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testRun() throws Exception {
+    public void testRunSuccess() throws IOException, InterruptedException {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
         deleteAttachmentsService.run(testArgs);
 
         verify(processRunnerMock, times(1)).runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
-        verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.DELETE_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
+        verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testRun_missingArgument_ThrowsException() throws Exception {
+    public void testRunMissingArgumentException() throws IOException, InterruptedException {
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName()};
         deleteAttachmentsService.run(testArgs);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testIsValidArguments_badEntityFile() throws Exception {
-        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
-        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
-        deleteAttachmentsService.run(testArgs);
-    }
-
     @Test
-    public void testIsValidArguments() throws Exception {
+    public void testIsValidArgumentsSuccess() {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
@@ -87,7 +81,7 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_BadEntity() throws Exception {
+    public void testIsValidArgumentsBadEntity() {
         final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
@@ -97,8 +91,15 @@ public class DeleteAttachmentsServiceTest {
         verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void testIsValidArgumentsBadEntityFile() throws IOException, InterruptedException {
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
+        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
+        deleteAttachmentsService.run(testArgs);
+    }
+
     @Test
-    public void testIsValidArguments_MissingArgument() throws Exception {
+    public void testIsValidArgumentsMissingArgument() {
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName()};
 
         final boolean actualResult = deleteAttachmentsService.isValidArguments(testArgs);
@@ -108,7 +109,7 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_TooManyArgments() throws Exception {
+    public void testIsValidArgumentsTooManyArgments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 
@@ -119,7 +120,7 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_InvalidFile() throws Exception {
+    public void testIsValidArgumentsInvalidFile() {
         final String filePath = "filePath";
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
@@ -130,7 +131,7 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_EmptyFile() throws Exception {
+    public void testIsValidArgumentsEmptyFile() {
         final String filePath = "";
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 
@@ -141,7 +142,7 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArguments_NonAttachmentEntity() throws Exception {
+    public void testIsValidArgumentsNonAttachmentEntity() {
         final String filePath = TestUtils.getResourceFilePath("BusinessSector.csv");
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath};
 

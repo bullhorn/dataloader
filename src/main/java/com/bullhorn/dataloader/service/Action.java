@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+
 /**
  * The command line action interface
  */
@@ -10,7 +12,7 @@ public interface Action {
      *
      * @param args command line args pass to main()
      */
-    void run(String[] args) throws InterruptedException;
+    void run(String[] args) throws InterruptedException, IOException;
 
     /**
      * Validate the command line arguments

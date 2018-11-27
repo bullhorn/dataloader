@@ -159,7 +159,7 @@ public class ProcessRunner {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE_ATTACHMENTS, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
 
         // Loop over each row in the file

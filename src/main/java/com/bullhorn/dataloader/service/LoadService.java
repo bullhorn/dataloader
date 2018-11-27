@@ -38,7 +38,7 @@ public class LoadService extends AbstractService implements Action {
     }
 
     @Override
-    public void run(String[] args) throws InterruptedException {
+    public void run(String[] args) throws InterruptedException, IOException {
         if (!isValidArguments(args)) {
             throw new IllegalStateException("invalid command line arguments");
         }
@@ -49,16 +49,11 @@ public class LoadService extends AbstractService implements Action {
             for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
                 EntityInfo entityInfo = entityFileEntry.getKey();
                 for (String fileName : entityFileEntry.getValue()) {
-                    try {
-                        printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
-                        timer.start();
-                        ActionTotals actionTotals = processRunner.runLoadProcess(entityInfo, fileName);
-                        printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
-                        completeUtil.complete(Command.LOAD, fileName, entityInfo, actionTotals);
-                    } catch (Exception e) {
-                        printUtil.printAndLog("FAILED to load: " + entityInfo.getEntityName() + " records");
-                        printUtil.printAndLog(e);
-                    }
+                    printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
+                    timer.start();
+                    ActionTotals actionTotals = processRunner.runLoadProcess(entityInfo, fileName);
+                    printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
+                    completeUtil.complete(Command.LOAD, fileName, entityInfo, actionTotals);
                 }
 
                 // region ~WORKAROUND~

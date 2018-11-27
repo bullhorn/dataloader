@@ -25,18 +25,39 @@ public class CsvFileWriterTest {
 
     @Test
     public void testNoRecords() throws IOException {
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
-
+        new CsvFileWriter(Command.LOAD, "path/to/CandidateTestNoRecords.csv", successRow.getNames().toArray(new String[0]));
         File resultsDir = new File("results/");
-        File successFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_success.csv");
-        File failureFile = new File("results/CandidateTest_load_" + StringConsts.TIMESTAMP + "_failure.csv");
+        File successFile = new File("results/CandidateTestNoRecords_load_" + StringConsts.TIMESTAMP + "_success.csv");
+        File failureFile = new File("results/CandidateTestNoRecords_load_" + StringConsts.TIMESTAMP + "_failure.csv");
         Assert.assertTrue(resultsDir.isDirectory());
         Assert.assertFalse(successFile.exists());
         Assert.assertFalse(failureFile.exists());
     }
 
     @Test
-    public void testSuccessRecordsOnly() throws IOException {
+    public void testLoadSuccessRecordsOnly() throws IOException {
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, "path/to/CandidateTestLoadSuccessRecordsOnly.csv",
+            successRow.getNames().toArray(new String[0]));
+        csvFileWriter.writeRow(successRow, Result.insert(-1));
+
+        File successFile = new File("results/CandidateTestLoadSuccessRecordsOnly_load_" + StringConsts.TIMESTAMP + "_success.csv");
+        File failureFile = new File("results/CandidateTestLoadSuccessRecordsOnly_load_" + StringConsts.TIMESTAMP + "_failure.csv");
+        Assert.assertTrue(successFile.isFile());
+        Assert.assertFalse(failureFile.exists());
+
+        FileReader fileReader = new FileReader(successFile);
+        CsvReader csvReader = new CsvReader(fileReader);
+        csvReader.readHeaders();
+        String[] expectedHeaders = new String[]{"id", "dataloader_action", "name", "quest", "favoriteColor"};
+        String[] actualHeaders = csvReader.getHeaders();
+        Assert.assertArrayEquals(expectedHeaders, actualHeaders);
+
+        // clean up test files
+        successFile.deleteOnExit();
+    }
+
+    @Test
+    public void testDeleteSuccessRecordsOnly() throws IOException {
         CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, "path/to/CandidateTest.csv", successRow.getNames().toArray(new String[0]));
         csvFileWriter.writeRow(successRow, Result.insert(-1));
 
@@ -48,7 +69,7 @@ public class CsvFileWriterTest {
         FileReader fileReader = new FileReader(successFile);
         CsvReader csvReader = new CsvReader(fileReader);
         csvReader.readHeaders();
-        String[] expectedHeaders = new String[]{"id", "dataloader_action", "name", "quest", "favoriteColor"};
+        String[] expectedHeaders = new String[]{"name", "quest", "favoriteColor"};
         String[] actualHeaders = csvReader.getHeaders();
         Assert.assertArrayEquals(expectedHeaders, actualHeaders);
 

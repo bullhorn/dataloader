@@ -9,6 +9,8 @@ import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,7 +59,7 @@ public class CsvFileWriter {
      * @param filePath The full path to the Entity file to read in
      * @param headers  The headers read in from the input CSV file
      */
-    public CsvFileWriter(Command command, String filePath, String[] headers) throws IOException {
+    public CsvFileWriter(Command command, String filePath, String[] headers) {
         this.command = command;
         this.headers = headers;
 
@@ -82,11 +84,16 @@ public class CsvFileWriter {
 
         if (result.isSuccess()) {
             csvWriter = getOrCreateSuccessCsvWriter();
-            values.add(0, result.getAction().toString());
-            if (command.equals(Command.LOAD_ATTACHMENTS)) {
+            if (command.equals(Command.LOAD)) {
+                values.add(0, result.getAction().toString());
+                values.add(0, result.getBullhornId().toString());
+            } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
+                values.add(0, result.getAction().toString());
                 values.add(0, result.getBullhornParentId().toString());
+                values.add(0, result.getBullhornId().toString());
+            } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
+                values.add(0, result.getAction().toString());
             }
-            values.add(0, result.getBullhornId().toString());
         } else {
             csvWriter = getOrCreateFailureCsvWriter();
             values.add(0, result.getFailureText());
@@ -101,16 +108,19 @@ public class CsvFileWriter {
             FileWriter fileWriter = new FileWriter(successFilePath);
             successCsv = new CsvWriter(fileWriter, ',');
 
-            if (command.equals(Command.LOAD_ATTACHMENTS)) {
-                successCsv.writeRecord(ArrayUtil.prepend(StringConsts.ID, ArrayUtil.prepend(StringConsts.PARENT_ENTITY_ID,
-                    ArrayUtil.prepend(ACTION_COLUMN, headers))));
+            List<String> headerList = new ArrayList<>(Arrays.asList(headers));
+            if (command.equals(Command.LOAD)) {
+                headerList.add(0, ACTION_COLUMN);
+                headerList.add(0, StringConsts.ID);
+            } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
+                headerList.add(0, ACTION_COLUMN);
+                headerList.add(0, StringConsts.PARENT_ENTITY_ID);
+                headerList.add(0, StringConsts.ID);
             } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-                successCsv.writeRecord(ArrayUtil.prepend(ACTION_COLUMN, headers));
-            } else {
-                successCsv.writeRecord(ArrayUtil.prepend(StringConsts.ID, ArrayUtil.prepend(ACTION_COLUMN, headers)));
+                headerList.add(0, ACTION_COLUMN);
             }
+            successCsv.writeRecord(headerList.toArray(new String[0]));
         }
-
         return successCsv;
     }
 
@@ -120,7 +130,6 @@ public class CsvFileWriter {
             failureCsv = new CsvWriter(fileWriter, ',');
             failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
         }
-
         return failureCsv;
     }
 }
