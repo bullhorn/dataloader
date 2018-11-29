@@ -117,18 +117,6 @@ public class IntegrationTest {
         // Replace all UUIDs in with unique ones
         String uuid = UUID.randomUUID().toString();
         TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
-
-        // Copy over attachments to a subdirectory if they exists (these will not get loaded as part of the directory)
-        File attachmentsDirectory = new File(directoryPath + "Attachments");
-        File tempAttachmentsDirectory = null;
-        if (attachmentsDirectory.exists()) {
-            tempAttachmentsDirectory = new File(tempDirectory + "/attachments");
-            FileUtils.copyDirectory(new File(attachmentsDirectory.getPath()), tempAttachmentsDirectory);
-            TestUtils.replaceTextInFiles(tempAttachmentsDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
-
-            // TODO: Remove this replacement by allowing paths relative the to CSV file or the working directory
-            TestUtils.replaceTextInFiles(tempAttachmentsDirectory, tempAttachmentsDirectory.getPath(), "examples/loadAttachments");
-        }
         // endregion SETUP
 
         // region INSERT
@@ -140,7 +128,8 @@ public class IntegrationTest {
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
 
-        if (tempAttachmentsDirectory != null) {
+        File tempAttachmentsDirectory = new File(tempDirectory + "/attachments");
+        if (tempAttachmentsDirectory.exists()) {
             // region INSERT ATTACHMENTS
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
             consoleOutputCapturer.start();

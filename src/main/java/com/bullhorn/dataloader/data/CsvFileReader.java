@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  */
 public class CsvFileReader extends CsvReader {
 
+    private final String filePath;
     private final PropertyFileUtil propertyFileUtil;
     private final PrintUtil printUtil;
 
@@ -35,6 +36,7 @@ public class CsvFileReader extends CsvReader {
     public CsvFileReader(String filePath, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) throws IOException {
         super(new BOMInputStream(new FileInputStream(filePath)), ',',
             propertyFileUtil.getSingleByteEncoding() ? Charset.forName("ISO-8859-1") : Charset.forName("UTF-8"));
+        this.filePath = filePath;
         this.propertyFileUtil = propertyFileUtil;
         this.printUtil = printUtil;
 
@@ -71,7 +73,7 @@ public class CsvFileReader extends CsvReader {
                 + " is not equal to row column count " + getValues().length);
         }
 
-        Row row = new Row(rowNumber);
+        Row row = new Row(filePath, rowNumber);
         for (int i = 0; i < getHeaderCount(); i++) {
             String header = getHeader(i);
             if (propertyFileUtil.hasColumnNameMapping(header)) {

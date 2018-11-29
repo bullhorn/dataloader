@@ -92,7 +92,7 @@ public class PropertyFileUtil {
 
     /**
      * Returns a relative path that can be used to persist converted attachments (documents that have been parsed into
-     * HTML files) to disk so that they can be later retrived and added to the description field of entities when
+     * HTML files) to disk so that they can be later retrieved and added to the description field of entities when
      * loading.
      *
      * @param entityInfo the entity type

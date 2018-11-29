@@ -32,7 +32,7 @@ public class Preloader {
      * @return the row that has potentially been modified to use internal bullhorn IDs
      */
     public Row convertRow(Row row) {
-        Row convertedRow = new Row(row.getNumber());
+        Row convertedRow = new Row(row.getFilePath(), row.getNumber());
         for (Cell cell : row.getCells()) {
             convertedRow.addCell(convertCell(cell));
         }
