@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
  */
 public class Row {
 
+    private final String filePath;
     private final Integer number;
     private List<Cell> cells;
 
@@ -17,9 +18,14 @@ public class Row {
      *
      * @param number this value is used for outputting messages to the user
      */
-    public Row(Integer number) {
+    public Row(String filePath, Integer number) {
+        this.filePath = filePath;
         this.number = number;
         this.cells = new ArrayList<>();
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 
     public Integer getNumber() {

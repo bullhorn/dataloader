@@ -156,8 +156,8 @@ public class TestUtils {
     }
 
     /**
-     * Given a directory, this will replace all instances of the given text string with another text string for files
-     * with the given extension.
+     * Given a directory, this will replace all instances of the given text string with another text string for CSV files.
+     * Will recursively replace for all subdirectories.
      *
      * @param directory   The directory to recurse through
      * @param replaceText The text to find
@@ -173,6 +173,8 @@ public class TestUtils {
                     String content = FileUtils.readFileToString(file, "UTF-8");
                     content = content.replaceAll(findText, replaceText);
                     FileUtils.writeStringToFile(file, content, "UTF-8");
+                } else if (file.isDirectory()) {
+                    replaceTextInFiles(file, replaceText, findText);
                 }
             }
         } else {
@@ -264,7 +266,7 @@ public class TestUtils {
                 + headerArray.length + " headers, " + valueArray.length + " values.");
         }
 
-        Row row = new Row(1);
+        Row row = new Row("path/to/fake/file.csv", 1);
         for (int i = 0; i < headerArray.length; i++) {
             Cell cell = new Cell(headerArray[i], valueArray[i]);
             row.addCell(cell);

@@ -29,7 +29,6 @@ import org.apache.commons.lang.WordUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -88,7 +87,7 @@ public class LoadAttachmentTask extends AbstractTask {
         }
 
         // Create row made up of cell values that apply to the file meta, starting with the standard file parameters
-        Row fileRow = new Row(row.getNumber());
+        Row fileRow = new Row(row.getFilePath(), row.getNumber());
         Map<String, String> parameterMap = ParamFactory.fileParams().getParameterMap();
         for (String parameterName : parameterMap.keySet()) {
             fileRow.addCell(new Cell(parameterName, parameterMap.get(parameterName)));
@@ -108,10 +107,16 @@ public class LoadAttachmentTask extends AbstractTask {
                 fileRow.addCell(new Cell(StringConsts.EXTERNAL_ID, attachmentFile.getName()));
             }
 
+            // If the relativeFilePath is not relative to the current working directory, then try relative to the CSV file's directory
+            if (!attachmentFile.exists()) {
+                File currentCsvFile = new File(row.getFilePath());
+                attachmentFile = new File(currentCsvFile.getParent(), row.getValue(StringConsts.RELATIVE_FILE_PATH));
+            }
+
             try {
-                byte[] encoded = Files.readAllBytes(Paths.get(row.getValue(StringConsts.RELATIVE_FILE_PATH)));
-                String fileStr = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encoded));
-                fileMeta.setFileContent(fileStr);
+                byte[] encodedFileContent = Files.readAllBytes(attachmentFile.toPath());
+                String fileContent = StringUtils.newStringUtf8(org.apache.commons.codec.binary.Base64.encodeBase64(encodedFileContent));
+                fileMeta.setFileContent(fileContent);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
                 throw new RestApiException("Cannot read file from disk: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));

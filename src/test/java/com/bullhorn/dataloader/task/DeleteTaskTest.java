@@ -146,7 +146,7 @@ public class DeleteTaskTest {
 
     @Test
     public void run_IdColumnFailure() throws IOException {
-        Row row = new Row(1);
+        Row row = new Row("/going/to/fail.csv", 1);
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
