@@ -74,7 +74,7 @@ public class CsvFileReader extends CsvReader {
         }
 
         Row row = new Row(filePath, rowNumber);
-        for (int i = 0; i < getHeaderCount(); i++) {
+        for (int i = 0; i < getHeaderCount(); ++i) {
             String header = getHeader(i);
             if (propertyFileUtil.hasColumnNameMapping(header)) {
                 String mappedHeader = propertyFileUtil.getColumnNameMapping(header);

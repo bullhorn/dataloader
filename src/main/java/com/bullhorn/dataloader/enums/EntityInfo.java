@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.enums;
 
 import com.bullhorn.dataloader.util.MethodUtil;
-import com.bullhornsdk.data.model.entity.core.customobject.CustomObjectInstance;
+import com.bullhornsdk.data.model.entity.core.customobjectinstances.CustomObjectInstance;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;

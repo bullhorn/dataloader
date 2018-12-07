@@ -34,11 +34,10 @@ import static org.mockito.Mockito.when;
 public class CompleteUtilTest {
 
     private ActionTotals actionTotalsMock;
-    private RestApi restApiMock;
-    private RestSession restSessionMock;
     private HttpClient httpClientMock;
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
+    private RestSession restSessionMock;
     private Timer timerMock;
 
     private ArgumentCaptor<HttpMethod> httpMethodArgumentCaptor;
@@ -48,12 +47,12 @@ public class CompleteUtilTest {
     @Before
     public void setup() throws IOException {
         actionTotalsMock = mock(ActionTotals.class);
-        restApiMock = mock(RestApi.class);
-        restSessionMock = mock(RestSession.class);
         httpClientMock = mock(HttpClient.class);
         httpMethodArgumentCaptor = ArgumentCaptor.forClass(HttpMethod.class);
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
+        RestApi restApiMock = mock(RestApi.class);
+        restSessionMock = mock(RestSession.class);
         timerMock = mock(Timer.class);
 
         when(propertyFileUtilMock.getNumThreads()).thenReturn(9);
@@ -138,7 +137,7 @@ public class CompleteUtilTest {
             Assert.assertEquals(jsonObject.getInt("deleted"), 0);
             Assert.assertEquals(jsonObject.getInt("failed"), 0);
             Assert.assertEquals(jsonObject.getInt("durationMsec"), 999);
-            Assert.assertEquals(jsonObject.has("errors"), false);
+            Assert.assertFalse(jsonObject.has("errors"));
         } finally {
             // Reset resource file
             FileUtils.writeStringToFile(resultsFile, "{}");
@@ -177,7 +176,7 @@ public class CompleteUtilTest {
             Assert.assertEquals(jsonObject.getInt("deleted"), 0);
             Assert.assertEquals(jsonObject.getInt("failed"), 1);
             Assert.assertEquals(jsonObject.getInt("durationMsec"), 999);
-            Assert.assertEquals(jsonObject.has("errors"), true);
+            Assert.assertTrue(jsonObject.has("errors"));
             JSONObject firstError = jsonObject.getJSONArray("errors").getJSONObject(0);
             Assert.assertEquals(firstError.getInt("row"), 1);
             Assert.assertEquals(firstError.getInt("id"), -1);

@@ -13,8 +13,8 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
-import com.bullhornsdk.data.model.entity.core.customobject.ClientCorporationCustomObjectInstance2;
-import com.bullhornsdk.data.model.entity.core.customobject.PersonCustomObjectInstance2;
+import com.bullhornsdk.data.model.entity.core.customobjectinstances.clientcorporation.ClientCorporationCustomObjectInstance2;
+import com.bullhornsdk.data.model.entity.core.customobjectinstances.person.PersonCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.standard.Appointment;
 import com.bullhornsdk.data.model.entity.core.standard.AppointmentAttendee;
 import com.bullhornsdk.data.model.entity.core.standard.BusinessSector;
@@ -627,7 +627,7 @@ public class LoadTaskTest {
             eq("text1='Test'"), any(), any()))
             .thenReturn(TestUtils.getList(PersonCustomObjectInstance2.class, 1));
         when(propertyFileUtilMock.getEntityExistFields(any()))
-            .thenReturn(Arrays.asList("text1"));
+            .thenReturn(Collections.singletonList("text1"));
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,

@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.data.CsvFileReader;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
@@ -24,20 +25,51 @@ import java.util.stream.Collectors;
  */
 public class TemplateUtil<B extends BullhornEntity> {
 
-    private RestApi restApi;
+    private final RestApi restApi;
+    private final PropertyFileUtil propertyFileUtil;
+    private final PrintUtil printUtil;
 
-    public TemplateUtil(RestApi restApi) {
+    public TemplateUtil(RestApi restApi, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) {
         this.restApi = restApi;
+        this.propertyFileUtil = propertyFileUtil;
+        this.printUtil = printUtil;
     }
 
-    public void writeExampleEntityCsv(EntityInfo entityInfo) throws IOException, ClassNotFoundException {
+    public void writeExampleEntityCsv(EntityInfo entityInfo) throws IOException {
         Set<Field> metaFieldSet = getMetaFieldSet(entityInfo);
-
-        ArrayList<String> headers = new ArrayList<>();
-        ArrayList<String> dataTypes = new ArrayList<>();
+        List<String> headers = new ArrayList<>();
+        List<String> dataTypes = new ArrayList<>();
         populateDataTypes(entityInfo, metaFieldSet, headers, dataTypes);
 
-        writeToCsv(entityInfo, headers, dataTypes);
+        CsvWriter csvWriter = new CsvWriter(entityInfo.getEntityName() + "Example.csv");
+        csvWriter.writeRecord(headers.toArray(new String[0]));
+        csvWriter.writeRecord(dataTypes.toArray(new String[0]));
+        csvWriter.flush();
+        csvWriter.close();
+    }
+
+    public void compareMetaToExampleFile(EntityInfo entityInfo, String exampleFile) throws IOException {
+        Set<Field> metaFieldSet = getMetaFieldSet(entityInfo);
+        List<String> restMetaHeaders = new ArrayList<>();
+        List<String> dataTypes = new ArrayList<>();
+        populateDataTypes(entityInfo, metaFieldSet, restMetaHeaders, dataTypes);
+
+        CsvFileReader csvFileReader = new CsvFileReader(exampleFile, propertyFileUtil, printUtil);
+        List<String> exampleFileHeaders = new ArrayList<>(Arrays.asList(csvFileReader.getHeaders()));
+        List<String> exampleHeaders = exampleFileHeaders.stream().map(h -> h.replaceAll("\\..+", "")).distinct().collect(Collectors.toList());
+        List<String> restHeaders = restMetaHeaders.stream().map(h -> h.replaceAll("\\..+", "")).distinct().collect(Collectors.toList());
+
+        List<String> missingFields = restHeaders.stream().filter(h -> !exampleHeaders.contains(h)).sorted().collect(Collectors.toList());
+        if (!missingFields.isEmpty()) {
+            printUtil.printAndLog("\nHeaders in Rest that are not in example file:");
+            missingFields.forEach(missingField -> printUtil.printAndLog(" " + (missingFields.indexOf(missingField) + 1) + ". " + missingField));
+        }
+
+        List<String> extraFields = exampleHeaders.stream().filter(h -> !restHeaders.contains(h)).sorted().collect(Collectors.toList());
+        if (!extraFields.isEmpty()) {
+            printUtil.printAndLog("\nHeaders in example file that are not in Rest:");
+            extraFields.forEach(extraField -> printUtil.printAndLog(" " + (extraFields.indexOf(extraField) + 1) + ". " + extraField));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -51,20 +83,10 @@ public class TemplateUtil<B extends BullhornEntity> {
         return metaFieldSet;
     }
 
-    private void writeToCsv(EntityInfo entityInfo,
-                            ArrayList<String> headers,
-                            ArrayList<String> dataTypes) throws IOException {
-        CsvWriter csvWriter = new CsvWriter(entityInfo.getEntityName() + "Example.csv");
-        csvWriter.writeRecord(headers.toArray(new String[0]));
-        csvWriter.writeRecord(dataTypes.toArray(new String[0]));
-        csvWriter.flush();
-        csvWriter.close();
-    }
-
     void populateDataTypes(EntityInfo entityInfo,
                            Set<Field> metaFieldSet,
-                           ArrayList<String> headers,
-                           ArrayList<String> dataTypes) throws IOException, ClassNotFoundException {
+                           List<String> headers,
+                           List<String> dataTypes) {
         HashSet<String> methodSet = getEntityFields(entityInfo);
 
         for (Field field : metaFieldSet) {
@@ -85,9 +107,9 @@ public class TemplateUtil<B extends BullhornEntity> {
         }
     }
 
-    private HashSet<String> getEntityFields(EntityInfo entityInfo) throws ClassNotFoundException {
+    private HashSet<String> getEntityFields(EntityInfo entityInfo) {
         HashSet<String> methodSet = new HashSet<>();
-        for (Method method : Arrays.asList(entityInfo.getEntityClass().getMethods())) {
+        for (Method method : entityInfo.getEntityClass().getMethods()) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))
                 && !method.isAnnotationPresent(ReadOnly.class)) {
                 methodSet.add(method.getName().substring(3).toLowerCase());
@@ -104,7 +126,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     private List<Method> getCompositeMethodList(EntityInfo entityInfo, Field field) {
         Class compositeClass = getGetMethod(entityInfo.getEntityClass(), field.getName());
         List<Method> methodList = new ArrayList<>();
-        for (Method method : Arrays.asList(compositeClass.getMethods())) {
+        for (Method method : compositeClass.getMethods()) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))
                 && !"getAdditionalProperties".equalsIgnoreCase(method.getName())
                 && !"getClass".equalsIgnoreCase(method.getName())) {

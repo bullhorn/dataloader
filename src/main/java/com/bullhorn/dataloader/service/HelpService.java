@@ -7,7 +7,7 @@ import com.bullhorn.dataloader.util.PrintUtil;
  */
 public class HelpService implements Action {
 
-    private PrintUtil printUtil;
+    private final PrintUtil printUtil;
 
     HelpService(PrintUtil printUtil) {
         this.printUtil = printUtil;

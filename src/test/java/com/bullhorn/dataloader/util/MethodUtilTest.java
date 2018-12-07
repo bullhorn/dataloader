@@ -9,7 +9,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
 import java.util.Map;
@@ -18,19 +17,19 @@ import java.util.Set;
 public class MethodUtilTest {
 
     @Test
-    public void testConstructor() throws IOException {
+    public void testConstructor() {
         MethodUtil methodUtil = new MethodUtil();
         Assert.assertNotNull(methodUtil);
     }
 
     @Test
-    public void testGetSetterMethodMapAddress() throws IOException {
+    public void testGetSetterMethodMapAddress() {
         Map<String, Method> setterMethodMap = MethodUtil.getSetterMethodMap(Address.class);
-        Assert.assertEquals(setterMethodMap.size(), 6);
+        Assert.assertEquals(setterMethodMap.size(), 7);
     }
 
     @Test
-    public void testGetSetterMethodId() throws IOException {
+    public void testGetSetterMethodId() {
         Method setterMethod = MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "id");
         Assert.assertEquals(setterMethod.getName(), "setId");
         Assert.assertEquals(setterMethod.getReturnType(), void.class);
@@ -38,7 +37,7 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testGetSetterMethodExternalID() throws IOException {
+    public void testGetSetterMethodExternalID() {
         Method setterMethod = MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "externalID");
         Assert.assertEquals(setterMethod.getName(), "setExternalID");
         Assert.assertEquals(setterMethod.getReturnType(), void.class);
@@ -46,7 +45,7 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testGetSetterMethodAddress1() throws IOException {
+    public void testGetSetterMethodAddress1() {
         Method setterMethod = MethodUtil.getSetterMethod(EntityInfo.ADDRESS, "address1");
         Assert.assertEquals(setterMethod.getName(), "setAddress1");
         Assert.assertEquals(setterMethod.getReturnType(), void.class);
@@ -54,7 +53,7 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testGetSetterMethodFailure() throws IOException {
+    public void testGetSetterMethodFailure() {
         RestApiException expectedException = new RestApiException(
             "Invalid address field format: 'address1'. Must use: 'address.address1' to set an address field.");
         RestApiException actualException = null;
@@ -70,7 +69,7 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testFindBestMatchExact() throws IOException {
+    public void testFindBestMatchExact() {
         Set<String> fields = Sets.newSet("name", "firstName", "lastName", "middleName", "last");
         Assert.assertEquals("lastName", MethodUtil.findBestMatch(fields, "lastName"));
         Assert.assertEquals("name", MethodUtil.findBestMatch(fields, "name"));
@@ -78,7 +77,7 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testFindBestMatchCaseInsensitive() throws IOException {
+    public void testFindBestMatchCaseInsensitive() {
         Set<String> fields = Sets.newSet("name", "firstName", "lastName", "middleName", "last");
         Assert.assertEquals("lastName", MethodUtil.findBestMatch(fields, "LastName"));
         Assert.assertEquals("name", MethodUtil.findBestMatch(fields, "Name"));
@@ -86,14 +85,14 @@ public class MethodUtilTest {
     }
 
     @Test
-    public void testFindBestMatchContains() throws IOException {
+    public void testFindBestMatchContains() {
         Set<String> fields = Sets.newSet("name", "firstName", "lastName", "middleName");
         Assert.assertEquals("middleName", MethodUtil.findBestMatch(fields, "middle"));
         Assert.assertEquals("firstName", MethodUtil.findBestMatch(fields, "fir"));
     }
 
     @Test
-    public void testFindBestMatchMissing() throws IOException {
+    public void testFindBestMatchMissing() {
         Set<String> fields = Sets.newSet("name", "firstName", "lastName", "middleName");
         Assert.assertEquals(null, MethodUtil.findBestMatch(fields, "initial"));
         Assert.assertEquals(null, MethodUtil.findBestMatch(fields, "names"));
