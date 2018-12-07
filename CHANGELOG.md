@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.12.0"></a>
+# [3.12.0](https://github.com/bullhorn/dataloader/compare/v3.11.0...v3.12.0) (2018-12-07)
+
+
+### Bug Fixes
+
+* **Delete Attachments:** Fixed delete attachments results file columns ([#273](https://github.com/bullhorn/dataloader/issues/273)) ([3431b5f](https://github.com/bullhorn/dataloader/commit/3431b5f))
+
+
+### Features
+
+* **Associations:** Enabled wildcard searching for associations ([#269](https://github.com/bullhorn/dataloader/issues/269)) ([7b07cb6](https://github.com/bullhorn/dataloader/commit/7b07cb6))
+* **Date Searching:** Allowing date ranges in Query/Search calls ([400e69d](https://github.com/bullhorn/dataloader/commit/400e69d))
+* **Fields:** More custom fields for Candidate/Placement ([#275](https://github.com/bullhorn/dataloader/issues/275)) ([985d2a0](https://github.com/bullhorn/dataloader/commit/985d2a0))
+* **Load Attachments:** Allow attachment directory relative to CSV file ([#274](https://github.com/bullhorn/dataloader/issues/274)) ([0ee8fe0](https://github.com/bullhorn/dataloader/commit/0ee8fe0))
+
+
+
 <a name="3.11.0"></a>
 # [3.11.0](https://github.com/bullhorn/dataloader/compare/v3.10.0...v3.11.0) (2018-09-26)
 
