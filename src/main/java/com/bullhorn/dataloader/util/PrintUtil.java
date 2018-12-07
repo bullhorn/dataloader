@@ -31,14 +31,15 @@ public class PrintUtil {
     public void printUsage() {
         print("");
         print("Usage: <action> <parameter>");
-        print("                Load: dataloader load path/to/<EntityName>.csv");
-        print("                      dataloader load path/to/directory");
-        print("              Delete: dataloader delete path/to/<EntityName>.csv");
-        print("                      dataloader delete path/to/directory");
-        print(" Convert Attachments: dataloader convertAttachments path/to/<EntityName>.csv");
-        print("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
-        print("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
-        print("     Create Template: dataloader template <EntityName>");
+        print("                 Load: dataloader load path/to/<EntityName>.csv");
+        print("                       dataloader load path/to/directory");
+        print("               Delete: dataloader delete path/to/<EntityName>.csv");
+        print("                       dataloader delete path/to/directory");
+        print("  Convert Attachments: dataloader convertAttachments path/to/<EntityName>.csv");
+        print("     Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
+        print("   Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
+        print("      Create Template: dataloader template <EntityName>");
+        print(" Compare Example File: dataloader template <EntityName>.csv");
         print("");
         print("where <EntityName> is one of the supported entities listed at:");
         print("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
@@ -50,7 +51,7 @@ public class PrintUtil {
             throw new IllegalStateException("recordStart() not called");
         }
         final Date endTime = new Date();
-        final Integer totalRecords = actionTotals.getAllActionsTotal();
+        final int totalRecords = actionTotals.getAllActionsTotal();
 
         printAndLog("Results of DataLoader run");
         printAndLog("Start time: " + dateFormat.format(startTime));

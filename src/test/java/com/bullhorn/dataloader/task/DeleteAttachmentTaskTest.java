@@ -16,7 +16,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -37,7 +36,7 @@ public class DeleteAttachmentTaskTest {
     private CompleteUtil completeUtilMock;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
         restApiMock = mock(RestApi.class);
@@ -63,7 +62,7 @@ public class DeleteAttachmentTaskTest {
     }
 
     @Test
-    public void testDeleteAttachmentFailure() throws ExecutionException, IOException {
+    public void testDeleteAttachmentFailure() throws IOException {
         Row row = TestUtils.createRow("id,Candidate.externalID,relativeFilePath,isResume,parentEntityID", "1,1," +
              "testResume/TestResume.doc,0,1");
         when(restApiMock.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
@@ -77,7 +76,7 @@ public class DeleteAttachmentTaskTest {
     }
 
     @Test
-    public void testDeleteAttachmentMissingID() throws ExecutionException, IOException {
+    public void testDeleteAttachmentMissingID() throws IOException {
         Row row = TestUtils.createRow("Candidate.externalID,relativeFilePath,isResume,parentEntityID", "1," +
              "testResume/TestResume.doc,0,1");
 
@@ -90,7 +89,7 @@ public class DeleteAttachmentTaskTest {
     }
 
     @Test
-    public void testDeleteAttachmentMissingParentEntityID() throws ExecutionException, IOException {
+    public void testDeleteAttachmentMissingParentEntityID() throws Exception {
         Row row = TestUtils.createRow("id,Candidate.externalID,relativeFilePath,isResume", "1,1," +
              "testResume/TestResume.doc,0");
 

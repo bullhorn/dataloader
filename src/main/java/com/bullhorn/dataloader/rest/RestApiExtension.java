@@ -98,7 +98,7 @@ public class RestApiExtension {
 
             List<S> list = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(jsonString);
-            for (int i = 0; i < jsonArray.length(); i++) {
+            for (int i = 0; i < jsonArray.length(); ++i) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 jsonObject.put(StringConsts.EXTERNAL_ID, externalId);
                 list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));

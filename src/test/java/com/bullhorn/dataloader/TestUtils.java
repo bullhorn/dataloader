@@ -267,7 +267,7 @@ public class TestUtils {
         }
 
         Row row = new Row("path/to/fake/file.csv", 1);
-        for (int i = 0; i < headerArray.length; i++) {
+        for (int i = 0; i < headerArray.length; ++i) {
             Cell cell = new Cell(headerArray[i], valueArray[i]);
             row.addCell(cell);
         }
@@ -291,7 +291,7 @@ public class TestUtils {
         }
 
         List<Country> countries = new ArrayList<>();
-        for (int i = 0; i < nameArray.length; i++) {
+        for (int i = 0; i < nameArray.length; ++i) {
             Country country = new Country();
             country.setId(Integer.valueOf(idArray[i]));
             country.setName(nameArray[i]);

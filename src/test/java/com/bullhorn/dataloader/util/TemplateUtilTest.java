@@ -8,7 +8,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -19,22 +18,26 @@ import static org.mockito.Mockito.mock;
 
 public class TemplateUtilTest {
 
-    private RestApi restApi;
-    private Set<Field> metaFieldSet;
-    private Set<Field> associationFields;
-    private ArrayList<String> headers;
     private ArrayList<String> dataTypes;
+    private ArrayList<String> headers;
+    private PrintUtil printUtilMock;
+    private PropertyFileUtil propertyFileUtilMock;
+    private RestApi restApiMock;
+    private Set<Field> associationFields;
+    private Set<Field> metaFieldSet;
     private TemplateUtil templateUtil;
 
     @Before
-    public void setup() throws Exception {
-        templateUtil = new TemplateUtil(restApi);
+    public void setup() {
+        printUtilMock = mock(PrintUtil.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
+        restApiMock = mock(RestApi.class);
+
+        templateUtil = new TemplateUtil(restApiMock, propertyFileUtilMock, printUtilMock);
 
         headers = new ArrayList<>();
         dataTypes = new ArrayList<>();
         metaFieldSet = new HashSet<>();
-
-        restApi = mock(RestApi.class);
 
         setUpMetaFieldSet();
         setUpAssociationFields();
@@ -94,7 +97,7 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void populateDataTypesTestAddress() throws ClassNotFoundException, IOException {
+    public void populateDataTypesTestAddress() {
         templateUtil.populateDataTypes(EntityInfo.CANDIDATE, metaFieldSet, headers, dataTypes);
 
         Assert.assertTrue(headers.stream().anyMatch(n -> n.equalsIgnoreCase("secondaryAddress.state")));
@@ -127,24 +130,24 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void testDataTypeIsNull() throws ClassNotFoundException, IOException {
+    public void testDataTypeIsNull() {
         templateUtil.populateDataTypes(EntityInfo.CLIENT_CORPORATION, metaFieldSet, headers, dataTypes);
     }
 
     @Test
-    public void testIsToManyNonReadOnly() throws ClassNotFoundException, IOException {
+    public void testIsToManyNonReadOnly() {
         templateUtil.populateDataTypes(EntityInfo.CLIENT_CORPORATION, metaFieldSet, headers, dataTypes);
         Assert.assertTrue(headers.contains("leads.id"));
     }
 
     @Test
-    public void testIsToManyReadOnly() throws ClassNotFoundException, IOException {
+    public void testIsToManyReadOnly() {
         templateUtil.populateDataTypes(EntityInfo.CLIENT_CORPORATION, metaFieldSet, headers, dataTypes);
         Assert.assertFalse(headers.contains("clientContact.id"));
     }
 
     @Test
-    public void testIsToOne() throws ClassNotFoundException, IOException {
+    public void testIsToOne() {
         templateUtil.populateDataTypes(EntityInfo.CLIENT_CORPORATION, metaFieldSet, headers, dataTypes);
         Assert.assertTrue(headers.contains("department.id"));
     }

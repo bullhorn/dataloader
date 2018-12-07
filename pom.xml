@@ -44,7 +44,7 @@
         <mockito.version>1.10.19</mockito.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <sdk-rest.version>1.2.39</sdk-rest.version>
+        <sdk-rest.version>1.2.44</sdk-rest.version>
         <surefire.version>2.19.1</surefire.version>
         <tika-parsers.version>1.14</tika-parsers.version>
     </properties>

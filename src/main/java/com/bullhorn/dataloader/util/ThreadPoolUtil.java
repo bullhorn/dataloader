@@ -15,7 +15,7 @@ public class ThreadPoolUtil {
     private static final int KEEP_ALIVE_TIME = 10;
     private static final long SIXTEEN_GIGABYTES = 16456252;
 
-    private PropertyFileUtil propertyFileUtil;
+    private final PropertyFileUtil propertyFileUtil;
 
     public ThreadPoolUtil(PropertyFileUtil propertyFileUtil) {
         this.propertyFileUtil = propertyFileUtil;
