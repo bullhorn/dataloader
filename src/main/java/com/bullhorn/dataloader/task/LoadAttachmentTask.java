@@ -10,6 +10,7 @@ import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -95,22 +96,11 @@ public class LoadAttachmentTask extends AbstractTask {
 
         // Read the file from disk if this is a new file upload or an update to an existing file that updates the file content
         if (isNewEntity || row.hasValue(StringConsts.RELATIVE_FILE_PATH)) {
-            File attachmentFile;
-            try {
-                attachmentFile = new File(row.getValue(StringConsts.RELATIVE_FILE_PATH));
-            } catch (NullPointerException e) {
-                throw new IOException("Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for loadAttachments");
-            }
+            File attachmentFile = FileUtil.getAttachmentFile(row);
 
             // If the externalID is not already being set, set it to the file name
             if (!fileRow.hasValue(StringConsts.EXTERNAL_ID)) {
                 fileRow.addCell(new Cell(StringConsts.EXTERNAL_ID, attachmentFile.getName()));
-            }
-
-            // If the relativeFilePath is not relative to the current working directory, then try relative to the CSV file's directory
-            if (!attachmentFile.exists()) {
-                File currentCsvFile = new File(row.getFilePath());
-                attachmentFile = new File(currentCsvFile.getParent(), row.getValue(StringConsts.RELATIVE_FILE_PATH));
             }
 
             try {

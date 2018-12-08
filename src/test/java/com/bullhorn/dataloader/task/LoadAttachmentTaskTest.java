@@ -221,7 +221,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(
-            new IOException("Missing the 'relativeFilePath' column required for loadAttachments"), 1001);
+            new IOException("Missing the 'relativeFilePath' column required for attachments"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
