@@ -1,8 +1,10 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -166,5 +168,28 @@ public class FileUtil {
         } else {
             return bestMatch;
         }
+    }
+
+    /**
+     * Returns the relativeFilePath file, checking relative to the current working directory and the input file.
+     *
+     * @param row a row of data for converting or loading attachments
+     * @return the file, if found, throws exception if not found
+     * @throws IOException If the column is missing
+     */
+    public static File getAttachmentFile(Row row) throws IOException {
+        File attachmentFile;
+        try {
+            attachmentFile = new File(row.getValue(StringConsts.RELATIVE_FILE_PATH));
+        } catch (NullPointerException e) {
+            throw new IOException("Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for attachments");
+        }
+
+        // If the relativeFilePath is not relative to the current working directory, then try relative to the CSV file's directory
+        if (!attachmentFile.exists()) {
+            File currentCsvFile = new File(row.getFilePath());
+            attachmentFile = new File(currentCsvFile.getParent(), row.getValue(StringConsts.RELATIVE_FILE_PATH));
+        }
+        return attachmentFile;
     }
 }

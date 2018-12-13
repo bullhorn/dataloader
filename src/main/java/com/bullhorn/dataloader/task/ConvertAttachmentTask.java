@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -41,60 +42,34 @@ public class ConvertAttachmentTask extends AbstractTask {
     }
 
     protected Result handle() throws Exception {
-        if (isResume()) {
-            String convertedHtml = convertAttachmentToHtml();
-            writeHtmlToFile(convertedHtml);
+        String isResumeValue = row.getValue(StringConsts.IS_RESUME);
+        if (isResumeValue != null && (Boolean.valueOf(isResumeValue) || isResumeValue.equals("1") || isResumeValue.equalsIgnoreCase("Yes"))) {
+            String html = convertAttachmentToHtml();
+            writeHtmlToFile(html);
             return Result.convert();
         } else {
             return Result.skip();
         }
     }
 
-    private boolean isResume() {
-        String isResumeValue = row.getValue("isResume");
-        return Boolean.valueOf(isResumeValue) || isResumeValue.equalsIgnoreCase("1") || isResumeValue.equalsIgnoreCase("Yes");
-    }
-
-    void writeHtmlToFile(String convertedHtml) throws IOException {
-        File convertedAttachmentFile = getFile();
-        write(convertedHtml, convertedAttachmentFile);
-    }
-
-    protected File getFile() {
-        String convertedAttachmentPath = getConvertedAttachmentPath();
-        File convertedAttachmentFile = new File(convertedAttachmentPath);
-        convertedAttachmentFile.getParentFile().mkdirs();
-        return convertedAttachmentFile;
-    }
-
-    private void write(String convertedHtml, File convertedAttachmentFile) throws IOException {
-        FileOutputStream fop = new FileOutputStream(convertedAttachmentFile.getAbsoluteFile());
-        byte[] convertedHtmlInBytes = convertedHtml.getBytes();
-        fop.write(convertedHtmlInBytes);
-        fop.flush();
-        fop.close();
-    }
-
-    String getConvertedAttachmentPath() {
-        return "convertedAttachments/" + entityInfo.getEntityName() + "/" + getExternalId() + ".html";
-    }
-
-    private String getExternalId() {
-        return row.getValue(WordUtils.uncapitalize(entityInfo.getEntityName()) + ".externalID");
-    }
-
-    String convertAttachmentToHtml() throws IOException, SAXException, TikaException {
+    private String convertAttachmentToHtml() throws IOException, SAXException, TikaException {
         ContentHandler handler = new ToXMLContentHandler();
-
         AutoDetectParser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
-        InputStream stream;
-        try {
-            stream = new FileInputStream(row.getValue(StringConsts.RELATIVE_FILE_PATH));
-        } catch (NullPointerException e) {
-            throw new IOException("Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for convertAttachments");
-        }
+        File attachmentFile = FileUtil.getAttachmentFile(row);
+        InputStream stream = new FileInputStream(attachmentFile);
         parser.parse(stream, handler, metadata);
         return handler.toString();
+    }
+
+    private void writeHtmlToFile(String convertedHtml) throws IOException {
+        String externalId = row.getValue(WordUtils.uncapitalize(entityInfo.getEntityName()) + "." + StringConsts.EXTERNAL_ID);
+        String convertedAttachmentPath = propertyFileUtil.getConvertedAttachmentFilepath(entityInfo, externalId);
+        File convertedAttachmentFile = new File(convertedAttachmentPath);
+        convertedAttachmentFile.getParentFile().mkdirs();
+        FileOutputStream fileOutputStream = new FileOutputStream(convertedAttachmentFile);
+        fileOutputStream.write(convertedHtml.getBytes());
+        fileOutputStream.flush();
+        fileOutputStream.close();
     }
 }

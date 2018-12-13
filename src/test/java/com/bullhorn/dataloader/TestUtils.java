@@ -232,6 +232,10 @@ public class TestUtils {
         Assert.assertFalse("Failed to process any records during " + actionString + " step", output.contains("processed: 0"));
         Assert.assertTrue("There are failures during " + actionString + " step", output.contains("failed: 0"));
 
+        if (action == Result.Action.CONVERT) {
+            return; // Convert does not output inserted/updated/deleted, only converted/skipped
+        }
+
         if (action != Result.Action.INSERT) {
             Assert.assertTrue("Insert performed during " + actionString + " step", output.contains("inserted: 0"));
         }
