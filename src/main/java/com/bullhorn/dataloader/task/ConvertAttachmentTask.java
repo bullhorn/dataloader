@@ -43,7 +43,7 @@ public class ConvertAttachmentTask extends AbstractTask {
 
     protected Result handle() throws Exception {
         String isResumeValue = row.getValue(StringConsts.IS_RESUME);
-        if (Boolean.valueOf(isResumeValue) || isResumeValue.equalsIgnoreCase("1") || isResumeValue.equalsIgnoreCase("Yes")) {
+        if (isResumeValue != null && (Boolean.valueOf(isResumeValue) || isResumeValue.equals("1") || isResumeValue.equalsIgnoreCase("Yes"))) {
             String html = convertAttachmentToHtml();
             writeHtmlToFile(html);
             return Result.convert();

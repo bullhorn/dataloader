@@ -130,6 +130,15 @@ public class IntegrationTest {
 
         File tempAttachmentsDirectory = new File(tempDirectory + "/attachments");
         if (tempAttachmentsDirectory.exists()) {
+            // region CONVERT ATTACHMENTS
+            FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"convertAttachments", tempAttachmentsDirectory.getPath() + "/Candidate.csv"});
+            Main.main(new String[]{"convertAttachments", tempAttachmentsDirectory.getPath() + "/CandidateUpdate.csv"});
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.CONVERT);
+            TestUtils.checkResultsFiles(tempAttachmentsDirectory, Command.CONVERT_ATTACHMENTS);
+            // endregion
+
             // region INSERT ATTACHMENTS
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
             consoleOutputCapturer.start();
@@ -138,6 +147,7 @@ public class IntegrationTest {
             // endregion
 
             // region UPDATE ATTACHMENTS
+            // Do not cleanup from previous run here - both Candidate and CandidateUpdate need to be present for delete step
             consoleOutputCapturer.start();
             Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/CandidateUpdate.csv"});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
