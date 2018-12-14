@@ -7,7 +7,6 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
-import com.bullhornsdk.data.model.entity.core.type.AllRecordsEntity;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
@@ -103,16 +102,6 @@ public class RestApi {
         params.setCount(MAX_RECORDS_TO_RETURN_IN_ONE_PULL);
         recursiveQueryPull(list, type, where, fieldSet, params);
         return list;
-    }
-
-    // TODO: Remove this now that the regular queryForList is recursive
-    <T extends QueryEntity & AllRecordsEntity> List<T> queryForAllRecordsList(Class<T> type,
-                                                                              String where,
-                                                                              Set<String> fieldSet,
-                                                                              QueryParams params) {
-        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where);
-        ListWrapper<T> listWrapper = bullhornData.queryForAllRecords(type, where, fieldSet, params);
-        return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }
     // endregion
 

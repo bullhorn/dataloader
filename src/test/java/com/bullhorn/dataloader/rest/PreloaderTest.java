@@ -30,7 +30,7 @@ public class PreloaderTest {
         preloader = new Preloader(restSessionMock);
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        when(restApiMock.queryForAllRecordsList(eq(Country.class), any(), any(), any()))
+        when(restApiMock.queryForList(eq(Country.class), any(), any(), any()))
             .thenReturn(TestUtils.createCountryList("United States,Canada", "1,2"));
     }
 
@@ -46,7 +46,7 @@ public class PreloaderTest {
         for (int i = 0; i < expectedRow.getCells().size(); ++i) {
             Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
         }
-        verify(restApiMock, times(1)).queryForAllRecordsList(any(), any(), any(), any());
+        verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
     }
 
     @Test
@@ -61,7 +61,7 @@ public class PreloaderTest {
         for (int i = 0; i < expectedRow.getCells().size(); ++i) {
             Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
         }
-        verify(restApiMock, times(1)).queryForAllRecordsList(any(), any(), any(), any());
+        verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
     }
 
     @Test
@@ -71,6 +71,6 @@ public class PreloaderTest {
         Row convertedRow = preloader.convertRow(row);
 
         Assert.assertThat(convertedRow, new ReflectionEquals(row));
-        verify(restApiMock, never()).queryForAllRecordsList(any(), any(), any(), any());
+        verify(restApiMock, never()).queryForList(any(), any(), any(), any());
     }
 }
