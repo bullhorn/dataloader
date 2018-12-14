@@ -155,11 +155,8 @@ public class FindUtil {
      * @return true if the entity is not soft-deleted
      */
     public static Boolean isPersonActive(BullhornEntity entity) {
-        if (entity.getClass() == Person.class) {
-            Person person = (Person) entity;
-            return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
-        }
-        return true;
+        Person person = (Person) entity;
+        return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
     }
 
     /**
