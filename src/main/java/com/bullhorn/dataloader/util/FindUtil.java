@@ -58,7 +58,9 @@ public class FindUtil {
      * For primary entity non-to-many fields: person.externalID: "1234567"
      * For association non-to-many fields: externalID: "1234567"
      * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
-     * TODO: For to-many id fields only: id: 1 2 3 4 5
+     *
+     * TODO: For to-many id fields, improve search string syntax by only including ids with spaces
+     *       separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
      */
     private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
         if (field.isToMany()) {
