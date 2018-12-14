@@ -57,15 +57,13 @@ public class Preloader {
         return cell;
     }
 
-    // TODO: Make Private
-
     /**
      * Since the REST API only allows us to set the country using `countryID`, we query for all countries by name to
      * allow the `countryName` to upload by name instead of just the internal Bullhorn country code.
      *
      * Makes rest calls and stores the private data the first time through
      */
-    public Map<String, Integer> getCountryNameToIdMap() {
+    private Map<String, Integer> getCountryNameToIdMap() {
         if (countryNameToIdMap == null) {
             countryNameToIdMap = createCountryNameToIdMap();
         }
