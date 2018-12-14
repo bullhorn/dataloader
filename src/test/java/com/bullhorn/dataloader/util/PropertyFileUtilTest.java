@@ -74,6 +74,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getVerbose());
@@ -91,6 +92,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "true");
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
+        envVars.put("DATALOADER_WildCard_Matching", "TRUE");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
         envVars.put("DATALOADER_VERBOSE", "FALSE");
@@ -125,6 +127,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getVerbose());
@@ -142,6 +145,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "false");
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
+        envVars.put("DATALOADER_wildcard_matching", "FALSE");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
         envVars.put("DATALOADER_VERBOSE", "FALSE");
@@ -174,6 +178,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(20), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getResultsFileEnabled());
@@ -194,6 +199,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "false");
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
+        envVars.put("DATALOADER_wildcard_MATCHING", "TRUE");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
         envVars.put("DATALOADER_VERBOSE", "FALSE");
@@ -260,6 +266,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
         Assert.assertEquals(new Integer(25), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getResultsFileEnabled());
