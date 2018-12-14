@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.rest;
 
+import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -80,7 +81,7 @@ public class RestApi {
                                                           SearchParams params) {
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query);
         Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
-        String externalId = SearchCriteria.getExternalIdValue(query);
+        String externalId = FindUtil.getExternalIdValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
             SearchResult<T> searchResult = restApiExtension.getByExternalId(this, type, externalId, fieldSet);
             if (searchResult.getSuccess()) {

@@ -169,4 +169,22 @@ public class FindUtil {
             .map(field -> field.getCell().getName() + "=" + field.getStringValue())
             .collect(Collectors.joining(" AND "));
     }
+
+    /**
+     * Convenience method that extracts the externalID from the search string if it exists.
+     *
+     * @param searchString the search string that has been created for use in the rest find call
+     * @return empty string if it does not exist or is blank
+     */
+    public static String getExternalIdValue(String searchString) {
+        final String externalIdStart = StringConsts.EXTERNAL_ID + ":\"";
+        final String externalIdEnd = "\"";
+
+        String externalId = "";
+        if (searchString.contains(externalIdStart)) {
+            externalId = searchString.substring(searchString.indexOf(externalIdStart) + externalIdStart.length());
+            externalId = externalId.substring(0, externalId.indexOf(externalIdEnd));
+        }
+        return externalId;
+    }
 }
