@@ -57,15 +57,13 @@ public class Preloader {
         return cell;
     }
 
-    // TODO: Make Private
-
     /**
      * Since the REST API only allows us to set the country using `countryID`, we query for all countries by name to
      * allow the `countryName` to upload by name instead of just the internal Bullhorn country code.
      *
      * Makes rest calls and stores the private data the first time through
      */
-    public Map<String, Integer> getCountryNameToIdMap() {
+    private Map<String, Integer> getCountryNameToIdMap() {
         if (countryNameToIdMap == null) {
             countryNameToIdMap = createCountryNameToIdMap();
         }
@@ -80,7 +78,7 @@ public class Preloader {
     private Map<String, Integer> createCountryNameToIdMap() {
         RestApi restApi = restSession.getRestApi();
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
-        List<Country> countryList = restApi.queryForAllRecordsList(Country.class, "id IS NOT null",
+        List<Country> countryList = restApi.queryForList(Country.class, "id IS NOT null",
             Sets.newHashSet("id", "name"), ParamFactory.queryParams());
         countryList.forEach(n -> countryNameToIdMap.put(n.getName().trim(), n.getId()));
         return countryNameToIdMap;

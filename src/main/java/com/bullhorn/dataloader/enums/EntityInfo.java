@@ -313,7 +313,6 @@ public enum EntityInfo {
         if (setterMethodMap == null) {
             setterMethodMap = MethodUtil.getSetterMethodMap(getEntityClass());
 
-            // TODO: Remove this!
             // Add individual address setters for any entity that has an address field, since address is a composite
             // field, not a direct field or an associated record.
             if (setterMethodMap.containsKey("address")) {

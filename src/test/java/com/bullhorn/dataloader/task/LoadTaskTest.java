@@ -48,8 +48,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -84,11 +82,6 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
         when(propertyFileUtilMock.getProcessEmptyAssociations()).thenReturn(Boolean.FALSE);
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList());
-
-        Map<String, Integer> countryNameToIdMap = new LinkedHashMap<>();
-        countryNameToIdMap.put("United States", 1);
-        countryNameToIdMap.put("Canada", 2216);
-        when(preloaderMock.getCountryNameToIdMap()).thenReturn(countryNameToIdMap);
     }
 
     @Test

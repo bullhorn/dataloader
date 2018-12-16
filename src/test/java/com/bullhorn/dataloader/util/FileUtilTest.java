@@ -7,8 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -23,23 +23,17 @@ public class FileUtilTest {
     private ValidationUtil validationUtil;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         PrintUtil printUtilMock = mock(PrintUtil.class);
         validationUtil = new ValidationUtil(printUtilMock);
     }
 
     @Test
-    public void testConstructor() throws IOException {
-        FileUtil fileUtil = new FileUtil();
-        Assert.assertNotNull(fileUtil);
-    }
-
-    @Test
-    public void testGetValidCsvFilesFromPath_file() throws Exception {
+    public void testGetValidCsvFilesFromPath_file() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv");
         final File file = new File(filePath);
         final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-        expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(file.getAbsolutePath()));
+        expectedMap.put(EntityInfo.CANDIDATE, Collections.singletonList(file.getAbsolutePath()));
 
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getValidCsvFiles(filePath, validationUtil, EntityInfo.loadOrderComparator);
 
@@ -48,7 +42,7 @@ public class FileUtilTest {
     }
 
     @Test
-    public void testGetLoadableCsvFilesFromPath() throws Exception {
+    public void testGetLoadableCsvFilesFromPath() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
 
@@ -58,8 +52,8 @@ public class FileUtilTest {
         File clientCorporationFile2 = new File(TestUtils.getResourceFilePath("loadFromDirectory/ClientCorporation_2.csv"));
 
         expectedMap.put(EntityInfo.CLIENT_CORPORATION, Arrays.asList(clientCorporationFile1.getAbsolutePath(), clientCorporationFile2.getAbsolutePath()));
-        expectedMap.put(EntityInfo.CANDIDATE, Arrays.asList(candidateFile.getAbsolutePath()));
-        expectedMap.put(EntityInfo.CANDIDATE_WORK_HISTORY, Arrays.asList(candidateWorkHistoryFile.getAbsolutePath()));
+        expectedMap.put(EntityInfo.CANDIDATE, Collections.singletonList(candidateFile.getAbsolutePath()));
+        expectedMap.put(EntityInfo.CANDIDATE_WORK_HISTORY, Collections.singletonList(candidateWorkHistoryFile.getAbsolutePath()));
 
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath(filePath, validationUtil);
 
@@ -77,25 +71,25 @@ public class FileUtilTest {
     }
 
     @Test
-    public void testGetLoadableCsvFilesFromPath_badFile() throws Exception {
+    public void testGetLoadableCsvFilesFromPath_badFile() {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath("bad_file.csv", validationUtil);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
-    public void testGetLoadableCsvFilesFromPath_badDirectory() throws Exception {
+    public void testGetLoadableCsvFilesFromPath_badDirectory() {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath("bad_directory/", validationUtil);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
-    public void testGetLoadableCsvFilesFromPath_emptyDirectory() throws Exception {
+    public void testGetLoadableCsvFilesFromPath_emptyDirectory() {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), validationUtil);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
-    public void testGetDeletableCsvFilesFromPath() throws Exception {
+    public void testGetDeletableCsvFilesFromPath() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(filePath, validationUtil);
 
@@ -107,19 +101,19 @@ public class FileUtilTest {
     }
 
     @Test
-    public void testGetDeletableCsvFilesFromPath_badFile() throws Exception {
+    public void testGetDeletableCsvFilesFromPath_badFile() {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath("bad_file.csv", validationUtil);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
-    public void testGetDeletableCsvFilesFromPath_badDirectory() throws Exception {
+    public void testGetDeletableCsvFilesFromPath_badDirectory() {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath("bad_directory/", validationUtil);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
-    public void testGetDeletableCsvFilesFromPath_emptyDirectory() throws Exception {
+    public void testGetDeletableCsvFilesFromPath_emptyDirectory() {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), validationUtil);
         Assert.assertTrue(actualMap.isEmpty());
     }

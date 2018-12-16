@@ -32,7 +32,6 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -90,7 +89,6 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        verify(preloaderMock, never()).getCountryNameToIdMap();
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -106,7 +104,6 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CANDIDATE, filePath);
 
-        verify(preloaderMock, never()).getCountryNameToIdMap();
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -122,7 +119,6 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
 
-        verify(preloaderMock, never()).getCountryNameToIdMap();
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -138,7 +134,6 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        verify(preloaderMock, never()).getCountryNameToIdMap();
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -154,7 +149,6 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        verify(preloaderMock, never()).getCountryNameToIdMap();
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
@@ -170,7 +164,6 @@ public class ProcessRunnerTest {
 
         ActionTotals actualTotals = processRunner.runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
 
-        verify(preloaderMock, never()).getCountryNameToIdMap();
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());

@@ -58,7 +58,9 @@ public class FindUtil {
      * For primary entity non-to-many fields: person.externalID: "1234567"
      * For association non-to-many fields: externalID: "1234567"
      * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
-     * TODO: For to-many id fields only: id: 1 2 3 4 5
+     *
+     * TODO: For to-many id fields, improve search string syntax by only including ids with spaces
+     *       separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
      */
     private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
         if (field.isToMany()) {
@@ -155,11 +157,8 @@ public class FindUtil {
      * @return true if the entity is not soft-deleted
      */
     public static Boolean isPersonActive(BullhornEntity entity) {
-        if (entity.getClass() == Person.class) {
-            Person person = (Person) entity;
-            return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
-        }
-        return true;
+        Person person = (Person) entity;
+        return person.getPersonSubtype().equals(StringConsts.CORPORATE_USER) || !person.getIsDeleted();
     }
 
     /**
@@ -171,5 +170,23 @@ public class FindUtil {
             + " records with the same ExistField criteria of: " + entityExistFields.stream()
             .map(field -> field.getCell().getName() + "=" + field.getStringValue())
             .collect(Collectors.joining(" AND "));
+    }
+
+    /**
+     * Convenience method that extracts the externalID from the search string if it exists.
+     *
+     * @param searchString the search string that has been created for use in the rest find call
+     * @return empty string if it does not exist or is blank
+     */
+    public static String getExternalIdValue(String searchString) {
+        final String externalIdStart = StringConsts.EXTERNAL_ID + ":\"";
+        final String externalIdEnd = "\"";
+
+        String externalId = "";
+        if (searchString.contains(externalIdStart)) {
+            externalId = searchString.substring(searchString.indexOf(externalIdStart) + externalIdStart.length());
+            externalId = externalId.substring(0, externalId.indexOf(externalIdEnd));
+        }
+        return externalId;
     }
 }

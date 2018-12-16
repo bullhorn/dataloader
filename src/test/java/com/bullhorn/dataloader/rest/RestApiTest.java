@@ -8,7 +8,6 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
-import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
@@ -283,13 +282,6 @@ public class RestApiTest {
         verify(printUtilMock, never()).log(any(), eq("--> Follow On Find(20000 - 20500)"));
         verify(printUtilMock, never()).log(any(), eq("--> Follow On Find(20500 - 21000)"));
         Assert.assertEquals(20000, list.size());
-    }
-
-    @Test
-    public void testQueryForAllRecords() {
-        restApi.queryForAllRecordsList(Country.class, "id IS NOT null", null, ParamFactory.queryParams());
-        verify(bullhornDataMock, times(1)).queryForAllRecords(eq(Country.class), eq("id IS NOT null"), eq(null), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(Country Query): id IS NOT null"));
     }
 
     @Test
