@@ -31,15 +31,16 @@ public class PrintUtil {
     public void printUsage() {
         print("");
         print("Usage: <action> <parameter>");
-        print("                 Load: dataloader load path/to/<EntityName>.csv");
-        print("                       dataloader load path/to/directory");
-        print("               Delete: dataloader delete path/to/<EntityName>.csv");
-        print("                       dataloader delete path/to/directory");
-        print("  Convert Attachments: dataloader convertAttachments path/to/<EntityName>.csv");
-        print("     Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
-        print("   Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
-        print("      Create Template: dataloader template <EntityName>");
-        print(" Compare Example File: dataloader template <EntityName>.csv");
+        print("                Load: dataloader load path/to/<EntityName>.csv");
+        print("                      dataloader load path/to/directory");
+        print("              Delete: dataloader delete path/to/<EntityName>.csv");
+        print("                      dataloader delete path/to/directory");
+        print("              Export: dataloader export path/to/<EntityName>.csv");
+        print("                      dataloader export path/to/directory");
+        print(" Convert Attachments: dataloader convertAttachments path/to/<EntityName>.csv");
+        print("    Load Attachments: dataloader loadAttachments path/to/<EntityName>.csv");
+        print("  Delete Attachments: dataloader deleteAttachments path/to/<EntityName>.csv");
+        print("     Create Template: dataloader template <EntityName>");
         print("");
         print("where <EntityName> is one of the supported entities listed at:");
         print("                   https://github.com/bullhorn/dataloader/wiki/Supported-Entities");
@@ -58,7 +59,9 @@ public class PrintUtil {
         printAndLog("End time: " + dateFormat.format(endTime));
         printAndLog("Args: " + String.join(" ", args));
         printAndLog("Total records processed: " + totalRecords);
-        if (command.equals(Command.CONVERT_ATTACHMENTS)) {
+        if (command.equals(Command.EXPORT)) {
+            printAndLog("Total records exported: " + actionTotals.getActionTotal(Result.Action.EXPORT));
+        } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             printAndLog("Total records converted: " + actionTotals.getActionTotal(Result.Action.CONVERT));
             printAndLog("Total records skipped: " + actionTotals.getActionTotal(Result.Action.SKIP));
         } else {

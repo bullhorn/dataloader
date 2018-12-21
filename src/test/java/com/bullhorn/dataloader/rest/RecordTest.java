@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,6 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Set;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -36,11 +38,13 @@ public class RecordTest {
             "ext-1,Data,Loader,Data Loader,dloader@example.com,1;2;3");
 
         Record record = new Record(EntityInfo.CANDIDATE, row, propertyFileUtilMock);
+        Set<String> expectedParameters = Sets.newHashSet("externalID", "firstName", "lastName", "name", "email", "primarySkills(id)");
 
         Assert.assertEquals(EntityInfo.CANDIDATE, record.getEntityInfo());
         Assert.assertEquals(new Integer(1), record.getNumber());
         Assert.assertEquals(6, record.getFields().size());
         Assert.assertEquals(1, record.getToManyFields().size());
+        Assert.assertEquals(expectedParameters, record.getFieldsParameter());
     }
 
     @Test

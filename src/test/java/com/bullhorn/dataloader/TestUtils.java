@@ -233,9 +233,12 @@ public class TestUtils {
         Assert.assertTrue("There are failures during " + actionString + " step", output.contains("failed: 0"));
 
         if (action == Result.Action.CONVERT) {
-            return; // Convert does not output inserted/updated/deleted, only converted/skipped
+            return; // Convert does not output inserted/updated/deleted, only converted/skipped/failed
         }
-
+        if (action == Result.Action.EXPORT) {
+            Assert.assertFalse("No exports performed", output.contains("exported: 0"));
+            return; // Export does not output inserted/updated/deleted, only exported/failed
+        }
         if (action != Result.Action.INSERT) {
             Assert.assertTrue("Insert performed during " + actionString + " step", output.contains("inserted: 0"));
         }

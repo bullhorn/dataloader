@@ -8,6 +8,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -72,5 +73,14 @@ public class Record {
         } else {
             return fields.stream().filter(field -> field.isToMany() && !field.getStringValue().isEmpty()).collect(Collectors.toList());
         }
+    }
+
+    /**
+     * Returns all fields in a format that can be passed as the fields parameter of a Get call.
+     *
+     * @return the set of fields that will pull from Rest
+     */
+    public Set<String> getFieldsParameter() {
+        return fields.stream().map(Field::getFieldParameterName).collect(Collectors.toSet());
     }
 }

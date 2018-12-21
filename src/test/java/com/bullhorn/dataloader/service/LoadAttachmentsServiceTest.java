@@ -109,7 +109,7 @@ public class LoadAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArgumentsTooManyArgments() {
+    public void testIsValidArgumentsTooManyArguments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 

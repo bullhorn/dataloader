@@ -8,11 +8,11 @@ package com.bullhorn.dataloader.data;
  */
 public class Result {
 
-    private Status status = Status.NOT_SET;
-    private Action action = Action.NOT_SET;
-    private Integer bullhornId = -1;
+    private Status status;
+    private Action action;
+    private Integer bullhornId;
     private Integer bullhornParentId = -1;
-    private String failureText = "";
+    private String failureText;
 
     public Result(Status status, Action action, Integer bullhornId, String failureText) {
         this.status = status;
@@ -97,6 +97,15 @@ public class Result {
      */
     public static Result skip() {
         return new Result(Status.SUCCESS, Action.SKIP, -1, "");
+    }
+
+    /**
+     * Convert convenience constructor
+     *
+     * @return The new Result object
+     */
+    public static Result export(Integer bullhornId) {
+        return new Result(Status.SUCCESS, Action.EXPORT, bullhornId, "");
     }
 
     /**
@@ -242,6 +251,7 @@ public class Result {
         DELETE,
         CONVERT,
         SKIP,
+        EXPORT,
         FAILURE
     }
 }

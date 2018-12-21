@@ -15,6 +15,7 @@ import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteTask;
+import com.bullhorn.dataloader.task.ExportTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -55,6 +56,30 @@ public class ProcessRunner {
         this.completeUtil = completeUtil;
     }
 
+    ActionTotals runExportProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+        RestApi restApi = restSession.getRestApi();
+        ExecutorService executorService = threadPoolUtil.getExecutorService();
+        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
+        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.EXPORT, filePath, csvFileReader.getHeaders());
+        ActionTotals actionTotals = new ActionTotals();
+
+        // Loop over each row in the file
+        while (csvFileReader.readRecord()) {
+            // Create an individual task runner (thread) for the row
+            Row row = csvFileReader.getRow();
+            AbstractTask task = new ExportTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+
+            // Put the task in the thread pool so that it can be processed when a thread is available
+            executorService.execute(task);
+        }
+        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
+        executorService.shutdown();
+        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+        }
+        printUtil.printActionTotals(Command.EXPORT, actionTotals);
+        return actionTotals;
+    }
+
     ActionTotals runLoadProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
@@ -66,8 +91,7 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = preloader.convertRow(csvFileReader.getRow());
-            AbstractTask task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil,
-                actionTotals, completeUtil);
+            AbstractTask task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -91,8 +115,7 @@ public class ProcessRunner {
         while (csvFileReader.readRecord()) {
             // Create an individual task runner (thread) for the row
             Row row = csvFileReader.getRow();
-            AbstractTask task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil,
-                actionTotals, completeUtil);
+            AbstractTask task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);

@@ -16,25 +16,24 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class LoadServiceTest {
+public class ExportServiceTest {
 
     private ActionTotals actionTotalsMock;
     private CompleteUtil completeUtilMock;
     private RestSession restSessionMock;
     private InputStream inputStreamFake;
-    private LoadService loadService;
+    private ExportService exportService;
     private PrintUtil printUtilMock;
     private ProcessRunner processRunnerMock;
     private PropertyFileUtil propertyFileUtilMock;
@@ -42,7 +41,7 @@ public class LoadServiceTest {
     private ValidationUtil validationUtil;
 
     @Before
-    public void setup() throws IOException, InterruptedException {
+    public void setup() throws Exception {
         actionTotalsMock = mock(ActionTotals.class);
         completeUtilMock = mock(CompleteUtil.class);
         restSessionMock = mock(RestSession.class);
@@ -53,61 +52,45 @@ public class LoadServiceTest {
         timerMock = mock(Timer.class);
         validationUtil = new ValidationUtil(printUtilMock);
 
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        exportService = new ExportService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        doReturn(actionTotalsMock).when(processRunnerMock).runLoadProcess(any(), any());
+        when(processRunnerMock.runExportProcess(any(), any())).thenReturn(actionTotalsMock);
     }
 
     @Test
-    public void testRunFile() throws IOException, InterruptedException {
+    public void testRunFile() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        loadService.run(testArgs);
+        exportService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).runExportProcess(EntityInfo.CANDIDATE, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
-        verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
+        verify(completeUtilMock, times(1)).complete(Command.EXPORT, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
     }
 
     @Test
-    public void testRunDirectoryOneFile() throws IOException, InterruptedException {
+    public void testRunDirectoryWithOneFile() throws Exception {
         final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
         File file = new File(directoryPath, "ClientContact.csv");
         final String filePath = file.getPath();
-        final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), directoryPath};
 
-        loadService.run(testArgs);
+        exportService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        verify(processRunnerMock, times(1)).runExportProcess(EntityInfo.CLIENT_CONTACT, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
-        verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
+        verify(completeUtilMock, times(1)).complete(Command.EXPORT, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
     }
 
     @Test
-    public void testRunDirectoryOneFileWithWait() throws IOException, InterruptedException {
-        final String directoryPath = TestUtils.getResourceFilePath("loadFromDirectory/ClientContact");
-        File file = new File(directoryPath, "ClientContact.csv");
-        final String filePath = file.getPath();
-        final String[] testArgs = {Command.LOAD.getMethodName(), directoryPath};
-        doReturn(2).when(propertyFileUtilMock).getWaitSecondsBetweenFilesInDirectory();
-
-        loadService.run(testArgs);
-
-        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
-        verify(printUtilMock, times(3)).printAndLog(anyString());
-        verify(printUtilMock, times(1)).printAndLog("...Waiting 2 seconds for indexers to catch up...");
-        verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
-    }
-
-    @Test
-    public void testRunDirectoryFourFilesSameEntity() throws IOException, InterruptedException {
+    public void testRunDirectoryWithFourFilesSameEntity() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/opportunity");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        loadService.run(testArgs);
+        exportService.run(testArgs);
 
-        verify(processRunnerMock, times(4)).runLoadProcess(eq(EntityInfo.OPPORTUNITY), any());
+        verify(processRunnerMock, times(4)).runExportProcess(eq(EntityInfo.OPPORTUNITY), any());
         verify(printUtilMock, times(13)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
         verify(printUtilMock, times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
@@ -116,13 +99,13 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRunDirectoryFourFiles() throws IOException, InterruptedException {
+    public void testRunDirectoryFourFiles() throws Exception {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        loadService.run(testArgs);
+        exportService.run(testArgs);
 
-        verify(processRunnerMock, times(4)).runLoadProcess(any(), any());
+        verify(processRunnerMock, times(4)).runExportProcess(any(), any());
         verify(printUtilMock, times(13)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
         verify(printUtilMock, times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
@@ -131,31 +114,31 @@ public class LoadServiceTest {
     }
 
     @Test
-    public void testRunDirectoryFourFilesContinueNo() throws IOException, InterruptedException {
+    public void testRunDirectoryFourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        exportService = new ExportService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        loadService.run(testArgs);
+        exportService.run(testArgs);
 
-        verify(processRunnerMock, never()).runLoadProcess(any(), any());
+        verify(processRunnerMock, never()).runExportProcess(any(), any());
         verify(printUtilMock, times(5)).printAndLog(anyString());
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testRunInvalidThrowsException() throws IOException, InterruptedException {
-        final String[] testArgs = {Command.LOAD.getMethodName()};
-        loadService.run(testArgs);
+    public void testRunInvalidThrowsException() throws Exception {
+        final String[] testArgs = {Command.EXPORT.getMethodName()};
+        exportService.run(testArgs);
     }
 
     @Test
     public void testIsValidArgumentsFile() {
         final String filePath = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
         verify(printUtilMock, never()).printAndLog(anyString());
@@ -164,9 +147,9 @@ public class LoadServiceTest {
     @Test
     public void testIsValidArgumentsBadEntity() {
         final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         verify(printUtilMock, times(1)).printAndLog(anyString());
@@ -174,9 +157,9 @@ public class LoadServiceTest {
 
     @Test
     public void testIsValidArgumentsMissingArgument() {
-        final String[] testArgs = {Command.LOAD.getMethodName()};
+        final String[] testArgs = {Command.EXPORT.getMethodName()};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         verify(printUtilMock, times(1)).printAndLog(anyString());
@@ -185,9 +168,9 @@ public class LoadServiceTest {
     @Test
     public void testIsValidArgumentsTooManyArguments() {
         final String filePath = "Candidate.csv";
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath, "tooMany"};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath, "tooMany"};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         verify(printUtilMock, times(1)).printAndLog(anyString());
@@ -196,9 +179,9 @@ public class LoadServiceTest {
     @Test
     public void testIsValidArgumentsInvalidFile() {
         final String filePath = "filePath";
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         verify(printUtilMock, times(2)).printAndLog(anyString());
@@ -207,9 +190,9 @@ public class LoadServiceTest {
     @Test
     public void testIsValidArgumentsEmptyFile() {
         final String filePath = "";
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         verify(printUtilMock, times(2)).printAndLog(anyString());
@@ -218,20 +201,20 @@ public class LoadServiceTest {
     @Test
     public void testIsValidArgumentsReadOnlyEntity() {
         final String filePath = TestUtils.getResourceFilePath("BusinessSector.csv");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
-        Assert.assertFalse(actualResult);
-        verify(printUtilMock, times(1)).printAndLog(anyString());
+        Assert.assertTrue(actualResult);
+        verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
     public void testIsValidArgumentsDirectory() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertTrue(actualResult);
         verify(printUtilMock, never()).printAndLog(anyString());
@@ -240,22 +223,21 @@ public class LoadServiceTest {
     @Test
     public void testIsValidArgumentsNoCsvFiles() {
         final String filePath = TestUtils.getResourceFilePath("testResume");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
         Assert.assertFalse(actualResult);
         verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
     @Test
-    public void testIsValidArgumentsNoLoadableCsvFiles() {
+    public void testIsValidArgumentsBusinessSectors() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/businessSector");
-        final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
+        final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
 
-        final boolean actualResult = loadService.isValidArguments(testArgs);
+        final boolean actualResult = exportService.isValidArguments(testArgs);
 
-        Assert.assertFalse(actualResult);
-        verify(printUtilMock, times(1)).printAndLog(anyString());
+        Assert.assertTrue(actualResult);
     }
 }

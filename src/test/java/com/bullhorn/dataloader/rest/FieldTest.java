@@ -16,7 +16,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
@@ -30,7 +29,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testDirectStringField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testDirectStringField() throws Exception {
         Cell cell = new Cell("firstName", "Jack");
         Field field = new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
 
@@ -39,6 +38,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "firstName");
+        Assert.assertEquals(field.getFieldParameterName(), "firstName");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), String.class);
         Assert.assertEquals(field.getValue(), "Jack");
@@ -46,19 +46,20 @@ public class FieldTest {
 
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getFirstName(), null);
+        Assert.assertNull(candidate.getFirstName());
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
 
         field.populateFieldOnEntity(candidate);
 
         Assert.assertEquals(candidate.getFirstName(), "Jack");
-        Assert.assertEquals(field.getValueFromEntity(candidate), "Jack");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "Jack");
 
         field.setExistField(true);
         Assert.assertEquals(field.isExistField(), true);
     }
 
     @Test
-    public void testDirectBooleanField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testDirectBooleanField() throws Exception {
         Cell cell = new Cell("isDeleted", "");
         Field field = new Field(EntityInfo.JOB_SUBMISSION, cell, true, dateTimeFormatter);
 
@@ -67,6 +68,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "isDeleted");
+        Assert.assertEquals(field.getFieldParameterName(), "isDeleted");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.JOB_SUBMISSION);
         Assert.assertEquals(field.getFieldType(), Boolean.class);
         Assert.assertEquals(field.getValue(), false);
@@ -74,16 +76,17 @@ public class FieldTest {
 
         JobSubmission jobSubmission = new JobSubmission();
 
-        Assert.assertEquals(jobSubmission.getIsDeleted(), null);
+        Assert.assertNull(jobSubmission.getIsDeleted());
+        Assert.assertEquals(field.getStringValueFromEntity(jobSubmission, ";"), "");
 
         field.populateFieldOnEntity(jobSubmission);
 
         Assert.assertEquals(jobSubmission.getIsDeleted(), false);
-        Assert.assertEquals(field.getValueFromEntity(jobSubmission), false);
+        Assert.assertEquals(field.getStringValueFromEntity(jobSubmission, ";"), "false");
     }
 
     @Test
-    public void testDirectDateTimeField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testDirectDateTimeField() throws Exception {
         Cell cell = new Cell("dateAvailable", "02/09/2001");
         Field field = new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
 
@@ -92,6 +95,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "dateAvailable");
+        Assert.assertEquals(field.getFieldParameterName(), "dateAvailable");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), DateTime.class);
         Assert.assertEquals(field.getValue(), dateTimeFormatter.parseDateTime("02/09/2001"));
@@ -99,16 +103,17 @@ public class FieldTest {
 
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getDateAvailable(), null);
+        Assert.assertNull(candidate.getDateAvailable());
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
 
         field.populateFieldOnEntity(candidate);
 
         Assert.assertEquals(candidate.getDateAvailable(), dateTimeFormatter.parseDateTime("02/09/2001"));
-        Assert.assertEquals(field.getValueFromEntity(candidate), dateTimeFormatter.parseDateTime("02/09/2001"));
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "02/09/2001");
     }
 
     @Test
-    public void testToOneBooleanField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testToOneBooleanField() throws Exception {
         Cell cell = new Cell("candidate.isDeleted", "true");
         Field field = new Field(EntityInfo.CANDIDATE_WORK_HISTORY, cell, true, dateTimeFormatter);
 
@@ -117,6 +122,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), true);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "isDeleted");
+        Assert.assertEquals(field.getFieldParameterName(), "candidate(isDeleted)");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), Boolean.class);
         Assert.assertEquals(field.getValue(), true);
@@ -125,16 +131,19 @@ public class FieldTest {
         CandidateWorkHistory candidateWorkHistory = new CandidateWorkHistory();
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidateWorkHistory.getCandidate(), null);
+        Assert.assertNull(candidateWorkHistory.getCandidate());
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
 
         field.populateAssociationOnEntity(candidateWorkHistory, candidate);
 
         Assert.assertEquals(candidateWorkHistory.getCandidate().getIsDeleted(), true);
-        Assert.assertEquals(field.getValueFromEntity(candidate), true);
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "true");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "true");
     }
 
     @Test
-    public void testToOneBigDecimalField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testToOneBigDecimalField() throws Exception {
         Cell cell = new Cell("candidate.salary", "123.45");
         Field field = new Field(EntityInfo.CANDIDATE_WORK_HISTORY, cell, false, dateTimeFormatter);
 
@@ -143,6 +152,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), true);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "salary");
+        Assert.assertEquals(field.getFieldParameterName(), "candidate(salary)");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), BigDecimal.class);
         BigDecimal actual = (BigDecimal) field.getValue();
@@ -152,18 +162,20 @@ public class FieldTest {
         CandidateWorkHistory candidateWorkHistory = new CandidateWorkHistory();
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidateWorkHistory.getCandidate(), null);
+        Assert.assertNull(candidateWorkHistory.getCandidate());
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
 
         field.populateAssociationOnEntity(candidateWorkHistory, candidate);
 
         Assert.assertEquals(candidateWorkHistory.getCandidate().getSalary().doubleValue(), 123.45, 0.1);
-        BigDecimal valueFromEntity = (BigDecimal) field.getValueFromEntity(candidate);
-        Assert.assertEquals(valueFromEntity.doubleValue(), 123.45, 0.1);
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "123.45");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "123.45");
     }
 
     @Test
-    public void testToManyIntegerField() throws ParseException, InvocationTargetException, IllegalAccessException {
-        Cell cell = new Cell("candidates.id", "1");
+    public void testToManyIntegerField() throws Exception {
+        Cell cell = new Cell("candidates.id", "101");
         Field field = new Field(EntityInfo.NOTE, cell, false, dateTimeFormatter);
 
         Assert.assertEquals(field.getEntityInfo(), EntityInfo.NOTE);
@@ -171,25 +183,43 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), true);
         Assert.assertEquals(field.getName(), "id");
+        Assert.assertEquals(field.getFieldParameterName(), "candidates(id)");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), Integer.class);
-        Assert.assertEquals(field.getValue(), 1);
-        Assert.assertEquals(field.getStringValue(), "1");
+        Assert.assertEquals(field.getValue(), 101);
+        Assert.assertEquals(field.getStringValue(), "101");
 
         Note note = new Note();
-        Candidate candidate = new Candidate();
+        Candidate candidate1 = new Candidate();
+        Candidate candidate2 = new Candidate();
+        Candidate candidate3 = new Candidate();
 
-        Assert.assertEquals(candidate.getId(), null);
-        Assert.assertEquals(note.getCandidates(), null);
+        Assert.assertNull(candidate1.getId());
+        Assert.assertNull(candidate2.getId());
+        Assert.assertNull(candidate3.getId());
+        Assert.assertNull(note.getCandidates());
+        Assert.assertEquals(field.getStringValueFromEntity(note, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate1, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate2, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate3, ";"), "");
 
-        field.populateAssociationOnEntity(note, candidate);
+        field.populateAssociationOnEntity(note, candidate1);
+        field.populateAssociationOnEntity(note, candidate2);
+        field.populateAssociationOnEntity(note, candidate3);
 
-        Assert.assertEquals(note.getCandidates().getData().get(0).getId(), new Integer(1));
-        Assert.assertEquals(field.getValueFromEntity(candidate), 1);
+        Assert.assertEquals(note.getCandidates().getData().get(0).getId(), new Integer(101));
+        Assert.assertEquals(note.getCandidates().getData().get(1).getId(), new Integer(101));
+        Assert.assertEquals(note.getCandidates().getData().get(2).getId(), new Integer(101));
+
+        // The single value in the field will be set for each populated To-Many object
+        Assert.assertEquals(field.getStringValueFromEntity(note, ";"), "101;101;101");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate1, ";"), "101");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate2, ";"), "101");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate3, ";"), "101");
     }
 
     @Test
-    public void testToManyBooleanField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testToManyBooleanField() throws Exception {
         Cell cell = new Cell("clientContacts.isDeleted", "1");
         Field field = new Field(EntityInfo.NOTE, cell, true, dateTimeFormatter);
 
@@ -198,25 +228,42 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), true);
         Assert.assertEquals(field.getName(), "isDeleted");
+        Assert.assertEquals(field.getFieldParameterName(), "clientContacts(isDeleted)");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CLIENT_CONTACT);
         Assert.assertEquals(field.getFieldType(), Boolean.class);
         Assert.assertEquals(field.getValue(), true);
         Assert.assertEquals(field.getStringValue(), "1");
 
         Note note = new Note();
-        ClientContact clientContact = new ClientContact();
+        ClientContact contact1 = new ClientContact();
+        ClientContact contact2 = new ClientContact();
+        ClientContact contact3 = new ClientContact();
 
-        Assert.assertEquals(clientContact.getIsDeleted(), null);
-        Assert.assertEquals(note.getCandidates(), null);
+        Assert.assertNull(contact1.getIsDeleted());
+        Assert.assertNull(contact2.getIsDeleted());
+        Assert.assertNull(contact3.getIsDeleted());
+        Assert.assertEquals(field.getStringValueFromEntity(note, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(contact1, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(contact2, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(contact3, ";"), "");
 
-        field.populateAssociationOnEntity(note, clientContact);
+        field.populateAssociationOnEntity(note, contact1);
+        field.populateAssociationOnEntity(note, contact2);
+        field.populateAssociationOnEntity(note, contact3);
 
-        Assert.assertEquals(note.getClientContacts().getData().get(0).getIsDeleted(), true);
-        Assert.assertEquals(field.getValueFromEntity(clientContact), true);
+        Assert.assertEquals(true, note.getClientContacts().getData().get(0).getIsDeleted());
+        Assert.assertEquals(true, note.getClientContacts().getData().get(1).getIsDeleted());
+        Assert.assertEquals(true, note.getClientContacts().getData().get(2).getIsDeleted());
+
+        // The single value in the field will be set for each populated To-Many object
+        Assert.assertEquals(field.getStringValueFromEntity(note, ";"), "true;true;true");
+        Assert.assertEquals(field.getStringValueFromEntity(contact1, ";"), "true");
+        Assert.assertEquals(field.getStringValueFromEntity(contact2, ";"), "true");
+        Assert.assertEquals(field.getStringValueFromEntity(contact3, ";"), "true");
     }
 
     @Test
-    public void testEmptyInteger() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testEmptyInteger() throws ParseException {
         Cell cell = new Cell("id", "");
         Field field = new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
 
@@ -226,7 +273,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testAddressField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testAddressField() throws Exception {
         Cell cell = new Cell("address.address1", "100 Summer St.");
         Field field = new Field(EntityInfo.CANDIDATE, cell, true, dateTimeFormatter);
 
@@ -235,6 +282,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "address1");
+        Assert.assertEquals(field.getFieldParameterName(), "address(address1)");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
         Assert.assertEquals(field.getFieldType(), String.class);
         Assert.assertEquals(field.getValue(), "100 Summer St.");
@@ -242,7 +290,7 @@ public class FieldTest {
 
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getAddress(), null);
+        Assert.assertNull(candidate.getAddress());
 
         field.populateFieldOnEntity(candidate);
 
@@ -250,7 +298,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testAddressFieldCountryId() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testAddressFieldCountryId() throws Exception {
         Cell cell = new Cell("address.countryId", "1234");
         Field field = new Field(EntityInfo.CANDIDATE, cell, true, dateTimeFormatter);
 
@@ -259,6 +307,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "countryId");
+        Assert.assertEquals(field.getFieldParameterName(), "address(countryId)");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
         Assert.assertEquals(field.getFieldType(), Integer.class);
         Assert.assertEquals(field.getValue(), 1234);
@@ -266,7 +315,7 @@ public class FieldTest {
 
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getAddress(), null);
+        Assert.assertNull(candidate.getAddress());
 
         field.populateFieldOnEntity(candidate);
 
@@ -274,7 +323,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testMultipleAddressFields() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testMultipleAddressFields() throws Exception {
         Cell address1Cell = new Cell("address.address1", "100 Summer St.");
         Cell cityCell = new Cell("address.city", "Boston");
         Cell stateCell = new Cell("address.state", "MA");
@@ -291,8 +340,8 @@ public class FieldTest {
 
         Candidate candidate = new Candidate();
 
-        Assert.assertEquals(candidate.getAddress(), null);
-        Assert.assertEquals(candidate.getSecondaryAddress(), null);
+        Assert.assertNull(candidate.getAddress());
+        Assert.assertNull(candidate.getSecondaryAddress());
 
         address1.populateFieldOnEntity(candidate);
         city.populateFieldOnEntity(candidate);
@@ -310,7 +359,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testMalformedAddressField() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testMalformedAddressField() {
         RestApiException expectedException = new RestApiException(
             "Invalid address field format: 'countryName'. Must use: 'address.countryName' to set an address field.");
         RestApiException actualException = null;
@@ -327,7 +376,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testMalformedAddressFieldCaseInsensitive() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testMalformedAddressFieldCaseInsensitive() {
         RestApiException expectedException = new RestApiException(
             "Invalid address field format: 'countryname'. Must use: 'address.countryName' to set an address field.");
         RestApiException actualException = null;
@@ -344,7 +393,7 @@ public class FieldTest {
     }
 
     @Test
-    public void testDirectCityStateFieldsDoNotThrowException() throws ParseException, InvocationTargetException, IllegalAccessException {
+    public void testDirectCityStateFieldsDoNotThrowException() throws Exception {
         Cell cell = new Cell("state", "MO");
         Field field = new Field(EntityInfo.CANDIDATE_EDUCATION, cell, false, dateTimeFormatter);
 
@@ -353,6 +402,7 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "state");
+        Assert.assertEquals(field.getFieldParameterName(), "state");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE_EDUCATION);
         Assert.assertEquals(field.getFieldType(), String.class);
         Assert.assertEquals(field.getValue(), "MO");
@@ -360,10 +410,20 @@ public class FieldTest {
 
         CandidateEducation candidateEducation = new CandidateEducation();
 
-        Assert.assertEquals(candidateEducation.getState(), null);
+        Assert.assertNull(candidateEducation.getState());
 
         field.populateFieldOnEntity(candidateEducation);
 
         Assert.assertEquals(candidateEducation.getState(), "MO");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testWrongEntityTypeException() throws Exception {
+        Cell cell = new Cell("firstName", "Jack");
+        Field field = new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
+
+        ClientContact clientContact = new ClientContact();
+
+        Assert.assertEquals(field.getStringValueFromEntity(clientContact, ";"), "");
     }
 }

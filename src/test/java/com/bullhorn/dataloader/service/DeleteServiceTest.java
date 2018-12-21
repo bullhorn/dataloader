@@ -133,7 +133,7 @@ public class DeleteServiceTest {
     }
 
     @Test
-    public void testIsValidArgumentsTooManyArgments() {
+    public void testIsValidArgumentsTooManyArguments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.DELETE.getMethodName(), filePath, "tooMany"};
 

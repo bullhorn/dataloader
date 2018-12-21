@@ -888,7 +888,7 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Update - Multiple Records Exist. "
+            "com.bullhornsdk.data.exception.RestApiException: Multiple Records Exist. "
                 + "Found 2 Candidate records with the same ExistField criteria of: externalID=11");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }

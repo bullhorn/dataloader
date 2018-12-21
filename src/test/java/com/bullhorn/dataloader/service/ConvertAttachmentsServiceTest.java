@@ -111,7 +111,7 @@ public class ConvertAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArgumentsTooManyArgments() {
+    public void testIsValidArgumentsTooManyArguments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 

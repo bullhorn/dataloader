@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +38,7 @@ public abstract class AbstractService {
                            RestSession restSession,
                            ProcessRunner processRunner,
                            InputStream inputStream,
-                           Timer timer) throws IOException {
+                           Timer timer) {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
@@ -64,7 +63,7 @@ public abstract class AbstractService {
             || (!entityToFileListMap.isEmpty() && entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");
 
-            Integer count = 1;
+            int count = 1;
             for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
                 String entityName = entityFileEntry.getKey().getEntityName();
                 for (String fileName : entityFileEntry.getValue()) {
@@ -75,7 +74,7 @@ public abstract class AbstractService {
 
             printUtil.print("Do you want to continue? [Y/N]");
             Scanner scanner = new Scanner(inputStream);
-            Boolean yesOrNoResponse = false;
+            boolean yesOrNoResponse = false;
             while (!yesOrNoResponse) {
                 String input = scanner.nextLine();
                 if (input.startsWith("y") || input.startsWith("Y")) {

@@ -213,7 +213,8 @@ public class LoadTask extends AbstractTask {
             if (!propertyFileUtil.getWildcardMatching() && associations.size() != values.size()) {
                 Set<String> existingAssociationValues = new HashSet<>();
                 for (BullhornEntity entity : associations) {
-                    existingAssociationValues.add(String.valueOf(field.getValueFromEntity(entity)));
+                    String value = field.getStringValueFromEntity(entity, propertyFileUtil.getListDelimiter());
+                    existingAssociationValues.add(value);
                 }
                 if (associations.size() > values.size()) {
                     String duplicates = existingAssociationValues.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));

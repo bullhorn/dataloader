@@ -43,7 +43,7 @@ public class FindUtil {
      *
      * @param entityExistFields the key/value pair list of fields to search on
      * @param propertyFileUtil  the propertyFile settings
-     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
+     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      * @return the formatted lucene search string
      */
     public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
@@ -60,7 +60,7 @@ public class FindUtil {
      * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
      *
      * TODO: For to-many id fields, improve search string syntax by only including ids with spaces
-     *       separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
+     * separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
      */
     private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
         if (field.isToMany()) {
@@ -107,7 +107,7 @@ public class FindUtil {
      *
      * @param entityExistFields the key/value pair list of fields to search on
      * @param propertyFileUtil  the propertyFile settings
-     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
+     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      * @return the formatted where clause for the query string
      */
     public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
@@ -162,10 +162,19 @@ public class FindUtil {
     }
 
     /**
-     * Simple method for getting a nicely formatted user message about multiple existing records to choose from.
+     * Returns a nicely formatted user message about no matching records.
+     */
+    public static String getNoMatchingRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields) {
+        return "No Matching " + entityInfo.getEntityName() + " Records Exist with ExistField criteria of: "
+            + entityExistFields.stream().map(field -> field.getCell().getName() + "=" + field.getStringValue())
+            .collect(Collectors.joining(" AND "));
+    }
+
+    /**
+     * Returns a nicely formatted user message about multiple existing records to choose from.
      */
     public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, Integer numRecords) {
-        return "Cannot Perform Update - Multiple Records Exist. Found "
+        return "Multiple Records Exist. Found "
             + numRecords + " " + entityInfo.getEntityName()
             + " records with the same ExistField criteria of: " + entityExistFields.stream()
             .map(field -> field.getCell().getName() + "=" + field.getStringValue())

@@ -56,6 +56,8 @@ These example CSV files reference several reference only entities that must exis
 
 The maximal number of fields have been filled out in these examples, for as many entities as can be loaded. These files are as interconnected as possible, making use of as many association fields as possible. The `externalID` field is used if present, otherwise `customText1` is used to denote the external unique identifier for data that is being loaded. These are the same default exist fields that are used in section 3 of the `dataloader.properties` file, so that updating instead of inserting using these example files requires simply uncommenting the commented out exist fields in the properties file.  
 
+In order to ensure that all fields have been utilized, after updating the SDK-REST, run the command: `dataloader template <InputFile.csv>` for each example file in order to see which fields are missing or should be removed from the example file. For example: `dataloader template examples/load/Candidate.csv`. Not all fields can be added to the example file, but most can be.
+
 ### Integration Test 
 
 To perform a manual integration test (testing the integration between the DataLoader and the actual Rest API), do the following:
