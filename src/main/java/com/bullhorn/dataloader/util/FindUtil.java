@@ -5,16 +5,20 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Utility for constructing find call syntax (Search/Query statements)
  */
 public class FindUtil {
+    private static final Integer MAX_NUM_FIELDS = 30; // A safe, low number, since actual number depends on total length of the query string
+
     // Returns the format of a single term in a lucene search
     public static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo, PropertyFileUtil propertyFileUtil) {
         // Fix for the Note entity doing it's own thing when it comes to the 'id' field
@@ -197,5 +201,14 @@ public class FindUtil {
             externalId = externalId.substring(0, externalId.indexOf(externalIdEnd));
         }
         return externalId;
+    }
+
+    /**
+     * Returns the given set of fields as is or converts the set to a search for all fields (*) if the fields parameter is too large.
+     *
+     * A field parameter that is too large will result in the call failing because it goes beyond the supported query param string length.
+     */
+    public static Set<String> getCorrectedFieldSet(Set<String> fieldSet) {
+        return fieldSet != null && fieldSet.size() < MAX_NUM_FIELDS ? fieldSet : Sets.newHashSet("*");
     }
 }
