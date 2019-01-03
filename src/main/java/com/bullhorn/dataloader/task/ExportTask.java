@@ -37,7 +37,12 @@ public class ExportTask extends AbstractTask {
     protected Result handle() throws Exception {
         Record record = new Record(entityInfo, row, propertyFileUtil);
 
-        List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), record.getFieldsParameter(), true);
+        List<Field> entityExistFields = record.getEntityExistFields();
+        if (entityExistFields.isEmpty()) {
+            throw new RestApiException("Cannot perform export because exist field is not specified for entity: " + entityInfo.getEntityName());
+        }
+
+        List<BullhornEntity> foundEntityList = findEntities(entityExistFields, record.getFieldsParameter(), true);
         if (foundEntityList.isEmpty()) {
             throw new RestApiException(FindUtil.getNoMatchingRecordsExistMessage(entityInfo, record.getEntityExistFields()));
         } else if (foundEntityList.size() > 1) {

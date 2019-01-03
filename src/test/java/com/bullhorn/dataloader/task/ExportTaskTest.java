@@ -98,6 +98,23 @@ public class ExportTaskTest {
     }
 
     @Test
+    public void testRunFailureNoExistField() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
+            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
+
+        ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "com.bullhornsdk.data.exception.RestApiException: "
+                + "Cannot perform export because exist field is not specified for entity: Candidate");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
+    }
+
+    @Test
     public void testRunFailureRecordNotFound() throws Exception {
         Row row = TestUtils.createRow(
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
@@ -107,10 +124,6 @@ public class ExportTaskTest {
         when(restApiMock.searchForList(eq(Candidate.class),
             eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class));
-        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
-            .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))
-            .thenReturn(TestUtils.getList(Skill.class, 1));
 
         ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
@@ -118,6 +131,29 @@ public class ExportTaskTest {
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
             "com.bullhornsdk.data.exception.RestApiException: No Matching Candidate Records Exist with ExistField criteria of: "
+                + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
+    }
+
+    @Test
+    public void testRunFailureTooManyRecordsFound() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
+            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
+            .thenReturn(Arrays.asList("firstName", "lastName", "email"));
+        when(restApiMock.searchForList(eq(Candidate.class),
+            eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 101, 102));
+
+        ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "com.bullhornsdk.data.exception.RestApiException: Multiple Records Exist. "
+                + "Found 2 Candidate records with the same ExistField criteria of: "
                 + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
