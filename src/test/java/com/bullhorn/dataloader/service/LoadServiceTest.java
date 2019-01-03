@@ -55,7 +55,7 @@ public class LoadServiceTest {
 
         loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        doReturn(actionTotalsMock).when(processRunnerMock).runLoadProcess(any(), any());
+        doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
 
     @Test
@@ -65,7 +65,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).run(Command.LOAD, EntityInfo.CANDIDATE, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
     }
@@ -79,7 +79,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        verify(processRunnerMock, times(1)).run(Command.LOAD, EntityInfo.CLIENT_CONTACT, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
     }
@@ -94,7 +94,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runLoadProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        verify(processRunnerMock, times(1)).run(Command.LOAD, EntityInfo.CLIENT_CONTACT, filePath);
         verify(printUtilMock, times(3)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("...Waiting 2 seconds for indexers to catch up...");
         verify(completeUtilMock, times(1)).complete(Command.LOAD, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
@@ -107,7 +107,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        verify(processRunnerMock, times(4)).runLoadProcess(eq(EntityInfo.OPPORTUNITY), any());
+        verify(processRunnerMock, times(4)).run(eq(Command.LOAD), eq(EntityInfo.OPPORTUNITY), any());
         verify(printUtilMock, times(13)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
         verify(printUtilMock, times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
@@ -122,7 +122,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        verify(processRunnerMock, times(4)).runLoadProcess(any(), any());
+        verify(processRunnerMock, times(4)).run(eq(Command.LOAD), any(), any());
         verify(printUtilMock, times(13)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
         verify(printUtilMock, times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
@@ -140,7 +140,7 @@ public class LoadServiceTest {
 
         loadService.run(testArgs);
 
-        verify(processRunnerMock, never()).runLoadProcess(any(), any());
+        verify(processRunnerMock, never()).run(any(), any(), any());
         verify(printUtilMock, times(5)).printAndLog(anyString());
     }
 

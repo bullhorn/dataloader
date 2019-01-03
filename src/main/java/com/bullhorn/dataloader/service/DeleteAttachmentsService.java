@@ -28,7 +28,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
                                     RestSession restSession,
                                     ProcessRunner processRunner,
                                     InputStream inputStream,
-                                    Timer timer) throws IOException {
+                                    Timer timer) {
         super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
@@ -43,7 +43,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 
         printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
-        ActionTotals actionTotals = processRunner.runDeleteAttachmentsProcess(entityInfo, filePath);
+        ActionTotals actionTotals = processRunner.run(Command.DELETE_ATTACHMENTS, entityInfo, filePath);
         printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());
         completeUtil.complete(Command.DELETE_ATTACHMENTS, filePath, entityInfo, actionTotals);
     }

@@ -48,7 +48,7 @@ public class LoadAttachmentsServiceTest {
 
         loadAttachmentsService = new LoadAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
-        doReturn(actionTotalsMock).when(processRunnerMock).runLoadAttachmentsProcess(any(), any());
+        doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class LoadAttachmentsServiceTest {
 
         loadAttachmentsService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).run(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, filePath);
         verify(completeUtilMock, times(1)).complete(Command.LOAD_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
         verify(printUtilMock, times(2)).printAndLog(anyString());
     }

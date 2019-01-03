@@ -51,7 +51,7 @@ public class ExportService extends AbstractService implements Action {
                 for (String fileName : entityFileEntry.getValue()) {
                     printUtil.printAndLog("Exporting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                     timer.start();
-                    ActionTotals actionTotals = processRunner.runExportProcess(entityInfo, fileName);
+                    ActionTotals actionTotals = processRunner.run(Command.EXPORT, entityInfo, fileName);
                     printUtil.printAndLog("Finished exporting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
                     completeUtil.complete(Command.EXPORT, fileName, entityInfo, actionTotals);
                 }

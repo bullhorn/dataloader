@@ -54,7 +54,7 @@ public class ExportServiceTest {
 
         exportService = new ExportService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        when(processRunnerMock.runExportProcess(any(), any())).thenReturn(actionTotalsMock);
+        when(processRunnerMock.run(any(), any(), any())).thenReturn(actionTotalsMock);
     }
 
     @Test
@@ -64,7 +64,7 @@ public class ExportServiceTest {
 
         exportService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runExportProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).run(Command.EXPORT, EntityInfo.CANDIDATE, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.EXPORT, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
     }
@@ -78,7 +78,7 @@ public class ExportServiceTest {
 
         exportService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runExportProcess(EntityInfo.CLIENT_CONTACT, filePath);
+        verify(processRunnerMock, times(1)).run(Command.EXPORT, EntityInfo.CLIENT_CONTACT, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.EXPORT, filePath, EntityInfo.CLIENT_CONTACT, actionTotalsMock);
     }
@@ -90,7 +90,7 @@ public class ExportServiceTest {
 
         exportService.run(testArgs);
 
-        verify(processRunnerMock, times(4)).runExportProcess(eq(EntityInfo.OPPORTUNITY), any());
+        verify(processRunnerMock, times(4)).run(eq(Command.EXPORT), eq(EntityInfo.OPPORTUNITY), any());
         verify(printUtilMock, times(13)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("   1. Opportunity records from Opportunity1.csv");
         verify(printUtilMock, times(1)).printAndLog("   2. Opportunity records from Opportunity2.csv");
@@ -105,7 +105,7 @@ public class ExportServiceTest {
 
         exportService.run(testArgs);
 
-        verify(processRunnerMock, times(4)).runExportProcess(any(), any());
+        verify(processRunnerMock, times(4)).run(eq(Command.EXPORT), any(), any());
         verify(printUtilMock, times(13)).printAndLog(anyString());
         verify(printUtilMock, times(1)).printAndLog("   1. ClientCorporation records from ClientCorporation_1.csv");
         verify(printUtilMock, times(1)).printAndLog("   2. ClientCorporation records from ClientCorporation_2.csv");
@@ -123,7 +123,7 @@ public class ExportServiceTest {
 
         exportService.run(testArgs);
 
-        verify(processRunnerMock, never()).runExportProcess(any(), any());
+        verify(processRunnerMock, never()).run(any(), any(), any());
         verify(printUtilMock, times(5)).printAndLog(anyString());
     }
 

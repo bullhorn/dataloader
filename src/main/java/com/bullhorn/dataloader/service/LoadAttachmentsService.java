@@ -28,7 +28,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
                                   RestSession restSession,
                                   ProcessRunner processRunner,
                                   InputStream inputStream,
-                                  Timer timer) throws IOException {
+                                  Timer timer) {
         super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
@@ -43,7 +43,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
 
         printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
-        ActionTotals actionTotals = processRunner.runLoadAttachmentsProcess(entityInfo, filePath);
+        ActionTotals actionTotals = processRunner.run(Command.LOAD_ATTACHMENTS, entityInfo, filePath);
         printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());
         completeUtil.complete(Command.LOAD_ATTACHMENTS, filePath, entityInfo, actionTotals);
     }

@@ -50,7 +50,7 @@ public class DeleteServiceTest {
 
         deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
-        doReturn(actionTotalsMock).when(processRunnerMock).runDeleteProcess(any(), any());
+        doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
 
     @Test
@@ -60,7 +60,7 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).run(Command.DELETE, EntityInfo.CANDIDATE, filePath);
         verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(completeUtilMock, times(1)).complete(Command.DELETE, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
     }
@@ -74,7 +74,7 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CLIENT_CONTACT, expectedFileName);
+        verify(processRunnerMock, times(1)).run(Command.DELETE, EntityInfo.CLIENT_CONTACT, expectedFileName);
         verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
@@ -89,8 +89,8 @@ public class DeleteServiceTest {
 
         deleteService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CANDIDATE, expectedCandidateFileName);
-        verify(processRunnerMock, times(1)).runDeleteProcess(EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
+        verify(processRunnerMock, times(1)).run(Command.DELETE, EntityInfo.CANDIDATE, expectedCandidateFileName);
+        verify(processRunnerMock, times(1)).run(Command.DELETE, EntityInfo.CANDIDATE_WORK_HISTORY, expectedCandidateWorkHistoryFileName);
         verify(printUtilMock, times(7)).printAndLog(anyString());
     }
 

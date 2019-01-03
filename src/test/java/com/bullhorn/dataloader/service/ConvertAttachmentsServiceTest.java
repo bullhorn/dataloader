@@ -48,7 +48,7 @@ public class ConvertAttachmentsServiceTest {
 
         convertAttachmentsService = new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
-        doReturn(actionTotalsMock).when(processRunnerMock).runConvertAttachmentsProcess(any(), any());
+        doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class ConvertAttachmentsServiceTest {
 
         convertAttachmentsService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).run(Command.CONVERT_ATTACHMENTS, EntityInfo.CANDIDATE, filePath);
         verify(completeUtilMock, times(1)).complete(Command.CONVERT_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
         verify(printUtilMock, times(2)).printAndLog(anyString());
         verify(printUtilMock, never()).printAndLog((Exception) any());

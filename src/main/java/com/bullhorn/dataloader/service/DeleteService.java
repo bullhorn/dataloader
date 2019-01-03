@@ -50,7 +50,7 @@ public class DeleteService extends AbstractService implements Action {
                 for (String fileName : entityFileEntry.getValue()) {
                     printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                     timer.start();
-                    ActionTotals actionTotals = processRunner.runDeleteProcess(entityInfo, fileName);
+                    ActionTotals actionTotals = processRunner.run(Command.DELETE, entityInfo, fileName);
                     printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
                     completeUtil.complete(Command.DELETE, fileName, entityInfo, actionTotals);
                 }

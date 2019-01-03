@@ -35,10 +35,51 @@ public class PrintUtilTest {
     }
 
     @Test
-    public void testPrintActionTotals() {
+    public void testPrintActionTotalsConvertAttachments() {
         final PrintUtil printUtil = spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
-        final Integer total = 0;
+        final int total = 0;
+        final String[] args = {"convertAttachments", "candidateAttachFile.csv"};
+        doNothing().when(printUtil).printAndLog(anyString());
+
+        printUtil.recordStart(args);
+        printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
+
+        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog("Args: convertAttachments candidateAttachFile.csv");
+        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
+        verify(printUtil, times(1)).printAndLog("Total records converted: " + totals.getActionTotal(Result.Action.CONVERT));
+        verify(printUtil, times(1)).printAndLog("Total records skipped: " + totals.getActionTotal(Result.Action.SKIP));
+        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
+    }
+
+    @Test
+    public void testPrintActionTotalsExport() {
+        final PrintUtil printUtil = spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+        final int total = 0;
+        final String[] args = {"export", "candidate.csv"};
+        doNothing().when(printUtil).printAndLog(anyString());
+
+        printUtil.recordStart(args);
+        printUtil.printActionTotals(Command.EXPORT, totals);
+
+        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog("Args: export candidate.csv");
+        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
+        verify(printUtil, times(1)).printAndLog("Total records exported: " + totals.getActionTotal(Result.Action.CONVERT));
+        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
+    }
+
+    @Test
+    public void testPrintActionTotalsLoad() {
+        final PrintUtil printUtil = spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+        final int total = 0;
         final String[] args = {"load", "candidate.csv"};
         doNothing().when(printUtil).printAndLog(anyString());
 
@@ -57,28 +98,7 @@ public class PrintUtilTest {
     }
 
     @Test
-    public void testPrintActionTotals_CONVERT_ATTACHMENTS() {
-        final PrintUtil printUtil = spy(PrintUtil.class);
-        ActionTotals totals = new ActionTotals();
-        final Integer total = 0;
-        final String[] args = {"convertAttachments", "candidateAttachFile.csv"};
-        doNothing().when(printUtil).printAndLog(anyString());
-
-        printUtil.recordStart(args);
-        printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
-
-        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
-        verify(printUtil, times(1)).printAndLog("Args: convertAttachments candidateAttachFile.csv");
-        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
-        verify(printUtil, times(1)).printAndLog("Total records converted: " + totals.getActionTotal(Result.Action.CONVERT));
-        verify(printUtil, times(1)).printAndLog("Total records skipped: " + totals.getActionTotal(Result.Action.SKIP));
-        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
-    }
-
-    @Test
-    public void testPrintActionTotals_noRecordStart() {
+    public void testPrintActionTotalsNoRecordStart() {
         final PrintUtil printUtil = spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
 

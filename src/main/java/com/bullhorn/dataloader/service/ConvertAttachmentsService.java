@@ -28,7 +28,7 @@ public class ConvertAttachmentsService extends AbstractService implements Action
                                      RestSession restSession,
                                      ProcessRunner processRunner,
                                      InputStream inputStream,
-                                     Timer timer) throws IOException {
+                                     Timer timer) {
         super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
@@ -43,7 +43,7 @@ public class ConvertAttachmentsService extends AbstractService implements Action
 
         printUtil.printAndLog("Converting " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
-        ActionTotals actionTotals = processRunner.runConvertAttachmentsProcess(entityInfo, filePath);
+        ActionTotals actionTotals = processRunner.run(Command.CONVERT_ATTACHMENTS, entityInfo, filePath);
         printUtil.printAndLog("Finished converting " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());
         completeUtil.complete(Command.CONVERT_ATTACHMENTS, filePath, entityInfo, actionTotals);
     }
