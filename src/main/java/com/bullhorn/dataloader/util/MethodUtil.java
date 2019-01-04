@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +28,7 @@ public class MethodUtil {
     public static Map<String, Method> getGetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
 
-        for (Method method : Arrays.asList(anyClass.getMethods())) {
+        for (Method method : anyClass.getMethods()) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
@@ -46,7 +45,7 @@ public class MethodUtil {
     public static Map<String, Method> getSetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
 
-        for (Method method : Arrays.asList(anyClass.getMethods())) {
+        for (Method method : anyClass.getMethods()) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
             }

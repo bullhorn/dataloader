@@ -12,7 +12,6 @@ import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -27,7 +26,7 @@ public class TemplateService extends AbstractService implements Action {
                     RestSession restSession,
                     ProcessRunner processRunner,
                     InputStream inputStream,
-                    Timer timer) throws IOException {
+                    Timer timer) {
         super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 

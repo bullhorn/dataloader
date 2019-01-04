@@ -70,7 +70,7 @@ public class Cell {
         String associationField = null;
         Integer dotIndex = name.indexOf(".");
         if (dotIndex != -1) {
-            associationField = name.substring(dotIndex + 1, name.length());
+            associationField = name.substring(dotIndex + 1);
         }
         return associationField;
     }
