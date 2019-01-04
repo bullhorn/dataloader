@@ -204,11 +204,21 @@ public class FindUtil {
     }
 
     /**
-     * Returns the given set of fields as is or converts the set to a search for all fields (*) if the fields parameter is too large.
+     * Ensures that the fieldSet will work properly in rest calls and is not too long or missing an id.
      *
+     * Returns the given set of fields as is or converts the set to a search for all fields (*) if the fields parameter is too large.
      * A field parameter that is too large will result in the call failing because it goes beyond the supported query param string length.
+     * Also, adds the id field if it is not already specified, so that any follow on calls that require the id will work.
      */
     public static Set<String> getCorrectedFieldSet(Set<String> fieldSet) {
-        return fieldSet != null && fieldSet.size() < MAX_NUM_FIELDS ? fieldSet : Sets.newHashSet("*");
+        if (fieldSet == null || fieldSet.size() > MAX_NUM_FIELDS) {
+            return Sets.newHashSet(StringConsts.ALL_FIELDS);
+        }
+        if (!fieldSet.contains(StringConsts.ALL_FIELDS) && !fieldSet.contains(StringConsts.ID)) {
+            Set<String> correctedFieldSet = Sets.newHashSet(fieldSet);
+            correctedFieldSet.add(StringConsts.ID);
+            return correctedFieldSet;
+        }
+        return fieldSet;
     }
 }

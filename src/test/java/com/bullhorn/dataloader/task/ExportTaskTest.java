@@ -10,11 +10,9 @@ import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
-import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
-import com.bullhornsdk.data.model.entity.core.standard.Skill;
 import com.bullhornsdk.data.model.entity.embedded.Address;
-import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,10 +57,6 @@ public class ExportTaskTest {
         ArgumentCaptor<Row> rowArgumentCaptor = ArgumentCaptor.forClass(Row.class);
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
             .thenReturn(Collections.singletonList("externalID"));
-        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
-            .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
-            .thenReturn(TestUtils.getList(Skill.class, 1));
         Candidate fakeCandidate = new Candidate(1);
         fakeCandidate.setExternalID("11");
         fakeCandidate.setFirstName("Sir");
@@ -71,15 +65,8 @@ public class ExportTaskTest {
         Address fakeAddress = new Address();
         fakeAddress.setCountryID(12345);
         fakeCandidate.setAddress(fakeAddress);
-        Skill skill1 = new Skill();
-        skill1.setId(1001);
-        skill1.setName("bo staff skills");
-        Skill skill2 = new Skill();
-        skill2.setId(1002);
-        skill2.setName("hacking skills");
-        Skill skill3 = new Skill();
-        skill3.setId(1003);
-        fakeCandidate.setPrimarySkills(new OneToMany<>(skill1, skill2, skill3));
+        fakeCandidate.setPrimarySkills(TestUtils.getOneToMany(3, TestUtils.createSkill(1001, "bo staff skills"),
+            TestUtils.createSkill(1002, "hacking skills"), TestUtils.createSkill(1003, null)));
         when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
             .thenReturn(TestUtils.getList(fakeCandidate));
 
@@ -95,6 +82,47 @@ public class ExportTaskTest {
         Assert.assertEquals(new Integer(1), actualRow.getNumber());
         Assert.assertEquals(row.getNames(), actualRow.getNames());
         Assert.assertEquals(Arrays.asList("11", "", "Sir", "Lancelot", "lancelot@spam.egg", "bo staff skills;hacking skills", "", "12345", ""), actualRow.getValues());
+    }
+
+    @Test
+    public void testRunSuccessCandidateMoreThanFiveAssociations() throws Exception {
+        Row row = TestUtils.createRow("externalID,primarySkills.name", "ext-1001,New Skill 1;New Skill 2;New Skill 3");
+        ArgumentCaptor<Row> rowArgumentCaptor = ArgumentCaptor.forClass(Row.class);
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
+            .thenReturn(Collections.singletonList("externalID"));
+        Candidate fakeCandidate = new Candidate(1);
+        fakeCandidate.setExternalID("ext-1001");
+        fakeCandidate.setPrimarySkills(TestUtils.getOneToMany(7,
+            TestUtils.createSkill(1001, "skill_1"),
+            TestUtils.createSkill(1002, "skill_2"),
+            TestUtils.createSkill(1003, "skill_3"),
+            TestUtils.createSkill(1004, "skill_4"),
+            TestUtils.createSkill(1005, "skill_5")));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"ext-1001\""), any(), any()))
+            .thenReturn(TestUtils.getList(fakeCandidate));
+        when(restApiMock.getAllAssociationsList(eq(Candidate.class), any(),
+            eq(CandidateAssociations.getInstance().primarySkills()), any(), any()))
+            .thenReturn(TestUtils.getList(
+                TestUtils.createSkill(1001, "skill_1"),
+                TestUtils.createSkill(1002, "skill_2"),
+                TestUtils.createSkill(1003, "skill_3"),
+                TestUtils.createSkill(1004, "skill_4"),
+                TestUtils.createSkill(1005, "skill_5"),
+                TestUtils.createSkill(1006, "skill_6"),
+                TestUtils.createSkill(1007, "skill_7")));
+
+        ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.EXPORT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(rowArgumentCaptor.capture(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.EXPORT, 1);
+        Row actualRow = rowArgumentCaptor.getValue();
+        Assert.assertEquals("path/to/fake/file.csv", actualRow.getFilePath());
+        Assert.assertEquals(new Integer(1), actualRow.getNumber());
+        Assert.assertEquals(row.getNames(), actualRow.getNames());
+        Assert.assertEquals(Arrays.asList("ext-1001", "skill_1;skill_2;skill_3;skill_4;skill_5;skill_6;skill_7"), actualRow.getValues());
     }
 
     @Test

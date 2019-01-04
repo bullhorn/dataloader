@@ -81,7 +81,7 @@ public class RestApi {
                                                           SearchParams params) {
         Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(fieldSet);
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query
-            + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.joining(", ")));
+            + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
         boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
         String externalId = FindUtil.getExternalIdValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
@@ -102,7 +102,7 @@ public class RestApi {
                                                         QueryParams params) {
         Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(fieldSet);
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where
-            + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.joining(", ")));
+            + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
         List<T> list = new ArrayList<>();
         params.setCount(MAX_RECORDS_TO_RETURN_IN_ONE_PULL);
         recursiveQueryPull(list, type, where, correctedFieldSet, params);
@@ -145,7 +145,7 @@ public class RestApi {
         Class<T> type, Set<Integer> entityIds, AssociationField<T, E> associationName, Set<String> fieldSet,
         AssociationParams params) {
         printUtil.log(Level.DEBUG, "FindAssociations(" + type.getSimpleName() + "): #" + entityIds + " - "
-            + associationName.getAssociationFieldName());
+            + associationName.getAssociationFieldName() + ", fields: " + fieldSet.stream().sorted().collect(Collectors.toList()));
         ListWrapper<E> listWrapper = bullhornData.getAllAssociations(type, entityIds, associationName, fieldSet, params);
         return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }

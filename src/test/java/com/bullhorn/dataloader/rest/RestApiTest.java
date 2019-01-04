@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,7 +74,7 @@ public class RestApiTest {
         restApi.searchForList(Candidate.class, "name:\"Data Loader\"", Sets.newHashSet("*"), ParamFactory.searchParams());
         verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
         verify(bullhornDataMock, times(1)).search(eq(Candidate.class), eq("name:\"Data Loader\""), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): name:\"Data Loader\", fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): name:\"Data Loader\", fields: [*]"));
     }
 
     @Test
@@ -95,7 +94,7 @@ public class RestApiTest {
         verify(bullhornDataMock, times(1)).search(eq(Opportunity.class), eq("externalID:\"ext 1\""), eq(Sets.newHashSet("*")), any());
         verify(bullhornDataMock, times(1)).search(eq(JobOrder.class), eq("externalID:\"ext 1\""), eq(Sets.newHashSet("*")), any());
         verify(restApiExtensionMock, never()).getByExternalId(any(), any(), any(), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(Lead Search): externalID:\"ext 1\", fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Lead Search): externalID:\"ext 1\", fields: [*]"));
     }
 
     @Test
@@ -108,7 +107,7 @@ public class RestApiTest {
 
         verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(Sets.newHashSet("id", "name")));
         verify(bullhornDataMock, never()).searchForList(any(), any(), any(), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\", fields: id, name"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\", fields: [id, name]"));
     }
 
     @Test
@@ -122,9 +121,9 @@ public class RestApiTest {
 
         restApi.searchForList(Candidate.class, "externalID:\"ext 1\"", Sets.newHashSet("lastName", "firstName", "email"), ParamFactory.searchParams());
 
-        verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(Sets.newHashSet("lastName", "firstName", "email")));
-        verify(bullhornDataMock, times(1)).search(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(Sets.newHashSet("lastName", "firstName", "email")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\", fields: email, firstName, lastName"));
+        verify(restApiExtensionMock, times(1)).getByExternalId(eq(restApi), eq(Candidate.class), eq("ext 1"), eq(Sets.newHashSet("lastName", "firstName", "email", "id")));
+        verify(bullhornDataMock, times(1)).search(eq(Candidate.class), eq("externalID:\"ext 1\""), eq(Sets.newHashSet("lastName", "firstName", "email", "id")), any());
+        verify(printUtilMock, times(1)).log(any(), eq("Find(Candidate Search): externalID:\"ext 1\", fields: [email, firstName, id, lastName]"));
     }
 
     @Test
@@ -134,7 +133,7 @@ public class RestApiTest {
             TestUtils.getListWrapper(ClientContact.class, 500, 600, IntStream.rangeClosed(501, 600).toArray()));
         List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
         verify(bullhornDataMock, times(2)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader', fields: [*]"));
         verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(500 - 600)"));
         Assert.assertEquals(600, list.size());
     }
@@ -147,7 +146,7 @@ public class RestApiTest {
             TestUtils.getListWrapper(ClientContact.class, 400, 600, IntStream.rangeClosed(401, 600).toArray()));
         List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
         verify(bullhornDataMock, times(3)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader', fields: [*]"));
         verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(200 - 600)"));
         verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(400 - 600)"));
         Assert.assertEquals(600, list.size());
@@ -161,7 +160,7 @@ public class RestApiTest {
             TestUtils.getListWrapper(ClientContact.class, 400, 600));
         List<ClientContact> list = restApi.searchForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.searchParams());
         verify(bullhornDataMock, times(3)).search(eq(ClientContact.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Search): name='Data Loader', fields: [*]"));
         verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(200 - 600)"));
         Assert.assertEquals(400, list.size());
     }
@@ -172,7 +171,7 @@ public class RestApiTest {
             thenReturn(TestUtils.getListWrapper(ClientContact.class, 0, 10, IntStream.rangeClosed(1, 10).toArray()));
         restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader', fields: [*]"));
     }
 
     @Test
@@ -181,7 +180,7 @@ public class RestApiTest {
             thenReturn(TestUtils.getListWrapper(JobSubmissionHistory.class, null, 1, IntStream.rangeClosed(1, 10).toArray()));
         restApi.queryForList(JobSubmissionHistory.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).query(eq(JobSubmissionHistory.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader', fields: [*]"));
     }
 
     @Test
@@ -190,7 +189,7 @@ public class RestApiTest {
             thenReturn(TestUtils.getListWrapper(JobSubmissionHistory.class, 0, null, IntStream.rangeClosed(1, 10).toArray()));
         restApi.queryForList(JobSubmissionHistory.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).query(eq(JobSubmissionHistory.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader', fields: [*]"));
     }
 
     @Test
@@ -199,7 +198,7 @@ public class RestApiTest {
             thenReturn(TestUtils.getListWrapper(JobSubmissionHistory.class, null, null, IntStream.rangeClosed(1, 10).toArray()));
         restApi.queryForList(JobSubmissionHistory.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(1)).query(eq(JobSubmissionHistory.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(JobSubmissionHistory Query): name='Data Loader', fields: [*]"));
     }
 
     @Test
@@ -209,7 +208,7 @@ public class RestApiTest {
             TestUtils.getListWrapper(ClientContact.class, 500, 600, IntStream.rangeClosed(501, 600).toArray()));
         List<ClientContact> list = restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
         verify(bullhornDataMock, times(2)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader', fields: [*]"));
         Assert.assertEquals(600, list.size());
     }
 
@@ -275,7 +274,7 @@ public class RestApiTest {
         List<ClientContact> list = restApi.queryForList(ClientContact.class, "name='Data Loader'", null, ParamFactory.queryParams());
 
         verify(bullhornDataMock, times(40)).query(eq(ClientContact.class), eq("name='Data Loader'"), eq(Sets.newHashSet("*")), any());
-        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader', fields: *"));
+        verify(printUtilMock, times(1)).log(any(), eq("Find(ClientContact Query): name='Data Loader', fields: [*]"));
         verify(printUtilMock, never()).log(any(), eq("--> Follow On Find(0 - 500)"));
         verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(500 - 1000)"));
         verify(printUtilMock, times(1)).log(any(), eq("--> Follow On Find(1000 - 1500)"));
@@ -319,13 +318,14 @@ public class RestApiTest {
     @Test
     public void testGetAllAssociationsList() {
         Set<Integer> entityIDs = new HashSet<>(Arrays.asList(1, 2, 3));
-        Set<String> fields = new HashSet<>(Collections.singletonList("primarySkills"));
+        Set<String> fields = new HashSet<>(Arrays.asList("id", "name"));
 
         restApi.getAllAssociationsList(Candidate.class, entityIDs, CandidateAssociations.getInstance().primarySkills(),
             fields, ParamFactory.associationParams());
 
         verify(bullhornDataMock, times(1)).getAllAssociations(eq(Candidate.class),
             eq(entityIDs), eq(CandidateAssociations.getInstance().primarySkills()), eq(fields), any());
+        verify(printUtilMock, times(1)).log(any(), eq("FindAssociations(Candidate): #[1, 2, 3] - primarySkills, fields: [id, name]"));
     }
 
     @Test

@@ -184,9 +184,9 @@ public class Field {
         if (cell.isAssociation() && entityInfo.getEntityClass().equals(entity.getClass())) {
             if (isToMany()) {
                 List<String> values = new ArrayList<>();
-                OneToMany associationToMany = (OneToMany) getAssociationMethod.invoke(entity);
-                if (associationToMany != null) {
-                    for (Object association : associationToMany.getData()) {
+                OneToMany toManyAssociation = (OneToMany) getAssociationMethod.invoke(entity);
+                if (toManyAssociation != null) {
+                    for (Object association : toManyAssociation.getData()) {
                         Object value = getMethod.invoke(association);
                         if (value != null) {
                             String stringValue = String.valueOf(value);
@@ -196,11 +196,11 @@ public class Field {
                 }
                 return String.join(delimiter, values);
             } else {
-                Object association = getAssociationMethod.invoke(entity);
-                if (association == null) {
+                Object toOneAssociation = getAssociationMethod.invoke(entity);
+                if (toOneAssociation == null) {
                     return "";
                 }
-                Object value = getMethod.invoke(association);
+                Object value = getMethod.invoke(toOneAssociation);
                 return value != null ? String.valueOf(value) : "";
             }
         }
@@ -258,5 +258,25 @@ public class Field {
         } else {
             setAssociationMethod.invoke(entity, associatedEntity);
         }
+    }
+
+    /**
+     * Returns the oneToMany object for a To-Many association.
+     *
+     * @param entity the entity object to get the association value from.
+     */
+    @SuppressWarnings("unchecked")
+    public OneToMany getOneToManyFromEntity(BullhornEntity entity) throws InvocationTargetException, IllegalAccessException {
+        return (OneToMany) getAssociationMethod.invoke(entity);
+    }
+
+    /**
+     * Sets a To-Many field of a given entity to the given object.
+     *
+     * @param entity    the entity object to populate
+     * @param oneToMany the OneToMany object for this To-Many field
+     */
+    public void populateOneToManyOnEntity(BullhornEntity entity, OneToMany oneToMany) throws InvocationTargetException, IllegalAccessException {
+        setAssociationMethod.invoke(entity, oneToMany);
     }
 }

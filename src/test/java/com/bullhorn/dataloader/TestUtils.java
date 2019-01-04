@@ -8,7 +8,9 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.standard.Person;
+import com.bullhornsdk.data.model.entity.core.standard.Skill;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
@@ -79,6 +81,19 @@ public class TestUtils {
         listWrapper.setTotal(total);
         listWrapper.setStart(start);
         return listWrapper;
+    }
+
+    /**
+     * Given a total count and a list of entities, constructs the OneToMany object for the given entities
+     *
+     * @param total      The total number of records that exist, even if they are not present in the entityList
+     * @param entityList The entities that are present in the data portion of the OneToMany
+     * @return The oneToMany object that holds entity associations in the SDK-REST
+     */
+    public static <B extends BullhornEntity> OneToMany<B> getOneToMany(Integer total, B... entityList) {
+        OneToMany<B> oneToMany = new OneToMany<>(entityList);
+        oneToMany.setTotal(total);
+        return oneToMany;
     }
 
     /**
@@ -320,5 +335,19 @@ public class TestUtils {
         person.setPersonSubtype(subType);
         person.setIsDeleted(isDeleted);
         return person;
+    }
+
+    /**
+     * Convenience constructor that builds up the required Skill object data.
+     *
+     * @param id   the id of the skill
+     * @param name the name of the skill
+     * @return the new Skill object
+     */
+    public static Skill createSkill(Integer id, String name) {
+        Skill skill = new Skill();
+        skill.setId(id);
+        skill.setName(name);
+        return skill;
     }
 }

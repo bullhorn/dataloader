@@ -1070,14 +1070,8 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("externalID,primarySkills.name", "11,hacking");
         RestApiException restApiException = new RestApiException("Some Duplicate Warning from REST");
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
-        Skill skill1 = new Skill();
-        skill1.setId(1001);
-        skill1.setName("hacking");
-        Skill skill2 = new Skill();
-        skill2.setId(1002);
-        skill2.setName("hacking");
         when(restApiMock.queryForList(eq(Skill.class), any(), any(), any()))
-            .thenReturn(TestUtils.getList(skill1, skill2));
+            .thenReturn(TestUtils.getList(TestUtils.createSkill(1001, "hacking"), TestUtils.createSkill(1002, "hacking")));
         when(restApiMock.associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
 

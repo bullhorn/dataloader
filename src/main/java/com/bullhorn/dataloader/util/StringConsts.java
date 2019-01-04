@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class StringConsts {
     public static final List<String> ADDRESS_FIELDS = Arrays.asList("address1", "address2", "city", "state", "zip", "countryId", "countryName");
+    public static final String ALL_FIELDS = "*";
     public static final String COLUMN_NAME_ALIAS_SUFFIX = "Column";
     public static final String CONVERTED_ATTACHMENTS_DIRECTORY = "convertedAttachments";
     public static final String CORPORATE_USER = "CorporateUser";
