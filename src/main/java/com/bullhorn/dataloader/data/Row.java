@@ -11,7 +11,7 @@ public class Row {
 
     private final String filePath;
     private final Integer number;
-    private List<Cell> cells;
+    private final List<Cell> cells;
 
     /**
      * Constructor which takes the row number in the spreadsheet

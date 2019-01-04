@@ -7,10 +7,10 @@ import com.bullhorn.dataloader.util.PrintUtil;
 
 public class CommandLineInterface {
 
-    PrintUtil printUtil;
-    ActionFactory actionFactory;
+    private final PrintUtil printUtil;
+    private final ActionFactory actionFactory;
 
-    public CommandLineInterface(PrintUtil printUtil, ActionFactory actionFactory) {
+    CommandLineInterface(PrintUtil printUtil, ActionFactory actionFactory) {
         this.printUtil = printUtil;
         this.actionFactory = actionFactory;
     }

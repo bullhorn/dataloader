@@ -19,7 +19,7 @@ import java.util.Date;
 public class PrintUtil {
 
     private final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private Logger logger = LogManager.getLogger(PrintUtil.class);
+    private final Logger logger = LogManager.getLogger(PrintUtil.class);
     private String[] args = null;
     private Date startTime = null;
 

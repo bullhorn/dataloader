@@ -20,7 +20,8 @@ public class FindUtil {
     private static final Integer MAX_NUM_FIELDS = 30; // A safe, low number, since actual number depends on total length of the query string
 
     // Returns the format of a single term in a lucene search
-    public static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo, PropertyFileUtil propertyFileUtil) {
+    private static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo,
+                                          PropertyFileUtil propertyFileUtil) {
         // Fix for the Note entity doing it's own thing when it comes to the 'id' field
         if (fieldEntityInfo == EntityInfo.NOTE && field.equals(StringConsts.ID)) {
             field = StringConsts.NOTE_ID;
@@ -81,7 +82,7 @@ public class FindUtil {
     /**
      * Returns the format of a single term in a query where clause
      */
-    public static String getSqlQuery(String field, String value, Class fieldType, PropertyFileUtil propertyFileUtil) {
+    private static String getSqlQuery(String field, String value, Class fieldType, PropertyFileUtil propertyFileUtil) {
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
         } else if (Boolean.class.equals(fieldType)) {

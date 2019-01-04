@@ -20,25 +20,25 @@ import java.util.SortedMap;
  *
  * Contains common functionality.
  */
-public abstract class AbstractService {
+abstract class AbstractService {
 
-    protected final PrintUtil printUtil;
-    protected final PropertyFileUtil propertyFileUtil;
-    protected final ValidationUtil validationUtil;
-    protected final CompleteUtil completeUtil;
-    protected final RestSession restSession;
-    protected final ProcessRunner processRunner;
-    protected final InputStream inputStream;
-    protected final Timer timer;
+    final PrintUtil printUtil;
+    final PropertyFileUtil propertyFileUtil;
+    final ValidationUtil validationUtil;
+    final CompleteUtil completeUtil;
+    final RestSession restSession;
+    final ProcessRunner processRunner;
+    private final InputStream inputStream;
+    final Timer timer;
 
-    public AbstractService(PrintUtil printUtil,
-                           PropertyFileUtil propertyFileUtil,
-                           ValidationUtil validationUtil,
-                           CompleteUtil completeUtil,
-                           RestSession restSession,
-                           ProcessRunner processRunner,
-                           InputStream inputStream,
-                           Timer timer) {
+    AbstractService(PrintUtil printUtil,
+                    PropertyFileUtil propertyFileUtil,
+                    ValidationUtil validationUtil,
+                    CompleteUtil completeUtil,
+                    RestSession restSession,
+                    ProcessRunner processRunner,
+                    InputStream inputStream,
+                    Timer timer) {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.validationUtil = validationUtil;
@@ -58,7 +58,7 @@ public abstract class AbstractService {
      * @param entityToFileListMap The list of files that will be loaded
      * @return true if the user has responded with yes, false if no
      */
-    protected Boolean promptUserForMultipleFiles(String filePath, SortedMap<EntityInfo, List<String>> entityToFileListMap) {
+    Boolean promptUserForMultipleFiles(String filePath, SortedMap<EntityInfo, List<String>> entityToFileListMap) {
         if (entityToFileListMap.size() > 1
             || (!entityToFileListMap.isEmpty() && entityToFileListMap.get(entityToFileListMap.firstKey()).size() > 1)) {
             printUtil.printAndLog("Ready to process the following CSV files from the " + filePath + " directory in the following order:");

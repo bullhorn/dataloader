@@ -30,10 +30,10 @@ public class Field {
     private final Cell cell;
     private Boolean existField;
     private final DateTimeFormatter dateTimeFormatter;
-    private Method getMethod;
-    private Method setMethod;
-    private Method getAssociationMethod;
-    private Method setAssociationMethod;
+    private final Method getMethod;
+    private final Method setMethod;
+    private final Method getAssociationMethod;
+    private final Method setAssociationMethod;
 
     /**
      * Constructor which takes the type of entity and the raw cell data.

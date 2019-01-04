@@ -25,7 +25,7 @@ public class MethodUtil {
      *
      * @return A map of field names to getter methods that can invoked generically using `method.invoke`
      */
-    public static Map<String, Method> getGetterMethodMap(Class anyClass) {
+    private static Map<String, Method> getGetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
 
         for (Method method : anyClass.getMethods()) {

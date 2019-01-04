@@ -21,7 +21,7 @@ public class Result {
         this.failureText = failureText;
     }
 
-    public Result(Status status, Action action, Integer bullhornId, Integer bullhornParentId, String failureText) {
+    private Result(Status status, Action action, Integer bullhornId, Integer bullhornParentId, String failureText) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
@@ -170,7 +170,7 @@ public class Result {
         return bullhornId;
     }
 
-    public void setBullhornId(Integer bullhornId) {
+    void setBullhornId(Integer bullhornId) {
         this.bullhornId = bullhornId;
     }
 
@@ -179,11 +179,11 @@ public class Result {
      *
      * @return -1 if the value is invalid or not present
      */
-    public Integer getBullhornParentId() {
+    Integer getBullhornParentId() {
         return bullhornParentId;
     }
 
-    public void setBullhornParentId(Integer bullhornParentId) {
+    void setBullhornParentId(Integer bullhornParentId) {
         this.bullhornParentId = bullhornParentId;
     }
 
@@ -194,7 +194,7 @@ public class Result {
         return failureText;
     }
 
-    public void setFailureText(String failureText) {
+    void setFailureText(String failureText) {
         this.failureText = failureText;
     }
 

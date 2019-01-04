@@ -50,9 +50,9 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory,
-                                                                                    ValidationUtil validationUtil,
-                                                                                    Comparator<EntityInfo> comparator) {
+    private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory,
+                                                                                     ValidationUtil validationUtil,
+                                                                                     Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         String[] fileNames = directory.list();
@@ -82,9 +82,9 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath,
-                                                                                   ValidationUtil validationUtil,
-                                                                                   Comparator<EntityInfo> comparator) {
+    private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath,
+                                                                                    ValidationUtil validationUtil,
+                                                                                    Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         if (validationUtil.isValidCsvFile(filePath, false)) {
