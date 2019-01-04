@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
+import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,18 +21,15 @@ public class TemplateUtilTest {
 
     private ArrayList<String> dataTypes;
     private ArrayList<String> headers;
-    private PrintUtil printUtilMock;
-    private PropertyFileUtil propertyFileUtilMock;
-    private RestApi restApiMock;
     private Set<Field> associationFields;
     private Set<Field> metaFieldSet;
     private TemplateUtil templateUtil;
 
     @Before
     public void setup() {
-        printUtilMock = mock(PrintUtil.class);
-        propertyFileUtilMock = mock(PropertyFileUtil.class);
-        restApiMock = mock(RestApi.class);
+        RestApi restApiMock = mock(RestApi.class);
+        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
+        PrintUtil printUtilMock = mock(PrintUtil.class);
 
         templateUtil = new TemplateUtil(restApiMock, propertyFileUtilMock, printUtilMock);
 
@@ -39,11 +37,11 @@ public class TemplateUtilTest {
         dataTypes = new ArrayList<>();
         metaFieldSet = new HashSet<>();
 
-        setUpMetaFieldSet();
-        setUpAssociationFields();
+        setupMetaFieldSet();
+        setupAssociationFields();
     }
 
-    private void setUpMetaFieldSet() {
+    private void setupMetaFieldSet() {
         Field addressField = getAddressField();
 
         StandardMetaData clientCorporationMetaData = new StandardMetaData();
@@ -84,6 +82,10 @@ public class TemplateUtilTest {
         metaFieldSet.add(clientCorporationField);
     }
 
+    private void setupAssociationFields() {
+        associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
+    }
+
     private Field getAddressField() {
         Field addressField = new Field();
         addressField.setName("secondaryAddress");
@@ -92,12 +94,8 @@ public class TemplateUtilTest {
         return addressField;
     }
 
-    private void setUpAssociationFields() {
-        associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
-    }
-
     @Test
-    public void populateDataTypesTestAddress() {
+    public void testPopulateDataTypesAddress() {
         templateUtil.populateDataTypes(EntityInfo.CANDIDATE, metaFieldSet, headers, dataTypes);
 
         Assert.assertTrue(headers.stream().anyMatch(n -> n.equalsIgnoreCase("secondaryAddress.state")));
@@ -109,7 +107,7 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void addAssociatedFieldsTest() {
+    public void testAddAssociatedFields() {
         templateUtil.addAssociatedFields(metaFieldSet, associationFields);
 
         Assert.assertTrue(metaFieldSet.stream().anyMatch(n -> n.getName().equalsIgnoreCase("clientCorporation.id")));
@@ -118,7 +116,32 @@ public class TemplateUtilTest {
     }
 
     @Test
-    public void isCompositeTypeTest() {
+    public void testAssociatedFieldsTestNoExternalId() {
+        StandardMetaData skillMeta = new StandardMetaData();
+        skillMeta.setEntity("Skill");
+        Field idField = new Field();
+        idField.setName("id");
+        Field nameField = new Field();
+        nameField.setName("name");
+        skillMeta.setFields(Arrays.asList(idField, nameField));
+
+        Field primarySkillsField = new Field();
+        primarySkillsField.setName("primarySkills");
+        primarySkillsField.setType("TO_MANY");
+        primarySkillsField.setOptionsType("Skill");
+        primarySkillsField.setAssociatedEntity(skillMeta);
+
+        Set<Field> fieldSet = Sets.newHashSet();
+
+        templateUtil.addAssociatedFields(fieldSet, Sets.newHashSet(primarySkillsField));
+
+        Assert.assertTrue(fieldSet.stream().anyMatch(n -> n.getName().equalsIgnoreCase("primarySkills.id")));
+        Assert.assertTrue(fieldSet.stream().anyMatch(n -> n.getName().equalsIgnoreCase("primarySkills.name")));
+        Assert.assertFalse(fieldSet.stream().anyMatch(n -> n.getName().equalsIgnoreCase("primarySkills.externalID")));
+    }
+
+    @Test
+    public void testIsCompositeType() {
         boolean result = templateUtil.isCompositeType(getAddressField());
         Assert.assertTrue(result);
     }
