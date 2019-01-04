@@ -51,25 +51,28 @@ public class ActionFactory {
      */
     public Action getAction(Command command) throws IOException {
         Action action = null;
-        if (command.equals(Command.HELP)) {
-            action = new HelpService(printUtil);
-        } else if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
-        } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
+        if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
-        } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE)) {
             action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
+        } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
+            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
+                restSession, processRunner, inputStream, timer);
+        } else if (command.equals(Command.EXPORT)) {
+            action = new ExportService(printUtil, propertyFileUtil, validationUtil, completeUtil,
+                restSession, processRunner, inputStream, timer);
+        } else if (command.equals(Command.HELP)) {
+            action = new HelpService(printUtil);
+        } else if (command.equals(Command.LOAD)) {
+            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil,
+                restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
             action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
-        } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
+        } else if (command.equals(Command.TEMPLATE)) {
+            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
         }
         return action;

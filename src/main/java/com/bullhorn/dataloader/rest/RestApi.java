@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Encapsulation of the standard SDK-REST BullhornData class for interacting with Bullhorn's REST API Provides an extra layer of functionality needed
@@ -78,18 +79,20 @@ public class RestApi {
                                                           String query,
                                                           Set<String> fieldSet,
                                                           SearchParams params) {
-        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query);
-        Boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
+        Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(fieldSet);
+        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query
+            + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
+        boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
         String externalId = FindUtil.getExternalIdValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
-            SearchResult<T> searchResult = restApiExtension.getByExternalId(this, type, externalId, fieldSet);
+            SearchResult<T> searchResult = restApiExtension.getByExternalId(this, type, externalId, correctedFieldSet);
             if (searchResult.getSuccess()) {
                 return searchResult.getList();
             }
         }
         List<T> list = new ArrayList<>();
         params.setCount(MAX_RECORDS_TO_RETURN_IN_ONE_PULL);
-        recursiveSearchPull(list, type, query, fieldSet, params);
+        recursiveSearchPull(list, type, query, correctedFieldSet, params);
         return list;
     }
 
@@ -97,10 +100,12 @@ public class RestApi {
                                                         String where,
                                                         Set<String> fieldSet,
                                                         QueryParams params) {
-        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where);
+        Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(fieldSet);
+        printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where
+            + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
         List<T> list = new ArrayList<>();
         params.setCount(MAX_RECORDS_TO_RETURN_IN_ONE_PULL);
-        recursiveQueryPull(list, type, where, fieldSet, params);
+        recursiveQueryPull(list, type, where, correctedFieldSet, params);
         return list;
     }
     // endregion
@@ -140,7 +145,7 @@ public class RestApi {
         Class<T> type, Set<Integer> entityIds, AssociationField<T, E> associationName, Set<String> fieldSet,
         AssociationParams params) {
         printUtil.log(Level.DEBUG, "FindAssociations(" + type.getSimpleName() + "): #" + entityIds + " - "
-            + associationName.getAssociationFieldName());
+            + associationName.getAssociationFieldName() + ", fields: " + fieldSet.stream().sorted().collect(Collectors.toList()));
         ListWrapper<E> listWrapper = bullhornData.getAllAssociations(type, entityIds, associationName, fieldSet, params);
         return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }

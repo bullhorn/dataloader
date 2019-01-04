@@ -14,26 +14,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 /**
- * The purpose of this integration test is to:
- *
- * 1. Allow for TravisCI to run as part of every build check, using `maven verify`, which goes beyond `maven test` to
- * also run the integration test.  Uses a test corp on SL9 (BhNext) with hidden credentials in TravisCI Environment
- * Variables.
- *
- * 2. Tests the entire Examples directory, which contains all possible values for all loadable entities and their
- * attachments.  The unique IDs of all of the entities are changed from `-ext-1` to something unique, after the examples
- * have been cloned to a test folder.
- *
- * 3. INSERT the entire examples/load/ folder by performing the load command the first time.
- *
- * 4. UPDATE the entire examples/load/ folder by performing the load command a second time, with all exist fields
- * properly set in the integrationTest.properties file.
- *
- * 5. DELETE all entered records by targeting the entire results directory.
- *
- * 6. Test assertions of both command line output and results files created. We are not making calls against the CRM
- * itself to verify the presence or absence of records, since these steps will cover the presence of records in the
- * index and database.
+ * TravisCI runs this as part of every build, using `maven verify`, which goes beyond `maven test` to run the integration test.
+ * Uses a test corp on SL9 (BhNext) with hidden credentials in TravisCI Environment Variables.
  */
 public class IntegrationTest {
 
@@ -43,7 +25,8 @@ public class IntegrationTest {
     private ConsoleOutputCapturer consoleOutputCapturer;
 
     /**
-     * Runs the integration test, first with a very simple sanity check, then the full examples directory.
+     * Tests all directories under: src/test/java/resources/integrationTest for specific use cases. Also tests the entire examples
+     * directory, which contains all possible values for all loadable entities and their attachments (See examples/README.md).
      *
      * @throws IOException For directory cloning
      */
@@ -56,52 +39,66 @@ public class IntegrationTest {
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
         // Sanity to catch quick and obvious failures
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("sanity"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("sanity"), false);
 
         // Special character test to ensure that we are supporting them in query/search calls
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("specialCharacters"), true);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("specialCharacters"), true);
 
         // Test using more than 100,000 characters in a field
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("longFields"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("longFields"), false);
 
         // Test using more than 500 associations in a To-Many field - requires that wildcard matching is enabled
         System.setProperty("wildcardMatching", "true");
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("associationsOver500"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("associationsOver500"), false);
         System.setProperty("wildcardMatching", "false");
 
         // Test for ignoring soft deleted entities
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
 
         // Test that column header name mapping is working properly
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("columnMapping"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("columnMapping"), false);
 
         // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
 
         // Test for wildcard associations for candidates in a note
         System.setProperty("wildcardMatching", "true");
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("wildcardMatching"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("wildcardMatching"), false);
         System.setProperty("wildcardMatching", "false");
 
         // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");
-        insertUpdateDeleteFromDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
         System.setProperty("processEmptyAssociations", "false");
 
         // Run the full test of all example files
-        insertUpdateDeleteFromDirectory("examples/load", false);
+        runAllCommandsAgainstDirectory("examples/load", false);
     }
 
     /**
-     * Given a directory path, this method will attempt to load twice (insert, then update) then delete all CSV files
-     * found in that directory.
+     * Given a directory path, this method will attempt to run all commands against CSV input files in that directory:
+     *
+     * 1. Load - Insert
+     * 2. Convert Attachments
+     * 3. Load Attachments - Insert
+     * 4. Load Attachments - Update
+     * 5. Delete Attachments
+     * 6. Export
+     * 7. Load - Update
+     * 8. Delete
+     *
+     * The unique IDs of all of the entities are changed from `-ext-1` to something unique, after the examples have been
+     * cloned to a test folder.
+     *
+     * Test assertions of both command line output and results files created. These steps cover the presence of records
+     * in the index and database, so if indexing is lagging behind in production, it will cause the build to fail.
      *
      * @param directoryPath The path to the directory to load
      * @param skipDelete    Set to true if the test directory contains intentionally deleted records
      * @throws IOException For directory cloning
      */
     @SuppressWarnings("ConstantConditions")
-    private void insertUpdateDeleteFromDirectory(String directoryPath, Boolean skipDelete) throws IOException {
+    private void runAllCommandsAgainstDirectory(String directoryPath, Boolean skipDelete) throws IOException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
@@ -117,11 +114,11 @@ public class IntegrationTest {
         // Replace all UUIDs in with unique ones
         String uuid = UUID.randomUUID().toString();
         TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
-        // endregion SETUP
+        // endregion
 
-        // region INSERT
+        // region LOAD - INSERT
         FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // For accepting the load/delete from directory
+        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
         TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
@@ -139,14 +136,14 @@ public class IntegrationTest {
             TestUtils.checkResultsFiles(tempAttachmentsDirectory, Command.CONVERT_ATTACHMENTS);
             // endregion
 
-            // region INSERT ATTACHMENTS
+            // region LOAD ATTACHMENTS - INSERT
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
             consoleOutputCapturer.start();
             Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/Candidate.csv"});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
             // endregion
 
-            // region UPDATE ATTACHMENTS
+            // region LOAD ATTACHMENTS - UPDATE
             // Do not cleanup from previous run here - both Candidate and CandidateUpdate need to be present for delete step
             consoleOutputCapturer.start();
             Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/CandidateUpdate.csv"});
@@ -163,9 +160,18 @@ public class IntegrationTest {
             // endregion
         }
 
-        // region UPDATE
+        // region EXPORT
         FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
+        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+        consoleOutputCapturer.start();
+        Main.main(new String[]{"export", tempDirPath});
+        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.EXPORT);
+        TestUtils.checkResultsFiles(tempDirectory, Command.EXPORT);
+        // endregion
+
+        // region LOAD - UPDATE
+        FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
         TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
@@ -186,7 +192,7 @@ public class IntegrationTest {
             // Capture results file directory state
             File[] resultsFiles = resultsDir.listFiles();
 
-            System.setIn(IOUtils.toInputStream("yes", "UTF-8"));
+            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
             consoleOutputCapturer.start();
             Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.DELETE);

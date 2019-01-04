@@ -8,11 +8,13 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.google.common.collect.Lists;
+import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,10 +30,10 @@ public class Field {
     private final Cell cell;
     private Boolean existField;
     private final DateTimeFormatter dateTimeFormatter;
-    private Method getMethod = null;
-    private Method setMethod = null;
-    private Method getAssociationMethod = null;
-    private Method setAssociationMethod = null;
+    private Method getMethod;
+    private Method setMethod;
+    private Method getAssociationMethod;
+    private Method setAssociationMethod;
 
     /**
      * Constructor which takes the type of entity and the raw cell data.
@@ -100,10 +102,19 @@ public class Field {
      * @return the name of the field (the direct field on this entity, or the direct field on the associated entity)
      */
     public String getName() {
-        if (cell.isAssociation()) {
-            return cell.getAssociationFieldName();
-        }
-        return cell.getName();
+        return cell.isAssociation() ? cell.getAssociationFieldName() : cell.getName();
+    }
+
+    /**
+     * Returns the name of the field that is valid within the field parameter of a Get call.
+     *
+     * For direct fields, just the name of the field: firstName
+     * For compound fields, the name of the field
+     *
+     * @return the name of the field (the direct field on this entity, or the direct field on the associated entity)
+     */
+    public String getFieldParameterName() {
+        return cell.isAssociation() ? cell.getAssociationBaseName() + "(" + cell.getAssociationFieldName() + ")" : cell.getName();
     }
 
     /**
@@ -112,21 +123,13 @@ public class Field {
      * @return this entity if direct, an associated entity if To-One or To-Many.
      */
     public EntityInfo getFieldEntity() {
-        if (cell.isAssociation()) {
-            return AssociationUtil.getFieldEntity(entityInfo, cell);
-        }
-        return entityInfo;
+        return cell.isAssociation() ? AssociationUtil.getFieldEntity(entityInfo, cell) : entityInfo;
     }
 
     /**
      * Returns the type of the field that this cell represents.
      *
-     * This will be the simple data type. If an assoc    public String getName() {
-     * if (cell.isAssociation()) {
-     * return cell.getAssociationFieldName();
-     * }
-     * return cell.getName();
-     * iation, the data type will be that of the association's field.
+     * This will be the simple data type. If an association, the data type will be that of the association's field.
      *
      * @return cannot be null, since that would throw an exception in the constructor.
      */
@@ -166,9 +169,57 @@ public class Field {
     }
 
     /**
+     * Calls the appropriate get method on the given SDK-REST entity object in order to get the value from an entity.
+     *
+     * For Association fields, behaves differently when given a parent entity vs. the field entity.
+     * For Example, when dealing with the Note field: `candidates.id`:
+     * - When given a note entity, uses the given delimiter to combine all candidate ID values into one delimited string.
+     * - When given an individual Candidate entity, calls getId() method on the Candidate object.
+     *
+     * @param entity    the entity to pull data from
+     * @param delimiter the character(s) to split on
+     * @return the string value of this field on the given entity
+     */
+    public String getStringValueFromEntity(Object entity, String delimiter) throws InvocationTargetException, IllegalAccessException {
+        if (cell.isAssociation() && entityInfo.getEntityClass().equals(entity.getClass())) {
+            if (isToMany()) {
+                List<String> values = new ArrayList<>();
+                OneToMany toManyAssociation = (OneToMany) getAssociationMethod.invoke(entity);
+                if (toManyAssociation != null) {
+                    for (Object association : toManyAssociation.getData()) {
+                        Object value = getMethod.invoke(association);
+                        if (value != null) {
+                            String stringValue = String.valueOf(value);
+                            values.add(stringValue);
+                        }
+                    }
+                }
+                return String.join(delimiter, values);
+            } else {
+                Object toOneAssociation = getAssociationMethod.invoke(entity);
+                if (toOneAssociation == null) {
+                    return "";
+                }
+                Object value = getMethod.invoke(toOneAssociation);
+                return value != null ? String.valueOf(value) : "";
+            }
+        }
+
+        Object value = getMethod.invoke(entity);
+        if (value == null) {
+            return "";
+        }
+        if (DateTime.class.equals(value.getClass())) {
+            DateTime dateTime = (DateTime) value;
+            return dateTimeFormatter.print(dateTime);
+        }
+        return String.valueOf(value);
+    }
+
+    /**
      * Calls the appropriate set method on the given SDK-REST entity object in order to send the entity in a REST call.
      *
-     * This only applies to direct or compound (address) fields, that have a simple value type.
+     * This only applies to direct or compound (address) fields that have a simple value type.
      *
      * @param entity the entity object to populate
      */
@@ -195,9 +246,7 @@ public class Field {
     public void populateAssociationOnEntity(BullhornEntity entity, BullhornEntity associatedEntity) throws
         ParseException, InvocationTargetException, IllegalAccessException {
         setMethod.invoke(associatedEntity, getValue());
-        if (isToOne()) {
-            setAssociationMethod.invoke(entity, associatedEntity);
-        } else {
+        if (isToMany()) {
             OneToMany<BullhornEntity> oneToMany = (OneToMany<BullhornEntity>) getAssociationMethod.invoke(entity);
             if (oneToMany == null) {
                 oneToMany = new OneToMany<>();
@@ -206,15 +255,28 @@ public class Field {
             associations.add(associatedEntity);
             oneToMany.setData(associations);
             setAssociationMethod.invoke(entity, oneToMany);
+        } else {
+            setAssociationMethod.invoke(entity, associatedEntity);
         }
     }
 
     /**
-     * Calls the appropriate get method on the given SDK-REST entity object in order to get the value from an entity.
+     * Returns the oneToMany object for a To-Many association.
      *
-     * @param entity the entity object to get the value of the field from
+     * @param entity the entity object to get the association value from.
      */
-    public Object getValueFromEntity(BullhornEntity entity) throws InvocationTargetException, IllegalAccessException {
-        return getMethod.invoke(entity);
+    @SuppressWarnings("unchecked")
+    public OneToMany getOneToManyFromEntity(BullhornEntity entity) throws InvocationTargetException, IllegalAccessException {
+        return (OneToMany) getAssociationMethod.invoke(entity);
+    }
+
+    /**
+     * Sets a To-Many field of a given entity to the given object.
+     *
+     * @param entity    the entity object to populate
+     * @param oneToMany the OneToMany object for this To-Many field
+     */
+    public void populateOneToManyOnEntity(BullhornEntity entity, OneToMany oneToMany) throws InvocationTargetException, IllegalAccessException {
+        setAssociationMethod.invoke(entity, oneToMany);
     }
 }

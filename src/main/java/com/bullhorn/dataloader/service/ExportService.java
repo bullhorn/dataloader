@@ -19,13 +19,14 @@ import java.util.Map;
 import java.util.SortedMap;
 
 /**
- * Delete service implementation
+ * Exports service implementation
  *
- * Takes the user's command line arguments and runs a delete process
+ * Takes the user's command line arguments and runs an export process
+ * that pulls data from Rest in the form of a CSV file.
  */
-public class DeleteService extends AbstractService implements Action {
+public class ExportService extends AbstractService implements Action {
 
-    public DeleteService(PrintUtil printUtil,
+    public ExportService(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ValidationUtil validationUtil,
                          CompleteUtil completeUtil,
@@ -43,16 +44,16 @@ public class DeleteService extends AbstractService implements Action {
         }
 
         String filePath = args[1];
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = FileUtil.getDeletableCsvFilesFromPath(filePath, validationUtil);
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = FileUtil.getValidCsvFiles(filePath, validationUtil, EntityInfo.loadOrderComparator);
         if (promptUserForMultipleFiles(filePath, entityToFileListMap)) {
             for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
                 EntityInfo entityInfo = entityFileEntry.getKey();
                 for (String fileName : entityFileEntry.getValue()) {
-                    printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
+                    printUtil.printAndLog("Exporting " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                     timer.start();
-                    ActionTotals actionTotals = processRunner.run(Command.DELETE, entityInfo, fileName);
-                    printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
-                    completeUtil.complete(Command.DELETE, fileName, entityInfo, actionTotals);
+                    ActionTotals actionTotals = processRunner.run(Command.EXPORT, entityInfo, fileName);
+                    printUtil.printAndLog("Finished exporting " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
+                    completeUtil.complete(Command.EXPORT, fileName, entityInfo, actionTotals);
                 }
             }
         }
@@ -67,23 +68,18 @@ public class DeleteService extends AbstractService implements Action {
         String filePath = args[1];
         File file = new File(filePath);
         if (file.isDirectory()) {
-            if (FileUtil.getDeletableCsvFilesFromPath(filePath, validationUtil).isEmpty()) {
-                printUtil.printAndLog("ERROR: Could not find any valid CSV files (with entity name) to delete from directory: " + filePath);
+            if (FileUtil.getValidCsvFiles(filePath, validationUtil, EntityInfo.loadOrderComparator).isEmpty()) {
+                printUtil.printAndLog("ERROR: Could not find any valid CSV files (with entity name) to export from directory: " + filePath);
                 return false;
             }
         } else {
-            if (!validationUtil.isValidCsvFile(args[1])) {
+            if (!validationUtil.isValidCsvFile(filePath)) {
                 return false;
             }
 
             EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
             if (entityInfo == null) {
-                printUtil.printAndLog("Could not determine entity from file name: " + filePath);
-                return false;
-            }
-
-            if (!entityInfo.isDeletable()) {
-                printUtil.printAndLog("ERROR: " + entityInfo.getEntityName() + " entity is not deletable.");
+                printUtil.printAndLog("ERROR: Could not determine entity from file name: " + filePath);
                 return false;
             }
         }

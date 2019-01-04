@@ -222,7 +222,7 @@ public class TemplateServiceTest {
     }
 
     @Test
-    public void testIsValidArgumentsTooManyArgments() {
+    public void testIsValidArgumentsTooManyArguments() {
         String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidate", "tooMany"};
 
         boolean actualResult = templateService.isValidArguments(testArgs);

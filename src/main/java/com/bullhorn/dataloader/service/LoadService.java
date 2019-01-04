@@ -33,7 +33,7 @@ public class LoadService extends AbstractService implements Action {
                        RestSession restSession,
                        ProcessRunner processRunner,
                        InputStream inputStream,
-                       Timer timer) throws IOException {
+                       Timer timer) {
         super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
@@ -51,7 +51,7 @@ public class LoadService extends AbstractService implements Action {
                 for (String fileName : entityFileEntry.getValue()) {
                     printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " records from: " + fileName + "...");
                     timer.start();
-                    ActionTotals actionTotals = processRunner.runLoadProcess(entityInfo, fileName);
+                    ActionTotals actionTotals = processRunner.run(Command.LOAD, entityInfo, fileName);
                     printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " records in " + timer.getDurationStringHms());
                     completeUtil.complete(Command.LOAD, fileName, entityInfo, actionTotals);
                 }

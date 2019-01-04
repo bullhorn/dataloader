@@ -12,11 +12,7 @@ import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.task.AbstractTask;
-import com.bullhorn.dataloader.task.ConvertAttachmentTask;
-import com.bullhorn.dataloader.task.DeleteAttachmentTask;
-import com.bullhorn.dataloader.task.DeleteTask;
-import com.bullhorn.dataloader.task.LoadAttachmentTask;
-import com.bullhorn.dataloader.task.LoadTask;
+import com.bullhorn.dataloader.task.TaskFactory;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
@@ -55,19 +51,21 @@ public class ProcessRunner {
         this.completeUtil = completeUtil;
     }
 
-    ActionTotals runLoadProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
+    ActionTotals run(Command command, EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
         RestApi restApi = restSession.getRestApi();
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD, filePath, csvFileReader.getHeaders());
+        CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
+        TaskFactory taskFactory = new TaskFactory(entityInfo, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
 
         // Loop over each row in the file
         while (csvFileReader.readRecord()) {
+            // Run preloader before loading only
+            Row row = command == Command.LOAD ? preloader.convertRow(csvFileReader.getRow()) : csvFileReader.getRow();
+
             // Create an individual task runner (thread) for the row
-            Row row = preloader.convertRow(csvFileReader.getRow());
-            AbstractTask task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil,
-                actionTotals, completeUtil);
+            AbstractTask task = taskFactory.getTask(command, row);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
@@ -76,107 +74,7 @@ public class ProcessRunner {
         executorService.shutdown();
         while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
         }
-        printUtil.printActionTotals(Command.LOAD, actionTotals);
-        return actionTotals;
-    }
-
-    ActionTotals runDeleteProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
-        RestApi restApi = restSession.getRestApi();
-        ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE, filePath, csvFileReader.getHeaders());
-        ActionTotals actionTotals = new ActionTotals();
-
-        // Loop over each row in the file
-        while (csvFileReader.readRecord()) {
-            // Create an individual task runner (thread) for the row
-            Row row = csvFileReader.getRow();
-            AbstractTask task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil,
-                actionTotals, completeUtil);
-
-            // Put the task in the thread pool so that it can be processed when a thread is available
-            executorService.execute(task);
-        }
-        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
-        executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-        }
-        printUtil.printActionTotals(Command.DELETE, actionTotals);
-        return actionTotals;
-    }
-
-    ActionTotals runLoadAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
-        RestApi restApi = restSession.getRestApi();
-        ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.LOAD_ATTACHMENTS, filePath, csvFileReader.getHeaders());
-        ActionTotals actionTotals = new ActionTotals();
-
-        // Loop over each row in the file
-        while (csvFileReader.readRecord()) {
-            // Create an individual task runner (thread) for the row
-            Row row = csvFileReader.getRow();
-            LoadAttachmentTask task = new LoadAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil,
-                restApi, printUtil, actionTotals, completeUtil);
-
-            // Put the task in the thread pool so that it can be processed when a thread is available
-            executorService.execute(task);
-        }
-        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
-        executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-        }
-        printUtil.printActionTotals(Command.LOAD_ATTACHMENTS, actionTotals);
-        return actionTotals;
-    }
-
-    ActionTotals runConvertAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
-        RestApi restApi = restSession.getRestApi();
-        ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.CONVERT_ATTACHMENTS, filePath, csvFileReader.getHeaders());
-        ActionTotals actionTotals = new ActionTotals();
-
-        // Loop over each row in the file
-        while (csvFileReader.readRecord()) {
-            // Create an individual task runner (thread) for the row
-            Row row = csvFileReader.getRow();
-            ConvertAttachmentTask task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter,
-                propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
-
-            // Put the task in the thread pool so that it can be processed when a thread is available
-            executorService.execute(task);
-        }
-        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
-        executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-        }
-        printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, actionTotals);
-        return actionTotals;
-    }
-
-    ActionTotals runDeleteAttachmentsProcess(EntityInfo entityInfo, String filePath) throws IOException, InterruptedException {
-        RestApi restApi = restSession.getRestApi();
-        ExecutorService executorService = threadPoolUtil.getExecutorService();
-        CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
-        CsvFileWriter csvFileWriter = new CsvFileWriter(Command.DELETE_ATTACHMENTS, filePath, csvFileReader.getHeaders());
-        ActionTotals actionTotals = new ActionTotals();
-
-        // Loop over each row in the file
-        while (csvFileReader.readRecord()) {
-            // Create an individual task runner (thread) for the row
-            Row row = csvFileReader.getRow();
-            DeleteAttachmentTask task = new DeleteAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil,
-                restApi, printUtil, actionTotals, completeUtil);
-
-            // Put the task in the thread pool so that it can be processed when a thread is available
-            executorService.execute(task);
-        }
-        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
-        executorService.shutdown();
-        while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
-        }
-        printUtil.printActionTotals(Command.DELETE_ATTACHMENTS, actionTotals);
+        printUtil.printActionTotals(command, actionTotals);
         return actionTotals;
     }
 }

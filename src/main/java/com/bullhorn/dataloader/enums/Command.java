@@ -5,13 +5,14 @@ package com.bullhorn.dataloader.enums;
  */
 public enum Command {
 
-    HELP("help"),
-    TEMPLATE("template"),
     CONVERT_ATTACHMENTS("convertAttachments"),
-    LOAD("load"),
     DELETE("delete"),
+    DELETE_ATTACHMENTS("deleteAttachments"),
+    EXPORT("export"),
+    HELP("help"),
+    LOAD("load"),
     LOAD_ATTACHMENTS("loadAttachments"),
-    DELETE_ATTACHMENTS("deleteAttachments");
+    TEMPLATE("template");
 
     private final String methodName;
 

@@ -5,16 +5,20 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.google.common.collect.Sets;
 import org.joda.time.DateTime;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
  * Utility for constructing find call syntax (Search/Query statements)
  */
 public class FindUtil {
+    private static final Integer MAX_NUM_FIELDS = 30; // A safe, low number, since actual number depends on total length of the query string
+
     // Returns the format of a single term in a lucene search
     public static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo, PropertyFileUtil propertyFileUtil) {
         // Fix for the Note entity doing it's own thing when it comes to the 'id' field
@@ -43,7 +47,7 @@ public class FindUtil {
      *
      * @param entityExistFields the key/value pair list of fields to search on
      * @param propertyFileUtil  the propertyFile settings
-     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
+     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      * @return the formatted lucene search string
      */
     public static String getLuceneSearch(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
@@ -60,7 +64,7 @@ public class FindUtil {
      * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
      *
      * TODO: For to-many id fields, improve search string syntax by only including ids with spaces
-     *       separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
+     * separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
      */
     private static String getLuceneSearch(Field field, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
         if (field.isToMany()) {
@@ -107,7 +111,7 @@ public class FindUtil {
      *
      * @param entityExistFields the key/value pair list of fields to search on
      * @param propertyFileUtil  the propertyFile settings
-     * @param isPrimaryEntity  true = lookup for entity that we are loading, false = lookup for association
+     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      * @return the formatted where clause for the query string
      */
     public static String getSqlQuery(List<Field> entityExistFields, PropertyFileUtil propertyFileUtil, Boolean isPrimaryEntity) {
@@ -162,10 +166,19 @@ public class FindUtil {
     }
 
     /**
-     * Simple method for getting a nicely formatted user message about multiple existing records to choose from.
+     * Returns a nicely formatted user message about no matching records.
+     */
+    public static String getNoMatchingRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields) {
+        return "No Matching " + entityInfo.getEntityName() + " Records Exist with ExistField criteria of: "
+            + entityExistFields.stream().map(field -> field.getCell().getName() + "=" + field.getStringValue())
+            .collect(Collectors.joining(" AND "));
+    }
+
+    /**
+     * Returns a nicely formatted user message about multiple existing records to choose from.
      */
     public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, Integer numRecords) {
-        return "Cannot Perform Update - Multiple Records Exist. Found "
+        return "Multiple Records Exist. Found "
             + numRecords + " " + entityInfo.getEntityName()
             + " records with the same ExistField criteria of: " + entityExistFields.stream()
             .map(field -> field.getCell().getName() + "=" + field.getStringValue())
@@ -188,5 +201,24 @@ public class FindUtil {
             externalId = externalId.substring(0, externalId.indexOf(externalIdEnd));
         }
         return externalId;
+    }
+
+    /**
+     * Ensures that the fieldSet will work properly in rest calls and is not too long or missing an id.
+     *
+     * Returns the given set of fields as is or converts the set to a search for all fields (*) if the fields parameter is too large.
+     * A field parameter that is too large will result in the call failing because it goes beyond the supported query param string length.
+     * Also, adds the id field if it is not already specified, so that any follow on calls that require the id will work.
+     */
+    public static Set<String> getCorrectedFieldSet(Set<String> fieldSet) {
+        if (fieldSet == null || fieldSet.size() > MAX_NUM_FIELDS) {
+            return Sets.newHashSet(StringConsts.ALL_FIELDS);
+        }
+        if (!fieldSet.contains(StringConsts.ALL_FIELDS) && !fieldSet.contains(StringConsts.ID)) {
+            Set<String> correctedFieldSet = Sets.newHashSet(fieldSet);
+            correctedFieldSet.add(StringConsts.ID);
+            return correctedFieldSet;
+        }
+        return fieldSet;
     }
 }

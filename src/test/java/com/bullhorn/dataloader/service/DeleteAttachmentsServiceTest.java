@@ -48,7 +48,7 @@ public class DeleteAttachmentsServiceTest {
 
         deleteAttachmentsService = new DeleteAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
-        doReturn(actionTotalsMock).when(processRunnerMock).runDeleteAttachmentsProcess(any(), any());
+        doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class DeleteAttachmentsServiceTest {
 
         deleteAttachmentsService.run(testArgs);
 
-        verify(processRunnerMock, times(1)).runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        verify(processRunnerMock, times(1)).run(Command.DELETE_ATTACHMENTS, EntityInfo.CANDIDATE, filePath);
         verify(completeUtilMock, times(1)).complete(Command.DELETE_ATTACHMENTS, filePath, EntityInfo.CANDIDATE, actionTotalsMock);
         verify(printUtilMock, times(2)).printAndLog(anyString());
     }
@@ -109,7 +109,7 @@ public class DeleteAttachmentsServiceTest {
     }
 
     @Test
-    public void testIsValidArgumentsTooManyArgments() {
+    public void testIsValidArgumentsTooManyArguments() {
         final String filePath = "Candidate.csv";
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), filePath, "tooMany"};
 

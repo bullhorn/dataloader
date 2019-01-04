@@ -12,6 +12,7 @@ import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.ConvertAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteAttachmentTask;
 import com.bullhorn.dataloader.task.DeleteTask;
+import com.bullhorn.dataloader.task.ExportTask;
 import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -68,86 +69,11 @@ public class ProcessRunnerTest {
     }
 
     @Test
-    public void runLoadProcessTest() throws IOException, InterruptedException {
-        String filePath = TestUtils.getResourceFilePath("Candidate.csv");
-        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
-
-        ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CANDIDATE, filePath);
-
-        verify(executorServiceMock, times(1)).execute(any());
-        verify(executorServiceMock, times(1)).shutdown();
-        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
-        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
-        Assert.assertEquals(actualTask.getClass(), LoadTask.class);
-    }
-
-    @Test
-    public void runCustomObjectLoadProcessTest() throws IOException, InterruptedException {
-        String filePath = TestUtils.getResourceFilePath("ClientCorporationCustomObjectInstance1.csv");
-        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
-
-        ActionTotals actualTotals = processRunner.runLoadProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
-
-        verify(executorServiceMock, times(1)).execute(any());
-        verify(executorServiceMock, times(1)).shutdown();
-        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
-        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
-        Assert.assertEquals(actualTask.getClass(), LoadTask.class);
-    }
-
-    @Test
-    public void runDeleteProcessTest() throws IOException, InterruptedException {
-        String filePath = TestUtils.getResourceFilePath("Candidate.csv");
-        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
-
-        ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CANDIDATE, filePath);
-
-        verify(executorServiceMock, times(1)).execute(any());
-        verify(executorServiceMock, times(1)).shutdown();
-        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
-        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
-        Assert.assertEquals(actualTask.getClass(), DeleteTask.class);
-    }
-
-    @Test
-    public void runDeleteProcessTest_CustomObject() throws IOException, InterruptedException {
-        String filePath = TestUtils.getResourceFilePath("ClientCorporationCustomObjectInstance1.csv");
-        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
-
-        ActionTotals actualTotals = processRunner.runDeleteProcess(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
-
-        verify(executorServiceMock, times(1)).execute(any());
-        verify(executorServiceMock, times(1)).shutdown();
-        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
-        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
-        Assert.assertEquals(actualTask.getClass(), DeleteTask.class);
-    }
-
-    @Test
-    public void runLoadAttachmentsProcessTest() throws IOException, InterruptedException {
+    public void testRunConvertAttachments() throws IOException, InterruptedException {
         String filePath = TestUtils.getResourceFilePath("CandidateAttachments.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunner.runLoadAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
-
-        verify(executorServiceMock, times(1)).execute(any());
-        verify(executorServiceMock, times(1)).shutdown();
-        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
-        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD_ATTACHMENTS), eq(actualTotals));
-        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
-        Assert.assertEquals(actualTask.getClass(), LoadAttachmentTask.class);
-    }
-
-    @Test
-    public void runConvertAttachmentsProcessTest() throws IOException, InterruptedException {
-        String filePath = TestUtils.getResourceFilePath("CandidateAttachments.csv");
-        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
-
-        ActionTotals actualTotals = processRunner.runConvertAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.run(Command.CONVERT_ATTACHMENTS, EntityInfo.CANDIDATE, filePath);
 
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
@@ -158,11 +84,41 @@ public class ProcessRunnerTest {
     }
 
     @Test
-    public void runDeleteAttachmentsProcessTest() throws IOException, InterruptedException {
+    public void testRunDelete() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("Candidate.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.DELETE, EntityInfo.CANDIDATE, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), DeleteTask.class);
+    }
+
+    @Test
+    public void testRunDeleteCustomObject() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("ClientCorporationCustomObjectInstance1.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.DELETE, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE), eq(actualTotals));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), DeleteTask.class);
+    }
+
+    @Test
+    public void testRunDeleteAttachments() throws IOException, InterruptedException {
         String filePath = TestUtils.getResourceFilePath("CandidateAttachments_success.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
-        ActionTotals actualTotals = processRunner.runDeleteAttachmentsProcess(EntityInfo.CANDIDATE, filePath);
+        ActionTotals actualTotals = processRunner.run(Command.DELETE_ATTACHMENTS, EntityInfo.CANDIDATE, filePath);
 
         verify(executorServiceMock, times(1)).execute(any());
         verify(executorServiceMock, times(1)).shutdown();
@@ -170,5 +126,65 @@ public class ProcessRunnerTest {
         verify(printUtilMock, times(1)).printActionTotals(eq(Command.DELETE_ATTACHMENTS), eq(actualTotals));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), DeleteAttachmentTask.class);
+    }
+
+    @Test
+    public void testRunExport() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("Candidate.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.EXPORT, EntityInfo.CANDIDATE, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.EXPORT), eq(actualTotals));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), ExportTask.class);
+    }
+
+    @Test
+    public void testRunLoad() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("Candidate.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.LOAD, EntityInfo.CANDIDATE, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), LoadTask.class);
+    }
+
+    @Test
+    public void testRunLoadCustomObject() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("ClientCorporationCustomObjectInstance1.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.LOAD, EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), LoadTask.class);
+    }
+
+    @Test
+    public void testRunLoadAttachments() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("CandidateAttachments.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.LOAD_ATTACHMENTS, EntityInfo.CANDIDATE, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD_ATTACHMENTS), eq(actualTotals));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), LoadAttachmentTask.class);
     }
 }

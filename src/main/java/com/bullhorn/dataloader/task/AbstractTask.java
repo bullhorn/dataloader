@@ -31,14 +31,15 @@ import java.util.stream.Collectors;
 public abstract class AbstractTask implements Runnable {
     static AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
+    protected ActionTotals actionTotals;
+    protected CompleteUtil completeUtil;
     protected EntityInfo entityInfo;
-    protected Row row;
+    protected Integer entityId;
+    protected PrintUtil printUtil;
     protected PropertyFileUtil propertyFileUtil;
     protected RestApi restApi;
-    protected PrintUtil printUtil;
-    protected ActionTotals actionTotals;
-    protected Integer entityId;
-    protected CompleteUtil completeUtil;
+    protected Row row;
+
     private CsvFileWriter csvFileWriter;
 
     AbstractTask(EntityInfo entityInfo,
@@ -128,7 +129,7 @@ public abstract class AbstractTask implements Runnable {
      *
      * Find calls must be different between primary and associated entities. This affects custom objects, primarily.
      * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
-     * - When looking for existing Person records to check for existance, we need a Person lookup for `externalID=`
+     * - When looking for existing Person records to check for existence, we need a Person lookup for `externalID=`
      * - When looking for existing PersonCustomObjectInstance1 records, we need a PersonCustomObjectInstance1 lookup for `person.externalID=`
      *
      * @param entityExistFields the key/value pairs that make up the search/query string
