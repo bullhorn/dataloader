@@ -13,6 +13,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Handles loading attachments
@@ -41,7 +42,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
         String filePath = args[1];
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
-        printUtil.printAndLog("Loading " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
+        printUtil.printAndLog("Loading " + Objects.requireNonNull(entityInfo).getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
         ActionTotals actionTotals = processRunner.run(Command.LOAD_ATTACHMENTS, entityInfo, filePath);
         printUtil.printAndLog("Finished loading " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());

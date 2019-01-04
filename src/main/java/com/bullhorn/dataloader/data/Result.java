@@ -21,14 +21,6 @@ public class Result {
         this.failureText = failureText;
     }
 
-    private Result(Status status, Action action, Integer bullhornId, Integer bullhornParentId, String failureText) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-        this.bullhornParentId = bullhornParentId;
-        this.failureText = failureText;
-    }
-
     /**
      * Insert convenience constructor
      *
@@ -47,7 +39,9 @@ public class Result {
      * @return The new Result object
      */
     public static Result insert(Integer bullhornId, Integer bullhornParentId) {
-        return new Result(Status.SUCCESS, Action.INSERT, bullhornId, bullhornParentId, "");
+        Result result = new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+        result.bullhornParentId = bullhornParentId;
+        return result;
     }
 
     /**
@@ -68,7 +62,9 @@ public class Result {
      * @return The new Result object
      */
     public static Result update(Integer bullhornId, Integer bullhornParentId) {
-        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, bullhornParentId, "");
+        Result result = new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+        result.bullhornParentId = bullhornParentId;
+        return result;
     }
 
     /**

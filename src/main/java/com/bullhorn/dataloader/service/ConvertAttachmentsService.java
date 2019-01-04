@@ -13,6 +13,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Handles converting attachments
@@ -41,7 +42,7 @@ public class ConvertAttachmentsService extends AbstractService implements Action
         String filePath = args[1];
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
-        printUtil.printAndLog("Converting " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
+        printUtil.printAndLog("Converting " + Objects.requireNonNull(entityInfo).getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
         ActionTotals actionTotals = processRunner.run(Command.CONVERT_ATTACHMENTS, entityInfo, filePath);
         printUtil.printAndLog("Finished converting " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());

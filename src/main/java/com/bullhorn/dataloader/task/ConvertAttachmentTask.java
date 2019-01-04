@@ -62,6 +62,7 @@ public class ConvertAttachmentTask extends AbstractTask {
         return handler.toString();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private void writeHtmlToFile(String convertedHtml) throws IOException {
         String externalId = row.getValue(WordUtils.uncapitalize(entityInfo.getEntityName()) + "." + StringConsts.EXTERNAL_ID);
         String convertedAttachmentPath = propertyFileUtil.getConvertedAttachmentFilepath(entityInfo, externalId);
