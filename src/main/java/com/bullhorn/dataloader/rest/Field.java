@@ -265,7 +265,6 @@ public class Field {
      *
      * @param entity the entity object to get the association value from.
      */
-    @SuppressWarnings("unchecked")
     public OneToMany getOneToManyFromEntity(BullhornEntity entity) throws InvocationTargetException, IllegalAccessException {
         return (OneToMany) getAssociationMethod.invoke(entity);
     }

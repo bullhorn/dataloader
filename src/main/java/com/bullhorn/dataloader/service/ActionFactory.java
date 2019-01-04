@@ -8,7 +8,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -49,7 +48,7 @@ public class ActionFactory {
      * @param command The user's command
      * @return The corresponding action
      */
-    public Action getAction(Command command) throws IOException {
+    public Action getAction(Command command) {
         Action action = null;
         if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
