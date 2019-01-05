@@ -5,7 +5,7 @@ import com.bullhorn.dataloader.service.Action;
 import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.util.PrintUtil;
 
-public class CommandLineInterface {
+class CommandLineInterface {
 
     private final PrintUtil printUtil;
     private final ActionFactory actionFactory;

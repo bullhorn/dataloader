@@ -35,56 +35,56 @@ public class ActionFactoryTest {
     }
 
     @Test
-    public void getActionHelp() {
+    public void testGetActionHelp() {
         Class expectedResult = HelpService.class;
         Action actualResult = actionFactory.getAction(Command.HELP);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionTemplate() {
+    public void testGetActionTemplate() {
         Class expectedResult = TemplateService.class;
         Action actualResult = actionFactory.getAction(Command.TEMPLATE);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionConvertAttachments() {
+    public void testGetActionConvertAttachments() {
         Class expectedResult = ConvertAttachmentsService.class;
         Action actualResult = actionFactory.getAction(Command.CONVERT_ATTACHMENTS);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionLoad() {
+    public void testGetActionLoad() {
         Class expectedResult = LoadService.class;
         Action actualResult = actionFactory.getAction(Command.LOAD);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionExport() {
+    public void testGetActionExport() {
         Class expectedResult = ExportService.class;
         Action actualResult = actionFactory.getAction(Command.EXPORT);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionDelete() {
+    public void testGetActionDelete() {
         Class expectedResult = DeleteService.class;
         Action actualResult = actionFactory.getAction(Command.DELETE);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionLoadAttachments() {
+    public void testGetActionLoadAttachments() {
         Class expectedResult = LoadAttachmentsService.class;
         Action actualResult = actionFactory.getAction(Command.LOAD_ATTACHMENTS);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
     }
 
     @Test
-    public void getActionDeleteAttachments() {
+    public void testGetActionDeleteAttachments() {
         Class expectedResult = DeleteAttachmentsService.class;
         Action actualResult = actionFactory.getAction(Command.DELETE_ATTACHMENTS);
         Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));

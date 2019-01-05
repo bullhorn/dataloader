@@ -12,19 +12,18 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.List;
 
 public class AssociationUtilTest {
 
     @Test
-    public void testConstructor() throws IOException {
+    public void testConstructor() {
         AssociationUtil associationUtil = new AssociationUtil();
         Assert.assertNotNull(associationUtil);
     }
 
     @Test
-    public void testGetToManyFields() throws IOException {
+    public void testGetToManyFields() {
         Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CATEGORY), AssociationFactory.categoryAssociations().allAssociations());
         Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CATEGORY), AssociationFactory.categoryAssociations().allAssociations());
         Assert.assertEquals(AssociationUtil.getToManyFields(EntityInfo.CLIENT_CONTACT), AssociationFactory.clientContactAssociations().allAssociations());
@@ -37,14 +36,14 @@ public class AssociationUtilTest {
     }
 
     @Test
-    public void testGetToManyFieldsEmpty() throws IOException {
+    public void testGetToManyFieldsEmpty() {
         List<AssociationField<AssociationEntity, BullhornEntity>> associationFields =
             AssociationUtil.getToManyFields(EntityInfo.CANDIDATE_WORK_HISTORY);
         Assert.assertTrue(associationFields.isEmpty());
     }
 
     @Test
-    public void testGetToManyField() throws IOException {
+    public void testGetToManyField() {
         Cell cell = new Cell("clientContacts.id", "1");
         Field field = new Field(EntityInfo.NOTE, cell, false, null);
         AssociationField actual = AssociationUtil.getToManyField(field);
@@ -53,7 +52,7 @@ public class AssociationUtilTest {
     }
 
     @Test
-    public void testGetFieldEntityException() throws IOException {
+    public void testGetFieldEntityException() {
         RestApiException expectedException = new RestApiException("'trolls' does not exist on Candidate");
         RestApiException actualException = null;
 
@@ -68,35 +67,35 @@ public class AssociationUtilTest {
     }
 
     @Test
-    public void testGetFieldEntityDirect() throws IOException {
+    public void testGetFieldEntityDirect() {
         Cell cell = new Cell("externalID", "note-ext-1");
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);
         Assert.assertEquals(EntityInfo.NOTE, entityInfo);
     }
 
     @Test
-    public void testGetFieldEntityToOne() throws IOException {
+    public void testGetFieldEntityToOne() {
         Cell cell = new Cell("commentingPerson.email", "jsmith@example.com");
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);
         Assert.assertEquals(EntityInfo.PERSON, entityInfo);
     }
 
     @Test
-    public void testGetFieldEntityCompound() throws IOException {
+    public void testGetFieldEntityCompound() {
         Cell cell = new Cell("address.city", "St. Louis");
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
         Assert.assertEquals(EntityInfo.ADDRESS, entityInfo);
     }
 
     @Test
-    public void testGetFieldEntityToMany() throws IOException {
+    public void testGetFieldEntityToMany() {
         Cell cell = new Cell("candidates.externalID", "1;2;3;4");
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.NOTE, cell);
         Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);
     }
 
     @Test
-    public void testGetFieldEntityEmpty() throws IOException {
+    public void testGetFieldEntityEmpty() {
         Cell cell = new Cell("", "");
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
         Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);

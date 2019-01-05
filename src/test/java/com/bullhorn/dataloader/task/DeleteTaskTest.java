@@ -46,7 +46,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_Success_Candidate() throws IOException, InstantiationException, IllegalAccessException {
+    public void testRunSuccessCandidate() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 AND isDeleted:0"), any(), any())).thenReturn
             (TestUtils.getList(Candidate.class, 1));
@@ -60,7 +60,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_Success_Appointment() throws IOException, InstantiationException, IllegalAccessException {
+    public void testRunSuccessAppointment() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.queryForList(eq(Appointment.class), eq("id=1 AND isDeleted=false"), any(), any()))
             .thenReturn(TestUtils.getList(Appointment.class, 1));
@@ -74,7 +74,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_Success_Note() throws IOException, InstantiationException, IllegalAccessException {
+    public void testRunSuccessNote() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.searchForList(eq(Note.class), eq("noteID:1 AND isDeleted:false"), any(), any()))
             .thenReturn(TestUtils.getList(Note.class, 1));
@@ -88,7 +88,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_Success_Placement() throws IOException, InstantiationException, IllegalAccessException {
+    public void testRunSuccessPlacement() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getList
             (Placement.class, 1));
@@ -102,7 +102,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_AlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
+    public void testRunAlreadySoftDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.searchForList(eq(Candidate.class), eq("id:1 AND isDeleted:0"), any(), any())).thenReturn
             (TestUtils.getList(Candidate.class));
@@ -117,7 +117,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_AlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
+    public void testRunAlreadyHardDeletedFailure() throws IOException, InstantiationException, IllegalAccessException {
         Row row = TestUtils.createRow("id", "1");
         when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any())).thenReturn(TestUtils.getList
             (Placement.class));
@@ -132,7 +132,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_NonDeletableEntityFailure() throws IOException {
+    public void testRunNonDeletableEntityFailure() throws IOException {
         Row row = TestUtils.createRow("id", "1");
 
         DeleteTask task = new DeleteTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock,
@@ -145,7 +145,7 @@ public class DeleteTaskTest {
     }
 
     @Test
-    public void run_IdColumnFailure() throws IOException {
+    public void testRunIdColumnFailure() throws IOException {
         Row row = new Row("/going/to/fail.csv", 1);
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,

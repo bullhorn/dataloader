@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -276,16 +277,16 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetEntityExistFields_PropertyFileValues() throws IOException {
+    public void testGetEntityExistFieldsPropertyFileValues() throws IOException {
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
 
-        Assert.assertEquals(Arrays.asList(new String[]{"externalID"}),
+        Assert.assertEquals(Collections.singletonList("externalID"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
-        Assert.assertEquals(Arrays.asList(new String[]{"externalID"}),
+        Assert.assertEquals(Collections.singletonList("externalID"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CLIENT_CONTACT));
-        Assert.assertEquals(Arrays.asList(new String[]{"customText1"}),
+        Assert.assertEquals(Collections.singletonList("customText1"),
             propertyFileUtil.getEntityExistFields(EntityInfo.LEAD));
-        Assert.assertEquals(Arrays.asList(new String[]{"title", "name"}),
+        Assert.assertEquals(Arrays.asList("title", "name"),
             propertyFileUtil.getEntityExistFields(EntityInfo.JOB_ORDER));
 
         Assert.assertTrue(propertyFileUtil.getEntityExistFields(EntityInfo.BUSINESS_SECTOR).isEmpty());
@@ -294,7 +295,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetEntityExistFields_EnvironmentVariableOverrides() throws IOException {
+    public void testGetEntityExistFieldsEnvironmentVariableOverrides() throws IOException {
         envVars.put("DATALOADER_CANDIDATE_EXIST_FIELD", "customTextField4,customTextField5");
         envVars.put("dataloader_candidateExistField", "bogus");
         envVars.put("candidateExistField", "bogus");
@@ -304,26 +305,26 @@ public class PropertyFileUtilTest {
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
 
-        Assert.assertEquals(Arrays.asList(new String[]{"customTextField4", "customTextField5"}),
+        Assert.assertEquals(Arrays.asList("customTextField4", "customTextField5"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
-        Assert.assertEquals(Arrays.asList(new String[]{"customText99"}),
+        Assert.assertEquals(Collections.singletonList("customText99"),
             propertyFileUtil.getEntityExistFields(EntityInfo.LEAD));
     }
 
     @Test
-    public void testGetEntityExistFields_SystemPropertyOverrides() throws IOException {
+    public void testGetEntityExistFieldsSystemPropertyOverrides() throws IOException {
         envVars.put("candidateExistField", "customTextField4,customTextField5");
         systemProperties.setProperty("candidateExistField", "one,two,buckle,shoe");
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
             propertyValidationUtil, printUtilMock);
 
-        Assert.assertEquals(Arrays.asList(new String[]{"one", "two", "buckle", "shoe"}),
+        Assert.assertEquals(Arrays.asList("one", "two", "buckle", "shoe"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
     }
 
     @Test
-    public void testGetEntityExistFields_ArgumentOverrides() throws IOException {
+    public void testGetEntityExistFieldsArgumentOverrides() throws IOException {
         envVars.put("candidateExistField", "customTextField4,customTextField5");
         systemProperties.setProperty("clientContactExistField", "one,two,buckle,shoe");
         ArrayList<String> args = new ArrayList<>();
@@ -333,12 +334,12 @@ public class PropertyFileUtilTest {
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidationUtil, printUtilMock);
 
-        Assert.assertEquals(Arrays.asList(new String[]{"externalID"}),
+        Assert.assertEquals(Collections.singletonList("externalID"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
     }
 
     @Test
-    public void testGetColumnNameMapping_PropertyFileValues() throws IOException {
+    public void testGetColumnNameMappingPropertyFileValues() throws IOException {
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
             propertyValidationUtil, printUtilMock);
 
@@ -352,7 +353,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMapping_EnvironmentVariableOverrides() throws IOException {
+    public void testGetColumnNameMappingEnvironmentVariableOverrides() throws IOException {
         envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
         envVars.put("DATALOADER_statementUserID_Column", "billingUser.id");
         envVars.put("DATALOADER_sendingOwnerNameColumn", "reference.name");
@@ -371,7 +372,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMapping_SystemPropertyOverrides() throws IOException {
+    public void testGetColumnNameMappingSystemPropertyOverrides() throws IOException {
         envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
         envVars.put("DATALOADER_statementUserID_COLUMN", "billingUser.id");
         systemProperties.setProperty("oneColumn", "billingUser.id");
@@ -385,7 +386,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMapping_ArgumentOverrides() throws IOException {
+    public void testGetColumnNameMappingArgumentOverrides() throws IOException {
         envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
         systemProperties.setProperty("columnOneColumn", "job.title");
         ArrayList<String> args = new ArrayList<>();

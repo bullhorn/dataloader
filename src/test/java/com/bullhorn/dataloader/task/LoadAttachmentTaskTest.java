@@ -42,7 +42,7 @@ public class LoadAttachmentTaskTest {
     private LoadAttachmentTask task;
     private CompleteUtil completeUtilMock;
 
-    private String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
+    private final String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
 
     @Before
     public void setup() {

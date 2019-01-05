@@ -7,7 +7,6 @@ import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
-import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -62,7 +61,6 @@ public class LoadTaskTest {
     private ActionTotals actionTotalsMock;
     private RestApi restApiMock;
     private CsvFileWriter csvFileWriterMock;
-    private Preloader preloaderMock;
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
     private CompleteUtil completeUtilMock;
@@ -72,7 +70,6 @@ public class LoadTaskTest {
         actionTotalsMock = mock(ActionTotals.class);
         restApiMock = mock(RestApi.class);
         csvFileWriterMock = mock(CsvFileWriter.class);
-        preloaderMock = mock(Preloader.class);
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         completeUtilMock = mock(CompleteUtil.class);

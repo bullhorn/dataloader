@@ -3,18 +3,16 @@ package com.bullhorn.dataloader.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class DateUtilTest {
 
     @Test
-    public void testConstructor() throws IOException {
+    public void testConstructor() {
         DateUtil dateUtil = new DateUtil();
         Assert.assertNotNull(dateUtil);
     }
 
     @Test
-    public void testGetTimestamp() throws IOException {
+    public void testGetTimestamp() {
         final String originalTimestamp = DateUtil.getTimestamp();
         final String newTimestamp = DateUtil.getTimestamp();
 

@@ -4,6 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class RowTest {
@@ -63,7 +64,7 @@ public class RowTest {
     public void testGetNamesEmpty() {
         Row row = new Row("data/Candidate.csv", 1);
 
-        List<String> expected = Arrays.asList(new String[]{});
+        List<String> expected = Collections.emptyList();
         Assert.assertEquals(row.getNames(), expected);
     }
 
@@ -82,7 +83,7 @@ public class RowTest {
     public void testGetValuesEmpty() {
         Row row = new Row("data/Candidate.csv", 1);
 
-        List<String> expected = Arrays.asList(new String[]{});
+        List<String> expected = Collections.emptyList();
         Assert.assertEquals(row.getValues(), expected);
     }
 }

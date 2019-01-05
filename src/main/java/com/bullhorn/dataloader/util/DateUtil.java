@@ -6,7 +6,7 @@ import java.util.Date;
 /**
  * Utility for low level date related methods used in DataLoader
  */
-public class DateUtil {
+class DateUtil {
 
     private static String timestamp = null;
 
@@ -16,7 +16,7 @@ public class DateUtil {
      *
      * @return The timestamp string
      */
-    public static String getTimestamp() {
+    static String getTimestamp() {
         if (timestamp == null) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH.mm.ss");
             timestamp = dateFormat.format(new Date());

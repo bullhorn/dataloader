@@ -5,7 +5,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -57,42 +56,42 @@ public class PropertyValidationUtilTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testEmptyUserName() throws IOException {
+    public void testEmptyUserName() {
         propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), "");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testMissingUserName() throws IOException {
+    public void testMissingUserName() {
         propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), null);
     }
 
     @Test
-    public void testMissingOptionalStringField() throws IOException {
+    public void testMissingOptionalStringField() {
         String value = propertyValidationUtil.validateOptionalStringField(null);
         Assert.assertEquals("", value);
     }
 
     @Test
-    public void testEntityExistFields_TrimWhitespace() throws IOException {
+    public void testEntityExistFieldsTrimWhitespace() {
         Assert.assertEquals(" id ", entityExistFieldsMap.get("Candidate").get(0));
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
         Assert.assertEquals("id", entityExistFieldsMap.get("Candidate").get(0));
     }
 
     @Test
-    public void testEntityExistFields_Missing() throws IOException {
+    public void testEntityExistFieldsMissing() {
         entityExistFieldsMap.remove("BusinessSector");
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test
-    public void testEntityExistFields_Empty() throws IOException {
+    public void testEntityExistFieldsEmpty() {
         entityExistFieldsMap.put("Candidate", Arrays.asList(""));
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testEntityExistFields_BadEntity() throws IOException {
+    public void testEntityExistFieldsBadEntity() {
         entityExistFieldsMap.put("BadEntity", Arrays.asList("externalID"));
         propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
@@ -134,23 +133,23 @@ public class PropertyValidationUtilTest {
     }
 
     @Test
-    public void testValidateNumThreads() throws IOException {
+    public void testValidateNumThreads() {
         Integer actual = propertyValidationUtil.validateNumThreads(0);
         Assert.assertNotEquals(actual, new Integer(0));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testEmptyNumThreads() throws IOException {
+    public void testEmptyNumThreads() {
         propertyValidationUtil.validateNumThreads(Integer.valueOf(""));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLowerBoundNumThreads() throws IOException {
+    public void testLowerBoundNumThreads() {
         propertyValidationUtil.validateNumThreads(-1);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testUpperBoundNumThreads() throws IOException {
+    public void testUpperBoundNumThreads() {
         propertyValidationUtil.validateNumThreads(16);
     }
 
@@ -167,12 +166,12 @@ public class PropertyValidationUtilTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testLowerBoundWaitSeconds() throws IOException {
+    public void testLowerBoundWaitSeconds() {
         propertyValidationUtil.validateWaitSeconds("-1");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testUpperBoundWaitSeconds() throws IOException {
+    public void testUpperBoundWaitSeconds() {
         propertyValidationUtil.validateWaitSeconds("3601");
     }
 }

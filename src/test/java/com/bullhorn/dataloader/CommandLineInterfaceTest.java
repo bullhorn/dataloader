@@ -39,7 +39,7 @@ public class CommandLineInterfaceTest {
     private List<Action> actions;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         printUtilMock = mock(PrintUtil.class);
         ActionFactory actionFactoryMock = mock(ActionFactory.class);
         commandLineInterface = new CommandLineInterface(printUtilMock, actionFactoryMock);
@@ -68,7 +68,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void helpTest() throws Exception {
+    public void testStartHelp() throws Exception {
         final String[] testArgs = {Command.HELP.getMethodName(), "Candidate.csv"};
         when(helpServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
@@ -78,7 +78,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void helpInvalidArgsTest() throws Exception {
+    public void testStartHelpInvalidArgs() throws Exception {
         final String[] testArgs = {Command.HELP.getMethodName(), "Candidate.csv"};
         when(helpServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
@@ -88,7 +88,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void loadTest() throws Exception {
+    public void testStartLoad() throws Exception {
         final String[] testArgs = {Command.LOAD.getMethodName(), "Candidate.csv"};
         when(loadServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
@@ -98,7 +98,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void loadInvalidArgsTest() throws Exception {
+    public void testStartLoadInvalidArgs() throws Exception {
         final String[] testArgs = {Command.LOAD.getMethodName(), "Candidate.csv"};
         when(loadServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
@@ -108,7 +108,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void deleteTest() throws Exception {
+    public void testStartDelete() throws Exception {
         final String[] testArgs = {Command.DELETE.getMethodName(), "Candidate", "Candidate.csv"};
         when(deleteServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
@@ -118,7 +118,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void deleteInvalidArgsTest() throws Exception {
+    public void testStartDeleteInvalidArgs() throws Exception {
         final String[] testArgs = {Command.DELETE.getMethodName()};
         when(deleteServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
@@ -128,7 +128,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void loadAttachmentTest() throws Exception {
+    public void testStartLoadAttachment() throws Exception {
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), "Candidate", "Attachments.csv"};
         when(loadAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
@@ -138,7 +138,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void loadAttachmentInvalidArgsTest() throws Exception {
+    public void testStartLoadAttachmentInvalidArgs() throws Exception {
         final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), "Candidate"};
         when(loadAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
@@ -148,7 +148,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void deleteAttachmentsTest() throws Exception {
+    public void testStartDeleteAttachments() throws Exception {
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachments.csv"};
         when(deleteAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
@@ -158,7 +158,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void deleteAttachmentsInvalidArgsTest() throws Exception {
+    public void testStartDeleteAttachmentsInvalidArgs() throws Exception {
         final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachments.csv"};
         when(deleteAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
@@ -168,7 +168,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void templateTest() throws Exception {
+    public void testStartTemplate() throws Exception {
         final String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidate"};
         when(templateServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
@@ -178,7 +178,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void templateInvalidArgsTest() throws Exception {
+    public void testStartTemplateInvalidArgs() throws Exception {
         final String[] testArgs = {Command.TEMPLATE.getMethodName(), "Candidates"};
         when(templateServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
@@ -188,7 +188,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void invalidCommandTest() throws Exception {
+    public void testStartInvalidCommand() throws Exception {
         final String[] testArgs = {"bad", "Candidate"};
 
         commandLineInterface.start(testArgs);
@@ -203,7 +203,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void emptyCommandTest() throws Exception {
+    public void testStartEmptyCommand() throws Exception {
         final String[] testArgs = {};
 
         commandLineInterface.start(testArgs);
@@ -218,7 +218,7 @@ public class CommandLineInterfaceTest {
     }
 
     @Test
-    public void catchExceptionTest() throws Exception {
+    public void testStartCatchException() throws Exception {
         final String[] testArgs = {Command.LOAD.getMethodName(), "Candidate.csv"};
         when(loadServiceMock.isValidArguments(testArgs)).thenReturn(true);
         InterruptedException interruptedException = new InterruptedException("ERROR TEXT");
