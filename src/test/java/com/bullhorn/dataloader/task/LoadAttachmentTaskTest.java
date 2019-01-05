@@ -104,7 +104,7 @@ public class LoadAttachmentTaskTest {
         file1.setExternalID("extFileId1");
         List<FileMeta> fileList = Lists.newArrayList(file1);
         StandardFileContent mockedFileContent = new StandardFileContent();
-        mockedFileContent.setFileContent("thisisafilecontent");
+        mockedFileContent.setFileContent("this is the file content");
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))
@@ -131,7 +131,7 @@ public class LoadAttachmentTaskTest {
         file1.setExternalID("extFileId1");
         List<FileMeta> fileList = Lists.newArrayList(file1);
         StandardFileContent mockedFileContent = new StandardFileContent();
-        mockedFileContent.setFileContent("thisisafilecontent");
+        mockedFileContent.setFileContent("this is the file content");
         FileMeta mockedFileMeta = mock(FileMeta.class);
         StandardFileWrapper fileWrapper = new StandardFileWrapper(mockedFileContent, mockedFileMeta);
         when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"2011Ext\" AND isDeleted:0"), any(), any()))

@@ -129,7 +129,7 @@ public class CommandLineInterfaceTest {
 
     @Test
     public void loadAttachmentTest() throws Exception {
-        final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), "Candidate", "Attachements.csv"};
+        final String[] testArgs = {Command.LOAD_ATTACHMENTS.getMethodName(), "Candidate", "Attachments.csv"};
         when(loadAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
         commandLineInterface.start(testArgs);
@@ -149,7 +149,7 @@ public class CommandLineInterfaceTest {
 
     @Test
     public void deleteAttachmentsTest() throws Exception {
-        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachements.csv"};
+        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachments.csv"};
         when(deleteAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(true);
 
         commandLineInterface.start(testArgs);
@@ -159,7 +159,7 @@ public class CommandLineInterfaceTest {
 
     @Test
     public void deleteAttachmentsInvalidArgsTest() throws Exception {
-        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachements.csv"};
+        final String[] testArgs = {Command.DELETE_ATTACHMENTS.getMethodName(), "Candidate", "Attachments.csv"};
         when(deleteAttachmentsServiceMock.isValidArguments(testArgs)).thenReturn(false);
 
         commandLineInterface.start(testArgs);
@@ -253,7 +253,7 @@ public class CommandLineInterfaceTest {
     /**
      * Helper method which ensures that only the given action is run, and run unsuccessfully
      *
-     * @param actionFailed The action that should have failes
+     * @param actionFailed The action that should have fails
      * @param args         The arguments that should be provided to the action
      */
     private void verifyActionFailed(Action actionFailed, String[] args) throws Exception {

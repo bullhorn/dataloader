@@ -12,7 +12,7 @@ import java.util.List;
  * http://stackoverflow.com/questions/8708342/redirect-console-output-to-string-in-java
  */
 public class ConsoleOutputCapturer {
-    private ByteArrayOutputStream baos;
+    private ByteArrayOutputStream byteArrayOutputStream;
     private PrintStream previous;
     private boolean capturing;
 
@@ -23,10 +23,10 @@ public class ConsoleOutputCapturer {
 
         capturing = true;
         previous = System.out;
-        baos = new ByteArrayOutputStream();
+        byteArrayOutputStream = new ByteArrayOutputStream();
 
         OutputStream outputStreamCombiner =
-            new OutputStreamCombiner(Arrays.asList(previous, baos));
+            new OutputStreamCombiner(Arrays.asList(previous, byteArrayOutputStream));
         PrintStream custom = new PrintStream(outputStreamCombiner);
 
         System.setOut(custom);
@@ -39,9 +39,9 @@ public class ConsoleOutputCapturer {
 
         System.setOut(previous);
 
-        String capturedValue = baos.toString();
+        String capturedValue = byteArrayOutputStream.toString();
 
-        baos = null;
+        byteArrayOutputStream = null;
         previous = null;
         capturing = false;
 

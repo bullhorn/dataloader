@@ -78,7 +78,6 @@ public class RestApiExtensionTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetByExternalIdBuildUrlNullFieldSet() {
         String externalID = "ext 1";
         when(restApiMock.getRestUrl()).thenReturn("https://rest.bullhorn.com/");

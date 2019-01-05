@@ -114,16 +114,16 @@ public class LoadTaskTest {
     public void testRunInsertNewCorpUsingExternalID() throws Exception {
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CLIENT_CORPORATION))
             .thenReturn(Collections.singletonList("externalID"));
-        Row row = TestUtils.createRow("id,externalID", "1,JAMCORP123");
+        Row row = TestUtils.createRow("id,externalID", "1,CORPORATION_123");
 
         // Mock out all existing reference entities
         ClientCorporation clientCorporation = new ClientCorporation(1);
-        clientCorporation.setExternalID("JAMCORP123");
+        clientCorporation.setExternalID("CORPORATION_123");
 
         ClientContact clientContact = new ClientContact(1);
-        clientContact.setExternalID("defaultContactJAMCORP123");
+        clientContact.setExternalID("defaultContactCORPORATION_123");
 
-        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"JAMCORP123\""), any(), any()))
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"CORPORATION_123\""), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporation.class));
         when(restApiMock.queryForList(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils
             .getList(clientCorporation)); // TODO: Do we need this? Who is querying for Searchable Entities?
@@ -706,7 +706,7 @@ public class LoadTaskTest {
 
     @Test
     public void testRunInvalidAddressField() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,city", "Data,Loader,Failsville");
+        Row row = TestUtils.createRow("firstName,lastName,city", "Data,Loader,Failure");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
@@ -721,7 +721,7 @@ public class LoadTaskTest {
 
     @Test
     public void testRunValidAddressField() throws Exception {
-        Row row = TestUtils.createRow("id,address.city", "1,Successville");
+        Row row = TestUtils.createRow("id,address.city", "1,Success");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("id"));
         when(restApiMock.searchForList(eq(Candidate.class), eq("id:1"), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class, 1));
