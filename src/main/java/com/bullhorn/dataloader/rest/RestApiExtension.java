@@ -146,7 +146,6 @@ public class RestApiExtension {
      * @param jobSubmissionId the ID of the JobSubmission that was deleted
      * @return CrudResponse with up to 1 error message if any deletes failed.
      */
-    @SuppressWarnings("unchecked")
     private <C extends CrudResponse> C deleteJobSubmissionHistoryRecords(RestApi restApi, Integer jobSubmissionId) {
         C crudResponse = null;
         final String filter = "jobSubmission.id=" + jobSubmissionId;

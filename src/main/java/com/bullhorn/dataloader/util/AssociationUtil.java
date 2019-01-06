@@ -35,7 +35,7 @@ import java.util.Map;
 public class AssociationUtil {
     // This is a cached list of the associations per entity
     // The key is always this entity, and each value is the entity that it is associated to
-    private static Map<EntityInfo, List<AssociationField<AssociationEntity, BullhornEntity>>>
+    private static final Map<EntityInfo, List<AssociationField<AssociationEntity, BullhornEntity>>>
         entityToAssociationsMap = new HashMap<>();
 
     /**
@@ -48,7 +48,7 @@ public class AssociationUtil {
      * @return The list of this entity (key is always this entity class) to the entity's associated classes
      */
     @SuppressWarnings({"ConstantConditions", "unchecked"})
-    public static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getToManyFields(
+    static synchronized List<AssociationField<AssociationEntity, BullhornEntity>> getToManyFields(
         EntityInfo entityInfo) {
         try {
             if (entityToAssociationsMap.containsKey(entityInfo)) {

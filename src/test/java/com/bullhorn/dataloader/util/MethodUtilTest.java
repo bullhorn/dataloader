@@ -94,14 +94,14 @@ public class MethodUtilTest {
     @Test
     public void testFindBestMatchMissing() {
         Set<String> fields = Sets.newSet("name", "firstName", "lastName", "middleName");
-        Assert.assertEquals(null, MethodUtil.findBestMatch(fields, "initial"));
-        Assert.assertEquals(null, MethodUtil.findBestMatch(fields, "names"));
+        Assert.assertNull(MethodUtil.findBestMatch(fields, "initial"));
+        Assert.assertNull(MethodUtil.findBestMatch(fields, "names"));
     }
 
     @Test
     public void testConvertStringToObjectReturnsNull() throws ParseException {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("MM/dd/yyyy");
         Object actual = MethodUtil.convertStringToObject("bogus", MethodUtil.class, dateTimeFormatter);
-        Assert.assertEquals(null, actual);
+        Assert.assertNull(actual);
     }
 }

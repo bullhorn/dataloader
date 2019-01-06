@@ -249,7 +249,7 @@ public class RestApi {
         }
 
         Integer nextStart = start + count;
-        Integer nextEnd = Math.min(nextStart + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
+        int nextEnd = Math.min(nextStart + MAX_RECORDS_TO_RETURN_IN_ONE_PULL, total);
         if (nextStart < total && count != 0 && nextStart < MAX_RECORDS_TO_RETURN_TOTAL) {
             printUtil.log(Level.DEBUG, "--> Follow On Find(" + nextStart + " - " + nextEnd + ")");
             return true;

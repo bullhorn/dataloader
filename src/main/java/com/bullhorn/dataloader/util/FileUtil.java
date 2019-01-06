@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -50,23 +51,25 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory,
-                                                                                    ValidationUtil validationUtil,
-                                                                                    Comparator<EntityInfo> comparator) {
+    private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory,
+                                                                                     ValidationUtil validationUtil,
+                                                                                     Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         String[] fileNames = directory.list();
-        Arrays.sort(fileNames);
-        for (String fileName : fileNames) {
-            String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
-            if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
-                EntityInfo entityInfo = extractEntityFromFileName(fileName);
-                if (entityInfo != null) {
-                    if (!entityToFileListMap.containsKey(entityInfo)) {
-                        entityToFileListMap.put(entityInfo, new ArrayList<>());
+        if (fileNames != null) {
+            Arrays.sort(fileNames);
+            for (String fileName : fileNames) {
+                String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
+                if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
+                    EntityInfo entityInfo = extractEntityFromFileName(fileName);
+                    if (entityInfo != null) {
+                        if (!entityToFileListMap.containsKey(entityInfo)) {
+                            entityToFileListMap.put(entityInfo, new ArrayList<>());
+                        }
+                        List<String> files = entityToFileListMap.get(entityInfo);
+                        files.add(absoluteFilePath);
                     }
-                    List<String> files = entityToFileListMap.get(entityInfo);
-                    files.add(absoluteFilePath);
                 }
             }
         }
@@ -82,15 +85,15 @@ public class FileUtil {
      * @param comparator     How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    public static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath,
-                                                                                   ValidationUtil validationUtil,
-                                                                                   Comparator<EntityInfo> comparator) {
+    private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath,
+                                                                                    ValidationUtil validationUtil,
+                                                                                    Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         if (validationUtil.isValidCsvFile(filePath, false)) {
             EntityInfo entityInfo = extractEntityFromFileName(filePath);
             if (entityInfo != null) {
-                entityToFileListMap.put(entityInfo, Arrays.asList(filePath));
+                entityToFileListMap.put(entityInfo, Collections.singletonList(filePath));
             }
         }
 

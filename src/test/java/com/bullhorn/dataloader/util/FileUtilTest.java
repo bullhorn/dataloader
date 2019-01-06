@@ -29,6 +29,12 @@ public class FileUtilTest {
     }
 
     @Test
+    public void testConstructor() {
+        FileUtil fileUtil = new FileUtil();
+        Assert.assertNotNull(fileUtil);
+    }
+
+    @Test
     public void testGetValidCsvFilesFromPath_file() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory/Candidate_Valid_File.csv");
         final File file = new File(filePath);

@@ -4,12 +4,10 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class EntityInfoTest {
 
     @Test
-    public void testGetBullhornEntityInfo() throws IOException {
+    public void testGetBullhornEntityInfo() {
         Assert.assertEquals(BullhornEntityInfo.PLACEMENT, EntityInfo.PLACEMENT.getBullhornEntityInfo());
         Assert.assertEquals(BullhornEntityInfo.CLIENT_CORPORATION, EntityInfo.CLIENT_CORPORATION.getBullhornEntityInfo());
         Assert.assertEquals(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1, EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1.getBullhornEntityInfo());
@@ -18,7 +16,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsLoadable() throws IOException {
+    public void testIsLoadable() {
         Assert.assertTrue(EntityInfo.PLACEMENT.isLoadable());
         Assert.assertTrue(EntityInfo.CLIENT_CORPORATION.isLoadable());
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1.isLoadable());
@@ -27,7 +25,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsInsertable() throws IOException {
+    public void testIsInsertable() {
         Assert.assertTrue(EntityInfo.PLACEMENT.isInsertable());
         Assert.assertTrue(EntityInfo.CLIENT_CORPORATION.isInsertable());
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10.isInsertable());
@@ -36,7 +34,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsUpdatable() throws IOException {
+    public void testIsUpdatable() {
         Assert.assertTrue(EntityInfo.PLACEMENT.isUpdatable());
         Assert.assertTrue(EntityInfo.CLIENT_CORPORATION.isUpdatable());
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1.isUpdatable());
@@ -45,7 +43,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsDeletable() throws IOException {
+    public void testIsDeletable() {
         Assert.assertTrue(EntityInfo.PLACEMENT.isDeletable());
         Assert.assertTrue(EntityInfo.CANDIDATE.isDeletable());
         Assert.assertTrue(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_3.isDeletable());
@@ -54,7 +52,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsHardDeletable() throws IOException {
+    public void testIsHardDeletable() {
         Assert.assertTrue(EntityInfo.PLACEMENT.isHardDeletable());
         Assert.assertTrue(EntityInfo.SENDOUT.isHardDeletable());
         Assert.assertTrue(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1.isHardDeletable());
@@ -63,7 +61,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsSoftDeletable() throws IOException {
+    public void testIsSoftDeletable() {
         Assert.assertTrue(EntityInfo.CLIENT_CONTACT.isSoftDeletable());
         Assert.assertTrue(EntityInfo.CANDIDATE.isSoftDeletable());
         Assert.assertFalse(EntityInfo.JOB_ORDER_CUSTOM_OBJECT_INSTANCE_1.isSoftDeletable());
@@ -72,7 +70,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsReadOnly() throws IOException {
+    public void testIsReadOnly() {
         Assert.assertTrue(EntityInfo.SKILL.isReadOnly());
         Assert.assertTrue(EntityInfo.BUSINESS_SECTOR.isReadOnly());
         Assert.assertFalse(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_4.isReadOnly());
@@ -80,7 +78,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsCustomObject() throws IOException {
+    public void testIsCustomObject() {
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_5.isCustomObject());
         Assert.assertFalse(EntityInfo.SKILL.isCustomObject());
         Assert.assertFalse(EntityInfo.BUSINESS_SECTOR.isCustomObject());
@@ -88,7 +86,7 @@ public class EntityInfoTest {
     }
 
     @Test
-    public void testIsAttachmentEntity() throws IOException {
+    public void testIsAttachmentEntity() {
         Assert.assertTrue(EntityInfo.CANDIDATE.isAttachmentEntity());
         Assert.assertTrue(EntityInfo.CLIENT_CONTACT.isAttachmentEntity());
         Assert.assertTrue(EntityInfo.CLIENT_CORPORATION.isAttachmentEntity());

@@ -19,10 +19,10 @@ import java.util.List;
 public class CsvFileWriter {
 
     public static final String RESULTS_DIR = "results/";
-    public static final String ACTION_COLUMN = "dataloader_action";
-    public static final String REASON_COLUMN = "failure_reason";
-    public static final String SUCCESS_CSV = "_success.csv";
-    public static final String FAILURE_CSV = "_failure.csv";
+    private static final String ACTION_COLUMN = "dataloader_action";
+    private static final String REASON_COLUMN = "failure_reason";
+    private static final String SUCCESS_CSV = "_success.csv";
+    private static final String FAILURE_CSV = "_failure.csv";
     public static String successFilePath;
     public static String failureFilePath;
 
@@ -59,6 +59,7 @@ public class CsvFileWriter {
      * @param filePath The full path to the Entity file to read in
      * @param headers  The headers read in from the input CSV file
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public CsvFileWriter(Command command, String filePath, String[] headers) {
         this.command = command;
         this.headers = headers;

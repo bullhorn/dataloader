@@ -34,7 +34,7 @@ public class CompleteUtil {
     private final PropertyFileUtil propertyFileUtil;
     private final PrintUtil printUtil;
     private final Timer timer;
-    private AtomicReference<JSONObject> resultsWrapper = new AtomicReference<>(new JSONObject());
+    private final AtomicReference<JSONObject> resultsWrapper = new AtomicReference<>(new JSONObject());
     private ScheduledExecutorService scheduler;
 
     public CompleteUtil(RestSession restSession,

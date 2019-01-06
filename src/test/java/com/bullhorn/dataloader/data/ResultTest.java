@@ -101,9 +101,8 @@ public class ResultTest {
     @Test
     public void testEquals_identity() {
         Result result1 = Result.insert(99);
-        Result result2 = result1;
 
-        Assert.assertEquals(result1, result2);
+        Assert.assertEquals(result1, result1);
     }
 
     @Test

@@ -72,7 +72,6 @@ public class LoadTask extends AbstractTask {
      * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not found
      * will create a new entity.
      */
-    @SuppressWarnings("unchecked")
     private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
         List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), true);
         if (foundEntityList.isEmpty()) {
@@ -130,7 +129,6 @@ public class LoadTask extends AbstractTask {
      * @param field the field to use to search for an existing entity
      * @return The entity if found, throws a RestApiException if not found
      */
-    @SuppressWarnings("unchecked")
     private BullhornEntity findToOneEntity(Field field) {
         List<Field> entityExistFields = Lists.newArrayList(field);
         Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
@@ -238,7 +236,6 @@ public class LoadTask extends AbstractTask {
      * This allows for easily finding that contact later using the externalID, which will be of the format:
      * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
      */
-    @SuppressWarnings("unchecked")
     private void postProcessEntityInsert(Integer entityId) {
         if (entity.getClass() == ClientCorporation.class) {
             List<ClientCorporation> clientCorporations = restApi.queryForList(ClientCorporation.class,

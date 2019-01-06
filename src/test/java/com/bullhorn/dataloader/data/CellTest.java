@@ -59,7 +59,7 @@ public class CellTest {
     public void testGetAssociationBaseNameInvalid() {
         Cell cell = new Cell("externalID", "1");
 
-        Assert.assertEquals(cell.getAssociationBaseName(), null);
+        Assert.assertNull(cell.getAssociationBaseName());
     }
 
     @Test
@@ -73,6 +73,6 @@ public class CellTest {
     public void testGetAssociationFieldNameInvalid() {
         Cell cell = new Cell("externalID", "1");
 
-        Assert.assertEquals(cell.getAssociationFieldName(), null);
+        Assert.assertNull(cell.getAssociationFieldName());
     }
 }

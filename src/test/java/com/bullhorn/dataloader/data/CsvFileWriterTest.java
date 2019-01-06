@@ -24,7 +24,7 @@ public class CsvFileWriterTest {
     }
 
     @Test
-    public void testNoRecords() throws IOException {
+    public void testNoRecords() {
         new CsvFileWriter(Command.LOAD, "path/to/CandidateTestNoRecords.csv", successRow.getNames().toArray(new String[0]));
         File resultsDir = new File("results/");
         File successFile = new File("results/CandidateTestNoRecords_load_" + StringConsts.TIMESTAMP + "_success.csv");

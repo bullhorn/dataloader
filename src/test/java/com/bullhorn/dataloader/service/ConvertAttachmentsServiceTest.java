@@ -32,7 +32,6 @@ public class ConvertAttachmentsServiceTest {
     private ProcessRunner processRunnerMock;
     private ConvertAttachmentsService convertAttachmentsService;
     private PrintUtil printUtilMock;
-    private Timer timerMock;
 
     @Before
     public void setup() throws Exception {
@@ -43,7 +42,7 @@ public class ConvertAttachmentsServiceTest {
         printUtilMock = mock(PrintUtil.class);
         processRunnerMock = mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
-        timerMock = mock(Timer.class);
+        Timer timerMock = mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
         convertAttachmentsService = new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);

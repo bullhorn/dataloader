@@ -26,7 +26,7 @@ public class CsvFileReader extends CsvReader {
     private final PrintUtil printUtil;
 
     private Integer rowNumber = -1; // Row 0 is the header row
-    private List<String> mappedHeaders = new ArrayList<>(); // Headers after column name mapping
+    private final List<String> mappedHeaders = new ArrayList<>(); // Headers after column name mapping
 
     /**
      * Constructor which also reads headers and ensures there are no duplicates

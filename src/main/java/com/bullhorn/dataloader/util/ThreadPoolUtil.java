@@ -28,7 +28,6 @@ public class ThreadPoolUtil {
      */
     public ExecutorService getExecutorService() {
         final BlockingQueue<Runnable> taskPoolSize = new ArrayBlockingQueue<>(getTaskPoolSize());
-
         return new ThreadPoolExecutor(propertyFileUtil.getNumThreads(), propertyFileUtil.getNumThreads(),
             KEEP_ALIVE_TIME, TimeUnit.SECONDS, taskPoolSize, new ThreadPoolExecutor.CallerRunsPolicy());
     }
@@ -41,10 +40,6 @@ public class ThreadPoolUtil {
     int getTaskPoolSize() {
         final long memorySize = ((com.sun.management.OperatingSystemMXBean)
             ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize() / 1024;
-
-        if (memorySize < SIXTEEN_GIGABYTES) {
-            return 1000;
-        }
-        return 10000;
+        return memorySize < SIXTEEN_GIGABYTES ? 1000 : 10000;
     }
 }

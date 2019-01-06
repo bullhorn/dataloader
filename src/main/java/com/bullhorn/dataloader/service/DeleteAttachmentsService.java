@@ -13,6 +13,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Handles deleting attachments
@@ -41,7 +42,7 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
         String filePath = args[1];
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
 
-        printUtil.printAndLog("Deleting " + entityInfo.getEntityName() + " attachments from: " + filePath + "...");
+        printUtil.printAndLog("Deleting " + Objects.requireNonNull(entityInfo).getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
         ActionTotals actionTotals = processRunner.run(Command.DELETE_ATTACHMENTS, entityInfo, filePath);
         printUtil.printAndLog("Finished deleting " + entityInfo.getEntityName() + " attachments in " + timer.getDurationStringHms());

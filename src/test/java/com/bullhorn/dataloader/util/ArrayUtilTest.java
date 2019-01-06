@@ -3,20 +3,19 @@ package com.bullhorn.dataloader.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 public class ArrayUtilTest {
 
     @Test
-    public void testConstructor() throws IOException {
+    public void testConstructor() {
         ArrayUtil arrayUtil = new ArrayUtil();
         Assert.assertNotNull(arrayUtil);
     }
 
     @Test
-    public void testPrepend() throws IOException {
+    public void testPrepend() {
         String[] original = new String[]{"a", "b", "c"};
         String[] actual = ArrayUtil.prepend("x", original);
 
@@ -29,7 +28,7 @@ public class ArrayUtilTest {
     }
 
     @Test
-    public void testAppend() throws IOException {
+    public void testAppend() {
         String[] original = new String[]{"a", "b", "c"};
         String[] actual = ArrayUtil.append(original, "x");
 
@@ -42,12 +41,12 @@ public class ArrayUtilTest {
     }
 
     @Test
-    public void testGetMatchingStringIgnoreCase() throws IOException {
+    public void testGetMatchingStringIgnoreCase() {
         List<String> strings = Arrays.asList("name", "firstName", "lastName", "middleName", "last");
 
         Assert.assertEquals("name", ArrayUtil.getMatchingStringIgnoreCase(strings, "name"));
         Assert.assertEquals("name", ArrayUtil.getMatchingStringIgnoreCase(strings, "NAME"));
-        Assert.assertEquals(null, ArrayUtil.getMatchingStringIgnoreCase(strings, "nam"));
-        Assert.assertEquals(null, ArrayUtil.getMatchingStringIgnoreCase(strings, "first"));
+        Assert.assertNull(ArrayUtil.getMatchingStringIgnoreCase(strings, "nam"));
+        Assert.assertNull(ArrayUtil.getMatchingStringIgnoreCase(strings, "first"));
     }
 }

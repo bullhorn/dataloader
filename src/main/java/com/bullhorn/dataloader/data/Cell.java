@@ -54,7 +54,7 @@ public class Cell {
      */
     public String getAssociationBaseName() {
         String associationName = null;
-        Integer dotIndex = name.indexOf(".");
+        int dotIndex = name.indexOf(".");
         if (dotIndex != -1) {
             associationName = name.substring(0, dotIndex);
         }
@@ -68,9 +68,9 @@ public class Cell {
      */
     public String getAssociationFieldName() {
         String associationField = null;
-        Integer dotIndex = name.indexOf(".");
+        int dotIndex = name.indexOf(".");
         if (dotIndex != -1) {
-            associationField = name.substring(dotIndex + 1, name.length());
+            associationField = name.substring(dotIndex + 1);
         }
         return associationField;
     }

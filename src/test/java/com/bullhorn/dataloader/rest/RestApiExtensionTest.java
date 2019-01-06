@@ -78,7 +78,6 @@ public class RestApiExtensionTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void testGetByExternalIdBuildUrlNullFieldSet() {
         String externalID = "ext 1";
         when(restApiMock.getRestUrl()).thenReturn("https://rest.bullhorn.com/");
@@ -123,7 +122,7 @@ public class RestApiExtensionTest {
 
         List<Candidate> candidates = searchResult.getList();
         Candidate candidate = candidates.get(0);
-        Assert.assertTrue(candidate.getId() == 1);
+        Assert.assertEquals(1, (int) candidate.getId());
         Assert.assertEquals(candidate.getExternalID(), "ext 1");
     }
 
@@ -188,7 +187,7 @@ public class RestApiExtensionTest {
     }
 
     @Test
-    public void testPostDelete_JobSubmission() throws InstantiationException, IllegalAccessException {
+    public void testPostDeleteJobSubmission() throws InstantiationException, IllegalAccessException {
         // When soft-deleting a JobSubmission, JobSubmissionHistory records should also be hard-deleted
         List<JobSubmissionHistory> jshList = TestUtils.getList(JobSubmissionHistory.class, 1, 2, 3);
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", "UPDATE", null);
@@ -202,7 +201,7 @@ public class RestApiExtensionTest {
     }
 
     @Test
-    public void testPostDelete_JobSubmission_FAIL() throws InstantiationException, IllegalAccessException {
+    public void testPostDeleteJobSubmissionFailure() throws InstantiationException, IllegalAccessException {
         // When (soft-)deleting NOT a JobSubmission, History records should NOT also be hard-deleted
         List<JobSubmissionHistory> jshList = TestUtils.getList(JobSubmissionHistory.class, 1, 2, 3);
         CrudResponse crudResponse_jsArg = getDeleteCrudResponse("JobSubmission", "UPDATE", null);
@@ -216,7 +215,7 @@ public class RestApiExtensionTest {
     }
 
     @Test
-    public void testPostDelete_Not_JobSubmission() throws InstantiationException, IllegalAccessException {
+    public void testPostDeleteNotJobSubmission() {
         CrudResponse crudResponse = getDeleteCrudResponse("Candidate", "UPDATE", null);
 
         CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse);

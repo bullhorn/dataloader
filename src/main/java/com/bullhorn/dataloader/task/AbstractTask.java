@@ -29,18 +29,18 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public abstract class AbstractTask implements Runnable {
-    static AtomicInteger rowProcessedCount = new AtomicInteger(0);
+    static final AtomicInteger rowProcessedCount = new AtomicInteger(0);
 
-    protected ActionTotals actionTotals;
-    protected CompleteUtil completeUtil;
-    protected EntityInfo entityInfo;
-    protected Integer entityId;
-    protected PrintUtil printUtil;
-    protected PropertyFileUtil propertyFileUtil;
-    protected RestApi restApi;
-    protected Row row;
+    private final ActionTotals actionTotals;
+    private final CompleteUtil completeUtil;
+    final EntityInfo entityInfo;
+    Integer entityId;
+    private final PrintUtil printUtil;
+    final PropertyFileUtil propertyFileUtil;
+    final RestApi restApi;
+    Row row;
 
-    private CsvFileWriter csvFileWriter;
+    private final CsvFileWriter csvFileWriter;
 
     AbstractTask(EntityInfo entityInfo,
                  Row row,

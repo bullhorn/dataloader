@@ -35,7 +35,7 @@ public class PreloaderTest {
     }
 
     @Test
-    public void convertRowSuccess() throws IOException {
+    public void testConvertRowSuccess() throws IOException {
         Row row = TestUtils.createRow("address.city,address.state,address.countryName",
             "St. Louis,MO,United States");
         Row expectedRow = TestUtils.createRow("address.city,address.state,address.countryID",
@@ -50,7 +50,7 @@ public class PreloaderTest {
     }
 
     @Test
-    public void convertRowInvalid() throws IOException {
+    public void testConvertRowInvalid() throws IOException {
         Row row = TestUtils.createRow("address.city,address.state,address.countryName",
             "St. Louis,MO,Nowhere");
         Row expectedRow = TestUtils.createRow("address.city,address.state,address.countryID",
@@ -65,7 +65,7 @@ public class PreloaderTest {
     }
 
     @Test
-    public void createRowNoOp() throws IOException {
+    public void testCreateRowNoOp() throws IOException {
         Row row = TestUtils.createRow("address.city,address.state,address.countryID", "St. Louis, MO, 1");
 
         Row convertedRow = preloader.convertRow(row);

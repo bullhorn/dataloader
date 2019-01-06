@@ -16,13 +16,13 @@ public class HelpServiceTest {
     private HelpService helpService;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         printUtilMock = mock(PrintUtil.class);
         helpService = new HelpService(printUtilMock);
     }
 
     @Test
-    public void runTest() throws Exception {
+    public void testRun() {
         final String[] testArgs = {Command.HELP.getMethodName()};
 
         helpService.run(testArgs);
@@ -31,7 +31,7 @@ public class HelpServiceTest {
     }
 
     @Test
-    public void isValidArgumentsTest() throws Exception {
+    public void testIsValidArguments() {
         final String[] testArgs = {Command.HELP.getMethodName()};
 
         boolean result = helpService.isValidArguments(testArgs);

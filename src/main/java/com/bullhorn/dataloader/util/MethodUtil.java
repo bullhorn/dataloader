@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,10 +25,10 @@ public class MethodUtil {
      *
      * @return A map of field names to getter methods that can invoked generically using `method.invoke`
      */
-    public static Map<String, Method> getGetterMethodMap(Class anyClass) {
+    private static Map<String, Method> getGetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
 
-        for (Method method : Arrays.asList(anyClass.getMethods())) {
+        for (Method method : anyClass.getMethods()) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
@@ -46,7 +45,7 @@ public class MethodUtil {
     public static Map<String, Method> getSetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
 
-        for (Method method : Arrays.asList(anyClass.getMethods())) {
+        for (Method method : anyClass.getMethods()) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
             }
@@ -64,13 +63,7 @@ public class MethodUtil {
      */
     public static Method getGetterMethod(EntityInfo entityInfo, String fieldName) {
         Map<String, Method> getterMethodMap = getGetterMethodMap(entityInfo.getEntityClass());
-        for (String methodName : getterMethodMap.keySet()) {
-            if (methodName.equalsIgnoreCase(fieldName)) {
-                return getterMethodMap.get(methodName);
-            }
-        }
-        checkMalformedAddressField(fieldName);
-        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
+        return getMethod(entityInfo, fieldName, getterMethodMap);
     }
 
     /**
@@ -82,13 +75,7 @@ public class MethodUtil {
      */
     public static Method getSetterMethod(EntityInfo entityInfo, String fieldName) {
         Map<String, Method> setterMethodMap = getSetterMethodMap(entityInfo.getEntityClass());
-        for (String methodName : setterMethodMap.keySet()) {
-            if (methodName.equalsIgnoreCase(fieldName)) {
-                return setterMethodMap.get(methodName);
-            }
-        }
-        checkMalformedAddressField(fieldName);
-        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
+        return getMethod(entityInfo, fieldName, setterMethodMap);
     }
 
     /**
@@ -158,5 +145,15 @@ public class MethodUtil {
         }
 
         return null;
+    }
+
+    private static Method getMethod(EntityInfo entityInfo, String fieldName, Map<String, Method> getterMethodMap) {
+        for (String methodName : getterMethodMap.keySet()) {
+            if (methodName.equalsIgnoreCase(fieldName)) {
+                return getterMethodMap.get(methodName);
+            }
+        }
+        checkMalformedAddressField(fieldName);
+        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 }

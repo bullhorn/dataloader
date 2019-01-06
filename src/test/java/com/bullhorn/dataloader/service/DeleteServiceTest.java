@@ -34,7 +34,6 @@ public class DeleteServiceTest {
     private DeleteService deleteService;
     private PrintUtil printUtilMock;
     private ProcessRunner processRunnerMock;
-    private Timer timerMock;
 
     @Before
     public void setup() throws IOException, InterruptedException {
@@ -45,7 +44,7 @@ public class DeleteServiceTest {
         printUtilMock = mock(PrintUtil.class);
         processRunnerMock = mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
-        timerMock = mock(Timer.class);
+        Timer timerMock = mock(Timer.class);
         ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
         deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);

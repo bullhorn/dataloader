@@ -44,7 +44,7 @@ public class TemplateServiceTest {
     private TemplateService templateService;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         CompleteUtil completeUtilMock = mock(CompleteUtil.class);
         InputStream inputStreamMock = mock(InputStream.class);
         printUtilMock = mock(PrintUtil.class);

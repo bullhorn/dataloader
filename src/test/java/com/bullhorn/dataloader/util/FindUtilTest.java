@@ -9,6 +9,12 @@ import java.util.Set;
 public class FindUtilTest {
 
     @Test
+    public void testConstructor() {
+        FindUtil findUtil = new FindUtil();
+        Assert.assertNotNull(findUtil);
+    }
+
+    @Test
     public void testGetExternalIdValueSuccess() {
         String externalIdValue = FindUtil.getExternalIdValue(
             "firstName:\"Data\" AND externalID:\"ext 1\" AND lastName:\"Loader\"");

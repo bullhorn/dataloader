@@ -11,37 +11,37 @@ import java.util.List;
  * Fun little output capture class, copied from:
  * http://stackoverflow.com/questions/8708342/redirect-console-output-to-string-in-java
  */
-public class ConsoleOutputCapturer {
-    private ByteArrayOutputStream baos;
+class ConsoleOutputCapturer {
+    private ByteArrayOutputStream byteArrayOutputStream;
     private PrintStream previous;
     private boolean capturing;
 
-    public void start() {
+    void start() {
         if (capturing) {
             return;
         }
 
         capturing = true;
         previous = System.out;
-        baos = new ByteArrayOutputStream();
+        byteArrayOutputStream = new ByteArrayOutputStream();
 
         OutputStream outputStreamCombiner =
-            new OutputStreamCombiner(Arrays.asList(previous, baos));
+            new OutputStreamCombiner(Arrays.asList(previous, byteArrayOutputStream));
         PrintStream custom = new PrintStream(outputStreamCombiner);
 
         System.setOut(custom);
     }
 
-    public String stop() {
+    String stop() {
         if (!capturing) {
             return "";
         }
 
         System.setOut(previous);
 
-        String capturedValue = baos.toString();
+        String capturedValue = byteArrayOutputStream.toString();
 
-        baos = null;
+        byteArrayOutputStream = null;
         previous = null;
         capturing = false;
 
@@ -49,9 +49,9 @@ public class ConsoleOutputCapturer {
     }
 
     private static class OutputStreamCombiner extends OutputStream {
-        private List<OutputStream> outputStreams;
+        private final List<OutputStream> outputStreams;
 
-        public OutputStreamCombiner(List<OutputStream> outputStreams) {
+        OutputStreamCombiner(List<OutputStream> outputStreams) {
             this.outputStreams = outputStreams;
         }
 

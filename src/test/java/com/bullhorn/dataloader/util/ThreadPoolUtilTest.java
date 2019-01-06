@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
 import static org.mockito.Mockito.mock;
@@ -22,13 +21,13 @@ public class ThreadPoolUtilTest {
     }
 
     @Test
-    public void testGetExecutorService() throws IOException {
+    public void testGetExecutorService() {
         ExecutorService executorService = threadPoolUtil.getExecutorService();
         Assert.assertNotNull(executorService);
     }
 
     @Test
-    public void testGetTaskPoolSize() throws IOException {
+    public void testGetTaskPoolSize() {
         Integer taskPoolSize = threadPoolUtil.getTaskPoolSize();
         Assert.assertNotNull(taskPoolSize);
     }

@@ -22,7 +22,7 @@ public class ValidationUtil {
      * @param expectedNumArgs The expected number of arguments
      * @return true if there are the correct number of parameters returned
      */
-    @SuppressWarnings("SameParameterValue")
+    @SuppressWarnings({"SameParameterValue", "BooleanMethodIsAlwaysInverted"})
     public boolean isNumParametersValid(String[] args, Integer expectedNumArgs) {
         if (args.length < expectedNumArgs) {
             printUtil.printAndLog("ERROR: Not enough arguments provided.");

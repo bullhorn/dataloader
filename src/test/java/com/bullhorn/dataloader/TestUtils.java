@@ -90,6 +90,7 @@ public class TestUtils {
      * @param entityList The entities that are present in the data portion of the OneToMany
      * @return The oneToMany object that holds entity associations in the SDK-REST
      */
+    @SafeVarargs
     public static <B extends BullhornEntity> OneToMany<B> getOneToMany(Integer total, B... entityList) {
         OneToMany<B> oneToMany = new OneToMany<>(entityList);
         oneToMany.setTotal(total);

@@ -4,14 +4,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
 public class ActionTotalsTest {
 
     private ActionTotals actionTotals;
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         actionTotals = new ActionTotals();
     }
 
@@ -22,5 +20,4 @@ public class ActionTotalsTest {
         actionTotals.incrementActionTotal(action);
         Assert.assertEquals(actionTotals.getActionTotal(action), 1);
     }
-
 }

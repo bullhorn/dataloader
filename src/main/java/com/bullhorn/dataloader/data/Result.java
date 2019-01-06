@@ -21,14 +21,6 @@ public class Result {
         this.failureText = failureText;
     }
 
-    public Result(Status status, Action action, Integer bullhornId, Integer bullhornParentId, String failureText) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-        this.bullhornParentId = bullhornParentId;
-        this.failureText = failureText;
-    }
-
     /**
      * Insert convenience constructor
      *
@@ -47,7 +39,9 @@ public class Result {
      * @return The new Result object
      */
     public static Result insert(Integer bullhornId, Integer bullhornParentId) {
-        return new Result(Status.SUCCESS, Action.INSERT, bullhornId, bullhornParentId, "");
+        Result result = new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+        result.bullhornParentId = bullhornParentId;
+        return result;
     }
 
     /**
@@ -68,7 +62,9 @@ public class Result {
      * @return The new Result object
      */
     public static Result update(Integer bullhornId, Integer bullhornParentId) {
-        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, bullhornParentId, "");
+        Result result = new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+        result.bullhornParentId = bullhornParentId;
+        return result;
     }
 
     /**
@@ -170,7 +166,7 @@ public class Result {
         return bullhornId;
     }
 
-    public void setBullhornId(Integer bullhornId) {
+    void setBullhornId(Integer bullhornId) {
         this.bullhornId = bullhornId;
     }
 
@@ -179,11 +175,11 @@ public class Result {
      *
      * @return -1 if the value is invalid or not present
      */
-    public Integer getBullhornParentId() {
+    Integer getBullhornParentId() {
         return bullhornParentId;
     }
 
-    public void setBullhornParentId(Integer bullhornParentId) {
+    void setBullhornParentId(Integer bullhornParentId) {
         this.bullhornParentId = bullhornParentId;
     }
 
@@ -194,7 +190,7 @@ public class Result {
         return failureText;
     }
 
-    public void setFailureText(String failureText) {
+    void setFailureText(String failureText) {
         this.failureText = failureText;
     }
 
