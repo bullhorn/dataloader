@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.0.0"></a>
+# [4.0.0](https://github.com/bullhorn/dataloader/compare/v3.12.1...v4.0.0) (2019-01-06)
+
+
+### Features
+
+* **Export Command:** https://github.com/bullhorn/dataloader/issues/175 ([#280](https://github.com/bullhorn/dataloader/issues/280)) ([c288b3f](https://github.com/bullhorn/dataloader/commit/c288b3f))
+
+
+### BREAKING CHANGES
+
+* **Export Command:** Adds new command that will create a backup (undo) file
+
+
+
 <a name="3.12.1"></a>
 ## [3.12.1](https://github.com/bullhorn/dataloader/compare/v3.12.0...v3.12.1) (2018-12-07)
 
