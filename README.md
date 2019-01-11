@@ -147,7 +147,21 @@ To update existing records:
   * leadExistField=customText1
   * housingComplexExistField=id      (this is an example for matching against the BH-assigned ID)
 
+## Export
 
+```
+dataloader export path/to/<EntityName>.csv
+```
+
+Export is a backup, or undo button for mass updating data. Saves the current state of existing records that will be updated by the Load command. Requires the same CSV input file or directory as load, and requires that duplicate checking using the`<EntityName>ExistField` property in the `dataloader.properties` file is enabled.  
+
+Rows that exist as records in the ATS will have their current state output to the `_success` results file. Rows that do not have a corresponding record in the ATS (for which load would perform an insert) will be output to the `_failure` results file. To learn more, see the [wiki](https://github.com/bullhorn/dataloader/wiki/Commands#export).
+
+```
+dataloader export path/to/directory
+```
+
+Performs export for every valid CSV file in the given directory. 
 
 ## Delete
 
