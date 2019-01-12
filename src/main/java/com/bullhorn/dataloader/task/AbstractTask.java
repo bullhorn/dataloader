@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -38,6 +39,7 @@ public abstract class AbstractTask implements Runnable {
     private final PrintUtil printUtil;
     final PropertyFileUtil propertyFileUtil;
     final RestApi restApi;
+    private final Cache cache;
     Row row;
 
     private final CsvFileWriter csvFileWriter;
@@ -49,6 +51,7 @@ public abstract class AbstractTask implements Runnable {
                  RestApi restApi,
                  PrintUtil printUtil,
                  ActionTotals actionTotals,
+                 Cache cache,
                  CompleteUtil completeUtil) {
         this.entityInfo = entityInfo;
         this.row = row;
@@ -57,6 +60,7 @@ public abstract class AbstractTask implements Runnable {
         this.restApi = restApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
+        this.cache = cache;
         this.completeUtil = completeUtil;
     }
 
@@ -125,7 +129,7 @@ public abstract class AbstractTask implements Runnable {
     }
 
     /**
-     * Abstract find call that calls the low-level search/query methods in the RestAPI
+     * Abstract find call that checks to see if the records being searched for already exist in the client side cache.
      *
      * Find calls must be different between primary and associated entities. This affects custom objects, primarily.
      * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
@@ -136,32 +140,25 @@ public abstract class AbstractTask implements Runnable {
      * @param returnFields      the field names that make up the fields string
      * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      */
-    @SuppressWarnings("unchecked")
-    <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntities(
-        List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
+    List<BullhornEntity> findEntities(List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
+        List<BullhornEntity> entities = new ArrayList<>();
+
         if (!entityExistFields.isEmpty()) {
             EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
-            if (entityInfo.isSearchEntity()) {
-                String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil, isPrimaryEntity);
-                List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
-                    searchString, returnFields, ParamFactory.searchParams());
-                return (List<BullhornEntity>) list;
+            List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
+            if (cachedEntities != null) {
+                entities = cachedEntities;
             } else {
-                String searchString = FindUtil.getSqlQuery(entityExistFields, propertyFileUtil, isPrimaryEntity);
-                List<B> list = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
-                    searchString, returnFields, ParamFactory.queryParams());
-                return (List<BullhornEntity>) list;
+                entities = findEntitiesRemote(entityExistFields, returnFields, isPrimaryEntity);
+                cache.setEntry(entityInfo, entityExistFields, returnFields, entities);
             }
         }
-        return new ArrayList<>();
+
+        return entities;
     }
 
     /**
      * Calls findEntities for only active entities that are not soft-deleted, with special check for disabled corporate users still being active.
-     *
-     * @param entityExistFields the key/value pairs that make up the search/query string
-     * @param returnFields      the field names that make up the fields string
-     * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      */
     List<BullhornEntity> findActiveEntities(List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
         List<BullhornEntity> entities = Lists.newArrayList();
@@ -182,5 +179,25 @@ public abstract class AbstractTask implements Runnable {
             }
         }
         return entities;
+    }
+
+    /**
+     * Abstract find call that calls the low-level search/query methods in the RestAPI (As opposed to finding them in the client side cache)
+     */
+    @SuppressWarnings("unchecked")
+    private <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntitiesRemote(
+        List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
+        EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
+        if (entityInfo.isSearchEntity()) {
+            String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil, isPrimaryEntity);
+            List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
+                searchString, returnFields, ParamFactory.searchParams());
+            return (List<BullhornEntity>) list;
+        } else {
+            String searchString = FindUtil.getSqlQuery(entityExistFields, propertyFileUtil, isPrimaryEntity);
+            List<B> list = (List<B>) restApi.queryForList((Class<Q>) entityInfo.getEntityClass(),
+                searchString, returnFields, ParamFactory.queryParams());
+            return (List<BullhornEntity>) list;
+        }
     }
 }

@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
@@ -40,15 +41,15 @@ import java.util.stream.Collectors;
  */
 public class LoadAttachmentTask extends AbstractTask {
 
-    public LoadAttachmentTask(EntityInfo entityInfo,
-                              Row row,
-                              CsvFileWriter csvFileWriter,
-                              PropertyFileUtil propertyFileUtil,
-                              RestApi restApi,
-                              PrintUtil printUtil,
-                              ActionTotals actionTotals,
-                              CompleteUtil completeUtil) {
-        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+    LoadAttachmentTask(EntityInfo entityInfo,
+                       Row row,
+                       CsvFileWriter csvFileWriter,
+                       PropertyFileUtil propertyFileUtil,
+                       RestApi restApi,
+                       PrintUtil printUtil,
+                       ActionTotals actionTotals,
+                       Cache cache, CompleteUtil completeUtil) {
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
     }
 
     @SuppressWarnings("unchecked")

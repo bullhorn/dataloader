@@ -4,6 +4,7 @@ import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -41,6 +42,7 @@ public class ProcessRunnerTest {
 
     private ExecutorService executorServiceMock;
     private PrintUtil printUtilMock;
+    private Cache cacheMock;
     private ProcessRunner processRunner;
 
     @Before
@@ -50,12 +52,13 @@ public class ProcessRunnerTest {
         executorServiceMock = mock(ExecutorService.class);
         Preloader preloaderMock = mock(Preloader.class);
         printUtilMock = mock(PrintUtil.class);
+        cacheMock = mock(Cache.class);
         CompleteUtil completeUtilMock = mock(CompleteUtil.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 
         processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock,
-            threadPoolUtilMock, completeUtilMock);
+            threadPoolUtilMock, cacheMock, completeUtilMock);
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(threadPoolUtilMock.getExecutorService()).thenReturn(executorServiceMock);

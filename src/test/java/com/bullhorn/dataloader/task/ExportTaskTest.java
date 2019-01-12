@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -35,6 +36,7 @@ public class ExportTaskTest {
     private CsvFileWriter csvFileWriterMock;
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
+    private Cache cacheMock;
     private CompleteUtil completeUtilMock;
 
     @Before
@@ -44,9 +46,12 @@ public class ExportTaskTest {
         csvFileWriterMock = mock(CsvFileWriter.class);
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
+        cacheMock = mock(Cache.class);
         completeUtilMock = mock(CompleteUtil.class);
 
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
+        when(cacheMock.getEntry(any(), any(), any())).thenReturn(null);
+
     }
 
     @Test
@@ -71,7 +76,7 @@ public class ExportTaskTest {
             .thenReturn(TestUtils.getList(fakeCandidate));
 
         ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.EXPORT, 1, "");
@@ -112,7 +117,7 @@ public class ExportTaskTest {
                 TestUtils.createSkill(1007, "skill_7")));
 
         ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.EXPORT, 1, "");
@@ -132,7 +137,7 @@ public class ExportTaskTest {
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
 
         ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -154,7 +159,7 @@ public class ExportTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class));
 
         ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -176,7 +181,7 @@ public class ExportTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 101, 102));
 
         ExportTask task = new ExportTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,

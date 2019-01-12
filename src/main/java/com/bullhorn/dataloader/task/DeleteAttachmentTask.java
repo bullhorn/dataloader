@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -20,15 +21,16 @@ import java.io.IOException;
  */
 public class DeleteAttachmentTask extends AbstractTask {
 
-    public DeleteAttachmentTask(EntityInfo entityInfo,
-                                Row row,
-                                CsvFileWriter csvFileWriter,
-                                PropertyFileUtil propertyFileUtil,
-                                RestApi restApi,
-                                PrintUtil printUtil,
-                                ActionTotals actionTotals,
-                                CompleteUtil completeUtil) {
-        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+    DeleteAttachmentTask(EntityInfo entityInfo,
+                         Row row,
+                         CsvFileWriter csvFileWriter,
+                         PropertyFileUtil propertyFileUtil,
+                         RestApi restApi,
+                         PrintUtil printUtil,
+                         ActionTotals actionTotals,
+                         Cache cache,
+                         CompleteUtil completeUtil) {
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
     }
 
     protected Result handle() throws Exception {

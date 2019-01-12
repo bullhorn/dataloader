@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader;
 
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApiExtension;
@@ -42,8 +43,9 @@ public class Main {
             Preloader preloader = new Preloader(restSession);
             CompleteUtil completeUtil = new CompleteUtil(restSession, httpClient, propertyFileUtil, printUtil, timer);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
+            Cache cache = new Cache();
             ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil,
-                threadPoolUtil, completeUtil);
+                threadPoolUtil, cache, completeUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
                 completeUtil, restSession, processRunner, System.in, timer);
 

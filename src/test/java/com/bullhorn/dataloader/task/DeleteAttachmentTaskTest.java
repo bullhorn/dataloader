@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -33,6 +34,7 @@ public class DeleteAttachmentTaskTest {
     private RestApi restApiMock;
     private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
+    private Cache cacheMock;
     private CompleteUtil completeUtilMock;
 
     @Before
@@ -42,6 +44,7 @@ public class DeleteAttachmentTaskTest {
         restApiMock = mock(RestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
         printUtilMock = mock(PrintUtil.class);
+        cacheMock = mock(Cache.class);
         completeUtilMock = mock(CompleteUtil.class);
     }
 
@@ -54,7 +57,7 @@ public class DeleteAttachmentTaskTest {
         when(restApiMock.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
 
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.delete(0);
@@ -68,7 +71,7 @@ public class DeleteAttachmentTaskTest {
         when(restApiMock.deleteFile(any(), anyInt(), anyInt())).thenThrow(new RestApiException("Test"));
 
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new RestApiException("Test"));
@@ -81,7 +84,7 @@ public class DeleteAttachmentTaskTest {
              "testResume/TestResume.doc,0,1");
 
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new IOException("Missing the 'id' column required for deleteAttachments"));
@@ -94,7 +97,7 @@ public class DeleteAttachmentTaskTest {
              "testResume/TestResume.doc,0");
 
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new IOException("Missing the 'parentEntityID' column required for deleteAttachments"));

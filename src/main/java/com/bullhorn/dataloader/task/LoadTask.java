@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
@@ -54,8 +55,8 @@ public class LoadTask extends AbstractTask {
                     RestApi restApi,
                     PrintUtil printUtil,
                     ActionTotals actionTotals,
-                    CompleteUtil completeUtil) {
-        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+                    Cache cache, CompleteUtil completeUtil) {
+        super(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
     }
 
     protected Result handle() throws Exception {
@@ -130,9 +131,7 @@ public class LoadTask extends AbstractTask {
      * @return The entity if found, throws a RestApiException if not found
      */
     private BullhornEntity findToOneEntity(Field field) {
-        List<Field> entityExistFields = Lists.newArrayList(field);
-        Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
-        List<BullhornEntity> entities = findActiveEntities(entityExistFields, returnFields, false);
+        List<BullhornEntity> entities = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);
 
         if (entities == null || entities.isEmpty()) {
             throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
@@ -203,9 +202,7 @@ public class LoadTask extends AbstractTask {
     private List<BullhornEntity> findAssociations(Field field) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> associations = Lists.newArrayList();
         if (!field.getStringValue().isEmpty()) {
-            List<Field> entityExistFields = Lists.newArrayList(field);
-            Set<String> returnFields = Sets.newHashSet(StringConsts.ID);
-            associations = findActiveEntities(entityExistFields, returnFields, false);
+            associations = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);
 
             List<String> values = field.split(propertyFileUtil.getListDelimiter());
             if (!propertyFileUtil.getWildcardMatching() && associations.size() != values.size()) {

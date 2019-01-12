@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -40,6 +41,7 @@ public class LoadAttachmentTaskTest {
     private ActionTotals actionTotalsMock;
     private PropertyFileUtil propertyFileUtilMock;
     private LoadAttachmentTask task;
+    private Cache cacheMock;
     private CompleteUtil completeUtilMock;
 
     private final String relativeFilePath = TestUtils.getResourceFilePath("testResume/TestResume.doc");
@@ -51,9 +53,11 @@ public class LoadAttachmentTaskTest {
         restApiMock = mock(RestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
+        cacheMock = mock(Cache.class);
         completeUtilMock = mock(CompleteUtil.class);
 
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("externalID"));
+        when(cacheMock.getEntry(any(), any(), any())).thenReturn(null);
     }
 
     @Test
@@ -68,7 +72,7 @@ public class LoadAttachmentTaskTest {
         when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.insert(0, 1001);
@@ -87,7 +91,7 @@ public class LoadAttachmentTaskTest {
         when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.insert(0, 1001);
@@ -114,7 +118,7 @@ public class LoadAttachmentTaskTest {
         when(restApiMock.getFileContent(any(), any(), any())).thenReturn(mockedFileContent);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.update(0, 1001);
@@ -141,7 +145,7 @@ public class LoadAttachmentTaskTest {
         when(restApiMock.getFileContent(any(), any(), any())).thenReturn(mockedFileContent);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.update(0, 1001);
@@ -154,7 +158,7 @@ public class LoadAttachmentTaskTest {
             "2011Ext," + relativeFilePath + ",1,extFileId1,new filename");
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -170,7 +174,7 @@ public class LoadAttachmentTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 1001, 1002));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -186,7 +190,7 @@ public class LoadAttachmentTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Lists.newArrayList());
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -202,7 +206,7 @@ public class LoadAttachmentTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("bogus"));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -217,7 +221,7 @@ public class LoadAttachmentTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 1001));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(
@@ -237,7 +241,7 @@ public class LoadAttachmentTaskTest {
         when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenReturn(fileWrapper);
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(
@@ -254,7 +258,7 @@ public class LoadAttachmentTaskTest {
         when(restApiMock.addFile(any(), any(), any(FileMeta.class))).thenThrow(new RestApiException("Test"));
 
         task = new LoadAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new RestApiException("Test"), 1001);
