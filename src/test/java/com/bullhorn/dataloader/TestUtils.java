@@ -317,9 +317,42 @@ public class TestUtils {
         return row;
     }
 
-    public static Record createRecord(String headers, String values, EntityInfo entityInfo, PropertyFileUtil propertyFileUtilMock) throws IOException {
+    /**
+     * Convenience method for creating a record for testing
+     *
+     * @param entityInfo           the type of entity to create
+     * @param headers              comma separated list of fields to fill out in the entity
+     * @param values               comma separated list of field values to use when filling in the entity
+     * @param propertyFileUtilMock the property file to use when constructing the record
+     * @return the newly created record
+     */
+    public static Record createRecord(EntityInfo entityInfo, String headers, String values,
+                                      PropertyFileUtil propertyFileUtilMock) throws IOException {
         Row row = createRow(headers, values);
         return new Record(entityInfo, row, propertyFileUtilMock);
+    }
+
+    /**
+     * Convenience constructor that builds up any entity object using the provided list of headers/values for the object
+     *
+     * Example use:
+     * Candidate myCandidate = TestUtils.createEntity(EntityInfo.CANDIDATE, "id,firstName,lastName,email", "101,Foo,Bar,foo@bar.com");
+     *
+     * @param entityInfo           the type of entity to create
+     * @param headers              comma separated list of fields to fill out in the entity
+     * @param values               comma separated list of field values to use when filling in the entity
+     * @param propertyFileUtilMock the property file to use when constructing the record
+     * @return the newly created entity with fields filled out
+     */
+    @SuppressWarnings("unchecked")
+    public static <B extends BullhornEntity> B createEntity(EntityInfo entityInfo, String headers, String values,
+                                                            PropertyFileUtil propertyFileUtilMock) throws Exception {
+        B entity = (B) entityInfo.getEntityClass().newInstance();
+        Record record = createRecord(entityInfo, headers, values, propertyFileUtilMock);
+        for (Field field : record.getFields()) {
+            field.populateFieldOnEntity(entity);
+        }
+        return entity;
     }
 
     /**
@@ -346,29 +379,6 @@ public class TestUtils {
             countries.add(country);
         }
         return countries;
-    }
-
-    /**
-     * TODO: Use this generic one instead of specific create methods
-     * Convenience constructor that builds up any entity object using the provided list of headers/values for the object
-     *
-     * Example use:
-     * Candidate myCandidate = TestUtils.createEntity(EntityInfo.CANDIDATE, "id,firstName,lastName,email", "101,Foo,Bar,foo@bar.com");
-     *
-     * @param entityInfo           the type of entity to create
-     * @param headers              comma separated list of fields to fill out in the entity
-     * @param values               comma separated list of field values to use when filling in the entity
-     * @param propertyFileUtilMock the property file to use when constructing the record
-     * @return the newly created entity with fields filled out
-     */
-    @SuppressWarnings("unchecked")
-    public static <B extends BullhornEntity> B createEntity(EntityInfo entityInfo, String headers, String values, PropertyFileUtil propertyFileUtilMock) throws Exception {
-        B entity = (B) entityInfo.getEntityClass().newInstance();
-        Record record = createRecord(headers, values, entityInfo, propertyFileUtilMock);
-        for (Field field : record.getFields()) {
-            field.populateFieldOnEntity(entity);
-        }
-        return entity;
     }
 
     /**

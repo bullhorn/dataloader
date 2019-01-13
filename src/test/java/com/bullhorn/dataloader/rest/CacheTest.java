@@ -45,8 +45,8 @@ public class CacheTest {
     public void testEntryNotPresent() throws Exception {
         EntityInfo entityInfo = EntityInfo.CANDIDATE;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("email"));
-        Record record = TestUtils.createRecord("firstName,lastName,email", "Foo,Bar,foo@bar.com",
-            entityInfo, propertyFileUtilMock);
+        Record record = TestUtils.createRecord(entityInfo, "firstName,lastName,email", "Foo,Bar,foo@bar.com",
+            propertyFileUtilMock);
 
         List<BullhornEntity> actual = cache.getEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter());
 
@@ -58,8 +58,8 @@ public class CacheTest {
         // search/ClientContact?fields=id&query=name:"Foo Bar"
         // search/ClientCorporation?fields=id&query=name:"Foo Bar"
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("name"));
-        Record contactRecord = TestUtils.createRecord("name", "Foo Bar", EntityInfo.CLIENT_CONTACT, propertyFileUtilMock);
-        Record companyRecord = TestUtils.createRecord("name", "Foo Bar", EntityInfo.CLIENT_CORPORATION, propertyFileUtilMock);
+        Record contactRecord = TestUtils.createRecord(EntityInfo.CLIENT_CONTACT, "name", "Foo Bar", propertyFileUtilMock);
+        Record companyRecord = TestUtils.createRecord(EntityInfo.CLIENT_CORPORATION, "name", "Foo Bar", propertyFileUtilMock);
         List<BullhornEntity> expectedContact = TestUtils.getConcreteList(ClientContact.class, 1);
         List<BullhornEntity> expectedCompany = TestUtils.getConcreteList(ClientCorporation.class, 1);
 
@@ -80,10 +80,10 @@ public class CacheTest {
         // search/Candidate?fields=firstName,lastName,primarySkills,status&query=status:"Active"
         EntityInfo entityInfo = EntityInfo.CANDIDATE;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("status"));
-        Record recordOne = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            entityInfo, propertyFileUtilMock);
-        Record recordTwo = TestUtils.createRecord("firstName,lastName,primarySkills,status", "Foo,Bar,Java,Active",
-            entityInfo, propertyFileUtilMock);
+        Record recordOne = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
+            propertyFileUtilMock);
+        Record recordTwo = TestUtils.createRecord(entityInfo, "firstName,lastName,primarySkills,status", "Foo,Bar,Java,Active",
+            propertyFileUtilMock);
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "id,firstName,lastName,email", "101,Foo,Bar,foo@bar.com",
             propertyFileUtilMock);
         Candidate candidateTwo = TestUtils.createEntity(entityInfo, "firstName,lastName,primarySkills,status", "Foo,Bar,Java,Active",
@@ -107,10 +107,10 @@ public class CacheTest {
         // search/Candidate?fields=firstName,lastName,email,primarySkills&query=email:"foo@bar.com"
         EntityInfo entityInfo = EntityInfo.CANDIDATE;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("email"));
-        Record recordOne = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            entityInfo, propertyFileUtilMock);
-        Record recordTwo = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            entityInfo, propertyFileUtilMock);
+        Record recordOne = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
+            propertyFileUtilMock);
+        Record recordTwo = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
+            propertyFileUtilMock);
         Set<String> recordTwoFields = recordTwo.getFieldsParameter();
         recordTwoFields.add("primarySkills");
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
@@ -136,10 +136,10 @@ public class CacheTest {
         // search/Candidate?fields=firstName,lastName,email,status&query=email:"bar@baz.net"
         EntityInfo entityInfo = EntityInfo.CANDIDATE;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("email"));
-        Record recordOne = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            entityInfo, propertyFileUtilMock);
-        Record recordTwo = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,bar@baz.net,Active",
-            entityInfo, propertyFileUtilMock);
+        Record recordOne = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
+            propertyFileUtilMock);
+        Record recordTwo = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,bar@baz.net,Active",
+            propertyFileUtilMock);
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
             propertyFileUtilMock);
         Candidate candidateTwo = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,bar@baz.net,Active",
@@ -163,10 +163,10 @@ public class CacheTest {
         // search/Candidate?fields=firstName,lastName,email,status&query=status:"Active"
         EntityInfo entityInfo = EntityInfo.CANDIDATE;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("email"));
-        Record recordOne = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            entityInfo, propertyFileUtilMock);
-        Record recordTwo = TestUtils.createRecord("firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            entityInfo, propertyFileUtilMock);
+        Record recordOne = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
+            propertyFileUtilMock);
+        Record recordTwo = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
+            propertyFileUtilMock);
         Candidate candidate = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
             propertyFileUtilMock);
         List<BullhornEntity> expected = TestUtils.getConcreteList(candidate);
@@ -185,10 +185,10 @@ public class CacheTest {
         // search/Candidate?fields=name,address.city,address.state&query=address.state:"Missouri"
         EntityInfo entityInfo = EntityInfo.CANDIDATE;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("address.state"));
-        Record recordOne = TestUtils.createRecord("name,address.city,address.state", "Foo,St. Louis,Missouri",
-            entityInfo, propertyFileUtilMock);
-        Record recordTwo = TestUtils.createRecord("name,address.city,address.state", "Bar,Jefferson City,Missouri",
-            entityInfo, propertyFileUtilMock);
+        Record recordOne = TestUtils.createRecord(entityInfo, "name,address.city,address.state", "Foo,St. Louis,Missouri",
+            propertyFileUtilMock);
+        Record recordTwo = TestUtils.createRecord(entityInfo, "name,address.city,address.state", "Bar,Jefferson City,Missouri",
+            propertyFileUtilMock);
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
             propertyFileUtilMock);
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
@@ -206,7 +206,7 @@ public class CacheTest {
         // query/Skill?fields=id&query=name:"Java*"
         EntityInfo entityInfo = EntityInfo.SKILL;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("name"));
-        Record record = TestUtils.createRecord("id,name", "1001,Java*", entityInfo, propertyFileUtilMock);
+        Record record = TestUtils.createRecord(entityInfo, "id,name", "1001,Java*", propertyFileUtilMock);
         List<BullhornEntity> expected = TestUtils.getConcreteList(Skill.class, 1);
 
         cache.setEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter(), expected);

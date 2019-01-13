@@ -126,8 +126,8 @@ public class LoadTaskTest {
 
         when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"CORPORATION_123\""), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporation.class));
-        when(restApiMock.queryForList(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils
-            .getList(clientCorporation)); // TODO: Do we need this? Who is querying for Searchable Entities?
+        when(restApiMock.queryForList(eq(ClientCorporation.class), eq("id=1"), any(), any()))
+            .thenReturn(TestUtils.getList(clientCorporation));
         when(restApiMock.queryForList(eq(ClientContact.class), eq("clientCorporation.id=1 AND status='Archive'"),
             any(), any())).thenReturn(TestUtils.getList(ClientContact.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
