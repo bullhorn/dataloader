@@ -236,7 +236,8 @@ public class CacheTest {
         List<BullhornEntity> actualThree = cache.getEntry(entityInfo, Lists.newArrayList(fieldThree), Sets.newHashSet(StringConsts.ID));
 
         Assert.assertEquals(expected, actualOne);
-        Assert.assertNull(actualTwo);
-        Assert.assertNull(actualThree);
+        // TODO: Split up multiple values in the search field in order to allow these queries to bring back cached values:
+        //  Assert.assertEquals(actualTwo, Lists.newArrayList(skillTwo));
+        //  Assert.assertEquals(actualThree, Lists.newArrayList(skillOne, skillThree));
     }
 }
