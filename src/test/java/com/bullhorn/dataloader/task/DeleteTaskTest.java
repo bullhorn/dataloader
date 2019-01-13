@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -33,6 +34,7 @@ public class DeleteTaskTest {
     private RestApi restApiMock;
     private PrintUtil printUtilMock;
     private ActionTotals actionTotalsMock;
+    private Cache cacheMock;
     private CompleteUtil completeUtilMock;
 
     @Before
@@ -42,7 +44,10 @@ public class DeleteTaskTest {
         restApiMock = mock(RestApi.class);
         actionTotalsMock = mock(ActionTotals.class);
         printUtilMock = mock(PrintUtil.class);
+        cacheMock = mock(Cache.class);
         completeUtilMock = mock(CompleteUtil.class);
+
+        when(cacheMock.getEntry(any(), any(), any())).thenReturn(null);
     }
 
     @Test
@@ -52,7 +57,7 @@ public class DeleteTaskTest {
             (TestUtils.getList(Candidate.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
@@ -66,7 +71,7 @@ public class DeleteTaskTest {
             .thenReturn(TestUtils.getList(Appointment.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.APPOINTMENT, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
@@ -80,7 +85,7 @@ public class DeleteTaskTest {
             .thenReturn(TestUtils.getList(Note.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock,
-            printUtilMock, actionTotalsMock, completeUtilMock);
+            printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
@@ -94,7 +99,7 @@ public class DeleteTaskTest {
             (Placement.class, 1));
 
         DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
@@ -108,7 +113,7 @@ public class DeleteTaskTest {
             (TestUtils.getList(Candidate.class));
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
@@ -123,7 +128,7 @@ public class DeleteTaskTest {
             (Placement.class));
 
         DeleteTask task = new DeleteTask(EntityInfo.PLACEMENT, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
@@ -136,7 +141,7 @@ public class DeleteTaskTest {
         Row row = TestUtils.createRow("id", "1");
 
         DeleteTask task = new DeleteTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -149,7 +154,7 @@ public class DeleteTaskTest {
         Row row = new Row("/going/to/fail.csv", 1);
 
         DeleteTask task = new DeleteTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang" +

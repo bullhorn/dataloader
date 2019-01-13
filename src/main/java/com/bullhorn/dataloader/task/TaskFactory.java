@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -21,6 +22,7 @@ public class TaskFactory {
     private final RestApi restApi;
     private final PrintUtil printUtil;
     private final ActionTotals actionTotals;
+    private final Cache cache;
     private final CompleteUtil completeUtil;
 
     public TaskFactory(EntityInfo entityInfo,
@@ -29,6 +31,7 @@ public class TaskFactory {
                        RestApi restApi,
                        PrintUtil printUtil,
                        ActionTotals actionTotals,
+                       Cache cache,
                        CompleteUtil completeUtil) {
         this.entityInfo = entityInfo;
         this.csvFileWriter = csvFileWriter;
@@ -36,6 +39,7 @@ public class TaskFactory {
         this.restApi = restApi;
         this.printUtil = printUtil;
         this.actionTotals = actionTotals;
+        this.cache = cache;
         this.completeUtil = completeUtil;
     }
 
@@ -48,17 +52,17 @@ public class TaskFactory {
     public AbstractTask getTask(Command command, Row row) {
         AbstractTask task = null;
         if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-            task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+            task = new ConvertAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
         } else if (command.equals(Command.DELETE)) {
-            task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+            task = new DeleteTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            task = new DeleteAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+            task = new DeleteAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
         } else if (command.equals(Command.EXPORT)) {
-            task = new ExportTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+            task = new ExportTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
         } else if (command.equals(Command.LOAD)) {
-            task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+            task = new LoadTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            task = new LoadAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+            task = new LoadAttachmentTask(entityInfo, row, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
         }
         return task;
     }

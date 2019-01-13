@@ -7,6 +7,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -35,6 +36,7 @@ public class ProcessRunner {
     private final PrintUtil printUtil;
     private final PropertyFileUtil propertyFileUtil;
     private final ThreadPoolUtil threadPoolUtil;
+    private final Cache cache;
     private final CompleteUtil completeUtil;
 
     public ProcessRunner(RestSession restSession,
@@ -42,12 +44,14 @@ public class ProcessRunner {
                          PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
                          ThreadPoolUtil threadPoolUtil,
+                         Cache cache,
                          CompleteUtil completeUtil) {
         this.restSession = restSession;
         this.preloader = preloader;
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.threadPoolUtil = threadPoolUtil;
+        this.cache = cache;
         this.completeUtil = completeUtil;
     }
 
@@ -57,7 +61,7 @@ public class ProcessRunner {
         CsvFileReader csvFileReader = new CsvFileReader(filePath, propertyFileUtil, printUtil);
         CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
-        TaskFactory taskFactory = new TaskFactory(entityInfo, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, completeUtil);
+        TaskFactory taskFactory = new TaskFactory(entityInfo, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
 
         // Loop over each row in the file
         while (csvFileReader.readRecord()) {

@@ -6,6 +6,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -63,6 +64,7 @@ public class LoadTaskTest {
     private CsvFileWriter csvFileWriterMock;
     private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
+    private Cache cacheMock;
     private CompleteUtil completeUtilMock;
 
     @Before
@@ -72,6 +74,7 @@ public class LoadTaskTest {
         csvFileWriterMock = mock(CsvFileWriter.class);
         printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
+        cacheMock = mock(Cache.class);
         completeUtilMock = mock(CompleteUtil.class);
 
         String dateFormatString = "yyyy-MM-dd";
@@ -79,6 +82,7 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
         when(propertyFileUtilMock.getProcessEmptyAssociations()).thenReturn(Boolean.FALSE);
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList());
+        when(cacheMock.getEntry(any(), any(), any())).thenReturn(null);
     }
 
     @Test
@@ -99,7 +103,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -122,14 +126,14 @@ public class LoadTaskTest {
 
         when(restApiMock.searchForList(eq(ClientCorporation.class), eq("externalID:\"CORPORATION_123\""), any(), any()))
             .thenReturn(TestUtils.getList(ClientCorporation.class));
-        when(restApiMock.queryForList(eq(ClientCorporation.class), eq("id=1"), any(), any())).thenReturn(TestUtils
-            .getList(clientCorporation)); // TODO: Do we need this? Who is querying for Searchable Entities?
+        when(restApiMock.queryForList(eq(ClientCorporation.class), eq("id=1"), any(), any()))
+            .thenReturn(TestUtils.getList(clientCorporation));
         when(restApiMock.queryForList(eq(ClientContact.class), eq("clientCorporation.id=1 AND status='Archive'"),
             any(), any())).thenReturn(TestUtils.getList(ClientContact.class, 1));
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -153,7 +157,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         // Verify that only one association call got made for all of the associated primarySkills
@@ -178,7 +182,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -242,7 +246,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, times(1)).insertEntity(any());
@@ -278,7 +282,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, times(1)).insertEntity(any());
@@ -314,7 +318,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, times(1)).insertEntity(any());
@@ -341,7 +345,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(person));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new RestApiException(
@@ -378,7 +382,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.APPOINTMENT_ATTENDEE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, times(1)).insertEntity(any());
@@ -405,7 +409,7 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.insert(1);
@@ -427,7 +431,7 @@ public class LoadTaskTest {
             .thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.insert(1);
@@ -449,7 +453,7 @@ public class LoadTaskTest {
             .thenReturn(Arrays.asList("person.customText1", "text1"));
 
         LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.insert(1);
@@ -464,7 +468,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Skill.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
@@ -482,7 +486,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -509,7 +513,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Skill.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
@@ -575,7 +579,7 @@ public class LoadTaskTest {
         when(restApiMock.updateEntity(eq(expected))).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, never()).insertEntity(any());
@@ -599,7 +603,7 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.update(1);
@@ -621,7 +625,7 @@ public class LoadTaskTest {
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.update(1);
@@ -643,7 +647,7 @@ public class LoadTaskTest {
             .thenReturn(Arrays.asList("person.customText1", "text1"));
 
         LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.update(1);
@@ -664,7 +668,7 @@ public class LoadTaskTest {
             .thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.PERSON_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new RestApiException(
@@ -678,7 +682,7 @@ public class LoadTaskTest {
             "This should fail with meaningful error because the field bogus does not exist on Candidate.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock,
-            printUtilMock, actionTotalsMock, completeUtilMock);
+            printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -692,7 +696,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("clientCorporations.id", "1;2");
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock, restApiMock,
-            printUtilMock, actionTotalsMock, completeUtilMock);
+            printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -706,7 +710,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName,city", "Data,Loader,Failure");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -725,7 +729,7 @@ public class LoadTaskTest {
         when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
@@ -743,7 +747,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         // Verify the candidate's countryID
@@ -762,7 +766,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("firstName,lastName,address.countryID", "Data,Loader,BOGUS");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -777,7 +781,7 @@ public class LoadTaskTest {
             "This should fail with meaningful error because bogus does not exist.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -792,7 +796,7 @@ public class LoadTaskTest {
             "This should fail with meaningful error because the field bogus does not exist on the owner to-one association.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -806,7 +810,7 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow("candidates.bogus", "1;2");
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -823,7 +827,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, never()).getAllAssociationsList(any(), any(), any(), any(), any());
@@ -846,7 +850,7 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getProcessEmptyAssociations()).thenReturn(Boolean.TRUE);
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
@@ -863,7 +867,7 @@ public class LoadTaskTest {
             "This should fail with meaningful error because the field bogus does not exist on the address to-one association.");
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -881,7 +885,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Candidate.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -894,7 +898,7 @@ public class LoadTaskTest {
     public void testRunCatchException() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
@@ -905,7 +909,7 @@ public class LoadTaskTest {
     public void testRunConvertedAttachmentToDescriptionCandidate() throws Exception {
         Row row = TestUtils.createRow("externalID,firstName,lastName,email", "11,Data,Loader,dloader@bullhorn.com");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         when(propertyFileUtilMock.getConvertedAttachmentFilepath(EntityInfo.CANDIDATE, "11"))
             .thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
         ArgumentCaptor<Candidate> candidateArgumentCaptor = ArgumentCaptor.forClass(Candidate.class);
@@ -923,7 +927,7 @@ public class LoadTaskTest {
     public void testRunConvertedAttachmentToDescriptionCandidateTestFileNotPresent() throws Exception {
         Row row = TestUtils.createRow("externalID,firstName,lastName,email", "11,Data,Loader,dloader@bullhorn.com");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         ArgumentCaptor<Candidate> candidateArgumentCaptor = ArgumentCaptor.forClass(Candidate.class);
 
         task.run();
@@ -937,7 +941,7 @@ public class LoadTaskTest {
     public void testRunConvertedAttachmentToDescriptionClientCorporation() throws Exception {
         Row row = TestUtils.createRow("externalID,name", "11,DL Technologies");
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         when(propertyFileUtilMock.getConvertedAttachmentFilepath(EntityInfo.CLIENT_CORPORATION, "11"))
             .thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
         ArgumentCaptor<ClientCorporation> clientCorporationArgumentCaptor = ArgumentCaptor.forClass(ClientCorporation.class);
@@ -955,7 +959,7 @@ public class LoadTaskTest {
     public void testRunConvertedAttachmentToDescriptionClientCorporationTestFileNotPresent() throws Exception {
         Row row = TestUtils.createRow("externalID,name", "11,DL Technologies");
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         ArgumentCaptor<ClientCorporation> clientCorporationArgumentCaptor = ArgumentCaptor.forClass(ClientCorporation.class);
 
         task.run();
@@ -969,7 +973,7 @@ public class LoadTaskTest {
     public void testRunConvertedAttachmentToDescriptionOpportunity() throws Exception {
         Row row = TestUtils.createRow("externalID,title", "11,New Opportunity");
         LoadTask task = new LoadTask(EntityInfo.OPPORTUNITY, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         when(propertyFileUtilMock.getConvertedAttachmentFilepath(EntityInfo.OPPORTUNITY, "11"))
             .thenReturn(TestUtils.getResourceFilePath("convertedAttachments/Candidate/11.html"));
         ArgumentCaptor<Opportunity> opportunityArgumentCaptor = ArgumentCaptor.forClass(Opportunity.class);
@@ -994,7 +998,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
@@ -1012,7 +1016,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Skill.class, 1, 2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
@@ -1031,7 +1035,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
@@ -1053,7 +1057,7 @@ public class LoadTaskTest {
             .thenReturn(TestUtils.getList(category1, category2));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -1073,7 +1077,7 @@ public class LoadTaskTest {
             eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
@@ -1094,7 +1098,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         // Verify that only returning a single business sector when two identical ones were entered in the field is OK
@@ -1117,7 +1121,7 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Collections.singletonList("text1"));
 
         LoadTask task = new LoadTask(EntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, row,
-            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = Result.failure(new RestApiException("Random SDK-REST Exception"), 1);
@@ -1134,7 +1138,7 @@ public class LoadTaskTest {
             eq(CandidateAssociations.getInstance().primarySkills()), any())).thenThrow(restApiException);
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
@@ -1149,7 +1153,7 @@ public class LoadTaskTest {
         AbstractTask.rowProcessedCount.set(110);
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -1168,7 +1172,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "dayRate:123.45 AND isLockedOut:true AND customInt1:12345 AND "
@@ -1189,7 +1193,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 90));
 
         LoadTask task = new LoadTask(EntityInfo.NOTE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "(companyName: Boeing*) AND isDeleted:0";
@@ -1210,7 +1214,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "dayRate: AND isLockedOut: AND customInt1: AND customFloat1: AND customDate1:";
@@ -1229,7 +1233,7 @@ public class LoadTaskTest {
             .thenReturn(Arrays.asList("dayRate", "isLockedOut", "customInt1", "customFloat1", "customDate1"));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
-            restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -1244,7 +1248,7 @@ public class LoadTaskTest {
             .thenReturn(Collections.singletonList("migrateGUID"));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -1264,7 +1268,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE_WORK_HISTORY, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "salary1=123.45 AND isLastJob=true AND customInt1=12345 AND companyName='Acme Inc.'" +
@@ -1288,7 +1292,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE_WORK_HISTORY, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "salary1= AND isLastJob=false AND customInt1= AND companyName=''";
@@ -1313,7 +1317,7 @@ public class LoadTaskTest {
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 100));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "(name like 'Sales%' OR name like 'Market%' OR name='IT')";
@@ -1337,7 +1341,7 @@ public class LoadTaskTest {
             (Category.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "name like 'Sales%'";
@@ -1359,7 +1363,7 @@ public class LoadTaskTest {
             (CorporateUser.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "name='Bob Smiley'";
@@ -1381,7 +1385,7 @@ public class LoadTaskTest {
             (CorporateUser.class, 1));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         String expectedQuery = "name='*Bob Smiley*'";
@@ -1400,7 +1404,7 @@ public class LoadTaskTest {
             .thenReturn(Arrays.asList("salary1", "isLastJob", "customInt1", "companyName", "startDate"));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE_WORK_HISTORY, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -1416,7 +1420,7 @@ public class LoadTaskTest {
             .thenReturn(Arrays.asList("salary1", "isLastJob", "customInt1", "companyName", "startDate"));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE_WORK_HISTORY, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -1431,7 +1435,7 @@ public class LoadTaskTest {
             .thenReturn(Collections.singletonList("migrateGUID"));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE_WORK_HISTORY, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
@@ -1448,7 +1452,7 @@ public class LoadTaskTest {
         Mockito.doThrow(ioException).when(csvFileWriterMock).writeRow(any(), any());
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
@@ -1463,12 +1467,33 @@ public class LoadTaskTest {
         when(propertyFileUtilMock.getResultsFileEnabled()).thenReturn(true);
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
-            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, completeUtilMock);
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(expectedResult), eq(actionTotalsMock));
+    }
+
+
+    @Test
+    public void testRunCache() throws Exception {
+        // Use a real cache object in order to test multiple runs of the load task
+        Row row = TestUtils.createRow("firstName,lastName,email,primarySkills.name", "Data,Loader,dloader@bullhorn.com,Java");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(propertyFileUtilMock.getResultsFileEnabled()).thenReturn(true);
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createSkill(1001, "Java")));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+        verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(expectedResult), eq(actionTotalsMock));
+        verify(cacheMock, times(1)).getEntry(eq(EntityInfo.SKILL), any(), eq(Sets.newHashSet("id")));
     }
 }

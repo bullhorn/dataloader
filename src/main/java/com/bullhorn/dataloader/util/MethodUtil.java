@@ -147,10 +147,10 @@ public class MethodUtil {
         return null;
     }
 
-    private static Method getMethod(EntityInfo entityInfo, String fieldName, Map<String, Method> getterMethodMap) {
-        for (String methodName : getterMethodMap.keySet()) {
+    private static Method getMethod(EntityInfo entityInfo, String fieldName, Map<String, Method> methodMap) {
+        for (String methodName : methodMap.keySet()) {
             if (methodName.equalsIgnoreCase(fieldName)) {
-                return getterMethodMap.get(methodName);
+                return methodMap.get(methodName);
             }
         }
         checkMalformedAddressField(fieldName);
