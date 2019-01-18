@@ -54,6 +54,32 @@ public class CacheTest {
     }
 
     @Test
+    public void testCandidateByExternalID() throws Exception {
+        // search/Candidate?fields=id&query=externalID:"candidate-ext-1"
+        // search/Candidate?fields=id&query=externalID:"candidate-ext-2"
+        // search/Candidate?fields=id&query=externalID:"candidate-ext-1"
+        EntityInfo entityInfo = EntityInfo.CANDIDATE;
+        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("externalID"));
+        Record recordOne = TestUtils.createRecord(entityInfo, "externalID", "candidate-ext-101", propertyFileUtilMock);
+        Record recordTwo = TestUtils.createRecord(entityInfo, "externalID", "candidate-ext-102", propertyFileUtilMock);
+        Candidate candidateOne = TestUtils.createEntity(entityInfo, "id,externalID", "101,candidate-ext-101", propertyFileUtilMock);
+        Candidate candidateTwo = TestUtils.createEntity(entityInfo, "id,externalID", "102,candidate-ext-102", propertyFileUtilMock);
+        List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
+        List<BullhornEntity> expectedTwo = TestUtils.getConcreteList(candidateTwo);
+
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), expectedOne);
+        cache.setEntry(entityInfo, recordTwo.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), expectedTwo);
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> actualThree = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), Sets.newHashSet(StringConsts.ID));
+
+        Assert.assertEquals(expectedOne, actualOne);
+        Assert.assertEquals(expectedTwo, actualTwo);
+        Assert.assertEquals(expectedOne, actualThree);
+        Assert.assertNotEquals(actualOne, actualTwo);
+    }
+
+    @Test
     public void testNoMatchDifferentEntities() throws Exception {
         // search/ClientContact?fields=id&query=name:"Foo Bar"
         // search/ClientCorporation?fields=id&query=name:"Foo Bar"
