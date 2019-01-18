@@ -31,8 +31,8 @@ public class CacheTest {
 
     @Before
     public void setup() {
-        cache = new Cache();
         propertyFileUtilMock = mock(PropertyFileUtil.class);
+        cache = new Cache(propertyFileUtilMock);
 
         String dateFormatString = "yyyy-MM-dd";
         when(propertyFileUtilMock.getDateParser()).thenReturn(DateTimeFormat.forPattern(dateFormatString));
@@ -213,6 +213,31 @@ public class CacheTest {
         List<BullhornEntity> actual = cache.getEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter());
 
         Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void testToManyFieldReorder() throws Exception {
+        // query/Skill?fields=id&query=name:"Skill_1;Skill_2;Skill_3" -> makes call
+        // query/Skill?fields=id&query=name:"Skill_2;Skill_1;Skill_3" -> should reuse results
+        // query/Skill?fields=id&query=name:"Skill_3;Skill_2;Skill_1" -> should reuse results
+        EntityInfo entityInfo = EntityInfo.SKILL;
+        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("name"));
+        Field fieldOne = new Field(entityInfo, new Cell("name", "Skill_1;Skill_2;Skill_3"), false, propertyFileUtilMock.getDateParser());
+        Field fieldTwo = new Field(entityInfo, new Cell("name", "Skill_2;Skill_3;Skill_1"), false, propertyFileUtilMock.getDateParser());
+        Field fieldThree = new Field(entityInfo, new Cell("name", "Skill_3;Skill_2;Skill_1"), false, propertyFileUtilMock.getDateParser());
+        BullhornEntity skillOne = TestUtils.createEntity(entityInfo, "id,name", "1001,Skill_1", propertyFileUtilMock);
+        BullhornEntity skillTwo = TestUtils.createEntity(entityInfo, "id,name", "1002,Skill_2", propertyFileUtilMock);
+        BullhornEntity skillThree = TestUtils.createEntity(entityInfo, "id,name", "1003,Skill_3", propertyFileUtilMock);
+
+        cache.setEntry(entityInfo, Lists.newArrayList(fieldOne), Sets.newHashSet(StringConsts.ID),
+            TestUtils.getConcreteList(skillOne, skillTwo, skillThree));
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, Lists.newArrayList(fieldOne), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, Lists.newArrayList(fieldTwo), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> actualThree = cache.getEntry(entityInfo, Lists.newArrayList(fieldThree), Sets.newHashSet(StringConsts.ID));
+
+        Assert.assertEquals(Lists.newArrayList(skillOne, skillTwo, skillThree), actualOne);
+        Assert.assertEquals(Lists.newArrayList(skillOne, skillTwo, skillThree), actualTwo);
+        Assert.assertEquals(Lists.newArrayList(skillOne, skillTwo, skillThree), actualThree);
     }
 
     @Test

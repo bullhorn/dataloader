@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.rest;
 
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Maps;
 
@@ -11,10 +12,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Later reconstruct To-Many's into a list from individual parts. Then return the whole list
- *
  * Cache takes the parts of a query or search call and boils it down to a bucket of cached data:
- * - Entity -> Fields Requested -> Search Criteria -> Search Value
+ * Entity Type -> Fields Requested -> Search Criteria -> Individual Search Value
  */
 public class Cache {
 
@@ -30,9 +29,11 @@ public class Cache {
      * from queries for individual objects and vice-versa.
      */
     private final Map<EntityInfo, Map<String, Map<String, Map<String, List<BullhornEntity>>>>> entityInfoMap;
+    private final PropertyFileUtil propertyFileUtil;
 
-    public Cache() {
+    public Cache(PropertyFileUtil propertyFileUtil) {
         entityInfoMap = Maps.newHashMap();
+        this.propertyFileUtil = propertyFileUtil;
     }
 
     /**
@@ -58,7 +59,7 @@ public class Cache {
                 String searchNameString = entityExistFields.stream().map(field -> field.getCell().getName()).collect(Collectors.joining(","));
                 Map<String, List<BullhornEntity>> searchValueMap = searchNameMap.get(searchNameString);
                 if (searchValueMap != null) {
-                    String searchValuesString = entityExistFields.stream().map(Field::getStringValue).collect(Collectors.joining(","));
+                    String searchValuesString = getSimpleCacheKey(entityExistFields);
                     entities = searchValueMap.get(searchValuesString);
                 }
             }
@@ -77,7 +78,23 @@ public class Cache {
         String searchNameString = entityExistFields.stream().map(field -> field.getCell().getName()).collect(Collectors.joining(","));
         Map<String, List<BullhornEntity>> searchValueMap = searchNameMap.computeIfAbsent(searchNameString, k -> Maps.newHashMap());
 
-        String searchValuesString = entityExistFields.stream().map(Field::getStringValue).collect(Collectors.joining(","));
-        searchValueMap.put(searchValuesString, entities);
+        String cacheKey = getSimpleCacheKey(entityExistFields);
+        searchValueMap.put(cacheKey, entities);
+    }
+
+    /**
+     * Return a simple string for determining if we have cached this exact search before
+     *
+     * Handles reordering multiple values so that simple ordering doesn't cause a cache miss.
+     *
+     * @param entityExistFields the fields to search for
+     * @return the string to search for in level one cache
+     */
+    private String getSimpleCacheKey(List<Field> entityExistFields) {
+        if (entityExistFields.size() == 1) {
+            return entityExistFields.get(0).split(propertyFileUtil.getListDelimiter()).stream().sorted()
+                .collect(Collectors.joining(propertyFileUtil.getListDelimiter()));
+        }
+        return entityExistFields.stream().map(Field::getStringValue).collect(Collectors.joining(","));
     }
 }
