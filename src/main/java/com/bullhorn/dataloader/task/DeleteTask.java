@@ -17,6 +17,7 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Sets;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class DeleteTask extends AbstractTask {
     }
 
     @SuppressWarnings("unchecked")
-    protected Result handle() {
+    protected Result handle() throws InvocationTargetException, IllegalAccessException {
         if (!row.hasValue(StringConsts.ID)) {
             throw new IllegalArgumentException("Cannot Perform Delete: missing '" + StringConsts.ID + "' column.");
         }

@@ -1476,13 +1476,11 @@ public class LoadTaskTest {
         verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(expectedResult), eq(actionTotalsMock));
     }
 
-
     @Test
     public void testRunCache() throws Exception {
-        // Use a real cache object in order to test multiple runs of the load task
         Row row = TestUtils.createRow("firstName,lastName,email,primarySkills.name", "Data,Loader,dloader@bullhorn.com,Java");
         when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
-        when(propertyFileUtilMock.getResultsFileEnabled()).thenReturn(true);
+        when(propertyFileUtilMock.getCaching()).thenReturn(true);
         when(restApiMock.queryForList(eq(Skill.class), any(), any(), any()))
             .thenReturn(TestUtils.getList(TestUtils.createSkill(1001, "Java")));
 
@@ -1493,7 +1491,43 @@ public class LoadTaskTest {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
-        verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(expectedResult), eq(actionTotalsMock));
         verify(cacheMock, times(1)).getEntry(eq(EntityInfo.SKILL), any(), eq(Sets.newHashSet("id")));
+    }
+
+    @Test
+    public void testRunCacheEmptyResults() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName,email,primarySkills.name", "Data,Loader,dloader@bullhorn.com,Java");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(propertyFileUtilMock.getCaching()).thenReturn(true);
+        when(cacheMock.getEntry(any(), any(), any())).thenReturn(Collections.emptyList());
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(restApiMock, never()).queryForList(eq(Skill.class), any(), any(), any());
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
+            "com.bullhornsdk.data.exception.RestApiException: Error occurred: "
+                + "primarySkills does not exist with name of the following values:\n\tJava");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
+    }
+
+    @Test
+    public void testRunCacheDisabled() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName,email,primarySkills.name", "Data,Loader,dloader@bullhorn.com,Java");
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+        when(propertyFileUtilMock.getCaching()).thenReturn(false);
+        when(restApiMock.queryForList(eq(Skill.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(TestUtils.createSkill(1001, "Java")));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+        verify(cacheMock, never()).getEntry(any(), any(), any());
     }
 }

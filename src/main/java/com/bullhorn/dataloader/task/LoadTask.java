@@ -73,7 +73,7 @@ public class LoadTask extends AbstractTask {
      * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not found
      * will create a new entity.
      */
-    private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
+    private void getOrCreateEntity() throws IllegalAccessException, InstantiationException, InvocationTargetException {
         List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), true);
         if (foundEntityList.isEmpty()) {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
@@ -130,7 +130,7 @@ public class LoadTask extends AbstractTask {
      * @param field the field to use to search for an existing entity
      * @return The entity if found, throws a RestApiException if not found
      */
-    private BullhornEntity findToOneEntity(Field field) {
+    private BullhornEntity findToOneEntity(Field field) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);
 
         // Throw error if to-one entity does not exist or too many exist

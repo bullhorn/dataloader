@@ -8,6 +8,7 @@ import com.google.common.base.CaseFormat;
 public enum Property {
 
     AUTHORIZE_URL("authorizeUrl"),
+    CACHING("caching"),
     CLIENT_ID("clientId"),
     CLIENT_SECRET("clientSecret"),
     DATE_FORMAT("dateFormat"),

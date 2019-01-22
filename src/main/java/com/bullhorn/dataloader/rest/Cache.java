@@ -5,6 +5,7 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Maps;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,9 +45,10 @@ public class Cache {
      * @param returnFields      the fields parameter (ex: id,name)
      * @return null if no cached entry exists, empty list if records were searched for and not found, one or more records if found previously
      */
-    public synchronized List<BullhornEntity> getEntry(EntityInfo entityInfo, List<Field> entityExistFields, Set<String> returnFields) {
+    public synchronized List<BullhornEntity> getEntry(EntityInfo entityInfo,
+                                                      List<Field> entityExistFields,
+                                                      Set<String> returnFields) {
         List<BullhornEntity> entities = null;
-
         Map<String, Map<String, CacheBucket>> returnFieldsMap = entityInfoMap.get(entityInfo);
         if (returnFieldsMap != null) {
             String returnFieldsString = returnFields.stream().sorted().collect(Collectors.joining(","));
@@ -59,19 +61,22 @@ public class Cache {
                 }
             }
         }
-
         return entities;
     }
 
-    public synchronized void setEntry(EntityInfo entityInfo, List<Field> entityExistFields, Set<String> returnFields, List<BullhornEntity> entities) {
+    public synchronized void setEntry(EntityInfo entityInfo,
+                                      List<Field> entityExistFields,
+                                      Set<String> returnFields,
+                                      List<BullhornEntity> entities) throws InvocationTargetException, IllegalAccessException {
         Map<String, Map<String, CacheBucket>> returnFieldsMap = entityInfoMap.computeIfAbsent(entityInfo, k -> Maps.newHashMap());
-
         String returnFieldsString = returnFields.stream().sorted().collect(Collectors.joining(","));
-        Map<String, CacheBucket> searchNameMap = returnFieldsMap.computeIfAbsent(returnFieldsString, k -> Maps.newHashMap());
-
-        String searchNameString = entityExistFields.stream().map(field -> field.getCell().getName()).collect(Collectors.joining(","));
-        CacheBucket cacheBucket = searchNameMap.computeIfAbsent(searchNameString, k -> new CacheBucket(propertyFileUtil.getListDelimiter()));
-
-        cacheBucket.set(entityExistFields, entities);
+        if (!returnFieldsString.isEmpty()) {
+            Map<String, CacheBucket> searchNameMap = returnFieldsMap.computeIfAbsent(returnFieldsString, k -> Maps.newHashMap());
+            String searchNameString = entityExistFields.stream().map(field -> field.getCell().getName()).collect(Collectors.joining(","));
+            if (!searchNameString.isEmpty()) {
+                CacheBucket cacheBucket = searchNameMap.computeIfAbsent(searchNameString, k -> new CacheBucket(propertyFileUtil));
+                cacheBucket.set(entityExistFields, entities);
+            }
+        }
     }
 }
