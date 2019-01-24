@@ -49,7 +49,6 @@ public class Main {
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
                 completeUtil, restSession, processRunner, System.in, timer);
 
-
             if (propertyFileUtil.getVerbose()) {
                 Configurator.setLevel(PrintUtil.class.getName(), Level.DEBUG);
             }

@@ -19,6 +19,7 @@ import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Lists;
+import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -153,8 +154,12 @@ public abstract class AbstractTask implements Runnable {
                 List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
                 if (cachedEntities != null) {
                     entities = cachedEntities;
+                    printUtil.log(Level.DEBUG, "--> Using Cached Entry: " + entities.size() + " entities: "
+                        + entities.stream().map(BullhornEntity::getId).collect(Collectors.toList()));
                 } else {
                     entities = findEntitiesRemote(entityExistFields, returnFields, isPrimaryEntity);
+                    printUtil.log(Level.DEBUG, "--> Adding Cache Entry from Rest Call: " + entities.size() + " entities: "
+                        + entities.stream().map(BullhornEntity::getId).collect(Collectors.toList()));
                     cache.setEntry(entityInfo, entityExistFields, returnFields, entities);
                 }
             } else {

@@ -377,6 +377,31 @@ public class CacheTest {
     }
 
     @Test
+    public void testToManyFieldMultipleOverlappingInstancesMissingSearchValues() throws Exception {
+        // query/Skill?fields=id&query=name:"Skill_1;Skill_2;Skill_3" -> Name is not returned, only id, so we cannot determine 1:1 map to entity
+        // query/Skill?fields=id&query=name:"Skill_2"                 -> We do not have information to map to individual value
+        // query/Skill?fields=id&query=name:"Skill_1;Skill_3"         -> We do not have information to map to individual value
+        EntityInfo entityInfo = EntityInfo.SKILL;
+        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("name"));
+        Field fieldOne = new Field(entityInfo, new Cell("name", "Skill_1;Skill_2;Skill_3"), false, propertyFileUtilMock.getDateParser());
+        Field fieldTwo = new Field(entityInfo, new Cell("name", "Skill_2"), false, propertyFileUtilMock.getDateParser());
+        Field fieldThree = new Field(entityInfo, new Cell("name", "Skill_1;Skill_3"), false, propertyFileUtilMock.getDateParser());
+        BullhornEntity skillOne = TestUtils.createEntity(entityInfo, "id", "1001", propertyFileUtilMock);
+        BullhornEntity skillTwo = TestUtils.createEntity(entityInfo, "id", "1002", propertyFileUtilMock);
+        BullhornEntity skillThree = TestUtils.createEntity(entityInfo, "id", "1003", propertyFileUtilMock);
+
+        cache.setEntry(entityInfo, Lists.newArrayList(fieldOne), Sets.newHashSet(StringConsts.ID),
+            TestUtils.getConcreteList(skillOne, skillTwo, skillThree));
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, Lists.newArrayList(fieldOne), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, Lists.newArrayList(fieldTwo), Sets.newHashSet(StringConsts.ID));
+        List<BullhornEntity> actualThree = cache.getEntry(entityInfo, Lists.newArrayList(fieldThree), Sets.newHashSet(StringConsts.ID));
+
+        Assert.assertEquals(Lists.newArrayList(skillOne, skillTwo, skillThree), actualOne);
+        Assert.assertNull(actualTwo);
+        Assert.assertNull(actualThree);
+    }
+
+    @Test
     public void testToManyFieldAggregateInstances() throws Exception {
         // query/Skill?fields=id&query=name:"Skill_1"
         // query/Skill?fields=id&query=name:"Skill_2"
@@ -429,9 +454,9 @@ public class CacheTest {
 
     @Test
     public void testToManyFieldMultipleOverlappingInstancesMissingRecords() throws Exception {
-        // query/Skill?fields=id&query=name:"Skill_1;Skill_2;Skill_3"
-        // query/Skill?fields=id&query=name:"Skill_1;Skill_2"
-        // query/Skill?fields=id&query=name:"Skill_1"
+        // query/Skill?fields=id&query=name:"Skill_1;Skill_2;Skill_3" -> Skill2 is not returned
+        // query/Skill?fields=id&query=name:"Skill_1;Skill_2"         -> Return is null, since Skill2 does not exist
+        // query/Skill?fields=id&query=name:"Skill_1"                 -> Skill1 is returned
         EntityInfo entityInfo = EntityInfo.SKILL;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("name"));
         Field fieldOne = new Field(entityInfo, new Cell("name", "Skill_1;Skill_2;Skill_3"), false, propertyFileUtilMock.getDateParser());
@@ -446,7 +471,7 @@ public class CacheTest {
         List<BullhornEntity> actualThree = cache.getEntry(entityInfo, Lists.newArrayList(fieldThree), Sets.newHashSet(StringConsts.ID));
 
         Assert.assertEquals(Lists.newArrayList(skillOne, skillThree), actualOne);
-        Assert.assertEquals(Lists.newArrayList(skillOne), actualTwo);
+        Assert.assertNull(actualTwo);
         Assert.assertEquals(Lists.newArrayList(skillOne), actualThree);
     }
 
@@ -512,7 +537,7 @@ public class CacheTest {
     public void testToManyFieldFallbackForBadData() throws Exception {
         // query/Skill?fields=id&query=name:"Skill_1;Skill_2" -> Bad Skill 2 data - wrong name
         // query/Skill?fields=id&query=name:"Skill_1"         -> Still works
-        // query/Skill?fields=id&query=name:"Skill_2"         -> Finds that Skill_2 was searched for previously, but resulted in empty list
+        // query/Skill?fields=id&query=name:"Skill_2"         -> Does not find Skill_2, since it was not indexed individually (no matching name)
         EntityInfo entityInfo = EntityInfo.SKILL;
         when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList("name"));
         Field fieldOne = new Field(entityInfo, new Cell("name", "Skill_1;Skill_2"), false, propertyFileUtilMock.getDateParser());
@@ -528,6 +553,6 @@ public class CacheTest {
 
         Assert.assertEquals(Lists.newArrayList(skillOne, skillTwo), actualOne);
         Assert.assertEquals(Lists.newArrayList(skillOne), actualTwo);
-        Assert.assertEquals(Lists.newArrayList(), actualThree);
+        Assert.assertNull(actualThree);
     }
 }

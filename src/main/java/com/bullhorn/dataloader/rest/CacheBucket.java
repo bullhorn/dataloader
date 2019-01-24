@@ -61,12 +61,13 @@ public class CacheBucket {
         if (entityExistFields.size() == 1) {
             Field existField = entityExistFields.get(0);
 
-            // Not going to attempt a level 2 cache if wildcards are in use, since this breaks the 1:1 we need for disaggregate caching
+            // Not going to attempt a level 2 cache if wildcards are in use, since this breaks the 1:1 match we need for disaggregate caching
             if (propertyFileUtil.getWildcardMatching().equals(true) && existField.getStringValue().contains("*")) {
                 return;
             }
 
-            // Split up into partial results and save the individual parts
+            // If the results come back from Rest with the search fields filled out in the results, split up into partial results and
+            // save off the individual parts of the query (A OR B OR C) into partial results based on the search fields in each entity.
             for (String searchValue : existField.split(propertyFileUtil.getListDelimiter())) {
                 List<BullhornEntity> partialResults = Lists.newArrayList();
                 for (BullhornEntity entity : entities) {
@@ -75,7 +76,9 @@ public class CacheBucket {
                         partialResults.add(entity);
                     }
                 }
-                individualValueCache.put(searchValue, partialResults);
+                if (!partialResults.isEmpty()) {
+                    individualValueCache.put(searchValue, partialResults);
+                }
             }
         }
     }
