@@ -148,11 +148,11 @@ public abstract class AbstractTask implements Runnable {
         List<BullhornEntity> entities = new ArrayList<>();
 
         if (!entityExistFields.isEmpty()) {
-            EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
+            EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
 
             if (propertyFileUtil.getCaching()) {
                 // When caching, return search fields so that entity results can be split apart into partial results for advanced caching
-                returnFields.addAll(entityExistFields.stream().map(Field::getName).collect(Collectors.toSet()));
+                returnFields.addAll(entityExistFields.stream().map(field -> field.getName(isPrimaryEntity)).collect(Collectors.toSet()));
 
                 List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
                 if (cachedEntities != null) {
@@ -181,7 +181,7 @@ public abstract class AbstractTask implements Runnable {
                                             Boolean isPrimaryEntity) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = Lists.newArrayList();
         if (!entityExistFields.isEmpty()) {
-            EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
+            EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
             if (entityInfo == EntityInfo.PERSON) {
                 returnFields.add(StringConsts.IS_DELETED);
             } else if (entityInfo.isSoftDeletable()) {
@@ -205,7 +205,7 @@ public abstract class AbstractTask implements Runnable {
     @SuppressWarnings("unchecked")
     private <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntitiesRemote(
         List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
-        EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
+        EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
         if (entityInfo.isSearchEntity()) {
             String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil, isPrimaryEntity);
             List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),

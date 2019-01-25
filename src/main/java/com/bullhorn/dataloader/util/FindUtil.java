@@ -74,7 +74,7 @@ public class FindUtil {
                 .collect(Collectors.joining(" OR "));
             return "(" + orClause + ")";
         } else {
-            String fieldName = isPrimaryEntity ? field.getCell().getName() : field.getName();
+            String fieldName = field.getName(isPrimaryEntity);
             return FindUtil.getLuceneSearch(fieldName, field.getStringValue(), field.getFieldType(), field.getFieldEntity(), propertyFileUtil);
         }
     }
@@ -135,7 +135,7 @@ public class FindUtil {
                 .collect(Collectors.joining(" OR "));
             return "(" + orClause + ")";
         } else {
-            String fieldName = isPrimaryEntity ? field.getCell().getName() : field.getName();
+            String fieldName = field.getName(isPrimaryEntity);
             return FindUtil.getSqlQuery(fieldName, field.getStringValue(), field.getFieldType(), propertyFileUtil);
         }
     }
