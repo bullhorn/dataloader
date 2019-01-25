@@ -151,6 +151,9 @@ public abstract class AbstractTask implements Runnable {
             EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
 
             if (propertyFileUtil.getCaching()) {
+                // When caching, return search fields so that entity results can be split apart into partial results for advanced caching
+                returnFields.addAll(entityExistFields.stream().map(Field::getName).collect(Collectors.toSet()));
+
                 List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
                 if (cachedEntities != null) {
                     entities = cachedEntities;

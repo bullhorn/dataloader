@@ -1491,7 +1491,7 @@ public class LoadTaskTest {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
-        verify(cacheMock, times(1)).getEntry(eq(EntityInfo.SKILL), any(), eq(Sets.newHashSet("id")));
+        verify(cacheMock, times(1)).getEntry(eq(EntityInfo.SKILL), any(), eq(Sets.newHashSet("id", "name")));
     }
 
     @Test
