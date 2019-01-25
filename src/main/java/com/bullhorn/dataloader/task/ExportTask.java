@@ -49,7 +49,8 @@ public class ExportTask extends AbstractTask {
         }
 
         // Lookup existing entities
-        List<BullhornEntity> foundEntityList = findEntities(entityExistFields, record.getFieldsParameter(true), true);
+        Boolean isPrimaryEntity = true;
+        List<BullhornEntity> foundEntityList = findEntities(entityExistFields, record.getFieldsParameter(isPrimaryEntity), isPrimaryEntity);
         if (foundEntityList.isEmpty()) {
             throw new RestApiException(FindUtil.getNoMatchingRecordsExistMessage(entityInfo, record.getEntityExistFields()));
         } else if (foundEntityList.size() > 1) {
