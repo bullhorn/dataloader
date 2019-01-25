@@ -1,0 +1,21 @@
+externalID              ,firstName,lastName,name         ,primarySkills.name
+candidate-cache-1-ext-1 ,Cache    ,Test-1  ,Cache Test-1 ,Skill_1;Skill_2;Skill_3
+candidate-cache-2-ext-1 ,Cache    ,Test-2  ,Cache Test-2 ,Skill_4;Skill_5
+candidate-cache-3-ext-1 ,Cache    ,Test-3  ,Cache Test-3 ,Skill_1;Skill_2;Skill_3
+candidate-cache-4-ext-1 ,Cache    ,Test-4  ,Cache Test-4 ,Skill_1;Skill_2;Skill_3;Skill_4;Skill_5
+candidate-cache-5-ext-1 ,Cache    ,Test-5  ,Cache Test-5 ,Skill_1
+candidate-cache-6-ext-1 ,Cache    ,Test-6  ,Cache Test-6 ,Skill_2
+candidate-cache-7-ext-1 ,Cache    ,Test-7  ,Cache Test-7 ,Skill_3
+candidate-cache-8-ext-1 ,Cache    ,Test-8  ,Cache Test-8 ,Skill_4
+candidate-cache-9-ext-1 ,Cache    ,Test-9  ,Cache Test-9 ,Skill_5
+candidate-cache-10-ext-1,Cache    ,Test-10 ,Cache Test-10,Skill_6
+candidate-cache-11-ext-1,Cache    ,Test-11 ,Cache Test-11,Skill_7
+candidate-cache-12-ext-1,Cache    ,Test-12 ,Cache Test-12,Skill_1
+candidate-cache-13-ext-1,Cache    ,Test-13 ,Cache Test-13,Skill_2
+candidate-cache-14-ext-1,Cache    ,Test-14 ,Cache Test-14,Skill_3
+candidate-cache-15-ext-1,Cache    ,Test-15 ,Cache Test-15,Skill_4
+candidate-cache-16-ext-1,Cache    ,Test-16 ,Cache Test-16,Skill_5
+candidate-cache-17-ext-1,Cache    ,Test-17 ,Cache Test-17,Skill_6
+candidate-cache-18-ext-1,Cache    ,Test-18 ,Cache Test-18,Skill_7
+candidate-cache-19-ext-1,Cache    ,Test-19 ,Cache Test-19,Skill_1;Skill_2;Skill_3;Skill_4;Skill_5;Skill_6
+candidate-cache-20-ext-1,Cache    ,Test-20 ,Cache Test-20,Skill_1;Skill_2;Skill_3;Skill_4;Skill_5;Skill_6;Skill_7
