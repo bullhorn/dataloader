@@ -133,11 +133,13 @@ public class Field {
      *
      * For direct fields, just the name of the field: firstName
      * For compound fields, the name of the field
+     * When a lookup for the association (isPrimaryEntity=false), then it is always just the name of the field
      *
-     * @return the name of the field (the direct field on this entity, or the direct field on the associated entity)
+     * @param isPrimaryEntity true = use the full name of the field if compound, false = use only the field name
      */
-    String getFieldParameterName() {
-        return cell.isAssociation() ? cell.getAssociationBaseName() + "(" + cell.getAssociationFieldName() + ")" : cell.getName();
+    public String getFieldParameterName(Boolean isPrimaryEntity) {
+        return cell.isAssociation() && isPrimaryEntity ? cell.getAssociationBaseName() + "(" + cell.getAssociationFieldName() + ")"
+            : getName(isPrimaryEntity);
     }
 
     /**

@@ -44,7 +44,7 @@ public class RecordTest {
         Assert.assertEquals(new Integer(1), record.getNumber());
         Assert.assertEquals(6, record.getFields().size());
         Assert.assertEquals(1, record.getToManyFields().size());
-        Assert.assertEquals(expectedParameters, record.getFieldsParameter());
+        Assert.assertEquals(expectedParameters, record.getFieldsParameter(true));
     }
 
     @Test

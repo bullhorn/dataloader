@@ -152,7 +152,8 @@ public abstract class AbstractTask implements Runnable {
 
             if (propertyFileUtil.getCaching()) {
                 // When caching, return search fields so that entity results can be split apart into partial results for advanced caching
-                returnFields.addAll(entityExistFields.stream().map(field -> field.getName(isPrimaryEntity)).collect(Collectors.toSet()));
+                returnFields.addAll(entityExistFields.stream().map(field -> field.getFieldParameterName(isPrimaryEntity))
+                    .collect(Collectors.toSet()));
 
                 List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
                 if (cachedEntities != null) {

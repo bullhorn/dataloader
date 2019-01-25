@@ -49,7 +49,7 @@ public class CacheTest {
         Record record = TestUtils.createRecord(entityInfo, "firstName,lastName,email", "Foo,Bar,foo@bar.com",
             propertyFileUtilMock);
 
-        List<BullhornEntity> actual = cache.getEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter());
+        List<BullhornEntity> actual = cache.getEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter(true));
 
         Assert.assertNull(actual);
     }
@@ -150,11 +150,11 @@ public class CacheTest {
         List<BullhornEntity> expectedContact = TestUtils.getConcreteList(ClientContact.class, 1);
         List<BullhornEntity> expectedCompany = TestUtils.getConcreteList(ClientCorporation.class, 1);
 
-        cache.setEntry(EntityInfo.CLIENT_CONTACT, contactRecord.getEntityExistFields(), contactRecord.getFieldsParameter(), expectedContact);
-        cache.setEntry(EntityInfo.CLIENT_CORPORATION, companyRecord.getEntityExistFields(), companyRecord.getFieldsParameter(), expectedCompany);
-        List<BullhornEntity> actualContact = cache.getEntry(EntityInfo.CLIENT_CONTACT, contactRecord.getEntityExistFields(), contactRecord.getFieldsParameter());
-        List<BullhornEntity> actualCompany = cache.getEntry(EntityInfo.CLIENT_CORPORATION, companyRecord.getEntityExistFields(), companyRecord.getFieldsParameter());
-        List<BullhornEntity> actualPlacement = cache.getEntry(EntityInfo.PLACEMENT, companyRecord.getEntityExistFields(), companyRecord.getFieldsParameter());
+        cache.setEntry(EntityInfo.CLIENT_CONTACT, contactRecord.getEntityExistFields(), contactRecord.getFieldsParameter(true), expectedContact);
+        cache.setEntry(EntityInfo.CLIENT_CORPORATION, companyRecord.getEntityExistFields(), companyRecord.getFieldsParameter(true), expectedCompany);
+        List<BullhornEntity> actualContact = cache.getEntry(EntityInfo.CLIENT_CONTACT, contactRecord.getEntityExistFields(), contactRecord.getFieldsParameter(true));
+        List<BullhornEntity> actualCompany = cache.getEntry(EntityInfo.CLIENT_CORPORATION, companyRecord.getEntityExistFields(), companyRecord.getFieldsParameter(true));
+        List<BullhornEntity> actualPlacement = cache.getEntry(EntityInfo.PLACEMENT, companyRecord.getEntityExistFields(), companyRecord.getFieldsParameter(true));
 
         Assert.assertEquals(expectedContact, actualContact);
         Assert.assertEquals(expectedCompany, actualCompany);
@@ -178,10 +178,10 @@ public class CacheTest {
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
         List<BullhornEntity> expectedTwo = TestUtils.getConcreteList(candidateTwo);
 
-        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expectedOne);
-        cache.setEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(), expectedTwo);
-        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter());
-        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter());
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true), expectedOne);
+        cache.setEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true), expectedTwo);
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true));
 
         Assert.assertEquals(expectedOne, actualOne);
         Assert.assertEquals(expectedTwo, actualTwo);
@@ -198,7 +198,7 @@ public class CacheTest {
             propertyFileUtilMock);
         Record recordTwo = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
             propertyFileUtilMock);
-        Set<String> recordTwoFields = recordTwo.getFieldsParameter();
+        Set<String> recordTwoFields = recordTwo.getFieldsParameter(true);
         recordTwoFields.add("primarySkills");
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
             propertyFileUtilMock);
@@ -207,9 +207,9 @@ public class CacheTest {
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
         List<BullhornEntity> expectedTwo = TestUtils.getConcreteList(candidateTwo);
 
-        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expectedOne);
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true), expectedOne);
         cache.setEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwoFields, expectedTwo);
-        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter());
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true));
         List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwoFields);
 
         Assert.assertEquals(expectedOne, actualOne);
@@ -234,10 +234,10 @@ public class CacheTest {
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
         List<BullhornEntity> expectedTwo = TestUtils.getConcreteList(candidateTwo);
 
-        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expectedOne);
-        cache.setEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(), expectedTwo);
-        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter());
-        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter());
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true), expectedOne);
+        cache.setEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true), expectedTwo);
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true));
 
         Assert.assertEquals(expectedOne, actualOne);
         Assert.assertEquals(expectedTwo, actualTwo);
@@ -260,9 +260,9 @@ public class CacheTest {
             propertyFileUtilMock);
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
 
-        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expectedOne);
-        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter());
-        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter());
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true), expectedOne);
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true));
 
         Assert.assertEquals(expectedOne, actualOne);
         Assert.assertNull(actualTwo);
@@ -282,9 +282,9 @@ public class CacheTest {
             propertyFileUtilMock);
         List<BullhornEntity> expected = TestUtils.getConcreteList(candidate);
 
-        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expected);
-        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter());
-        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter());
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true), expected);
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true));
 
         Assert.assertEquals(expected, actualOne);
         Assert.assertEquals(expected, actualTwo);
@@ -304,9 +304,9 @@ public class CacheTest {
             propertyFileUtilMock);
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
 
-        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expectedOne);
-        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter());
-        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter());
+        cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true), expectedOne);
+        List<BullhornEntity> actualOne = cache.getEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(true));
+        List<BullhornEntity> actualTwo = cache.getEntry(entityInfo, recordTwo.getEntityExistFields(), recordTwo.getFieldsParameter(true));
 
         Assert.assertEquals(expectedOne, actualOne);
         Assert.assertEquals(expectedOne, actualTwo);
@@ -320,8 +320,8 @@ public class CacheTest {
         Record record = TestUtils.createRecord(entityInfo, "id,name", "1001,Java*", propertyFileUtilMock);
         List<BullhornEntity> expected = TestUtils.getConcreteList(Skill.class, 1);
 
-        cache.setEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter(), expected);
-        List<BullhornEntity> actual = cache.getEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter());
+        cache.setEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter(true), expected);
+        List<BullhornEntity> actual = cache.getEntry(entityInfo, record.getEntityExistFields(), record.getFieldsParameter(true));
 
         Assert.assertEquals(expected, actual);
     }

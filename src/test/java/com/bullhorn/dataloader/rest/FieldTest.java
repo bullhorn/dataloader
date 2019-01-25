@@ -38,7 +38,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "firstName");
-        Assert.assertEquals(field.getFieldParameterName(), "firstName");
+        Assert.assertEquals(field.getFieldParameterName(true), "firstName");
+        Assert.assertEquals(field.getFieldParameterName(false), "firstName");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), String.class);
         Assert.assertEquals(field.getValue(), "Jack");
@@ -68,7 +69,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "isDeleted");
-        Assert.assertEquals(field.getFieldParameterName(), "isDeleted");
+        Assert.assertEquals(field.getFieldParameterName(true), "isDeleted");
+        Assert.assertEquals(field.getFieldParameterName(false), "isDeleted");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.JOB_SUBMISSION);
         Assert.assertEquals(field.getFieldType(), Boolean.class);
         Assert.assertEquals(field.getValue(), false);
@@ -95,7 +97,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "dateAvailable");
-        Assert.assertEquals(field.getFieldParameterName(), "dateAvailable");
+        Assert.assertEquals(field.getFieldParameterName(true), "dateAvailable");
+        Assert.assertEquals(field.getFieldParameterName(false), "dateAvailable");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), DateTime.class);
         Assert.assertEquals(field.getValue(), dateTimeFormatter.parseDateTime("02/09/2001"));
@@ -122,7 +125,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), true);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "isDeleted");
-        Assert.assertEquals(field.getFieldParameterName(), "candidate(isDeleted)");
+        Assert.assertEquals(field.getFieldParameterName(true), "candidate(isDeleted)");
+        Assert.assertEquals(field.getFieldParameterName(false), "isDeleted");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), Boolean.class);
         Assert.assertEquals(field.getValue(), true);
@@ -152,7 +156,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), true);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "salary");
-        Assert.assertEquals(field.getFieldParameterName(), "candidate(salary)");
+        Assert.assertEquals(field.getFieldParameterName(true), "candidate(salary)");
+        Assert.assertEquals(field.getFieldParameterName(false), "salary");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), BigDecimal.class);
         BigDecimal actual = (BigDecimal) field.getValue();
@@ -183,7 +188,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), true);
         Assert.assertEquals(field.getName(), "id");
-        Assert.assertEquals(field.getFieldParameterName(), "candidates(id)");
+        Assert.assertEquals(field.getFieldParameterName(true), "candidates(id)");
+        Assert.assertEquals(field.getFieldParameterName(false), "id");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
         Assert.assertEquals(field.getFieldType(), Integer.class);
         Assert.assertEquals(field.getValue(), 101);
@@ -228,7 +234,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), true);
         Assert.assertEquals(field.getName(), "isDeleted");
-        Assert.assertEquals(field.getFieldParameterName(), "clientContacts(isDeleted)");
+        Assert.assertEquals(field.getFieldParameterName(true), "clientContacts(isDeleted)");
+        Assert.assertEquals(field.getFieldParameterName(false), "isDeleted");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CLIENT_CONTACT);
         Assert.assertEquals(field.getFieldType(), Boolean.class);
         Assert.assertEquals(field.getValue(), true);
@@ -282,7 +289,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "address1");
-        Assert.assertEquals(field.getFieldParameterName(), "address(address1)");
+        Assert.assertEquals(field.getFieldParameterName(true), "address(address1)");
+        Assert.assertEquals(field.getFieldParameterName(false), "address1");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
         Assert.assertEquals(field.getFieldType(), String.class);
         Assert.assertEquals(field.getValue(), "100 Summer St.");
@@ -307,7 +315,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "countryId");
-        Assert.assertEquals(field.getFieldParameterName(), "address(countryId)");
+        Assert.assertEquals(field.getFieldParameterName(true), "address(countryId)");
+        Assert.assertEquals(field.getFieldParameterName(false), "countryId");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
         Assert.assertEquals(field.getFieldType(), Integer.class);
         Assert.assertEquals(field.getValue(), 1234);
@@ -402,7 +411,8 @@ public class FieldTest {
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
         Assert.assertEquals(field.getName(), "state");
-        Assert.assertEquals(field.getFieldParameterName(), "state");
+        Assert.assertEquals(field.getFieldParameterName(true), "state");
+        Assert.assertEquals(field.getFieldParameterName(false), "state");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE_EDUCATION);
         Assert.assertEquals(field.getFieldType(), String.class);
         Assert.assertEquals(field.getValue(), "MO");

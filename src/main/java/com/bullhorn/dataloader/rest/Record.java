@@ -78,9 +78,13 @@ public class Record {
     /**
      * Returns all fields in a format that can be passed as the fields parameter of a Get call.
      *
+     * For direct fields, returns just the name of the field: firstName
+     * For primary entity compound fields, the full name of the field, in the form of: "candidate(firstName)"
+     *
+     * @param isPrimaryEntity true = use the full name of the field if compound, false = use only the field name
      * @return the set of fields that will pull from Rest
      */
-    public Set<String> getFieldsParameter() {
-        return fields.stream().map(Field::getFieldParameterName).collect(Collectors.toSet());
+    public Set<String> getFieldsParameter(Boolean isPrimaryEntity) {
+        return fields.stream().map(field -> field.getFieldParameterName(isPrimaryEntity)).collect(Collectors.toSet());
     }
 }
