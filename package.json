@@ -1,6 +1,6 @@
 {
   "name": "dataloader-build-tools",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Extra build tools outside of Maven, including code coverage reporting to Galaxy, release tools, and git hooks.",
   "license": "AGPL-3.0",
   "scripts": {

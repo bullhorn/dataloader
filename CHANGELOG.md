@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.2.0"></a>
+# [4.2.0](https://github.com/bullhorn/dataloader/compare/v4.1.0...v4.2.0) (2019-01-26)
+
+
+### Features
+
+* **Cache:** Advanced caching for improved performance ([#284](https://github.com/bullhorn/dataloader/issues/284)) ([e26ca30](https://github.com/bullhorn/dataloader/commit/e26ca30))
+
+
+
 <a name="4.1.0"></a>
 # [4.1.0](https://github.com/bullhorn/dataloader/compare/v4.0.0...v4.1.0) (2019-01-13)
 
