@@ -43,12 +43,11 @@ public class Main {
             Preloader preloader = new Preloader(restSession);
             CompleteUtil completeUtil = new CompleteUtil(restSession, httpClient, propertyFileUtil, printUtil, timer);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
-            Cache cache = new Cache();
+            Cache cache = new Cache(propertyFileUtil);
             ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil,
                 threadPoolUtil, cache, completeUtil);
             ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
                 completeUtil, restSession, processRunner, System.in, timer);
-
 
             if (propertyFileUtil.getVerbose()) {
                 Configurator.setLevel(PrintUtil.class.getName(), Level.DEBUG);

@@ -77,6 +77,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getVerbose());
     }
@@ -95,6 +96,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
         envVars.put("DATALOADER_WildCard_Matching", "TRUE");
         envVars.put("DATALOADER_NUM_THREADS", "5");
+        envVars.put("DATALOADER_CACHING", "false");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
         envVars.put("DATALOADER_VERBOSE", "FALSE");
 
@@ -130,6 +132,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getVerbose());
     }
@@ -148,6 +151,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
         envVars.put("DATALOADER_wildcard_matching", "FALSE");
         envVars.put("DATALOADER_NUM_THREADS", "5");
+        envVars.put("DATALOADER_CACHING", "false");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
         envVars.put("DATALOADER_VERBOSE", "FALSE");
 
@@ -162,6 +166,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("singleByteEncoding", "false");
         systemProperties.setProperty("numThreads", "6");
+        systemProperties.setProperty("caching", "true");
         systemProperties.setProperty("waitSecondsBetweenFilesInDirectory", "20");
         systemProperties.setProperty("verbose", "false");
 
@@ -181,6 +186,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(20), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getResultsFileEnabled());
         Assert.assertEquals("./results.json", propertyFileUtil.getResultsFilePath());
@@ -202,6 +208,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
         envVars.put("DATALOADER_wildcard_MATCHING", "TRUE");
         envVars.put("DATALOADER_NUM_THREADS", "5");
+        envVars.put("DATALOADER_CACHING", "false");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
         envVars.put("DATALOADER_VERBOSE", "FALSE");
 
@@ -216,6 +223,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("singleByteEncoding", "false");
         systemProperties.setProperty("numThreads", "6");
+        systemProperties.setProperty("caching", "true");
         systemProperties.setProperty("waitSecondsBetweenFilesInDirectory", "20");
         systemProperties.setProperty("verbose", "false");
 
@@ -242,6 +250,8 @@ public class PropertyFileUtilTest {
         args.add("true");
         args.add("-NUM_THREADS");
         args.add("7");
+        args.add("-caching");
+        args.add("false");
         args.add("-waitSecondsBetweenFilesInDirectory");
         args.add("25");
         args.add("-resultsFileEnabled");
@@ -269,6 +279,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(25), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getResultsFileEnabled());
         Assert.assertEquals("../results/output.json", propertyFileUtil.getResultsFilePath());

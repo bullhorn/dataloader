@@ -73,7 +73,7 @@ public class LoadTask extends AbstractTask {
      * Performs lookup for entity if the entity exist field is set. If found, will use the existing entity. If not found
      * will create a new entity.
      */
-    private void getOrCreateEntity() throws IllegalAccessException, InstantiationException {
+    private void getOrCreateEntity() throws IllegalAccessException, InstantiationException, InvocationTargetException {
         List<BullhornEntity> foundEntityList = findEntities(record.getEntityExistFields(), Sets.newHashSet(StringConsts.ID), true);
         if (foundEntityList.isEmpty()) {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
@@ -130,9 +130,10 @@ public class LoadTask extends AbstractTask {
      * @param field the field to use to search for an existing entity
      * @return The entity if found, throws a RestApiException if not found
      */
-    private BullhornEntity findToOneEntity(Field field) {
+    private BullhornEntity findToOneEntity(Field field) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);
 
+        // Throw error if to-one entity does not exist or too many exist
         if (entities == null || entities.isEmpty()) {
             throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
                 + "' with value: '" + field.getStringValue() + "'");
@@ -146,6 +147,9 @@ public class LoadTask extends AbstractTask {
     /**
      * Populates a given To-Many field for an entity before the entity has been created.
      *
+     * Populates the To-Many in SDK-REST, in a fashion that only works for Notes currently. Eventually, convert everything
+     * over to pre-populating To-Many fields in the correct "replace-all" way, so that our association calls go away.
+     *
      * @param field the To-Many field to populate the entity with
      */
     private void prepopulateAssociation(Field field) throws IllegalAccessException, InvocationTargetException, ParseException {
@@ -157,6 +161,8 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
+     *
+     * TODO: remove this method once prepopulating associations can be used for all entities
      */
     @SuppressWarnings("unchecked")
     private void createAssociations() throws IllegalAccessException, InvocationTargetException {
@@ -204,6 +210,7 @@ public class LoadTask extends AbstractTask {
         if (!field.getStringValue().isEmpty()) {
             associations = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);
 
+            // Only for strict one-to-one lookups, throw error if we did not receive exactly the same number of associations as requested values
             List<String> values = field.split(propertyFileUtil.getListDelimiter());
             if (!propertyFileUtil.getWildcardMatching() && associations.size() != values.size()) {
                 Set<String> existingAssociationValues = new HashSet<>();

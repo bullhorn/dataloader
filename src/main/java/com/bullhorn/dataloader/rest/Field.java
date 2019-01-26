@@ -79,11 +79,20 @@ public class Field {
         return entityInfo;
     }
 
-    public Boolean isExistField() {
+    /**
+     * Returns the primary or associated entity
+     *
+     * @param isPrimaryEntity true = use the entity, false = use the associated (field) entity
+     */
+    public EntityInfo getEntityInfo(Boolean isPrimaryEntity) {
+        return isPrimaryEntity ? getEntityInfo() : getFieldEntity();
+    }
+
+    Boolean isExistField() {
         return existField;
     }
 
-    public void setExistField(Boolean existField) {
+    void setExistField(Boolean existField) {
         this.existField = existField;
     }
 
@@ -106,15 +115,31 @@ public class Field {
     }
 
     /**
+     * Returns the full name if the primaryEntity, the association name otherwise.
+     *
+     * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
+     * - When looking for existing Person records to check for existence, we need a Person lookup for `externalID=`
+     * - When looking for existing PersonCustomObjectInstance1 records, we need a PersonCustomObjectInstance1 lookup for `person.externalID=`
+     * The lookup for person records is an association lookup, the lookup for custom objects is a primary lookup.
+     *
+     * @param isPrimaryEntity true = get entire name of cell, false = get name of association
+     */
+    public String getName(Boolean isPrimaryEntity) {
+        return isPrimaryEntity ? getCell().getName() : getName();
+    }
+
+    /**
      * Returns the name of the field that is valid within the field parameter of a Get call.
      *
      * For direct fields, just the name of the field: firstName
      * For compound fields, the name of the field
+     * When a lookup for the association (isPrimaryEntity=false), then it is always just the name of the field
      *
-     * @return the name of the field (the direct field on this entity, or the direct field on the associated entity)
+     * @param isPrimaryEntity true = use the full name of the field if compound, false = use only the field name
      */
-    public String getFieldParameterName() {
-        return cell.isAssociation() ? cell.getAssociationBaseName() + "(" + cell.getAssociationFieldName() + ")" : cell.getName();
+    public String getFieldParameterName(Boolean isPrimaryEntity) {
+        return cell.isAssociation() && isPrimaryEntity ? cell.getAssociationBaseName() + "(" + cell.getAssociationFieldName() + ")"
+            : getName(isPrimaryEntity);
     }
 
     /**

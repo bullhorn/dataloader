@@ -71,6 +71,12 @@ public class IntegrationTest {
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
         System.setProperty("processEmptyAssociations", "false");
 
+        // Run a test where the difference when caching is significant (manual inspection of timing for now)
+        System.setProperty("caching", "false");
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"), false);
+        System.setProperty("caching", "true");
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"), false);
+
         // Run the full test of all example files
         runAllCommandsAgainstDirectory("examples/load", false);
     }

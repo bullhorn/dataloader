@@ -19,8 +19,10 @@ import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Lists;
+import org.apache.logging.log4j.Level;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,17 +142,32 @@ public abstract class AbstractTask implements Runnable {
      * @param returnFields      the field names that make up the fields string
      * @param isPrimaryEntity   true = lookup for entity that we are loading, false = lookup for association
      */
-    List<BullhornEntity> findEntities(List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
+    List<BullhornEntity> findEntities(List<Field> entityExistFields,
+                                      Set<String> returnFields,
+                                      Boolean isPrimaryEntity) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = new ArrayList<>();
 
         if (!entityExistFields.isEmpty()) {
-            EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
-            List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
-            if (cachedEntities != null) {
-                entities = cachedEntities;
+            EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
+
+            if (propertyFileUtil.getCaching()) {
+                // When caching, return search fields so that entity results can be split apart into partial results for advanced caching
+                returnFields.addAll(entityExistFields.stream().map(field -> field.getFieldParameterName(isPrimaryEntity))
+                    .collect(Collectors.toSet()));
+
+                List<BullhornEntity> cachedEntities = cache.getEntry(entityInfo, entityExistFields, returnFields);
+                if (cachedEntities != null) {
+                    entities = cachedEntities;
+                    printUtil.log(Level.DEBUG, "--> Using Cached Entry: " + entities.size() + " entities: "
+                        + entities.stream().map(BullhornEntity::getId).collect(Collectors.toList()));
+                } else {
+                    entities = findEntitiesRemote(entityExistFields, returnFields, isPrimaryEntity);
+                    printUtil.log(Level.DEBUG, "--> Adding Cache Entry from Rest Call: " + entities.size() + " entities: "
+                        + entities.stream().map(BullhornEntity::getId).collect(Collectors.toList()));
+                    cache.setEntry(entityInfo, entityExistFields, returnFields, entities);
+                }
             } else {
                 entities = findEntitiesRemote(entityExistFields, returnFields, isPrimaryEntity);
-                cache.setEntry(entityInfo, entityExistFields, returnFields, entities);
             }
         }
 
@@ -160,10 +177,12 @@ public abstract class AbstractTask implements Runnable {
     /**
      * Calls findEntities for only active entities that are not soft-deleted, with special check for disabled corporate users still being active.
      */
-    List<BullhornEntity> findActiveEntities(List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
+    List<BullhornEntity> findActiveEntities(List<Field> entityExistFields,
+                                            Set<String> returnFields,
+                                            Boolean isPrimaryEntity) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = Lists.newArrayList();
         if (!entityExistFields.isEmpty()) {
-            EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
+            EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
             if (entityInfo == EntityInfo.PERSON) {
                 returnFields.add(StringConsts.IS_DELETED);
             } else if (entityInfo.isSoftDeletable()) {
@@ -187,7 +206,7 @@ public abstract class AbstractTask implements Runnable {
     @SuppressWarnings("unchecked")
     private <B extends BullhornEntity, S extends SearchEntity, Q extends QueryEntity> List<BullhornEntity> findEntitiesRemote(
         List<Field> entityExistFields, Set<String> returnFields, Boolean isPrimaryEntity) {
-        EntityInfo entityInfo = isPrimaryEntity ? entityExistFields.get(0).getEntityInfo() : entityExistFields.get(0).getFieldEntity();
+        EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
         if (entityInfo.isSearchEntity()) {
             String searchString = FindUtil.getLuceneSearch(entityExistFields, propertyFileUtil, isPrimaryEntity);
             List<B> list = (List<B>) restApi.searchForList((Class<S>) entityInfo.getEntityClass(),
