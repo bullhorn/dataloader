@@ -10,6 +10,10 @@ All notable changes to this project will be documented in this file. See [standa
 
 * **Cache:** Advanced caching for improved performance ([#284](https://github.com/bullhorn/dataloader/issues/284)) ([e26ca30](https://github.com/bullhorn/dataloader/commit/e26ca30))
 
+### Bug Fixes
+
+* **Associations:** Associations now support an unlimited amount ([#283](https://github.com/bullhorn/dataloader/issues/283))
+
 
 
 <a name="4.1.0"></a>
