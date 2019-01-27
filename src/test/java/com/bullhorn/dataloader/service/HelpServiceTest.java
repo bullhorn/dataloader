@@ -38,5 +38,4 @@ public class HelpServiceTest {
 
         Assert.assertTrue(result);
     }
-
 }

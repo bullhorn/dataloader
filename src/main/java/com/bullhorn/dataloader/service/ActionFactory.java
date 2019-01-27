@@ -70,6 +70,8 @@ public class ActionFactory {
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
             action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
+        } else if (command.equals(Command.LOGIN)) {
+            action = new LoginService(restSession, printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);
