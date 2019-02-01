@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.3.0"></a>
+# [4.3.0](https://github.com/bullhorn/dataloader/compare/v4.2.0...v4.3.0) (2019-02-01)
+
+
+### Features
+
+* **Login:** Added login command to check for valid credentials ([#285](https://github.com/bullhorn/dataloader/issues/285)) ([e7605b5](https://github.com/bullhorn/dataloader/commit/e7605b5))
+* **Results Files:** Added Bullhorn ID to Failure file ([#288](https://github.com/bullhorn/dataloader/issues/288)) ([daeb514](https://github.com/bullhorn/dataloader/commit/daeb514))
+
+
+
 <a name="4.2.0"></a>
 # [4.2.0](https://github.com/bullhorn/dataloader/compare/v4.1.0...v4.2.0) (2019-01-26)
 
