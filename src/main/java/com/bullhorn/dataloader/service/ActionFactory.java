@@ -72,6 +72,8 @@ public class ActionFactory {
                 restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOGIN)) {
             action = new LoginService(restSession, printUtil);
+        } else if (command.equals(Command.META)) {
+            action = new MetaService(restSession, validationUtil, printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil,
                 restSession, processRunner, inputStream, timer);

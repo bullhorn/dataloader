@@ -91,6 +91,13 @@ public class ActionFactoryTest {
     }
 
     @Test
+    public void testGetActionMeta() {
+        Class expectedResult = MetaService.class;
+        Action actualResult = actionFactory.getAction(Command.META);
+        Assert.assertThat(actualResult.getClass(), new ReflectionEquals(expectedResult));
+    }
+
+    @Test
     public void testGetActionTemplate() {
         Class expectedResult = TemplateService.class;
         Action actualResult = actionFactory.getAction(Command.TEMPLATE);
