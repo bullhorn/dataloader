@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.data;
 
 import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.csvreader.CsvWriter;
 import org.apache.commons.io.FilenameUtils;
@@ -98,6 +97,9 @@ public class CsvFileWriter {
         } else {
             csvWriter = getOrCreateFailureCsvWriter();
             values.add(0, result.getFailureText());
+            if (command.equals(Command.LOAD) || command.equals(Command.LOAD_ATTACHMENTS)) {
+                values.add(0, result.getBullhornId().toString());
+            }
         }
 
         csvWriter.writeRecord(values.toArray(new String[0]));
@@ -129,7 +131,13 @@ public class CsvFileWriter {
         if (failureCsv == null) {
             FileWriter fileWriter = new FileWriter(failureFilePath);
             failureCsv = new CsvWriter(fileWriter, ',');
-            failureCsv.writeRecord(ArrayUtil.prepend(REASON_COLUMN, headers));
+
+            List<String> headerList = new ArrayList<>(Arrays.asList(headers));
+            headerList.add(0, REASON_COLUMN);
+            if (command.equals(Command.LOAD) || command.equals(Command.LOAD_ATTACHMENTS)) {
+                headerList.add(0, StringConsts.ID);
+            }
+            failureCsv.writeRecord(headerList.toArray(new String[0]));
         }
         return failureCsv;
     }
