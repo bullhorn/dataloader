@@ -246,7 +246,7 @@ public class TestUtils {
      * @param file    The file to check
      * @param command The command used when running DataLoader
      */
-    private static void checkResultsFile(File file, Command command) {
+    public static void checkResultsFile(File file, Command command) {
         String successFilePath = CsvFileWriter.getResultsFilePath(file.getPath(), command, Result.Status.SUCCESS);
         String failureFilePath = CsvFileWriter.getResultsFilePath(file.getPath(), command, Result.Status.FAILURE);
 
