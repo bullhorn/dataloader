@@ -13,6 +13,7 @@ public enum Command {
     LOAD("load"),
     LOAD_ATTACHMENTS("loadAttachments"),
     LOGIN("login"),
+    META("meta"),
     TEMPLATE("template");
 
     private final String methodName;

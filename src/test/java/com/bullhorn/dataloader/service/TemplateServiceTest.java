@@ -58,26 +58,12 @@ public class TemplateServiceTest {
         templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil,
             completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
-        // Mock out meta
-        Field idField = new Field();
-        idField.setName("id");
-        idField.setDataType("Integer");
-        idField.setType("SCALAR");
-
-        Field emailField = new Field();
-        emailField.setName("email");
-        emailField.setDataType("String");
-        emailField.setType("SCALAR");
-
-        Field externalIdField = new Field();
-        externalIdField.setName("externalID");
-        externalIdField.setDataType("String");
-        externalIdField.setType("SCALAR");
-
-        Field commentsField = new Field();
-        commentsField.setName("comments");
-        commentsField.setDataType("String");
-        commentsField.setType("SCALAR");
+        // Mock out meta fields
+        Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
+        Field emailField = TestUtils.createField("email", "Email", "", "", "SCALAR", "String");
+        Field externalIdField = TestUtils.createField("externalID", "External ID", "", "", "SCALAR", "String");
+        Field commentsField = TestUtils.createField("comments", "Comments", "General Comments",
+            "Place for general comments about the record", "SCALAR", "String");
 
         // Mock out Candidate meta data
         StandardMetaData<Candidate> candidateMeta = new StandardMetaData<>();

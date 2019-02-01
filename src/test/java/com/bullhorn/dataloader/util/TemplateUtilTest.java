@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhornsdk.data.model.entity.meta.Field;
@@ -42,56 +43,30 @@ public class TemplateUtilTest {
     }
 
     private void setupMetaFieldSet() {
-        Field addressField = getAddressField();
-
         StandardMetaData clientCorporationMetaData = new StandardMetaData();
         clientCorporationMetaData.setEntity("ClientCorporation");
-        Field idField = new Field();
-        idField.setName("id");
-        Field nameField = new Field();
-        nameField.setName("name");
+        Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
+        Field nameField = TestUtils.createField("name", "Name", "", "", "SCALAR", "String");
         clientCorporationMetaData.setFields(Arrays.asList(idField, nameField));
 
-        Field clientCorporationField = new Field();
-        clientCorporationField.setName("clientCorporation");
-        clientCorporationField.setType("TO_ONE");
+        Field clientCorporationField = TestUtils.createField("clientCorporation", "", "", null, "TO_ONE", null);
         clientCorporationField.setAssociatedEntity(clientCorporationMetaData);
         clientCorporationField.setOptionsType("ClientCorporation");
 
-        Field fax = new Field();
-        fax.setName("fax");
-        fax.setType(null);
-        fax.setDataType(null);
+        Field faxField = TestUtils.createField("fax", "Fax", null, null, null, null);
+        Field leadsField = TestUtils.createField("leads", "Leads", null, null, "TO_MANY", null);
+        Field departmentField = TestUtils.createField("department", "Department", null, null, "TO_ONE", null);
+        Field addressField = TestUtils.createField("secondaryAddress", "Address 2", null, null, "COMPOSITE", "Address");
 
-        Field leads = new Field();
-        leads.setName("leads");
-        leads.setType("TO_MANY");
-
-        Field clientContacts = new Field();
-        clientContacts.setName("clientContacts");
-        clientContacts.setType("TO_MANY");
-
-        Field department = new Field();
-        department.setName("department");
-        department.setType("TO_ONE");
-
-        metaFieldSet.add(department);
-        metaFieldSet.add(leads);
-        metaFieldSet.add(fax);
+        metaFieldSet.add(departmentField);
+        metaFieldSet.add(leadsField);
+        metaFieldSet.add(faxField);
         metaFieldSet.add(addressField);
         metaFieldSet.add(clientCorporationField);
     }
 
     private void setupAssociationFields() {
         associationFields = metaFieldSet.stream().filter(n -> n.getAssociatedEntity() != null).collect(Collectors.toSet());
-    }
-
-    private Field getAddressField() {
-        Field addressField = new Field();
-        addressField.setName("secondaryAddress");
-        addressField.setType("COMPOSITE");
-        addressField.setDataType("Address");
-        return addressField;
     }
 
     @Test
@@ -119,15 +94,11 @@ public class TemplateUtilTest {
     public void testAssociatedFieldsTestNoExternalId() {
         StandardMetaData skillMeta = new StandardMetaData();
         skillMeta.setEntity("Skill");
-        Field idField = new Field();
-        idField.setName("id");
-        Field nameField = new Field();
-        nameField.setName("name");
+        Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
+        Field nameField = TestUtils.createField("name", "Name", "", "", "SCALAR", "String");
         skillMeta.setFields(Arrays.asList(idField, nameField));
 
-        Field primarySkillsField = new Field();
-        primarySkillsField.setName("primarySkills");
-        primarySkillsField.setType("TO_MANY");
+        Field primarySkillsField = TestUtils.createField("primarySkills", "Skills", null, null, "TO_MANY", "Skill");
         primarySkillsField.setOptionsType("Skill");
         primarySkillsField.setAssociatedEntity(skillMeta);
 
@@ -142,7 +113,8 @@ public class TemplateUtilTest {
 
     @Test
     public void testIsCompositeType() {
-        boolean result = templateUtil.isCompositeType(getAddressField());
+        Field addressField = TestUtils.createField("secondaryAddress", "Address 2", null, null, "COMPOSITE", "Address");
+        boolean result = templateUtil.isCompositeType(addressField);
         Assert.assertTrue(result);
     }
 

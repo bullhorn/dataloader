@@ -22,6 +22,7 @@ import com.bullhornsdk.data.model.response.list.ListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
 import org.junit.Assert;
 
 import java.io.File;
@@ -287,6 +288,26 @@ public class TestUtils {
     }
 
     /**
+     * Given a comma separated list of keys and their expected values, asserts that the values in the object match.
+     *
+     * @param jsonObject     object to test
+     * @param keys           comma separated list of keys, like: "firstName,lastName,email"
+     * @param expectedValues comma separated values list, like: "John,Smith,jsmith@bullhorn.com"
+     */
+    public static void checkJsonObject(JSONObject jsonObject, String keys, String expectedValues) {
+        String[] keyArray = keys.split(",");
+        String[] valueArray = expectedValues.split(",", -1);
+        Assert.assertEquals("Test setup failure: keys/expectedValues provided are not the same length", keyArray.length, valueArray.length);
+        for (int i = 0; i < keyArray.length; i++) {
+            String key = keyArray[i];
+            String value = valueArray[i];
+            Assert.assertTrue("Json object is missing field: " + key, jsonObject.has(key));
+            Assert.assertEquals("Json object value mismatch. Expected: " + value + " but Actual is: " + jsonObject.getString(key),
+                value, jsonObject.getString(key));
+        }
+    }
+
+    /**
      * Given a comma separated list of headers and values, just as you would see in the CSV file itself, this
      * convenience method constructs the Row object that represents that data.
      *
@@ -408,5 +429,20 @@ public class TestUtils {
         skill.setId(id);
         skill.setName(name);
         return skill;
+    }
+
+    /**
+     * Convenience constructor that builds up a meta Field object for testing.
+     */
+    public static com.bullhornsdk.data.model.entity.meta.Field createField(
+        String name, String label, String description, String hint, String type, String dataType) {
+        com.bullhornsdk.data.model.entity.meta.Field field = new com.bullhornsdk.data.model.entity.meta.Field();
+        field.setName(name);
+        field.setLabel(label);
+        field.setDescription(description);
+        field.setHint(hint);
+        field.setType(type);
+        field.setDataType(dataType);
+        return field;
     }
 }
