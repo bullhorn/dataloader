@@ -61,6 +61,9 @@ public class IntegrationTest {
         // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
 
+        // Test that country names are case insensitive
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("countryNames"), false);
+
         // Test for wildcard associations for candidates in a note
         System.setProperty("wildcardMatching", "true");
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("wildcardMatching"), false);
