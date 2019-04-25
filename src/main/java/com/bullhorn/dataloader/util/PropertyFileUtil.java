@@ -41,6 +41,7 @@ public class PropertyFileUtil {
     private Boolean processEmptyAssociations;
     private Boolean wildcardMatching;
     private Boolean singleByteEncoding;
+    private Boolean executeFormTriggers;
     private Integer numThreads;
     private Boolean caching;
 
@@ -199,6 +200,10 @@ public class PropertyFileUtil {
         return singleByteEncoding;
     }
 
+    public Boolean getExecuteFormTriggers() {
+        return executeFormTriggers;
+    }
+
     public Boolean getResultsFileEnabled() {
         return resultsFileEnabled;
     }
@@ -351,6 +356,8 @@ public class PropertyFileUtil {
             Boolean.valueOf(properties.getProperty(Property.WILDCARD_MATCHING.getName())));
         singleByteEncoding = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.SINGLE_BYTE_ENCODING.getName())));
+        executeFormTriggers = propertyValidationUtil.validateBooleanProperty(
+            Boolean.valueOf(properties.getProperty(Property.EXECUTE_FORM_TRIGGERS.getName())));
         numThreads = propertyValidationUtil.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
         caching = propertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.CACHING.getName())));
@@ -442,6 +449,7 @@ public class PropertyFileUtil {
         logPropertyIfExists(properties, Property.PROCESS_EMPTY_ASSOCIATIONS.getName());
         logPropertyIfExists(properties, Property.WILDCARD_MATCHING.getName());
         logPropertyIfExists(properties, Property.SINGLE_BYTE_ENCODING.getName());
+        logPropertyIfExists(properties, Property.EXECUTE_FORM_TRIGGERS.getName());
 
         printUtil.log("# Section 6 -- Performance");
         logPropertyIfExists(properties, Property.NUM_THREADS.getName());

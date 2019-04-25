@@ -31,7 +31,7 @@ public class RestSession {
      */
     public RestApi getRestApi() {
         if (restApi == null) {
-            restApi = new RestApi(createRestSession(), restApiExtension, printUtil);
+            restApi = new RestApi(createRestSession(), restApiExtension, propertyFileUtil, printUtil);
         }
         return restApi;
     }

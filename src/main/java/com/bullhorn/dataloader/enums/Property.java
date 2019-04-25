@@ -12,6 +12,7 @@ public enum Property {
     CLIENT_ID("clientId"),
     CLIENT_SECRET("clientSecret"),
     DATE_FORMAT("dateFormat"),
+    EXECUTE_FORM_TRIGGERS("executeFormTriggers"),
     LIST_DELIMITER("listDelimiter"),
     LOGIN_URL("loginUrl"),
     NUM_THREADS("numThreads"),

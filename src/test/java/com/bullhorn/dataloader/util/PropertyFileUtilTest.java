@@ -75,6 +75,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
@@ -130,6 +131,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
@@ -184,6 +186,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
@@ -248,6 +251,8 @@ public class PropertyFileUtilTest {
         args.add("false");
         args.add("singleByteEncoding");
         args.add("true");
+        args.add("executeFormTriggers");
+        args.add("true");
         args.add("-NUM_THREADS");
         args.add("7");
         args.add("-caching");
@@ -277,6 +282,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
