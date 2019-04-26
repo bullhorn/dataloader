@@ -50,6 +50,21 @@ public class PreloaderTest {
     }
 
     @Test
+    public void testConvertRowCaseInsensitive() throws IOException {
+        Row row = TestUtils.createRow("address.city,address.state,address.countryName",
+            "St. Louis,MO,UNITED STATES");
+        Row expectedRow = TestUtils.createRow("address.city,address.state,address.countryID",
+            "St. Louis,MO,1");
+
+        Row convertedRow = preloader.convertRow(row);
+
+        for (int i = 0; i < expectedRow.getCells().size(); ++i) {
+            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+        }
+        verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
+    }
+
+    @Test
     public void testConvertRowInvalid() throws IOException {
         Row row = TestUtils.createRow("address.city,address.state,address.countryName",
             "St. Louis,MO,Nowhere");

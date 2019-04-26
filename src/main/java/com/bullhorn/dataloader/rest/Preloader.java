@@ -49,8 +49,8 @@ public class Preloader {
         if (cell.isAddress() && cell.getAssociationFieldName().equalsIgnoreCase(StringConsts.COUNTRY_NAME)) {
             String name = cell.getAssociationBaseName() + "." + StringConsts.COUNTRY_ID;
             String value = cell.getValue();
-            if (getCountryNameToIdMap().containsKey(cell.getValue())) {
-                value = getCountryNameToIdMap().get(cell.getValue()).toString();
+            if (getCountryNameToIdMap().containsKey(value.toLowerCase())) {
+                value = getCountryNameToIdMap().get(value.toLowerCase()).toString();
             }
             return new Cell(name, value);
         }
@@ -80,7 +80,7 @@ public class Preloader {
         Map<String, Integer> countryNameToIdMap = new HashMap<>();
         List<Country> countryList = restApi.queryForList(Country.class, "id IS NOT null",
             Sets.newHashSet("id", "name"), ParamFactory.queryParams());
-        countryList.forEach(n -> countryNameToIdMap.put(n.getName().trim(), n.getId()));
+        countryList.forEach(n -> countryNameToIdMap.put(n.getName().trim().toLowerCase(), n.getId()));
         return countryNameToIdMap;
     }
 }
