@@ -21,7 +21,6 @@ script:
 
 after_success:
   - mvn test jacoco:report coveralls:report
-  - test $TRAVIS_BRANCH = "master" && npm run galaxy -- $FIREBASE_URL $SLACK_WEB_HOOK $SLACK_CHANNEL
 
 notifications:
   slack:

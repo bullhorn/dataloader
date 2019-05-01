@@ -1,15 +1,13 @@
 {
   "name": "dataloader-build-tools",
   "version": "4.4.0",
-  "description": "Extra build tools outside of Maven, including code coverage reporting to Galaxy, release tools, and git hooks.",
+  "description": "Extra build tools outside of Maven, including release tools and git hooks.",
   "license": "AGPL-3.0",
   "scripts": {
     "loc": "sloc src/ --format json > ./target/site/jacoco/sloc.json",
     "precommit-msg": "echo 'Pre-commit checks...' && exit 0",
     "precommit-validate": "mvn validate",
     "release": "standard-version -a",
-    "pregalaxy": "npm run loc",
-    "galaxy": "galaxy analyze",
     "postrelease": "git push --follow-tags origin master"
   },
   "standard-version": {
@@ -31,19 +29,7 @@
   },
   "homepage": "https://github.com/bullhorn/dataloader#readme",
   "devDependencies": {
-    "galaxy-parser": "^1.0.45",
     "pre-commit": "^1.2.2",
-    "standard-version": "^4.3.0"
-  },
-  "galaxy": {
-    "display": "DataLoader",
-    "type": "java",
-    "public": true,
-    "goal": 80,
-    "threshold": 0.15,
-    "locations": {
-      "sloc": "/target/site/jacoco/sloc.json",
-      "jacoco": "/target/site/jacoco/jacoco.xml"
-    }
+    "standard-version": "^5.0.2"
   }
 }
