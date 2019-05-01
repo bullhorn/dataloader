@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="4.4.0"></a>
+# [4.4.0](https://github.com/bullhorn/dataloader/compare/v4.3.0...v4.4.0) (2019-05-01)
+
+
+### Bug Fixes
+
+* **Country Names:** https://github.com/bullhorn/dataloader/issues/290 ([#295](https://github.com/bullhorn/dataloader/issues/295)) ([22d99d5](https://github.com/bullhorn/dataloader/commit/22d99d5))
+
+
+### Features
+
+* **SDK Upgrade:** Rate Limiting, Form Triggers and isDefaultContact ([#296](https://github.com/bullhorn/dataloader/issues/296)) ([dff13a9](https://github.com/bullhorn/dataloader/commit/dff13a9))
+
+
+
 <a name="4.3.0"></a>
 # [4.3.0](https://github.com/bullhorn/dataloader/compare/v4.2.0...v4.3.0) (2019-02-01)
 
