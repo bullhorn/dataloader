@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
@@ -48,10 +49,15 @@ public class RestApi {
     private final RestApiExtension restApiExtension;
     private final PrintUtil printUtil;
 
-    public RestApi(StandardBullhornData bullhornData, RestApiExtension restApiExtension, PrintUtil printUtil) {
+    public RestApi(StandardBullhornData bullhornData,
+                   RestApiExtension restApiExtension,
+                   PropertyFileUtil propertyFileUtil,
+                   PrintUtil printUtil) {
         this.bullhornData = bullhornData;
         this.restApiExtension = restApiExtension;
         this.printUtil = printUtil;
+
+        this.bullhornData.setExecuteFormTriggers(propertyFileUtil.getExecuteFormTriggers());
     }
 
     // region Getters

@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.when;
 public class RestApiTest {
     private StandardBullhornData bullhornDataMock;
     private RestApiExtension restApiExtensionMock;
+    private PropertyFileUtil propertyFileUtilMock;
     private PrintUtil printUtilMock;
     private RestApi restApi;
 
@@ -48,8 +50,9 @@ public class RestApiTest {
     public void setup() {
         bullhornDataMock = mock(StandardBullhornData.class);
         restApiExtensionMock = mock(RestApiExtension.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
         printUtilMock = mock(PrintUtil.class);
-        restApi = new RestApi(bullhornDataMock, restApiExtensionMock, printUtilMock);
+        restApi = new RestApi(bullhornDataMock, restApiExtensionMock, propertyFileUtilMock, printUtilMock);
     }
 
     @Test
