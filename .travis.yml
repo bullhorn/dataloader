@@ -21,11 +21,6 @@ script:
 
 after_success:
   - mvn test jacoco:report coveralls:report
-  - test $TRAVIS_BRANCH = "master" && npm run galaxy -- $FIREBASE_URL $SLACK_WEB_HOOK $SLACK_CHANNEL
-
-notifications:
-  slack:
-    secure: f1OJnqs2/JBo/rmxan7ta9SXjXEagAU6PQjj92nJ7Bccbk50EHdHuTWh3kcGAsOAjL/JG4KDu3vk0bpLvEJf4/+obIo9nrPWyYZidKhkU79bOB7xU+Ca73sFy2VHDrqL9bDrBdO+iGmjdKaKKU6mc0HKzozBvuY8x5P0lQYuvhWRBjeCInnPAHB7hilszEz5m9/HxrmKDn38zXCO6oTFevoU5t5I5jtREiqDjkSdCTrWw1VnrymuvyCey8T0UWLhbmOWPp+xMl6nyPSPqMhISfe1SX0i1kZghSmumdV7Sg5wlEWoAVB4DtNXYHmFsgC8N/kTjqw1HsWKSPg2JnbIDOMofUZ97/OvnYg1kGAoUGl1SjiUww9qvFo2okqqK4dsJeMYuEmnawbRKkNRlqZTWVW24qAIBJWAoanszGTsiZGYOFTaRFDKBbG3vhWrlma2+lxmH3kiqTEkFB4pvfZOLQ+VEpmcTxuNGWA+WtshQ4CU0ietH3RXMe96GVj4rmMo9VlIflzJp5EsguSjSepaeUOV0PkrVLm/Kyc3oEPPOdoMgvs2m4ATFDYHM64F17y+giDOj/i3MqsJrWHmWEs6/HU7xsjNsmZiKoCtSUIXi+PDSr9PbFVRQWsYf7OByocu6kcgNFF1F6B/52tpr6ICrlJ13YqKfEQxRaX3V2voB1I=
 
 before_deploy:
   - mvn clean package
