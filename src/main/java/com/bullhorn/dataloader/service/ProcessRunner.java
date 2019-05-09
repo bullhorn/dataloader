@@ -14,11 +14,16 @@ import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.task.AbstractTask;
 import com.bullhorn.dataloader.task.TaskFactory;
+import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +67,16 @@ public class ProcessRunner {
         CsvFileWriter csvFileWriter = new CsvFileWriter(command, filePath, csvFileReader.getHeaders());
         ActionTotals actionTotals = new ActionTotals();
         TaskFactory taskFactory = new TaskFactory(entityInfo, csvFileWriter, propertyFileUtil, restApi, printUtil, actionTotals, cache, completeUtil);
+
+        // Warning when id column is present but will be ignored
+        if (command.equals(Command.LOAD)) {
+            List<String> headers = new ArrayList<>(Arrays.asList(csvFileReader.getHeaders()));
+            if (ArrayUtil.containsIgnoreCase(headers, StringConsts.ID)
+                && !ArrayUtil.containsIgnoreCase(propertyFileUtil.getEntityExistFields(entityInfo), StringConsts.ID)) {
+                printUtil.printAndLog("WARNING: The '" + StringConsts.ID + "' column is not being used for "
+                    + "duplicate checking. The " + StringConsts.ID + " value will be ignored.");
+            }
+        }
 
         // Loop over each row in the file
         while (csvFileReader.readRecord()) {

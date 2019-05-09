@@ -18,6 +18,7 @@ import com.bullhorn.dataloader.task.LoadAttachmentTask;
 import com.bullhorn.dataloader.task.LoadTask;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.google.common.collect.Lists;
 import org.joda.time.format.DateTimeFormat;
@@ -34,6 +35,7 @@ import static org.mockito.AdditionalAnswers.returnsFirstArg;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,9 +43,12 @@ import static org.mockito.Mockito.when;
 public class ProcessRunnerTest {
 
     private ExecutorService executorServiceMock;
+    private PropertyFileUtil propertyFileUtilMock;
     private PrintUtil printUtilMock;
     private Cache cacheMock;
     private ProcessRunner processRunner;
+    private String idExistFieldWarning = "WARNING: The 'id' column is not being used for "
+        + "duplicate checking. The id value will be ignored.";
 
     @Before
     public void setup() throws InterruptedException {
@@ -51,10 +56,10 @@ public class ProcessRunnerTest {
         RestSession restSessionMock = mock(RestSession.class);
         executorServiceMock = mock(ExecutorService.class);
         Preloader preloaderMock = mock(Preloader.class);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
         printUtilMock = mock(PrintUtil.class);
         cacheMock = mock(Cache.class);
         CompleteUtil completeUtilMock = mock(CompleteUtil.class);
-        PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 
         processRunner = new ProcessRunner(restSessionMock, preloaderMock, printUtilMock, propertyFileUtilMock,
@@ -146,6 +151,7 @@ public class ProcessRunnerTest {
 
     @Test
     public void testRunLoad() throws IOException, InterruptedException {
+        when(propertyFileUtilMock.getEntityExistFields(any())).thenReturn(Lists.newArrayList(StringConsts.ID));
         String filePath = TestUtils.getResourceFilePath("Candidate.csv");
         ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
 
@@ -155,6 +161,23 @@ public class ProcessRunnerTest {
         verify(executorServiceMock, times(1)).shutdown();
         verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
         verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
+        verify(printUtilMock, never()).printAndLog(eq(idExistFieldWarning));
+        AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
+        Assert.assertEquals(actualTask.getClass(), LoadTask.class);
+    }
+
+    @Test
+    public void testRunLoadIdColumnWarning() throws IOException, InterruptedException {
+        String filePath = TestUtils.getResourceFilePath("Candidate.csv");
+        ArgumentCaptor taskCaptor = ArgumentCaptor.forClass(AbstractTask.class);
+
+        ActionTotals actualTotals = processRunner.run(Command.LOAD, EntityInfo.CANDIDATE, filePath);
+
+        verify(executorServiceMock, times(1)).execute(any());
+        verify(executorServiceMock, times(1)).shutdown();
+        verify(executorServiceMock).execute((Runnable) taskCaptor.capture());
+        verify(printUtilMock, times(1)).printActionTotals(eq(Command.LOAD), eq(actualTotals));
+        verify(printUtilMock, times(1)).printAndLog(eq(idExistFieldWarning));
         AbstractTask actualTask = (AbstractTask) taskCaptor.getValue();
         Assert.assertEquals(actualTask.getClass(), LoadTask.class);
     }
