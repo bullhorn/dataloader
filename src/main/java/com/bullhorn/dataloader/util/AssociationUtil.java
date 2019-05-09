@@ -98,9 +98,20 @@ public class AssociationUtil {
      */
     public static EntityInfo getFieldEntity(EntityInfo entityInfo, Cell cell) {
         if (cell.isAssociation()) {
+            // TODO: If the association is the name of the entity, like submissions on JobOrder, use that.
+            if (cell.getAssociationBaseName().equalsIgnoreCase("submissions")) {
+                return EntityInfo.JOB_SUBMISSION;
+            } else if (cell.getAssociationBaseName().equalsIgnoreCase("placements")) {
+                return EntityInfo.PLACEMENT;
+            }
             if (isToMany(entityInfo, cell.getAssociationBaseName())) {
                 AssociationField associationField = getToManyField(entityInfo, cell.getAssociationBaseName());
-                return EntityInfo.fromString(associationField.getAssociationType().getSimpleName());
+                if (associationField != null) {
+                    return EntityInfo.fromString(associationField.getAssociationType().getSimpleName());
+                } else {
+                    Method setMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
+                    return EntityInfo.fromString(setMethod.getParameterTypes()[0].getSimpleName());
+                }
             } else {
                 Method setMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
                 return EntityInfo.fromString(setMethod.getParameterTypes()[0].getSimpleName());
@@ -119,6 +130,11 @@ public class AssociationUtil {
             if (associationField.getAssociationFieldName().equalsIgnoreCase(associationBaseName)) {
                 return true;
             }
+        }
+        // TODO: Allow Overrides for Exportable Fields
+        if (entityInfo == EntityInfo.JOB_ORDER
+            && (associationBaseName.equals("placements") || associationBaseName.equals("submissions"))) {
+            return true;
         }
         return false;
     }

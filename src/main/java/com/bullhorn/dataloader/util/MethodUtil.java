@@ -153,7 +153,8 @@ public class MethodUtil {
                 return methodMap.get(methodName);
             }
         }
-        checkMalformedAddressField(fieldName);
-        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
+        return null;
+//        checkMalformedAddressField(fieldName);
+//        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 }

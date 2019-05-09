@@ -214,8 +214,14 @@ public class Field {
                     for (Object association : toManyAssociation.getData()) {
                         Object value = getMethod.invoke(association);
                         if (value != null) {
-                            String stringValue = String.valueOf(value);
-                            values.add(stringValue);
+                            // TODO: Handle dates
+                            if (DateTime.class.equals(value.getClass())) {
+                                DateTime dateTime = (DateTime) value;
+                                values.add(dateTimeFormatter.print(dateTime));
+                            } else {
+                                String stringValue = String.valueOf(value);
+                                values.add(stringValue);
+                            }
                         }
                     }
                 }

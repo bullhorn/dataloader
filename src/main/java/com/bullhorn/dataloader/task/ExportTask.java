@@ -11,16 +11,11 @@ import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
-import com.bullhorn.dataloader.util.AssociationUtil;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.bullhornsdk.data.model.entity.embedded.OneToMany;
-import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
-import com.google.common.collect.Sets;
 
 import java.util.List;
 
@@ -53,25 +48,22 @@ public class ExportTask extends AbstractTask {
         List<BullhornEntity> foundEntityList = findEntities(entityExistFields, record.getFieldsParameter(isPrimaryEntity), isPrimaryEntity);
         if (foundEntityList.isEmpty()) {
             throw new RestApiException(FindUtil.getNoMatchingRecordsExistMessage(entityInfo, record.getEntityExistFields()));
-        } else if (foundEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
         }
+
+        // TODO: Write out all rows found
+        for (BullhornEntity bullhornEntity : foundEntityList) {
+            Row newRow = new Row(row.getFilePath(), row.getNumber());
+            for (Field field : record.getFields()) {
+                String value = field.getStringValueFromEntity(bullhornEntity, propertyFileUtil.getListDelimiter());
+                Cell updatedCell = new Cell(field.getCell().getName(), value);
+                newRow.addCell(updatedCell);
+            }
+            csvFileWriter.writeRow(newRow, Result.export(bullhornEntity.getId()));
+        }
+
+        // Create new rows of data
         BullhornEntity entity = foundEntityList.get(0);
         entityId = entity.getId();
-
-        // Follow on query for associated entities that have not returned the full number of records
-        for (Field field : record.getToManyFields()) {
-            OneToMany existingToMany = field.getOneToManyFromEntity(entity);
-            if (existingToMany != null && existingToMany.getTotal() > existingToMany.getData().size()) {
-                List<BullhornEntity> associations = restApi.getAllAssociationsList((Class<AssociationEntity>) entityInfo.getEntityClass(),
-                    Sets.newHashSet(entityId), AssociationUtil.getToManyField(field), Sets.newHashSet(field.getName()),
-                    ParamFactory.associationParams());
-                OneToMany newToMany = new OneToMany();
-                newToMany.setTotal(existingToMany.getTotal());
-                newToMany.setData(associations);
-                field.populateOneToManyOnEntity(entity, newToMany);
-            }
-        }
 
         // Replace row with current data from Rest
         Row updatedRow = new Row(row.getFilePath(), row.getNumber());

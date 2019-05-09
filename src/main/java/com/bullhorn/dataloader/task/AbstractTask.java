@@ -44,7 +44,7 @@ public abstract class AbstractTask implements Runnable {
     private final Cache cache;
     Row row;
 
-    private final CsvFileWriter csvFileWriter;
+    protected final CsvFileWriter csvFileWriter;
 
     AbstractTask(EntityInfo entityInfo,
                  Row row,
