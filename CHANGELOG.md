@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+# [4.5.0](https://github.com/bullhorn/dataloader/compare/v4.4.0...v4.5.0) (2019-05-10)
+
+
+### Features
+
+* **ID Column Warning:** Warning when ID column is present but unused ([#298](https://github.com/bullhorn/dataloader/issues/298)) ([e262916](https://github.com/bullhorn/dataloader/commit/e262916))
+
+
+
 <a name="4.4.0"></a>
 # [4.4.0](https://github.com/bullhorn/dataloader/compare/v4.3.0...v4.4.0) (2019-05-01)
 
