@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -22,23 +21,23 @@ import java.util.TreeMap;
 public class FileUtil {
 
     /**
-     * Given a file or directory, this method will determine all valid CSV files that can be used by DataLoader and
-     * collect them into a list indexed by the entity that they correspond to based on the filename. For a filename
-     * argument, this list will be either empty or contain exactly one matching entity to filename.
+     * For a directory:
+     * Will determine all valid CSV files that can be used by Data Loader and collect them into a list indexed
+     * by the entity that they correspond to based on the filename.
      *
-     * @param filePath       any file or directory
-     * @param validationUtil The validation utility
-     * @param comparator     specifies how the sorted map should be sorted by entity
-     * @return a Map of entity enums to lists of valid files.
+     * For a file:
+     * Will return the list containing exactly one matching entity to filename.
+     *
+     * @return an empty list if no valid files can be found
      */
     public static SortedMap<EntityInfo, List<String>> getValidCsvFiles(String filePath,
-                                                                       ValidationUtil validationUtil,
+                                                                       PropertyFileUtil propertyFileUtil,
                                                                        Comparator<EntityInfo> comparator) {
         File file = new File(filePath);
         if (file.isDirectory()) {
-            return getValidCsvFilesFromDirectory(file, validationUtil, comparator);
+            return getValidCsvFilesFromDirectory(file, comparator);
         } else {
-            return getValidCsvFilesFromFilePath(filePath, validationUtil, comparator);
+            return getValidCsvFilesFromFilePath(filePath, propertyFileUtil, comparator);
         }
     }
 
@@ -46,14 +45,11 @@ public class FileUtil {
      * Given a directory, this method searches the directory for all valid CSV files and returns the map. Multiple files
      * for a single entity will be sorted alphabetically.
      *
-     * @param directory      The path to the directory (relative or absolute)
-     * @param validationUtil The validation utility
-     * @param comparator     How to sort the list
+     * @param directory  The path to the directory (relative or absolute)
+     * @param comparator How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
-    private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory,
-                                                                                     ValidationUtil validationUtil,
-                                                                                     Comparator<EntityInfo> comparator) {
+    private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromDirectory(File directory, Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
         String[] fileNames = directory.list();
@@ -61,7 +57,7 @@ public class FileUtil {
             Arrays.sort(fileNames);
             for (String fileName : fileNames) {
                 String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
-                if (validationUtil.isValidCsvFile(absoluteFilePath, false)) {
+                if (ValidationUtil.validateCsvFile(absoluteFilePath)) {
                     EntityInfo entityInfo = extractEntityFromFileName(fileName);
                     if (entityInfo != null) {
                         if (!entityToFileListMap.containsKey(entityInfo)) {
@@ -80,18 +76,18 @@ public class FileUtil {
     /**
      * Given an individual file path, this method constructs the entity to file map and returns it.
      *
-     * @param filePath       The path to the file (relative or absolute)
-     * @param validationUtil The validation utility
-     * @param comparator     How to sort the list
+     * @param filePath         The path to the file (relative or absolute)
+     * @param propertyFileUtil The property file utility
+     * @param comparator       How to sort the list
      * @return The sorted map of entities to a list of files for each entity
      */
     private static SortedMap<EntityInfo, List<String>> getValidCsvFilesFromFilePath(String filePath,
-                                                                                    ValidationUtil validationUtil,
+                                                                                    PropertyFileUtil propertyFileUtil,
                                                                                     Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
-        if (validationUtil.isValidCsvFile(filePath, false)) {
-            EntityInfo entityInfo = extractEntityFromFileName(filePath);
+        if (ValidationUtil.validateCsvFile(filePath)) {
+            EntityInfo entityInfo = extractEntityFromFileNameOrProperty(filePath, propertyFileUtil);
             if (entityInfo != null) {
                 entityToFileListMap.put(entityInfo, Collections.singletonList(filePath));
             }
@@ -100,59 +96,42 @@ public class FileUtil {
         return entityToFileListMap;
     }
 
-    /**
-     * Returns the list of loadable csv files in load order
-     *
-     * @param filePath       The given file or directory
-     * @param validationUtil The validation utility
-     * @return the subset of getValidCsvFiles that are loadable
-     */
-    public static SortedMap<EntityInfo, List<String>> getLoadableCsvFilesFromPath(String filePath, ValidationUtil validationUtil) {
+    public static SortedMap<EntityInfo, List<String>> getLoadableCsvFilesFromPath(String filePath, PropertyFileUtil propertyFileUtil) {
         SortedMap<EntityInfo, List<String>> loadableEntityToFileListMap = new TreeMap<>(EntityInfo.loadOrderComparator);
-
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, validationUtil, EntityInfo.loadOrderComparator);
-        for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            EntityInfo entityInfo = entityFileEntry.getKey();
-            if (entityInfo.isLoadable()) {
-                loadableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
-            }
-        }
-
+        getValidCsvFiles(filePath, propertyFileUtil, EntityInfo.loadOrderComparator).entrySet().stream()
+            .filter(e -> e.getKey().isLoadable())
+            .forEach(e -> loadableEntityToFileListMap.put(e.getKey(), e.getValue()));
         return loadableEntityToFileListMap;
     }
 
-    /**
-     * Returns the list of deletable csv files in delete order
-     *
-     * @param filePath       The given file or directory
-     * @param validationUtil The validation utility
-     * @return the subset of getValidCsvFiles that are deletable
-     */
-    public static SortedMap<EntityInfo, List<String>> getDeletableCsvFilesFromPath(String filePath, ValidationUtil validationUtil) {
+    public static SortedMap<EntityInfo, List<String>> getDeletableCsvFilesFromPath(String filePath, PropertyFileUtil propertyFileUtil) {
         SortedMap<EntityInfo, List<String>> deletableEntityToFileListMap = new TreeMap<>(EntityInfo.deleteOrderComparator);
-
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = getValidCsvFiles(filePath, validationUtil, EntityInfo.deleteOrderComparator);
-        for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
-            EntityInfo entityInfo = entityFileEntry.getKey();
-            if (entityInfo.isDeletable()) {
-                deletableEntityToFileListMap.put(entityFileEntry.getKey(), entityFileEntry.getValue());
-            }
-        }
-
+        getValidCsvFiles(filePath, propertyFileUtil, EntityInfo.deleteOrderComparator).entrySet().stream()
+            .filter(e -> e.getKey().isDeletable())
+            .forEach(e -> deletableEntityToFileListMap.put(e.getKey(), e.getValue()));
         return deletableEntityToFileListMap;
     }
 
     /**
-     * Extractions entity type from a file path.
+     * Finds the longest match of a supported entity name to the start of a filename, or overrides using the property file.
      *
-     * The file name must start with the name of the entity
+     * @return the single best matching entity from the filename, or the override entity, or null if not found
+     */
+    public static EntityInfo extractEntityFromFileNameOrProperty(String fileName, PropertyFileUtil propertyFileUtil) {
+        EntityInfo entityInfo = propertyFileUtil.getEntity();
+        if (entityInfo == null) {
+            entityInfo = FileUtil.extractEntityFromFileName(fileName);
+        }
+        return entityInfo;
+    }
+
+    /**
+     * Finds the longest match of a supported entity name to the start of a filename, or overrides using the property file.
      *
-     * @param fileName path from which to extract entity name
-     * @return the SDK-Rest entity, or null if not found
+     * @return the single best matching entity, or null if not found
      */
     public static EntityInfo extractEntityFromFileName(String fileName) {
         File file = new File(fileName);
-
         String upperCaseFileName = file.getName().toUpperCase();
         EntityInfo bestMatch = null;
         for (EntityInfo entityInfo : EntityInfo.values()) {
@@ -160,17 +139,11 @@ public class FileUtil {
                 if (bestMatch == null) {
                     bestMatch = entityInfo;
                 } else if (bestMatch.getEntityName().length() < entityInfo.getEntityName().length()) {
-                    // longer name is better
-                    bestMatch = entityInfo;
+                    bestMatch = entityInfo; // longer entity name wins
                 }
             }
         }
-
-        if (bestMatch == null) {
-            return null;
-        } else {
-            return bestMatch;
-        }
+        return bestMatch;
     }
 
     /**
@@ -187,7 +160,6 @@ public class FileUtil {
         } catch (NullPointerException e) {
             throw new IOException("Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for attachments");
         }
-
         // If the relativeFilePath is not relative to the current working directory, then try relative to the CSV file's directory
         if (!attachmentFile.exists()) {
             File currentCsvFile = new File(row.getFilePath());

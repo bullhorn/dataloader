@@ -20,12 +20,11 @@ import static org.mockito.Mockito.mock;
 
 public class FileUtilTest {
 
-    private ValidationUtil validationUtil;
+    private PropertyFileUtil propertyFileUtilMock;
 
     @Before
     public void setup() {
-        PrintUtil printUtilMock = mock(PrintUtil.class);
-        validationUtil = new ValidationUtil(printUtilMock);
+        propertyFileUtilMock = mock(PropertyFileUtil.class);
     }
 
     @Test
@@ -41,7 +40,7 @@ public class FileUtilTest {
         final SortedMap<EntityInfo, List<String>> expectedMap = new TreeMap<>(EntityInfo.loadOrderComparator);
         expectedMap.put(EntityInfo.CANDIDATE, Collections.singletonList(file.getAbsolutePath()));
 
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getValidCsvFiles(filePath, validationUtil, EntityInfo.loadOrderComparator);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getValidCsvFiles(filePath, propertyFileUtilMock, EntityInfo.loadOrderComparator);
 
         Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
         Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
@@ -61,7 +60,7 @@ public class FileUtilTest {
         expectedMap.put(EntityInfo.CANDIDATE, Collections.singletonList(candidateFile.getAbsolutePath()));
         expectedMap.put(EntityInfo.CANDIDATE_WORK_HISTORY, Collections.singletonList(candidateWorkHistoryFile.getAbsolutePath()));
 
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath(filePath, validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath(filePath, propertyFileUtilMock);
 
         Assert.assertEquals(actualMap.keySet(), expectedMap.keySet());
         Assert.assertEquals(actualMap.values().toArray()[0], expectedMap.values().toArray()[0]);
@@ -78,26 +77,26 @@ public class FileUtilTest {
 
     @Test
     public void testGetLoadableCsvFilesFromPath_badFile() {
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath("bad_file.csv", validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath("bad_file.csv", propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetLoadableCsvFilesFromPath_badDirectory() {
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath("bad_directory/", validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath("bad_directory/", propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetLoadableCsvFilesFromPath_emptyDirectory() {
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getLoadableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetDeletableCsvFilesFromPath() {
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(filePath, validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(filePath, propertyFileUtilMock);
 
         Set<Map.Entry<EntityInfo, List<String>>> sortedSet = actualMap.entrySet();
         Assert.assertEquals(2, sortedSet.size());
@@ -108,19 +107,19 @@ public class FileUtilTest {
 
     @Test
     public void testGetDeletableCsvFilesFromPath_badFile() {
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath("bad_file.csv", validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath("bad_file.csv", propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetDeletableCsvFilesFromPath_badDirectory() {
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath("bad_directory/", validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath("bad_directory/", propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
 
     @Test
     public void testGetDeletableCsvFilesFromPath_emptyDirectory() {
-        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), validationUtil);
+        final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
 }

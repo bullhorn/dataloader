@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.util;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.Property;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 import java.util.List;
@@ -10,16 +11,13 @@ import java.util.Map;
 /**
  * Validates the user's entries in the properties file.
  */
-public class PropertyValidationUtil {
+class PropertyValidationUtil {
     private static final Integer MAX_NUM_THREADS = 15;
     private static final Integer MAX_WAIT_SECONDS = 3600; // 1 hour
     private static final Integer DEFAULT_INTERVAL_MSEC = 500; // Wait for half a second
     private static final String DEFAULT_RESULTS_FILE_PATH = "./results.json";
 
-    public PropertyValidationUtil() {
-    }
-
-    void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {
+    static void validateEntityExistFields(Map<String, List<String>> entityExistFieldsMap) {
         for (Map.Entry<String, List<String>> entityEntry : entityExistFieldsMap.entrySet()) {
             // Clean up fields by trimming whitespace
             for (String value : entityEntry.getValue()) {
@@ -37,7 +35,7 @@ public class PropertyValidationUtil {
         }
     }
 
-    Integer validateNumThreads(Integer numThreads) {
+    static Integer validateNumThreads(Integer numThreads) {
         if (numThreads < 0 || numThreads > MAX_NUM_THREADS) {
             throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
         }
@@ -47,7 +45,7 @@ public class PropertyValidationUtil {
         return Math.min(numThreads, MAX_NUM_THREADS);
     }
 
-    Integer validateWaitSeconds(String waitSecondsString) {
+    static Integer validateWaitSeconds(String waitSecondsString) {
         Integer waitSeconds = 0;
         if (waitSecondsString != null) {
             waitSeconds = Integer.valueOf(waitSecondsString);
@@ -60,19 +58,19 @@ public class PropertyValidationUtil {
         return waitSeconds;
     }
 
-    String validateResultsFilePath(String resultsFilePath) {
+    static String validateResultsFilePath(String resultsFilePath) {
         return resultsFilePath == null ? DEFAULT_RESULTS_FILE_PATH : resultsFilePath;
     }
 
-    Integer validateIntervalMsec(String intervalMsecString) {
+    static Integer validateIntervalMsec(String intervalMsecString) {
         return intervalMsecString == null ? DEFAULT_INTERVAL_MSEC : Integer.valueOf(intervalMsecString);
     }
 
-    Boolean validateBooleanProperty(Boolean value) {
+    static Boolean validateBooleanProperty(Boolean value) {
         return value == null ? false : value;
     }
 
-    String validateRequiredStringField(String name, String value) {
+    static String validateRequiredStringField(String name, String value) {
         if (value == null) {
             throw new IllegalArgumentException("DataLoader Properties Error: missing '" + name + "' property");
         }
@@ -83,7 +81,18 @@ public class PropertyValidationUtil {
         return value;
     }
 
-    String validateOptionalStringField(String value) {
+    static EntityInfo validateEntityInfoProperty(String value) {
+        EntityInfo entityInfo = null;
+        if (!StringUtils.isEmpty(value)) {
+            entityInfo = EntityInfo.fromString(value);
+            if (entityInfo == null) {
+                throw new IllegalArgumentException("DataLoader Properties Error: Could not determine entity from entity property: '" + value + "'");
+            }
+        }
+        return entityInfo;
+    }
+
+    static String validateOptionalStringField(String value) {
         return value == null ? "" : value;
     }
 }

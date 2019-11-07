@@ -6,7 +6,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,7 +23,6 @@ abstract class AbstractService {
 
     final PrintUtil printUtil;
     final PropertyFileUtil propertyFileUtil;
-    final ValidationUtil validationUtil;
     final CompleteUtil completeUtil;
     final RestSession restSession;
     final ProcessRunner processRunner;
@@ -33,7 +31,6 @@ abstract class AbstractService {
 
     AbstractService(PrintUtil printUtil,
                     PropertyFileUtil propertyFileUtil,
-                    ValidationUtil validationUtil,
                     CompleteUtil completeUtil,
                     RestSession restSession,
                     ProcessRunner processRunner,
@@ -41,7 +38,6 @@ abstract class AbstractService {
                     Timer timer) {
         this.printUtil = printUtil;
         this.propertyFileUtil = propertyFileUtil;
-        this.validationUtil = validationUtil;
         this.completeUtil = completeUtil;
         this.restSession = restSession;
         this.processRunner = processRunner;

@@ -13,13 +13,10 @@ import java.util.Map;
 @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
 public class PropertyValidationUtilTest {
 
-    private PropertyValidationUtil propertyValidationUtil;
     private Map<String, List<String>> entityExistFieldsMap;
 
     @Before
     public void setup() {
-        propertyValidationUtil = new PropertyValidationUtil();
-
         entityExistFieldsMap = new HashMap<>();
         entityExistFieldsMap.put("AppointmentAttendee", Arrays.asList("externalID"));
         entityExistFieldsMap.put("Appointment", Arrays.asList("externalID"));
@@ -57,121 +54,127 @@ public class PropertyValidationUtilTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyUserName() {
-        propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), "");
+        PropertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), "");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMissingUserName() {
-        propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), null);
+        PropertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), null);
+    }
+
+    @Test
+    public void testOptionalStringField() {
+        String value = PropertyValidationUtil.validateOptionalStringField("test");
+        Assert.assertEquals("test", value);
     }
 
     @Test
     public void testMissingOptionalStringField() {
-        String value = propertyValidationUtil.validateOptionalStringField(null);
+        String value = PropertyValidationUtil.validateOptionalStringField(null);
         Assert.assertEquals("", value);
     }
 
     @Test
     public void testEntityExistFieldsTrimWhitespace() {
         Assert.assertEquals(" id ", entityExistFieldsMap.get("Candidate").get(0));
-        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
         Assert.assertEquals("id", entityExistFieldsMap.get("Candidate").get(0));
     }
 
     @Test
     public void testEntityExistFieldsMissing() {
         entityExistFieldsMap.remove("BusinessSector");
-        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test
     public void testEntityExistFieldsEmpty() {
         entityExistFieldsMap.put("Candidate", Arrays.asList(""));
-        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEntityExistFieldsBadEntity() {
         entityExistFieldsMap.put("BadEntity", Arrays.asList("externalID"));
-        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
     @Test
     public void testNullBooleanProperty() {
-        Boolean value = propertyValidationUtil.validateBooleanProperty(null);
+        Boolean value = PropertyValidationUtil.validateBooleanProperty(null);
         Assert.assertEquals(Boolean.FALSE, value);
     }
 
     @Test
     public void testValidBooleanPropertyTrue() {
-        Boolean value = propertyValidationUtil.validateBooleanProperty(true);
+        Boolean value = PropertyValidationUtil.validateBooleanProperty(true);
         Assert.assertEquals(Boolean.TRUE, value);
     }
 
     @Test
     public void testValidBooleanPropertyFalse() {
-        Boolean value = propertyValidationUtil.validateBooleanProperty(false);
+        Boolean value = PropertyValidationUtil.validateBooleanProperty(false);
         Assert.assertEquals(Boolean.FALSE, value);
     }
 
     @Test
     public void testMissingResultsFilePath() {
-        String value = propertyValidationUtil.validateResultsFilePath(null);
+        String value = PropertyValidationUtil.validateResultsFilePath(null);
         Assert.assertEquals("./results.json", value);
     }
 
     @Test
     public void testMissingIntervalMsec() {
-        Integer value = propertyValidationUtil.validateIntervalMsec(null);
+        Integer value = PropertyValidationUtil.validateIntervalMsec(null);
         Assert.assertEquals(new Integer(500), value);
     }
 
     @Test
     public void testValidIntervalMsec() {
-        Integer value = propertyValidationUtil.validateIntervalMsec("250");
+        Integer value = PropertyValidationUtil.validateIntervalMsec("250");
         Assert.assertEquals(new Integer(250), value);
     }
 
     @Test
     public void testValidateNumThreads() {
-        Integer actual = propertyValidationUtil.validateNumThreads(0);
+        Integer actual = PropertyValidationUtil.validateNumThreads(0);
         Assert.assertNotEquals(actual, new Integer(0));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyNumThreads() {
-        propertyValidationUtil.validateNumThreads(Integer.valueOf(""));
+        PropertyValidationUtil.validateNumThreads(Integer.valueOf(""));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testLowerBoundNumThreads() {
-        propertyValidationUtil.validateNumThreads(-1);
+        PropertyValidationUtil.validateNumThreads(-1);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUpperBoundNumThreads() {
-        propertyValidationUtil.validateNumThreads(16);
+        PropertyValidationUtil.validateNumThreads(16);
     }
 
     @Test
     public void testNullWaitSeconds() {
-        Integer waitSeconds = propertyValidationUtil.validateWaitSeconds(null);
+        Integer waitSeconds = PropertyValidationUtil.validateWaitSeconds(null);
         Assert.assertEquals(Integer.valueOf(0), waitSeconds);
     }
 
     @Test
     public void testValidWaitSeconds() {
-        Integer waitSeconds = propertyValidationUtil.validateWaitSeconds("3000");
+        Integer waitSeconds = PropertyValidationUtil.validateWaitSeconds("3000");
         Assert.assertEquals(Integer.valueOf(3000), waitSeconds);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testLowerBoundWaitSeconds() {
-        propertyValidationUtil.validateWaitSeconds("-1");
+        PropertyValidationUtil.validateWaitSeconds("-1");
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testUpperBoundWaitSeconds() {
-        propertyValidationUtil.validateWaitSeconds("3601");
+        PropertyValidationUtil.validateWaitSeconds("3601");
     }
 }

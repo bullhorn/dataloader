@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,7 +38,6 @@ public class LoadServiceTest {
     private ProcessRunner processRunnerMock;
     private PropertyFileUtil propertyFileUtilMock;
     private Timer timerMock;
-    private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws IOException, InterruptedException {
@@ -51,9 +49,8 @@ public class LoadServiceTest {
         processRunnerMock = mock(ProcessRunner.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         timerMock = mock(Timer.class);
-        validationUtil = new ValidationUtil(printUtilMock);
 
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
@@ -133,7 +130,7 @@ public class LoadServiceTest {
     @Test
     public void testRunDirectoryFourFilesContinueNo() throws IOException, InterruptedException {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        loadService = new LoadService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        loadService = new LoadService(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.LOAD.getMethodName(), filePath};
@@ -144,8 +141,8 @@ public class LoadServiceTest {
         verify(printUtilMock, times(5)).printAndLog(anyString());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testRunInvalidThrowsException() throws IOException, InterruptedException {
+    @Test(expected = Exception.class)
+    public void testRunMissingArgumentException() throws IOException, InterruptedException {
         final String[] testArgs = {Command.LOAD.getMethodName()};
         loadService.run(testArgs);
     }

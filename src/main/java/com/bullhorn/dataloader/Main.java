@@ -9,11 +9,9 @@ import com.bullhorn.dataloader.service.ActionFactory;
 import com.bullhorn.dataloader.service.ProcessRunner;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.PropertyValidationUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -34,10 +32,8 @@ public class Main {
         Timer timer = new Timer();
 
         try {
-            PropertyValidationUtil propertyValidationUtil = new PropertyValidationUtil();
             PropertyFileUtil propertyFileUtil = new PropertyFileUtil("dataloader.properties",
-                System.getenv(), System.getProperties(), args, propertyValidationUtil, printUtil);
-            ValidationUtil validationUtil = new ValidationUtil(printUtil);
+                System.getenv(), System.getProperties(), args, printUtil);
             RestApiExtension restApiExtension = new RestApiExtension(printUtil);
             RestSession restSession = new RestSession(restApiExtension, propertyFileUtil, printUtil);
             Preloader preloader = new Preloader(restSession);
@@ -46,8 +42,8 @@ public class Main {
             Cache cache = new Cache(propertyFileUtil);
             ProcessRunner processRunner = new ProcessRunner(restSession, preloader, printUtil, propertyFileUtil,
                 threadPoolUtil, cache, completeUtil);
-            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, validationUtil,
-                completeUtil, restSession, processRunner, System.in, timer);
+            ActionFactory actionFactory = new ActionFactory(printUtil, propertyFileUtil, completeUtil, restSession,
+                processRunner, System.in, timer);
 
             if (propertyFileUtil.getVerbose()) {
                 Configurator.setLevel(PrintUtil.class.getName(), Level.DEBUG);

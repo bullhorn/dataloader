@@ -6,7 +6,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,9 +28,8 @@ public class ActionFactoryTest {
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         RestSession restSessionMock = mock(RestSession.class);
         Timer timerMock = mock(Timer.class);
-        ValidationUtil validationUtilMock = mock(ValidationUtil.class);
 
-        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, validationUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
+        actionFactory = new ActionFactory(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
     }
 
     @Test

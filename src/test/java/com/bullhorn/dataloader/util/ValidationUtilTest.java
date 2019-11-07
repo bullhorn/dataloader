@@ -14,58 +14,56 @@ import static org.mockito.Mockito.verify;
 public class ValidationUtilTest {
 
     private PrintUtil printUtilMock;
-    private ValidationUtil validationUtil;
 
     @Before
     public void setup() {
         printUtilMock = mock(PrintUtil.class);
-        validationUtil = new ValidationUtil(printUtilMock);
     }
 
     @Test
-    public void testIsValidCsvFile() {
+    public void testValidateCsvFile() {
         String path = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
-        Assert.assertTrue(validationUtil.isValidCsvFile(path));
+        Assert.assertTrue(ValidationUtil.validateCsvFile(path, printUtilMock));
         verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
-    public void testIsValidCsvFileBadFile() {
-        Assert.assertFalse(validationUtil.isValidCsvFile("bogus/file/path.csv"));
+    public void testValidateCsvFileBadFile() {
+        Assert.assertFalse(ValidationUtil.validateCsvFile("bogus/file/path.csv", printUtilMock));
         verify(printUtilMock, times(1)).printAndLog("ERROR: Cannot access: bogus/file/path.csv");
     }
 
     @Test
-    public void testIsValidCsvFileBadFileNoPrint() {
-        Assert.assertFalse(validationUtil.isValidCsvFile("bogus/file/path.csv", false));
+    public void testValidateCsvFileBadFileNoPrint() {
+        Assert.assertFalse(ValidationUtil.validateCsvFile("bogus/file/path.csv"));
         verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
-    public void testIsValidCsvFileDirectory() {
+    public void testValidateCsvFileDirectory() {
         String path = TestUtils.getResourceFilePath(".");
-        Assert.assertFalse(validationUtil.isValidCsvFile(path));
+        Assert.assertFalse(ValidationUtil.validateCsvFile(path, printUtilMock));
         verify(printUtilMock, times(1)).printAndLog("ERROR: Expected a file, but a directory was provided.");
     }
 
     @Test
-    public void testIsValidCsvFileDirectoryNoPrint() {
+    public void testValidateCsvFileDirectoryNoPrint() {
         String path = TestUtils.getResourceFilePath(".");
-        Assert.assertFalse(validationUtil.isValidCsvFile(path, false));
+        Assert.assertFalse(ValidationUtil.validateCsvFile(path));
         verify(printUtilMock, never()).printAndLog(anyString());
     }
 
     @Test
-    public void testIsValidCsvFileNonCsvFile() {
+    public void testValidateCsvFileNonCsvFile() {
         String path = TestUtils.getResourceFilePath("unitTest.properties");
-        Assert.assertFalse(validationUtil.isValidCsvFile(path));
+        Assert.assertFalse(ValidationUtil.validateCsvFile(path, printUtilMock));
         verify(printUtilMock, times(2)).printAndLog(anyString());
     }
 
     @Test
-    public void testIsValidCsvFileNonCsvFileNoPrint() {
+    public void testValidateCsvFileNonCsvFileNoPrint() {
         String path = TestUtils.getResourceFilePath("unitTest.properties");
-        Assert.assertFalse(validationUtil.isValidCsvFile(path, false));
+        Assert.assertFalse(ValidationUtil.validateCsvFile(path));
         verify(printUtilMock, never()).printAndLog(anyString());
     }
 }
