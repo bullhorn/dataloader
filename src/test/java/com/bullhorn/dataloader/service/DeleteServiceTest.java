@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,9 +44,8 @@ public class DeleteServiceTest {
         processRunnerMock = mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         Timer timerMock = mock(Timer.class);
-        ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        deleteService = new DeleteService(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
@@ -93,8 +91,8 @@ public class DeleteServiceTest {
         verify(printUtilMock, times(7)).printAndLog(anyString());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testRunInvalidThrowsException() throws IOException, InterruptedException {
+    @Test(expected = Exception.class)
+    public void testRunMissingArgumentException() throws IOException, InterruptedException {
         final String[] testArgs = {Command.DELETE.getMethodName()};
         deleteService.run(testArgs);
     }

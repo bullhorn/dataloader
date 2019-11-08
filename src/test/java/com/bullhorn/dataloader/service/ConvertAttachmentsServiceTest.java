@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -43,9 +42,9 @@ public class ConvertAttachmentsServiceTest {
         processRunnerMock = mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
         Timer timerMock = mock(Timer.class);
-        ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        convertAttachmentsService = new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
+        convertAttachmentsService = new ConvertAttachmentsService(printUtilMock, propertyFileUtilMock,
+            completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
         doReturn(actionTotalsMock).when(processRunnerMock).run(any(), any(), any());
     }
@@ -63,9 +62,16 @@ public class ConvertAttachmentsServiceTest {
         verify(printUtilMock, never()).printAndLog((Exception) any());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = Exception.class)
     public void testRunMissingArgumentException() throws IOException, InterruptedException {
         final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName()};
+        convertAttachmentsService.run(testArgs);
+    }
+
+    @Test(expected = Exception.class)
+    public void testRunInvalidEntityException() throws IOException, InterruptedException {
+        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
+        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
         convertAttachmentsService.run(testArgs);
     }
 
@@ -79,13 +85,6 @@ public class ConvertAttachmentsServiceTest {
         Assert.assertTrue(actualResult);
         verify(printUtilMock, never()).printAndLog(anyString());
         verify(printUtilMock, never()).printAndLog((Exception) any());
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void testIsValidArgumentsBadEntityFile() throws IOException, InterruptedException {
-        final String filePath = TestUtils.getResourceFilePath("Invalid_Candidate_File.csv");
-        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
-        convertAttachmentsService.run(testArgs);
     }
 
     @Test

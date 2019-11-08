@@ -6,7 +6,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 
 import java.io.InputStream;
 
@@ -16,7 +15,6 @@ import java.io.InputStream;
 public class ActionFactory {
 
     private final PrintUtil printUtil;
-    private final ValidationUtil validationUtil;
     private final PropertyFileUtil propertyFileUtil;
     private final CompleteUtil completeUtil;
     private final RestSession restSession;
@@ -26,14 +24,12 @@ public class ActionFactory {
 
     public ActionFactory(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
-                         ValidationUtil validationUtil,
                          CompleteUtil completeUtil,
                          RestSession restSession,
                          ProcessRunner processRunner,
                          InputStream inputStream,
                          Timer timer) {
         this.printUtil = printUtil;
-        this.validationUtil = validationUtil;
         this.propertyFileUtil = propertyFileUtil;
         this.completeUtil = completeUtil;
         this.restSession = restSession;
@@ -51,32 +47,25 @@ public class ActionFactory {
     public Action getAction(Command command) {
         Action action = null;
         if (command.equals(Command.CONVERT_ATTACHMENTS)) {
-            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new ConvertAttachmentsService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE)) {
-            action = new DeleteService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new DeleteService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.DELETE_ATTACHMENTS)) {
-            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new DeleteAttachmentsService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.EXPORT)) {
-            action = new ExportService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new ExportService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.HELP)) {
             action = new HelpService(printUtil);
         } else if (command.equals(Command.LOAD)) {
-            action = new LoadService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new LoadService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOAD_ATTACHMENTS)) {
-            action = new LoadAttachmentsService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new LoadAttachmentsService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         } else if (command.equals(Command.LOGIN)) {
             action = new LoginService(restSession, printUtil);
         } else if (command.equals(Command.META)) {
-            action = new MetaService(restSession, validationUtil, printUtil);
+            action = new MetaService(restSession, printUtil);
         } else if (command.equals(Command.TEMPLATE)) {
-            action = new TemplateService(printUtil, propertyFileUtil, validationUtil, completeUtil,
-                restSession, processRunner, inputStream, timer);
+            action = new TemplateService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         }
         return action;
     }

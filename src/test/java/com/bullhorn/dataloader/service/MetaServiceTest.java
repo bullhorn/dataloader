@@ -6,7 +6,6 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.meta.Field;
@@ -41,9 +40,8 @@ public class MetaServiceTest {
         printUtilMock = mock(PrintUtil.class);
         restSessionMock = mock(RestSession.class);
         restApiMock = mock(RestApi.class);
-        ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        metaService = new MetaService(restSessionMock, validationUtil, printUtilMock);
+        metaService = new MetaService(restSessionMock, printUtilMock);
 
         // Mock out meta fields
         Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
@@ -97,22 +95,6 @@ public class MetaServiceTest {
         metaService.run(new String[]{Command.META.getMethodName(), "Candidate"});
 
         verify(printUtilMock, times(1)).printAndLog("Failed to create REST session.");
-    }
-
-    @Test
-    public void testRunBadEntity() {
-        IllegalArgumentException expectedException = new IllegalArgumentException("invalid command line arguments");
-        Exception actualException = null;
-
-        try {
-            metaService.run(new String[]{Command.META.getMethodName(), "Cornidate"});
-        } catch (Exception e) {
-            actualException = e;
-        }
-
-        Assert.assertNotNull(actualException);
-        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
-        verify(printUtilMock, times(1)).printAndLog("ERROR: Meta requested is not valid: \"Cornidate\" is not a valid entity.");
     }
 
     @Test

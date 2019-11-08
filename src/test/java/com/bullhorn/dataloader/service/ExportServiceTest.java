@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,7 +37,6 @@ public class ExportServiceTest {
     private ProcessRunner processRunnerMock;
     private PropertyFileUtil propertyFileUtilMock;
     private Timer timerMock;
-    private ValidationUtil validationUtil;
 
     @Before
     public void setup() throws Exception {
@@ -50,9 +48,9 @@ public class ExportServiceTest {
         processRunnerMock = mock(ProcessRunner.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         timerMock = mock(Timer.class);
-        validationUtil = new ValidationUtil(printUtilMock);
 
-        exportService = new ExportService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        exportService = new ExportService(printUtilMock, propertyFileUtilMock, completeUtilMock,
+            restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         when(processRunnerMock.run(any(), any(), any())).thenReturn(actionTotalsMock);
     }
@@ -116,7 +114,7 @@ public class ExportServiceTest {
     @Test
     public void testRunDirectoryFourFilesContinueNo() throws Exception {
         inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
-        exportService = new ExportService(printUtilMock, propertyFileUtilMock, validationUtil, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
+        exportService = new ExportService(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");
         final String[] testArgs = {Command.EXPORT.getMethodName(), filePath};
@@ -127,8 +125,8 @@ public class ExportServiceTest {
         verify(printUtilMock, times(5)).printAndLog(anyString());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void testRunInvalidThrowsException() throws Exception {
+    @Test(expected = Exception.class)
+    public void testRunMissingArgumentException() throws Exception {
         final String[] testArgs = {Command.EXPORT.getMethodName()};
         exportService.run(testArgs);
     }

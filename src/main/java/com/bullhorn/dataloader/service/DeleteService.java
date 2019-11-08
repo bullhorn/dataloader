@@ -27,23 +27,18 @@ public class DeleteService extends AbstractService implements Action {
 
     public DeleteService(PrintUtil printUtil,
                          PropertyFileUtil propertyFileUtil,
-                         ValidationUtil validationUtil,
                          CompleteUtil completeUtil,
                          RestSession restSession,
                          ProcessRunner processRunner,
                          InputStream inputStream,
                          Timer timer) {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
+        super(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
     @Override
     public void run(String[] args) throws IOException, InterruptedException {
-        if (!isValidArguments(args)) {
-            throw new IllegalStateException("invalid command line arguments");
-        }
-
         String filePath = args[1];
-        SortedMap<EntityInfo, List<String>> entityToFileListMap = FileUtil.getDeletableCsvFilesFromPath(filePath, validationUtil);
+        SortedMap<EntityInfo, List<String>> entityToFileListMap = FileUtil.getDeletableCsvFilesFromPath(filePath, propertyFileUtil);
         if (promptUserForMultipleFiles(filePath, entityToFileListMap)) {
             for (Map.Entry<EntityInfo, List<String>> entityFileEntry : entityToFileListMap.entrySet()) {
                 EntityInfo entityInfo = entityFileEntry.getKey();
@@ -60,34 +55,22 @@ public class DeleteService extends AbstractService implements Action {
 
     @Override
     public boolean isValidArguments(String[] args) {
-        if (!validationUtil.isNumParametersValid(args, 2)) {
+        if (!ValidationUtil.validateNumArgs(args, 2, printUtil)) {
             return false;
         }
 
         String filePath = args[1];
         File file = new File(filePath);
         if (file.isDirectory()) {
-            if (FileUtil.getDeletableCsvFilesFromPath(filePath, validationUtil).isEmpty()) {
+            if (FileUtil.getDeletableCsvFilesFromPath(filePath, propertyFileUtil).isEmpty()) {
                 printUtil.printAndLog("ERROR: Could not find any valid CSV files (with entity name) to delete from directory: " + filePath);
                 return false;
             }
-        } else {
-            if (!validationUtil.isValidCsvFile(args[1])) {
-                return false;
-            }
-
-            EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
-            if (entityInfo == null) {
-                printUtil.printAndLog("Could not determine entity from file name: " + filePath);
-                return false;
-            }
-
-            if (!entityInfo.isDeletable()) {
-                printUtil.printAndLog("ERROR: " + entityInfo.getEntityName() + " entity is not deletable.");
-                return false;
-            }
+            return true;
         }
 
-        return true;
+        return ValidationUtil.validateCsvFile(filePath, printUtil)
+            && ValidationUtil.validateEntityFromFileNameOrProperty(filePath, propertyFileUtil, printUtil)
+            && ValidationUtil.validateDeletableEntity(FileUtil.extractEntityFromFileNameOrProperty(filePath, propertyFileUtil), printUtil);
     }
 }

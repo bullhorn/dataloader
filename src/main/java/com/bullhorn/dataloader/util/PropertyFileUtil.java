@@ -46,6 +46,7 @@ public class PropertyFileUtil {
     private Boolean caching;
 
     // Property values for developers only:
+    private EntityInfo entity;
     private Boolean resultsFileEnabled;
     private String resultsFilePath;
     private Integer resultsFileWriteIntervalMsec;
@@ -55,19 +56,17 @@ public class PropertyFileUtil {
     /**
      * Constructor that assembles the dataloader properties from a variety of possible methods.
      *
-     * @param fileName               the property filename to load
-     * @param envVars                the environment variables to use (overrides the properties file)
-     * @param systemProperties       the system properties to use (overrides the properties file and envVars)
-     * @param args                   the command line arguments (overrides all others)
-     * @param propertyValidationUtil validates the properties
-     * @param printUtil              for logging properties
+     * @param fileName         the property filename to load
+     * @param envVars          the environment variables to use (overrides the properties file)
+     * @param systemProperties the system properties to use (overrides the properties file and envVars)
+     * @param args             the command line arguments (overrides all others)
+     * @param printUtil        for logging properties
      * @throws IOException for file not found
      */
     public PropertyFileUtil(String fileName,
                             Map<String, String> envVars,
                             Properties systemProperties,
                             String[] args,
-                            PropertyValidationUtil propertyValidationUtil,
                             PrintUtil printUtil) throws IOException {
         this.printUtil = printUtil;
 
@@ -90,7 +89,7 @@ public class PropertyFileUtil {
         properties.putAll(argumentProperties);
 
         // Process and log
-        processProperties(properties, propertyValidationUtil);
+        processProperties(properties);
         logProperties(fileName, properties);
     }
 
@@ -202,6 +201,10 @@ public class PropertyFileUtil {
 
     public Boolean getExecuteFormTriggers() {
         return executeFormTriggers;
+    }
+
+    public EntityInfo getEntity() {
+        return entity;
     }
 
     public Boolean getResultsFileEnabled() {
@@ -326,51 +329,53 @@ public class PropertyFileUtil {
     /**
      * Convert properties into higher level local variables for convenience
      *
-     * @param properties             The raw contents of the properties file
-     * @param propertyValidationUtil The validation utility
+     * @param properties The raw contents of the properties file
      */
-    private void processProperties(Properties properties, PropertyValidationUtil propertyValidationUtil) {
-        username = propertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(),
+    private void processProperties(Properties properties) {
+        username = PropertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(),
             properties.getProperty(Property.USERNAME.getName()));
-        password = propertyValidationUtil.validateRequiredStringField(Property.PASSWORD.getName(),
+        password = PropertyValidationUtil.validateRequiredStringField(Property.PASSWORD.getName(),
             properties.getProperty(Property.PASSWORD.getName()));
-        clientId = propertyValidationUtil.validateRequiredStringField(Property.CLIENT_ID.getName(),
+        clientId = PropertyValidationUtil.validateRequiredStringField(Property.CLIENT_ID.getName(),
             properties.getProperty(Property.CLIENT_ID.getName()));
-        clientSecret = propertyValidationUtil.validateRequiredStringField(Property.CLIENT_SECRET.getName(),
+        clientSecret = PropertyValidationUtil.validateRequiredStringField(Property.CLIENT_SECRET.getName(),
             properties.getProperty(Property.CLIENT_SECRET.getName()));
-        authorizeUrl = propertyValidationUtil.validateRequiredStringField(Property.AUTHORIZE_URL.getName(),
+        authorizeUrl = PropertyValidationUtil.validateRequiredStringField(Property.AUTHORIZE_URL.getName(),
             properties.getProperty(Property.AUTHORIZE_URL.getName()));
-        tokenUrl = propertyValidationUtil.validateRequiredStringField(Property.TOKEN_URL.getName(),
+        tokenUrl = PropertyValidationUtil.validateRequiredStringField(Property.TOKEN_URL.getName(),
             properties.getProperty(Property.TOKEN_URL.getName()));
-        loginUrl = propertyValidationUtil.validateRequiredStringField(Property.LOGIN_URL.getName(),
+        loginUrl = PropertyValidationUtil.validateRequiredStringField(Property.LOGIN_URL.getName(),
             properties.getProperty(Property.LOGIN_URL.getName()));
         entityExistFieldsMap = createEntityExistFieldsMap(properties);
-        propertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
+        PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
         columnNameMap = createColumnNameMap(properties);
-        listDelimiter = propertyValidationUtil.validateRequiredStringField(Property.LIST_DELIMITER.getName(),
+        listDelimiter = PropertyValidationUtil.validateRequiredStringField(Property.LIST_DELIMITER.getName(),
             properties.getProperty(Property.LIST_DELIMITER.getName()));
         dateParser = getDateTimeFormatter(properties);
-        processEmptyAssociations = propertyValidationUtil.validateBooleanProperty(
+        processEmptyAssociations = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.PROCESS_EMPTY_ASSOCIATIONS.getName())));
-        wildcardMatching = propertyValidationUtil.validateBooleanProperty(
+        wildcardMatching = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.WILDCARD_MATCHING.getName())));
-        singleByteEncoding = propertyValidationUtil.validateBooleanProperty(
+        singleByteEncoding = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.SINGLE_BYTE_ENCODING.getName())));
-        executeFormTriggers = propertyValidationUtil.validateBooleanProperty(
+        executeFormTriggers = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.EXECUTE_FORM_TRIGGERS.getName())));
-        numThreads = propertyValidationUtil.validateNumThreads(Integer.valueOf(properties.getProperty(Property.NUM_THREADS.getName())));
-        caching = propertyValidationUtil.validateBooleanProperty(
+        entity = PropertyValidationUtil.validateEntityInfoProperty(properties.getProperty(
+            Property.ENTITY.getName()));
+        numThreads = PropertyValidationUtil.validateNumThreads(Integer.valueOf(
+            properties.getProperty(Property.NUM_THREADS.getName())));
+        caching = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.CACHING.getName())));
 
-        resultsFileEnabled = propertyValidationUtil.validateBooleanProperty(
+        resultsFileEnabled = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.RESULTS_FILE_ENABLED.getName())));
-        resultsFilePath = propertyValidationUtil.validateResultsFilePath(
+        resultsFilePath = PropertyValidationUtil.validateResultsFilePath(
             properties.getProperty(Property.RESULTS_FILE_PATH.getName()));
-        resultsFileWriteIntervalMsec = propertyValidationUtil.validateIntervalMsec(
+        resultsFileWriteIntervalMsec = PropertyValidationUtil.validateIntervalMsec(
             properties.getProperty(Property.RESULTS_FILE_WRITE_INTERVAL_MSEC.getName()));
-        waitSecondsBetweenFilesInDirectory = propertyValidationUtil.validateWaitSeconds(properties.getProperty(
+        waitSecondsBetweenFilesInDirectory = PropertyValidationUtil.validateWaitSeconds(properties.getProperty(
             Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()));
-        verbose = propertyValidationUtil.validateBooleanProperty(
+        verbose = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.VERBOSE.getName())));
     }
 
@@ -450,6 +455,7 @@ public class PropertyFileUtil {
         logPropertyIfExists(properties, Property.WILDCARD_MATCHING.getName());
         logPropertyIfExists(properties, Property.SINGLE_BYTE_ENCODING.getName());
         logPropertyIfExists(properties, Property.EXECUTE_FORM_TRIGGERS.getName());
+        logPropertyIfExists(properties, Property.ENTITY.getName());
 
         printUtil.log("# Section 6 -- Performance");
         logPropertyIfExists(properties, Property.NUM_THREADS.getName());

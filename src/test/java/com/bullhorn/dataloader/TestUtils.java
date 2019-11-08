@@ -10,6 +10,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.standard.Skill;
@@ -41,8 +42,6 @@ import static org.mockito.Mockito.verify;
  * Utilities used in tests
  */
 public class TestUtils {
-    static private final String CSV = "csv";
-
     /**
      * Given a list of entity objects, this method constructs the list returned by SDK-REST
      *
@@ -206,7 +205,7 @@ public class TestUtils {
         if (directoryListing != null) {
             for (File file : directoryListing) {
                 String extension = FilenameUtils.getExtension(file.getPath());
-                if (extension.equalsIgnoreCase(CSV)) {
+                if (extension.equalsIgnoreCase(StringConsts.CSV)) {
                     String content = FileUtils.readFileToString(file, "UTF-8");
                     content = content.replaceAll(findText, replaceText);
                     FileUtils.writeStringToFile(file, content, "UTF-8");
@@ -231,7 +230,7 @@ public class TestUtils {
         if (directoryListing != null) {
             for (File file : directoryListing) {
                 String extension = FilenameUtils.getExtension(file.getPath());
-                if (extension.equalsIgnoreCase(CSV)) {
+                if (extension.equalsIgnoreCase(StringConsts.CSV)) {
                     checkResultsFile(file, command);
                 }
             }

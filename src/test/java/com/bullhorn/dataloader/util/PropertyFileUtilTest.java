@@ -24,7 +24,6 @@ public class PropertyFileUtilTest {
     private Map<String, String> envVars;
     private Properties systemProperties;
     private String[] emptyArgs;
-    private PropertyValidationUtil propertyValidationUtil;
     private PrintUtil printUtilMock;
 
     @Before
@@ -33,7 +32,6 @@ public class PropertyFileUtilTest {
         envVars = new HashMap<>();
         systemProperties = new Properties();
         emptyArgs = new String[]{};
-        propertyValidationUtil = new PropertyValidationUtil();
         printUtilMock = mock(PrintUtil.class);
     }
 
@@ -41,8 +39,7 @@ public class PropertyFileUtilTest {
     public void testGetConvertedAttachmentFileForCandidate() throws IOException {
         String expected = "convertedAttachments/Candidate/candidate-ext-1.html";
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
         String actual = propertyFileUtil.getConvertedAttachmentFilepath(EntityInfo.CANDIDATE, "candidate-ext-1");
 
         Assert.assertEquals(expected, actual);
@@ -52,8 +49,7 @@ public class PropertyFileUtilTest {
     public void testGetConvertedAttachmentFileForClientContact() throws IOException {
         String expected = "convertedAttachments/ClientContact/12345.html";
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
         String actual = propertyFileUtil.getConvertedAttachmentFilepath(EntityInfo.CLIENT_CONTACT, "12345");
 
         Assert.assertEquals(expected, actual);
@@ -61,8 +57,7 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGettersForPropertyFileValues() throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("john.smith", propertyFileUtil.getUsername());
         Assert.assertEquals("password123", propertyFileUtil.getPassword());
@@ -77,6 +72,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
+        Assert.assertNull(propertyFileUtil.getEntity());
         Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
@@ -96,6 +92,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "true");
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
         envVars.put("DATALOADER_WildCard_Matching", "TRUE");
+        envVars.put("DATALOADER_ENTITY", "");
         envVars.put("DATALOADER_NUM_THREADS", "5");
         envVars.put("DATALOADER_CACHING", "false");
         envVars.put("DATALOADER_WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY", "15");
@@ -117,8 +114,7 @@ public class PropertyFileUtilTest {
         envVars.put("numThreads", "bogus");
         envVars.put("waitSecondsBetweenFilesInDirectory", "99999999");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("johnny.appleseed", propertyFileUtil.getUsername());
         Assert.assertEquals("password456", propertyFileUtil.getPassword());
@@ -133,6 +129,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
+        Assert.assertNull(propertyFileUtil.getEntity());
         Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
@@ -167,13 +164,13 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("listDelimiter", "|");
         systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("singleByteEncoding", "false");
+        systemProperties.setProperty("entity", "");
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("caching", "true");
         systemProperties.setProperty("waitSecondsBetweenFilesInDirectory", "20");
         systemProperties.setProperty("verbose", "false");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("johnny.be-good", propertyFileUtil.getUsername());
         Assert.assertEquals("password789", propertyFileUtil.getPassword());
@@ -188,6 +185,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
+        Assert.assertNull(propertyFileUtil.getEntity());
         Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(20), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
@@ -253,6 +251,8 @@ public class PropertyFileUtilTest {
         args.add("true");
         args.add("executeFormTriggers");
         args.add("true");
+        args.add("entity");
+        args.add("candidate");
         args.add("-NUM_THREADS");
         args.add("7");
         args.add("-caching");
@@ -269,7 +269,7 @@ public class PropertyFileUtilTest {
         args.add("true");
         String[] argsArray = args.toArray(new String[]{});
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, printUtilMock);
 
         Assert.assertEquals("johnny.mnemonic", propertyFileUtil.getUsername());
         Assert.assertEquals("password000", propertyFileUtil.getPassword());
@@ -284,6 +284,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
+        Assert.assertEquals(EntityInfo.CANDIDATE, propertyFileUtil.getEntity());
         Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
         Assert.assertEquals(new Integer(25), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
@@ -295,7 +296,7 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGetEntityExistFieldsPropertyFileValues() throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals(Collections.singletonList("externalID"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -320,7 +321,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_Lead_Exist_Field", "customText99");
         envVars.put("Dataloader_Lead_Exist_Field", "bogus");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals(Arrays.asList("customTextField4", "customTextField5"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -333,8 +334,7 @@ public class PropertyFileUtilTest {
         envVars.put("candidateExistField", "customTextField4,customTextField5");
         systemProperties.setProperty("candidateExistField", "one,two,buckle,shoe");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals(Arrays.asList("one", "two", "buckle", "shoe"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -349,7 +349,7 @@ public class PropertyFileUtilTest {
         args.add("externalID");
         String[] argsArray = args.toArray(new String[]{});
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, printUtilMock);
 
         Assert.assertEquals(Collections.singletonList("externalID"),
             propertyFileUtil.getEntityExistFields(EntityInfo.CANDIDATE));
@@ -357,8 +357,7 @@ public class PropertyFileUtilTest {
 
     @Test
     public void testGetColumnNameMappingPropertyFileValues() throws IOException {
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("recruiterUserID"));
         Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("userID"));
@@ -378,7 +377,7 @@ public class PropertyFileUtilTest {
         envVars.put("Dataloader_Bogus_Column", "address.zip");
         envVars.put("bogus_COLUMN", "reference.name");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("billingUserID"));
         Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("statementUserID"));
@@ -395,7 +394,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("oneColumn", "billingUser.id");
         systemProperties.setProperty("userIDColumn", "recruiter.name");
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("billingUserID"));
         Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("one"));
@@ -413,7 +412,7 @@ public class PropertyFileUtilTest {
         args.add("person.username");
         String[] argsArray = args.toArray(new String[]{});
 
-        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, propertyValidationUtil, printUtilMock);
+        PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, argsArray, printUtilMock);
 
         Assert.assertEquals("billingUser.id", propertyFileUtil.getColumnNameMapping("billingUserID"));
         Assert.assertEquals("job.title", propertyFileUtil.getColumnNameMapping("columnOne"));
@@ -425,7 +424,13 @@ public class PropertyFileUtilTest {
     @Test(expected = FileNotFoundException.class)
     public void testPropertyFileSystemPropertyOverride() throws IOException {
         systemProperties.setProperty("propertyfile", "bogus/file/path/to/dataloader.properties");
-        new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+        new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBadEntityOverride() throws IOException {
+        systemProperties.setProperty("entity", "Cornidate");
+        new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
     }
 
     @Test
@@ -438,7 +443,7 @@ public class PropertyFileUtilTest {
 
         IllegalArgumentException actualException = null;
         try {
-            new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, propertyValidationUtil, printUtilMock);
+            new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
         } catch (IllegalArgumentException e) {
             actualException = e;
         }

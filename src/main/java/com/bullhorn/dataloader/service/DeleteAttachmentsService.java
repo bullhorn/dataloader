@@ -24,24 +24,18 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 
     public DeleteAttachmentsService(PrintUtil printUtil,
                                     PropertyFileUtil propertyFileUtil,
-                                    ValidationUtil validationUtil,
                                     CompleteUtil completeUtil,
                                     RestSession restSession,
                                     ProcessRunner processRunner,
                                     InputStream inputStream,
                                     Timer timer) {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
+        super(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
     @Override
     public void run(String[] args) throws IOException, InterruptedException {
-        if (!isValidArguments(args)) {
-            throw new IllegalStateException("invalid command line arguments");
-        }
-
         String filePath = args[1];
-        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
-
+        EntityInfo entityInfo = FileUtil.extractEntityFromFileNameOrProperty(filePath, propertyFileUtil);
         printUtil.printAndLog("Deleting " + Objects.requireNonNull(entityInfo).getEntityName() + " attachments from: " + filePath + "...");
         timer.start();
         ActionTotals actionTotals = processRunner.run(Command.DELETE_ATTACHMENTS, entityInfo, filePath);
@@ -51,26 +45,9 @@ public class DeleteAttachmentsService extends AbstractService implements Action 
 
     @Override
     public boolean isValidArguments(String[] args) {
-        if (!validationUtil.isNumParametersValid(args, 2)) {
-            return false;
-        }
-
-        String filePath = args[1];
-        if (!validationUtil.isValidCsvFile(args[1])) {
-            return false;
-        }
-
-        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(filePath);
-        if (entityInfo == null) {
-            printUtil.printAndLog("Could not determine entity from file name: " + filePath);
-            return false;
-        }
-
-        if (!entityInfo.isAttachmentEntity()) {
-            printUtil.printAndLog("ERROR: " + entityInfo.getEntityName() + " entity does not support attachments.");
-            return false;
-        }
-
-        return true;
+        return ValidationUtil.validateNumArgs(args, 2, printUtil)
+            && ValidationUtil.validateCsvFile(args[1], printUtil)
+            && ValidationUtil.validateEntityFromFileNameOrProperty(args[1], propertyFileUtil, printUtil)
+            && ValidationUtil.validateAttachmentEntity(FileUtil.extractEntityFromFileNameOrProperty(args[1], propertyFileUtil), printUtil);
     }
 }

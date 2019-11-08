@@ -21,21 +21,16 @@ public class TemplateService extends AbstractService implements Action {
 
     TemplateService(PrintUtil printUtil,
                     PropertyFileUtil propertyFileUtil,
-                    ValidationUtil validationUtil,
                     CompleteUtil completeUtil,
                     RestSession restSession,
                     ProcessRunner processRunner,
                     InputStream inputStream,
                     Timer timer) {
-        super(printUtil, propertyFileUtil, validationUtil, completeUtil, restSession, processRunner, inputStream, timer);
+        super(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
     }
 
     @Override
     public void run(String[] args) {
-        if (!isValidArguments(args)) {
-            throw new IllegalArgumentException("invalid command line arguments");
-        }
-
         RestApi restApi;
 
         try {
@@ -58,19 +53,8 @@ public class TemplateService extends AbstractService implements Action {
 
     @Override
     public boolean isValidArguments(String[] args) {
-        if (!validationUtil.isNumParametersValid(args, 2)) {
-            return false;
-        }
-
-        String entityNameOrFile = args[1];
-        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(entityNameOrFile);
-        if (entityInfo == null) {
-            printUtil.printAndLog("ERROR: Template requested is not valid: \"" + entityNameOrFile
-                + "\" is not a valid entity.");
-            return false;
-        }
-
-        return true;
+        return ValidationUtil.validateNumArgs(args, 2, printUtil)
+            && ValidationUtil.validateEntityName(args[1], printUtil);
     }
 
     /**

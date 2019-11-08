@@ -14,6 +14,7 @@ public class StringConsts {
     public static final String CORPORATE_USER = "CorporateUser";
     public static final String COUNTRY_ID = "countryID";
     public static final String COUNTRY_NAME = "countryName";
+    public static final String CSV = "csv";
     public static final String DATALOADER_PREFIX = "DATALOADER_";
     public static final String DESCRIPTION = "description";
     public static final String EXIST_FIELD_SUFFIX = "ExistField";

@@ -23,22 +23,16 @@ import java.util.Objects;
 public class MetaService implements Action {
 
     private final RestSession restSession;
-    private final ValidationUtil validationUtil;
     private final PrintUtil printUtil;
 
-    MetaService(RestSession restSession, ValidationUtil validationUtil, PrintUtil printUtil) {
+    MetaService(RestSession restSession, PrintUtil printUtil) {
         this.restSession = restSession;
         this.printUtil = printUtil;
-        this.validationUtil = validationUtil;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void run(String[] args) {
-        if (!isValidArguments(args)) {
-            throw new IllegalArgumentException("invalid command line arguments");
-        }
-
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(args[1]);
         RestApi restApi = restSession.getRestApi();
 
@@ -69,16 +63,7 @@ public class MetaService implements Action {
 
     @Override
     public boolean isValidArguments(String[] args) {
-        if (!validationUtil.isNumParametersValid(args, 2)) {
-            return false;
-        }
-
-        EntityInfo entityInfo = FileUtil.extractEntityFromFileName(args[1]);
-        if (entityInfo == null) {
-            printUtil.printAndLog("ERROR: Meta requested is not valid: \"" + args[1] + "\" is not a valid entity.");
-            return false;
-        }
-
-        return true;
+        return ValidationUtil.validateNumArgs(args, 2, printUtil)
+            && ValidationUtil.validateEntityName(args[1], printUtil);
     }
 }

@@ -3,7 +3,6 @@ package com.bullhorn.dataloader.data;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.PropertyValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +30,7 @@ public class CsvFileReaderTest {
         Map<String, String> envVars = new HashMap<>();
         Properties systemProperties = new Properties();
         String[] emptyArgs = new String[]{};
-        PropertyValidationUtil propertyValidationUtil = new PropertyValidationUtil();
-        propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs,
-            propertyValidationUtil, printUtilMock);
+        propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
     }
 
     @Test

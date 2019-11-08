@@ -9,7 +9,6 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-import com.bullhorn.dataloader.util.ValidationUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
@@ -53,10 +52,9 @@ public class TemplateServiceTest {
         restApiMock = mock(RestApi.class);
         restSessionMock = mock(RestSession.class);
         Timer timerMock = mock(Timer.class);
-        ValidationUtil validationUtil = new ValidationUtil(printUtilMock);
 
-        templateService = new TemplateService(printUtilMock, propertyFileUtilMock, validationUtil,
-            completeUtilMock, restSessionMock, processRunnerMock, inputStreamMock, timerMock);
+        templateService = new TemplateService(printUtilMock, propertyFileUtilMock, completeUtilMock,
+            restSessionMock, processRunnerMock, inputStreamMock, timerMock);
 
         // Mock out meta fields
         Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
@@ -146,22 +144,6 @@ public class TemplateServiceTest {
         templateService.run(new String[]{Command.TEMPLATE.getMethodName(), "Candidate"});
 
         verify(printUtilMock, times(1)).printAndLog("Failed to create REST session.");
-    }
-
-    @Test
-    public void testRunBadEntity() {
-        IllegalArgumentException expectedException = new IllegalArgumentException("invalid command line arguments");
-        Exception actualException = null;
-
-        try {
-            templateService.run(new String[]{Command.TEMPLATE.getMethodName(), "Cornidate"});
-        } catch (Exception e) {
-            actualException = e;
-        }
-
-        Assert.assertNotNull(actualException);
-        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
-        verify(printUtilMock, times(1)).printAndLog("ERROR: Template requested is not valid: \"Cornidate\" is not a valid entity.");
     }
 
     @Test
