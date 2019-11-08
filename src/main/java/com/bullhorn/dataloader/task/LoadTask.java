@@ -186,13 +186,13 @@ public class LoadTask extends AbstractTask {
             // Add the new associations to the entity
             if (!addAssociations.isEmpty()) {
                 restApi.associateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
-                    associationField, Sets.newHashSet(addAssociations));
+                    associationField, addAssociations);
             }
 
             // Remove old associations from the entity
             if (!removeAssociations.isEmpty()) {
                 restApi.disassociateWithEntity((Class<AssociationEntity>) entityInfo.getEntityClass(), entityId,
-                    associationField, Sets.newHashSet(removeAssociations));
+                    associationField, removeAssociations);
             }
         }
     }
