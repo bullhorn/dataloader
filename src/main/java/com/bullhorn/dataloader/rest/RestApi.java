@@ -27,6 +27,7 @@ import com.bullhornsdk.data.model.response.file.FileApiResponse;
 import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.Level;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ import java.util.stream.Collectors;
  */
 public class RestApi {
 
+    private static final Integer MAX_ASSOCIATIONS_PER_CALL = 500;
     private static final Integer MAX_RECORDS_TO_RETURN_IN_ONE_PULL = 500;
     private static final Integer MAX_RECORDS_TO_RETURN_TOTAL = 20000;
     private final StandardBullhornData bullhornData;
@@ -156,24 +158,30 @@ public class RestApi {
         return listWrapper == null ? Collections.emptyList() : listWrapper.getData();
     }
 
-    public <C extends CrudResponse, T extends AssociationEntity> C associateWithEntity(
-        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
-        Set<Integer> associationIds) {
-        printUtil.log(Level.DEBUG, "Associate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName()
-            + " (" + associationIds.size() + " associations)");
-        C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, associationIds);
-        restApiExtension.checkForRestSdkErrorMessages(crudResponse);
-        return crudResponse;
+    public <C extends CrudResponse, T extends AssociationEntity> List<C> associateWithEntity(
+        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName, List<Integer> associationIds) {
+        List<C> crudResponses = new ArrayList<>();
+        int start = 0;
+        int end = Math.min(associationIds.size(), MAX_ASSOCIATIONS_PER_CALL);
+        while (start < end) {
+            crudResponses.add(singleAssociateWithEntity(type, entityId, associationName, associationIds.subList(start, end)));
+            start += MAX_ASSOCIATIONS_PER_CALL;
+            end = Math.min(start + MAX_ASSOCIATIONS_PER_CALL, associationIds.size());
+        }
+        return crudResponses;
     }
 
-    public <C extends CrudResponse, T extends AssociationEntity> C disassociateWithEntity(
-        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
-        Set<Integer> associationIds) {
-        printUtil.log(Level.DEBUG, "Disassociate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName()
-            + " (" + associationIds.size() + " associations)");
-        C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, associationIds);
-        restApiExtension.checkForRestSdkErrorMessages(crudResponse);
-        return crudResponse;
+    public <C extends CrudResponse, T extends AssociationEntity> List<C> disassociateWithEntity(
+        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName, List<Integer> associationIds) {
+        List<C> crudResponses = new ArrayList<>();
+        int start = 0;
+        int end = Math.min(associationIds.size(), MAX_ASSOCIATIONS_PER_CALL);
+        while (start < end) {
+            crudResponses.add(singleDisassociateWithEntity(type, entityId, associationName, associationIds.subList(start, end)));
+            start += MAX_ASSOCIATIONS_PER_CALL;
+            end = Math.min(start + MAX_ASSOCIATIONS_PER_CALL, associationIds.size());
+        }
+        return crudResponses;
     }
     // endregion
 
@@ -263,4 +271,27 @@ public class RestApi {
         return false;
     }
     // endregion
+    // region Individual Associations/Disassociations that support up to 500 records per call
+
+    private <C extends CrudResponse, T extends AssociationEntity> C singleAssociateWithEntity(
+        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
+        List<Integer> associationIds) {
+        printUtil.log(Level.DEBUG, "Associate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName()
+            + " (" + associationIds.size() + " associations)");
+        Set<Integer> idSet = Sets.newHashSet(associationIds);
+        C crudResponse = bullhornData.associateWithEntity(type, entityId, associationName, idSet);
+        restApiExtension.checkForRestSdkErrorMessages(crudResponse);
+        return crudResponse;
+    }
+
+    private <C extends CrudResponse, T extends AssociationEntity> C singleDisassociateWithEntity(
+        Class<T> type, Integer entityId, AssociationField<T, ? extends BullhornEntity> associationName,
+        List<Integer> associationIds) {
+        printUtil.log(Level.DEBUG, "Disassociate(" + type.getSimpleName() + "): #" + entityId + " - " + associationName.getAssociationFieldName()
+            + " (" + associationIds.size() + " associations)");
+        Set<Integer> idSet = Sets.newHashSet(associationIds);
+        C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, idSet);
+        restApiExtension.checkForRestSdkErrorMessages(crudResponse);
+        return crudResponse;
+    }
 }

@@ -17,12 +17,14 @@ import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.file.standard.StandardFileMeta;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
+import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,6 +55,11 @@ public class RestApiTest {
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         printUtilMock = mock(PrintUtil.class);
         restApi = new RestApi(bullhornDataMock, restApiExtensionMock, propertyFileUtilMock, printUtilMock);
+
+        when(bullhornDataMock.associateWithEntity(any(), any(), any(), any())).thenReturn(
+            new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse());
+        when(bullhornDataMock.disassociateWithEntity(any(), any(), any(), any())).thenReturn(
+            new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse());
     }
 
     @Test
@@ -335,24 +342,146 @@ public class RestApiTest {
     @SuppressWarnings("unchecked")
     public void testAssociateWithEntity() {
         AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
-        Set<Integer> associationIds = new HashSet<>(Arrays.asList(1, 2, 3));
+        List<Integer> associationIds = Arrays.asList(1, 2, 3);
+        Set<Integer> associationSet = new HashSet(associationIds);
 
-        CrudResponse crudResponse = restApi.associateWithEntity(Candidate.class, 1, categoriesAssociationField, associationIds);
+        List<CrudResponse> crudResponses = restApi.associateWithEntity(Candidate.class, 1, categoriesAssociationField, associationIds);
 
-        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(associationIds));
-        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(eq(crudResponse));
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(associationSet));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testAssociateWithEntity501() {
+        AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
+        List<Integer> idList = new ArrayList();
+        for (int i = 1; i < 502; ++i) {
+            idList.add(i);
+        }
+        Set<Integer> firstCall = new HashSet(idList.subList(0, 500));
+        Set<Integer> secondCall = new HashSet(idList.subList(500, 501));
+
+        List<CrudResponse> crudResponses = restApi.associateWithEntity(Candidate.class, 1, categoriesAssociationField, idList);
+
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(firstCall));
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(secondCall));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(1));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testAssociateWithEntity1000() {
+        AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
+        List<Integer> idList = new ArrayList();
+        for (int i = 1; i < 1001; ++i) {
+            idList.add(i);
+        }
+        Set<Integer> firstCall = new HashSet(idList.subList(0, 500));
+        Set<Integer> secondCall = new HashSet(idList.subList(500, 1000));
+
+        List<CrudResponse> crudResponses = restApi.associateWithEntity(Candidate.class, 1, categoriesAssociationField, idList);
+
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(firstCall));
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(secondCall));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(1));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testAssociateWithEntity1001() {
+        AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
+        List<Integer> idList = new ArrayList();
+        for (int i = 1; i < 1002; ++i) {
+            idList.add(i);
+        }
+        Set<Integer> firstCall = new HashSet(idList.subList(0, 500));
+        Set<Integer> secondCall = new HashSet(idList.subList(500, 1000));
+        Set<Integer> thirdCall = new HashSet(idList.subList(1000, 1001));
+
+        List<CrudResponse> crudResponses = restApi.associateWithEntity(Candidate.class, 1, categoriesAssociationField, idList);
+
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(firstCall));
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(secondCall));
+        verify(bullhornDataMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(thirdCall));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(1));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(2));
     }
 
     @Test
     @SuppressWarnings("unchecked")
     public void testDisassociateWithEntity() {
         AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
-        Set<Integer> associationIds = new HashSet<>(Arrays.asList(1, 2, 3));
+        List<Integer> associationIds = Arrays.asList(1, 2, 3);
+        Set<Integer> associationSet = new HashSet(associationIds);
 
-        CrudResponse crudResponse = restApi.disassociateWithEntity(Candidate.class, 1, categoriesAssociationField, associationIds);
+        List<CrudResponse> crudResponses = restApi.disassociateWithEntity(Candidate.class, 1, categoriesAssociationField, associationIds);
 
-        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(associationIds));
-        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(eq(crudResponse));
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(associationSet));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testDisassociateWithEntity501() {
+        AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
+        List<Integer> idList = new ArrayList();
+        for (int i = 1; i < 502; ++i) {
+            idList.add(i);
+        }
+        Set<Integer> firstCall = new HashSet(idList.subList(0, 500));
+        Set<Integer> secondCall = new HashSet(idList.subList(500, 501));
+
+        List<CrudResponse> crudResponses = restApi.disassociateWithEntity(Candidate.class, 1, categoriesAssociationField, idList);
+
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(firstCall));
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(secondCall));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(1));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testDisassociateWithEntity1000() {
+        AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
+        List<Integer> idList = new ArrayList();
+        for (int i = 1; i < 1001; ++i) {
+            idList.add(i);
+        }
+        Set<Integer> firstCall = new HashSet(idList.subList(0, 500));
+        Set<Integer> secondCall = new HashSet(idList.subList(500, 1000));
+
+        List<CrudResponse> crudResponses = restApi.disassociateWithEntity(Candidate.class, 1, categoriesAssociationField, idList);
+
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(firstCall));
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(secondCall));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(1));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testDisassociateWithEntity1001() {
+        AssociationField categoriesAssociationField = AssociationFactory.candidateAssociations().getAssociation("categories");
+        List<Integer> idList = new ArrayList();
+        for (int i = 1; i < 1002; ++i) {
+            idList.add(i);
+        }
+        Set<Integer> firstCall = new HashSet(idList.subList(0, 500));
+        Set<Integer> secondCall = new HashSet(idList.subList(500, 1000));
+        Set<Integer> thirdCall = new HashSet(idList.subList(1000, 1001));
+
+        List<CrudResponse> crudResponses = restApi.disassociateWithEntity(Candidate.class, 1, categoriesAssociationField, idList);
+
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(firstCall));
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(secondCall));
+        verify(bullhornDataMock, times(1)).disassociateWithEntity(eq(Candidate.class), eq(1), eq(categoriesAssociationField), eq(thirdCall));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(0));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(1));
+        verify(restApiExtensionMock, times(1)).checkForRestSdkErrorMessages(crudResponses.get(2));
     }
 
     @Test

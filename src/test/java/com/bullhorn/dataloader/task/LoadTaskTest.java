@@ -47,7 +47,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
@@ -162,7 +161,7 @@ public class LoadTaskTest {
 
         // Verify that only one association call got made for all of the associated primarySkills
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
-            eq(CandidateAssociations.getInstance().primarySkills()), eq(new HashSet<>(Arrays.asList(1, 2, 3))));
+            eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -855,7 +854,7 @@ public class LoadTaskTest {
 
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, times(1)).disassociateWithEntity(eq(Candidate.class),
-            eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(1, 2, 3)));
+            eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
@@ -1020,7 +1019,7 @@ public class LoadTaskTest {
         task.run();
 
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
-            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(3)));
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Collections.singletonList(3)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
     }
 
@@ -1039,9 +1038,9 @@ public class LoadTaskTest {
         task.run();
 
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
-            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(4)));
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Collections.singletonList(4)));
         verify(restApiMock, times(1)).disassociateWithEntity(eq(Candidate.class),
-            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(1, 2)));
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2)));
     }
 
     @Test
@@ -1103,7 +1102,7 @@ public class LoadTaskTest {
 
         // Verify that only returning a single business sector when two identical ones were entered in the field is OK
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
-            eq(CandidateAssociations.getInstance().businessSectors()), eq(new HashSet<>(Collections.singletonList(1))));
+            eq(CandidateAssociations.getInstance().businessSectors()), eq(Collections.singletonList(1)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -1324,7 +1323,7 @@ public class LoadTaskTest {
         verify(restApiMock, times(1)).queryForList(eq(Skill.class), eq(expectedQuery),
             any(), any());
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
-            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Sets.newHashSet(3, 4, 5, 6)));
+            eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(3, 4, 5, 6)));
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 100, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
