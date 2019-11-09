@@ -21,6 +21,12 @@ public class ValidationUtilTest {
     }
 
     @Test
+    public void testConstructor() {
+        ValidationUtil validationUtil = new ValidationUtil();
+        Assert.assertNotNull(validationUtil);
+    }
+
+    @Test
     public void testValidateCsvFile() {
         String path = TestUtils.getResourceFilePath("Candidate_Valid_File.csv");
         Assert.assertTrue(ValidationUtil.validateCsvFile(path, printUtilMock));

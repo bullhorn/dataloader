@@ -52,6 +52,12 @@ public class PropertyValidationUtilTest {
         entityExistFieldsMap.put("TimeUnit", Arrays.asList(""));
     }
 
+    @Test
+    public void testConstructor() {
+        PropertyValidationUtil propertyValidationUtil = new PropertyValidationUtil();
+        Assert.assertNotNull(propertyValidationUtil);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testEmptyUserName() {
         PropertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), "");
