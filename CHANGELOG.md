@@ -1,6 +1,20 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [4.6.0](https://github.com/bullhorn/dataloader/compare/v4.5.0...v4.6.0) (2019-11-11)
+
+
+### Features
+
+* **Entity Name:** Added ability to set entity apart from filename ([#302](https://github.com/bullhorn/dataloader/issues/302)) ([6009662](https://github.com/bullhorn/dataloader/commit/60096620fa850d9a63283b2f52f07dd8d5f3dbd3))
+* **Meta:** Improved meta output ([#305](https://github.com/bullhorn/dataloader/issues/305)) ([b3a2482](https://github.com/bullhorn/dataloader/commit/b3a248273f7450ee156d8ada09920e8e0220314e))
+
+
+### Bug Fixes
+
+* **Associations:** Fixed bug where > 800 associations were not working ([#304](https://github.com/bullhorn/dataloader/issues/304)) ([78166c5](https://github.com/bullhorn/dataloader/commit/78166c5ec7a467f8d08c530d22ff4f7d41af3aa4))
+* **Dependencies:** Using openJDK, latest Node LTS and standard-version ([#303](https://github.com/bullhorn/dataloader/issues/303)) ([1379cec](https://github.com/bullhorn/dataloader/commit/1379cec2c174e2a8d0730098adbbb6c99e4702ed))
 
 # [4.5.0](https://github.com/bullhorn/dataloader/compare/v4.4.0...v4.5.0) (2019-05-10)
 
