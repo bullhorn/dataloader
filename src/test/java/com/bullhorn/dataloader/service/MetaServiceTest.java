@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.mockito.Matchers.anyString;
@@ -45,23 +46,25 @@ public class MetaServiceTest {
 
         // Mock out meta fields
         Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
+        Field nameField = TestUtils.createField("name", "Name", "", "", "SCALAR", "String");
         Field emailField = TestUtils.createField("email", "Email", "", "", "SCALAR", "String");
-        Field externalIdField = TestUtils.createField("externalID", "External ID", "", "", "SCALAR", "String");
         Field commentsField = TestUtils.createField("comments", "Comments", "General Comments",
             "Place for general comments about the record", "SCALAR", "String");
         Field customTextField = TestUtils.createField("customText1", "Favorite Food", "What is the person's favorite food?",
             "Useful sometimes", "SCALAR", "String");
+        Field customIntField = TestUtils.createField("customInt100", "Brand new field", "", "", "SCALAR", "Integer");
         Field ownerField = TestUtils.createField("owner", "Recruiter", "", "", "TO_ONE", "");
         StandardMetaData<CorporateUser> corporateUserMeta = new StandardMetaData<>();
         corporateUserMeta.setEntity("CorporateUser");
         corporateUserMeta.setLabel("Recruiter");
+        corporateUserMeta.setFields(new ArrayList<>(Arrays.asList(idField, nameField)));
         ownerField.setAssociatedEntity(corporateUserMeta);
 
         // Mock out Candidate meta data
         StandardMetaData<Candidate> candidateMeta = new StandardMetaData<>();
         candidateMeta.setEntity("Candidate");
         candidateMeta.setLabel("Employee");
-        candidateMeta.setFields(Arrays.asList(idField, emailField, externalIdField, commentsField, customTextField, ownerField));
+        candidateMeta.setFields(new ArrayList<>(Arrays.asList(idField, emailField, commentsField, customTextField, customIntField, ownerField)));
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(candidateMeta);
@@ -75,6 +78,9 @@ public class MetaServiceTest {
         metaService.run(testArgs);
 
         verify(printUtilMock, times(1)).log("Getting meta for Candidate...");
+        verify(printUtilMock, times(1)).log("Removed Candidate field: customInt100 that does not exist in SDK-REST.");
+        verify(printUtilMock, times(1)).log("Added Candidate field: externalID that was not in Meta.");
+        verify(printUtilMock, times(1)).log("Done generating meta for Candidate");
         verify(printUtilMock, times(1)).log("Done generating meta for Candidate");
         verify(printUtilMock, times(1)).print((String) stringCaptor.capture());
 
@@ -83,15 +89,22 @@ public class MetaServiceTest {
         Assert.assertEquals(meta.get("entity"), "Candidate");
         Assert.assertEquals(meta.get("label"), "Employee");
         JSONArray fields = meta.getJSONArray("fields");
-        TestUtils.checkJsonObject(fields.getJSONObject(0), "name,label,description,hint", "email,Email,,");
-        TestUtils.checkJsonObject(fields.getJSONObject(1), "name,label,description,hint", "externalID,External ID,,");
+        TestUtils.checkJsonObject(fields.getJSONObject(0), "name", "id");
+        TestUtils.checkJsonObject(fields.getJSONObject(1), "name,label,description,hint", "email,Email,,");
         TestUtils.checkJsonObject(fields.getJSONObject(2), "name,label,description,hint",
             "comments,Comments,General Comments,Place for general comments about the record");
         TestUtils.checkJsonObject(fields.getJSONObject(3), "name,label,description,hint",
             "customText1,Favorite Food,What is the person's favorite food?,Useful sometimes");
-        TestUtils.checkJsonObject(fields.getJSONObject(4), "name,label",
-            "owner,Recruiter");
-        Assert.assertEquals(fields.getJSONObject(4).getJSONObject("associatedEntity").getString("entity"), "CorporateUser");
+
+        JSONObject ownerField = fields.getJSONObject(4);
+        TestUtils.checkJsonObject(ownerField, "name,label", "owner,Recruiter");
+        JSONObject ownerAssociation = ownerField.getJSONObject("associatedEntity");
+        Assert.assertEquals(ownerAssociation.getString("entity"), "CorporateUser");
+        JSONArray ownerAssociationFields = ownerAssociation.getJSONArray("fields");
+        TestUtils.checkJsonObject(ownerAssociationFields.getJSONObject(0), "name", "id");
+        TestUtils.checkJsonObject(ownerAssociationFields.getJSONObject(1), "name", "name");
+
+        TestUtils.checkJsonObject(fields.getJSONObject(5), "name", "externalID");
     }
 
     @Test(expected = RestApiException.class)
