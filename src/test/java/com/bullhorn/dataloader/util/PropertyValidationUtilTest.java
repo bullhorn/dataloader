@@ -157,15 +157,9 @@ public class PropertyValidationUtilTest {
         PropertyValidationUtil.validateNumThreads(-1);
     }
 
-    @Test
-    public void testValidUpperBoundNumThreads() {
-        Integer actual = PropertyValidationUtil.validateNumThreads(100);
-        Assert.assertEquals(actual, new Integer(100));
-    }
-
     @Test(expected = IllegalArgumentException.class)
-    public void testInvalidUpperBoundNumThreads() {
-        PropertyValidationUtil.validateNumThreads(101);
+    public void testUpperBoundNumThreads() {
+        PropertyValidationUtil.validateNumThreads(16);
     }
 
     @Test

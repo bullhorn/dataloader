@@ -12,7 +12,7 @@ import java.util.Map;
  * Validates the user's entries in the properties file.
  */
 class PropertyValidationUtil {
-    private static final Integer MAX_NUM_THREADS = 100;
+    private static final Integer MAX_NUM_THREADS = 15;
     private static final Integer MAX_WAIT_SECONDS = 3600; // 1 hour
     private static final Integer DEFAULT_INTERVAL_MSEC = 500; // Wait for half a second
     private static final String DEFAULT_RESULTS_FILE_PATH = "./results.json";
@@ -37,7 +37,7 @@ class PropertyValidationUtil {
 
     static Integer validateNumThreads(Integer numThreads) {
         if (numThreads < 0 || numThreads > MAX_NUM_THREADS) {
-            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 0 to " + MAX_NUM_THREADS);
+            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
         }
         if (numThreads == 0) {
             numThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
