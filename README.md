@@ -88,7 +88,7 @@ For additional details, see Load Insert vs Update.
 * listDelimiter
   * A list delimiter would be used when a field supports multiple values.
   * For example, if I was to use “|” as a list delimiter, I could insert a single candidate with multiple categories into the CRM by saying “Category A|Category B|Category C”.
-  * Default value is ;
+  * Default value is ";"
   * Commas can also be used as the list delimiter value, provided quotes are used around the value, such as: "A,B,C",”D,E,F”.
   
 **Performance**
@@ -96,7 +96,7 @@ For additional details, see Load Insert vs Update.
 * numThreads
   * Number of rows to process at a time.
   * Default value is 0 to allow the program to select the optimal number of threads based off system properties.
-  * Maximum is 10.
+  * Maximum is 100.
   * We suggest that users do not edit this value.
   
   
