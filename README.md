@@ -96,7 +96,7 @@ For additional details, see Load Insert vs Update.
 * numThreads
   * Number of rows to process at a time.
   * Default value is 0 to allow the program to select the optimal number of threads based off system properties.
-  * Maximum is 10.
+  * Maximum is 15.
   * We suggest that users do not edit this value.
   
   
