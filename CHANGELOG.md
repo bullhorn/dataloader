@@ -8,7 +8,6 @@ All notable changes to this project will be documented in this file. See [standa
 ### Features
 
 * **Name:** Adding name automatically when firstName and lastName are provided ([#309](https://github.com/bullhorn/dataloader/issues/309)) ([67c6570](https://github.com/bullhorn/dataloader/commit/67c6570c4321c093653dac5e4620ef58a69376e5))
-* **Performance:** Increased maximum number of threads to 100 ([#307](https://github.com/bullhorn/dataloader/issues/307)) ([7a29222](https://github.com/bullhorn/dataloader/commit/7a2922215feb4fd3ef6bc4e7c865bc7556eaf7e6))
 
 
 ### Bug Fixes
