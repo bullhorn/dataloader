@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.7.0](https://github.com/bullhorn/dataloader/compare/v4.6.0...v4.7.0) (2020-02-07)
+
+
+### Features
+
+* **Name:** Adding name automatically when firstName and lastName are provided ([#309](https://github.com/bullhorn/dataloader/issues/309)) ([67c6570](https://github.com/bullhorn/dataloader/commit/67c6570c4321c093653dac5e4620ef58a69376e5))
+* **Performance:** Increased maximum number of threads to 100 ([#307](https://github.com/bullhorn/dataloader/issues/307)) ([7a29222](https://github.com/bullhorn/dataloader/commit/7a2922215feb4fd3ef6bc4e7c865bc7556eaf7e6))
+
+
+### Bug Fixes
+
+* **Meta:** Fixed meta address fields ([#308](https://github.com/bullhorn/dataloader/issues/308)) ([37afd2a](https://github.com/bullhorn/dataloader/commit/37afd2a060e32654e1eabc9ae527b949b4c9f7ab))
+
 ## [4.6.0](https://github.com/bullhorn/dataloader/compare/v4.5.0...v4.6.0) (2019-11-11)
 
 
