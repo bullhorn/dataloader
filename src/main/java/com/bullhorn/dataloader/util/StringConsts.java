@@ -19,9 +19,12 @@ public class StringConsts {
     public static final String DESCRIPTION = "description";
     public static final String EXIST_FIELD_SUFFIX = "ExistField";
     public static final String EXTERNAL_ID = "externalID";
+    public static final String FIRST_NAME = "firstName";
     public static final String ID = "id";
     public static final String IS_DELETED = "isDeleted";
     public static final String IS_RESUME = "isResume";
+    public static final String LAST_NAME = "lastName";
+    public static final String NAME = "name";
     public static final String NOTE_ID = "noteID";
     public static final String PARENT_ENTITY_ID = "parentEntityID";
     public static final String PROPERTY_FILE_ARG = "propertyfile";

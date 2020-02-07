@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.rest;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
@@ -19,9 +20,11 @@ public class Preloader {
 
     private final RestSession restSession;
     private Map<String, Integer> countryNameToIdMap = null;
+    private final PrintUtil printUtil;
 
-    public Preloader(RestSession restSession) {
+    public Preloader(RestSession restSession, PrintUtil printUtil) {
         this.restSession = restSession;
+        this.printUtil = printUtil;
     }
 
     /**
@@ -36,6 +39,7 @@ public class Preloader {
         for (Cell cell : row.getCells()) {
             convertedRow.addCell(convertCell(cell));
         }
+        checkAndAddNameCell(convertedRow);
         return convertedRow;
     }
 
@@ -82,5 +86,19 @@ public class Preloader {
             Sets.newHashSet("id", "name"), ParamFactory.queryParams());
         countryList.forEach(n -> countryNameToIdMap.put(n.getName().trim().toLowerCase(), n.getId()));
         return countryNameToIdMap;
+    }
+
+    /**
+     * Potentially add a new name cell to the row, if there is a firstName and lastName but no name.
+     *
+     * @param row the user provided row of data that might be modified
+     */
+    private void checkAndAddNameCell(Row row) {
+        if (row.hasValue(StringConsts.FIRST_NAME) && row.hasValue(StringConsts.LAST_NAME) && !row.hasValue(StringConsts.NAME)) {
+            row.addCell(new Cell(StringConsts.NAME, row.getValue(StringConsts.FIRST_NAME) + ' ' + row.getValue(StringConsts.LAST_NAME)));
+            printUtil.printAndLog("Added " + StringConsts.NAME + " field as " + "'<" + StringConsts.FIRST_NAME + "> <" + StringConsts.LAST_NAME + ">'"
+                + " since both " + StringConsts.FIRST_NAME + " and " + StringConsts.LAST_NAME + " were provided but "
+                + StringConsts.NAME + " was not.");
+        }
     }
 }
