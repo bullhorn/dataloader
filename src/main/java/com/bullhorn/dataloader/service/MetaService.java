@@ -41,7 +41,7 @@ public class MetaService implements Action {
 
         try {
             printUtil.log("Getting meta for " + Objects.requireNonNull(entityInfo).getEntityName() + "...");
-            MetaData metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, null);
+            MetaData<?> metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, null);
             enrichMeta(metaData);
             JSONObject jsonMeta = metaToJson(metaData);
             printUtil.print(jsonMeta.toString());
@@ -61,8 +61,7 @@ public class MetaService implements Action {
     /**
      * One layer deep enrichment of meta data to match SDK-REST.
      */
-    @SuppressWarnings("unchecked")
-    private void enrichMeta(MetaData metaData) {
+    private void enrichMeta(MetaData<?> metaData) {
         enrichMetaForEntity(metaData);
         List<Field> fields = metaData.getFields();
         for (Field field : fields) {
@@ -75,15 +74,14 @@ public class MetaService implements Action {
     /**
      * Given the meta for an entity or associated entity, use the SDK to enrich that meta.
      */
-    @SuppressWarnings("unchecked")
-    private void enrichMetaForEntity(MetaData metaData) {
+    private void enrichMetaForEntity(MetaData<?> metaData) {
         EntityInfo entityInfo = EntityInfo.fromString(metaData.getEntity());
         if (entityInfo != null) {
             List<Field> fields = metaData.getFields();
             Map<String, Method> setterMethodMap = MethodUtil.getSetterMethodMap(entityInfo.getEntityClass());
 
             // Throw out fields in meta that are not in the SDK
-            List<Field> fieldsToRemove = new ArrayList();
+            List<Field> fieldsToRemove = new ArrayList<>();
             for (Field field : fields) {
                 if (!setterMethodMap.containsKey(field.getName().toLowerCase())) {
                     fieldsToRemove.add(field);
@@ -107,10 +105,16 @@ public class MetaService implements Action {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private JSONObject metaToJson(MetaData metaData) {
+    private JSONObject metaToJson(MetaData<?> metaData) {
+        JSONObject jsonMeta = new JSONObject();
+        jsonMeta.put("entity", metaData.getEntity());
+        jsonMeta.put("label", metaData.getLabel());
+        jsonMeta.put("fields", fieldsToJson(metaData.getFields()));
+        return jsonMeta;
+    }
+
+    private JSONArray fieldsToJson(List<Field> fields) {
         JSONArray jsonFields = new JSONArray();
-        List<Field> fields = metaData.getFields();
         for (Field field : fields) {
             JSONObject jsonField = new JSONObject();
             jsonField.put("name", field.getName());
@@ -128,14 +132,11 @@ public class MetaService implements Action {
             jsonField.put("description", field.getDescription());
             if (field.getAssociatedEntity() != null) {
                 jsonField.put("associatedEntity", metaToJson(field.getAssociatedEntity()));
+            } else if (field.getFields().size() > 0) {
+                jsonField.put("fields", fieldsToJson(field.getFields()));
             }
             jsonFields.put(jsonField);
         }
-
-        JSONObject jsonMeta = new JSONObject();
-        jsonMeta.put("entity", metaData.getEntity());
-        jsonMeta.put("label", metaData.getLabel());
-        jsonMeta.put("fields", jsonFields);
-        return jsonMeta;
+        return jsonFields;
     }
 }

@@ -59,12 +59,16 @@ public class MetaServiceTest {
         corporateUserMeta.setLabel("Recruiter");
         corporateUserMeta.setFields(new ArrayList<>(Arrays.asList(idField, nameField)));
         ownerField.setAssociatedEntity(corporateUserMeta);
+        Field addressField = TestUtils.createField("address", "Address", "", "", "COMPOSITE", "ADDRESS_BLOCK");
+        Field address1Field = TestUtils.createField("address1", "Street Address", "", "", "SCALAR", "String");
+        Field cityField = TestUtils.createField("city", "City", "", "", "SCALAR", "String");
+        addressField.setFields(new ArrayList<>(Arrays.asList(address1Field, cityField)));
 
         // Mock out Candidate meta data
         StandardMetaData<Candidate> candidateMeta = new StandardMetaData<>();
         candidateMeta.setEntity("Candidate");
         candidateMeta.setLabel("Employee");
-        candidateMeta.setFields(new ArrayList<>(Arrays.asList(idField, emailField, commentsField, customTextField, customIntField, ownerField)));
+        candidateMeta.setFields(new ArrayList<>(Arrays.asList(idField, emailField, commentsField, customTextField, customIntField, ownerField, addressField)));
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(candidateMeta);
@@ -73,7 +77,7 @@ public class MetaServiceTest {
     @Test
     public void testRunCandidate() {
         String[] testArgs = {Command.META.getMethodName(), EntityInfo.CANDIDATE.getEntityName()};
-        ArgumentCaptor stringCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
 
         metaService.run(testArgs);
 
@@ -82,9 +86,9 @@ public class MetaServiceTest {
         verify(printUtilMock, times(1)).log("Added Candidate field: externalID that was not in Meta.");
         verify(printUtilMock, times(1)).log("Done generating meta for Candidate");
         verify(printUtilMock, times(1)).log("Done generating meta for Candidate");
-        verify(printUtilMock, times(1)).print((String) stringCaptor.capture());
+        verify(printUtilMock, times(1)).print(stringCaptor.capture());
 
-        String jsonPrinted = (String) stringCaptor.getValue();
+        String jsonPrinted = stringCaptor.getValue();
         JSONObject meta = new JSONObject(jsonPrinted);
         Assert.assertEquals(meta.get("entity"), "Candidate");
         Assert.assertEquals(meta.get("label"), "Employee");
@@ -104,7 +108,13 @@ public class MetaServiceTest {
         TestUtils.checkJsonObject(ownerAssociationFields.getJSONObject(0), "name", "id");
         TestUtils.checkJsonObject(ownerAssociationFields.getJSONObject(1), "name", "name");
 
-        TestUtils.checkJsonObject(fields.getJSONObject(5), "name", "externalID");
+        JSONObject addressField = fields.getJSONObject(5);
+        TestUtils.checkJsonObject(addressField, "name,label", "address,Address");
+        JSONArray addressFields = addressField.getJSONArray("fields");
+        TestUtils.checkJsonObject(addressFields.getJSONObject(0), "name", "address1");
+        TestUtils.checkJsonObject(addressFields.getJSONObject(1), "name", "city");
+
+        TestUtils.checkJsonObject(fields.getJSONObject(6), "name", "externalID");
     }
 
     @Test(expected = RestApiException.class)
