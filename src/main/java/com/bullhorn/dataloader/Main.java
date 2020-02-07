@@ -36,7 +36,7 @@ public class Main {
                 System.getenv(), System.getProperties(), args, printUtil);
             RestApiExtension restApiExtension = new RestApiExtension(printUtil);
             RestSession restSession = new RestSession(restApiExtension, propertyFileUtil, printUtil);
-            Preloader preloader = new Preloader(restSession);
+            Preloader preloader = new Preloader(restSession, printUtil);
             CompleteUtil completeUtil = new CompleteUtil(restSession, httpClient, propertyFileUtil, printUtil, timer);
             ThreadPoolUtil threadPoolUtil = new ThreadPoolUtil(propertyFileUtil);
             Cache cache = new Cache(propertyFileUtil);
