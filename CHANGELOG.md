@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.7.1](https://github.com/bullhorn/dataloader/compare/v4.7.0...v4.7.1) (2020-02-14)
+
+
+### Bug Fixes
+
+* **Examples:** Fixed Candidate example - category was missing association field ([c0b27de](https://github.com/bullhorn/dataloader/commit/c0b27de1a4561642cdd4833dcd7059e571d7d25f))
+
 ## [4.7.0](https://github.com/bullhorn/dataloader/compare/v4.6.0...v4.7.0) (2020-02-07)
 
 
