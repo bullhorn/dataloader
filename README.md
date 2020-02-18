@@ -6,6 +6,12 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 [![Coverage Status](https://coveralls.io/repos/github/bullhorn/dataloader/badge.svg?branch=master&t=gVrMsY)](https://coveralls.io/github/bullhorn/dataloader?branch=master)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
+## There's an App for This!
+
+Check out the [Data Loader Desktop App](https://github.com/bullhorn/dataloader-app) for Windows and Mac that wraps the Data Loader in a convenient, user friendly app. 
+
+_The app handles loading data only. For features such as exporting and deleting data, parsing and uploading resumes and files, continue on._
+
 ## Quick Start Guide
 
  1. Install Java if you don't have it already (you won't need the development kit for Windows) - [Windows](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210182) | [Mac](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
