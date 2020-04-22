@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 import com.google.common.collect.Sets;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -15,16 +16,50 @@ public class FindUtilTest {
     }
 
     @Test
-    public void testGetExternalIdValueSuccess() {
-        String externalIdValue = FindUtil.getExternalIdValue(
-            "firstName:\"Data\" AND externalID:\"ext 1\" AND lastName:\"Loader\"");
+    public void testGetExternalIdSearchValueQuotedSingleSuccess() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue(
+            "externalID:\"ext 1\"");
         Assert.assertEquals(externalIdValue, "ext 1");
     }
 
     @Test
-    public void testGetExternalIdValueMissing() {
-        String externalIdValue = FindUtil.getExternalIdValue(
+    public void testGetExternalIdSearchValueQuotedMultipleFailure() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue(
+            "firstName:\"Data\" AND externalID:\"ext 1\" AND lastName:\"Loader\"");
+        Assert.assertEquals(externalIdValue, "");
+    }
+
+    @Test
+    public void testGetExternalIdSearchValueUnquotedSingleSuccess() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue(
+            "externalID: ext-1");
+        Assert.assertEquals(externalIdValue, "ext-1");
+    }
+
+    @Test
+    public void testGetExternalIdSearchValueUnquotedSingleSpaceSuccess() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue(
+            "externalID: ext 1");
+        Assert.assertEquals(externalIdValue, "ext 1");
+    }
+
+    @Test
+    public void testGetExternalIdSearchValueUnquotedMultipleFailure() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue(
+            "firstName: Data AND externalID: ext 1 AND lastName: Loader");
+        Assert.assertEquals(externalIdValue, "");
+    }
+
+    @Test
+    public void testGetExternalIdSearchValueMissing() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue(
             "firstName:\"Data\" AND lastName:\"Loader\"");
+        Assert.assertEquals("", externalIdValue);
+    }
+
+    @Test
+    public void testGetExternalIdSearchValueEmpty() {
+        String externalIdValue = FindUtil.getExternalIdSearchValue("");
         Assert.assertEquals("", externalIdValue);
     }
 

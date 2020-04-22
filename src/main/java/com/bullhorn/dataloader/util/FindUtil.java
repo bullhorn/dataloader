@@ -20,6 +20,7 @@ public class FindUtil {
     private static final Integer MAX_NUM_FIELDS = 30; // A safe, low number, since actual number depends on total length of the query string
 
     // Returns the format of a single term in a lucene search
+    @SuppressWarnings("rawtypes")
     private static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo,
                                           PropertyFileUtil propertyFileUtil) {
         // Fix for the Note entity doing it's own thing when it comes to the 'id' field
@@ -82,11 +83,12 @@ public class FindUtil {
     /**
      * Returns the format of a single term in a query where clause
      */
+    @SuppressWarnings("rawtypes")
     private static String getSqlQuery(String field, String value, Class fieldType, PropertyFileUtil propertyFileUtil) {
         if (Integer.class.equals(fieldType) || BigDecimal.class.equals(fieldType) || Double.class.equals(fieldType)) {
             return field + "=" + value;
         } else if (Boolean.class.equals(fieldType)) {
-            return field + "=" + (value.equals("1") ? "true" : Boolean.toString(Boolean.valueOf(value)));
+            return field + "=" + (value.equals("1") ? "true" : Boolean.valueOf(value));
         } else if (String.class.equals(fieldType)) {
             if (propertyFileUtil.getWildcardMatching()) {
                 // Not all string fields in query entities support the like syntax. Only use it if there is a non-escaped asterisk.
@@ -189,17 +191,16 @@ public class FindUtil {
     /**
      * Convenience method that extracts the externalID from the search string if it exists.
      *
-     * @param searchString the search string that has been created for use in the rest find call
-     * @return empty string if it does not exist or is blank
+     * @param searchString the lucene search string that has been created for use in the rest find call
+     * @return empty string if it does not exist, or there are extra search criteria involved
      */
-    public static String getExternalIdValue(String searchString) {
-        final String externalIdStart = StringConsts.EXTERNAL_ID + ":\"";
-        final String externalIdEnd = "\"";
+    public static String getExternalIdSearchValue(String searchString) {
+        final String externalIdStart = StringConsts.EXTERNAL_ID + ":";
 
         String externalId = "";
-        if (searchString.contains(externalIdStart)) {
-            externalId = searchString.substring(searchString.indexOf(externalIdStart) + externalIdStart.length());
-            externalId = externalId.substring(0, externalId.indexOf(externalIdEnd));
+        if (searchString.contains(externalIdStart) && !searchString.contains(" AND ")) {
+            final String remaining = searchString.substring(searchString.indexOf(externalIdStart) + externalIdStart.length());
+            externalId = remaining.replaceAll("\"", "").trim();
         }
         return externalId;
     }

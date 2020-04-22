@@ -91,7 +91,7 @@ public class RestApi {
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query
             + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
         boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
-        String externalId = FindUtil.getExternalIdValue(query);
+        String externalId = FindUtil.getExternalIdSearchValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
             SearchResult<T> searchResult = restApiExtension.getByExternalId(this, type, externalId, correctedFieldSet);
             if (searchResult.getSuccess()) {
