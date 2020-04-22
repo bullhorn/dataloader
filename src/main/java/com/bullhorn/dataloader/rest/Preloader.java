@@ -21,6 +21,7 @@ public class Preloader {
     private final RestSession restSession;
     private Map<String, Integer> countryNameToIdMap = null;
     private final PrintUtil printUtil;
+    private Boolean nameFieldNotificationLogged = false;
 
     public Preloader(RestSession restSession, PrintUtil printUtil) {
         this.restSession = restSession;
@@ -96,9 +97,14 @@ public class Preloader {
     private void checkAndAddNameCell(Row row) {
         if (row.hasValue(StringConsts.FIRST_NAME) && row.hasValue(StringConsts.LAST_NAME) && !row.hasValue(StringConsts.NAME)) {
             row.addCell(new Cell(StringConsts.NAME, row.getValue(StringConsts.FIRST_NAME) + ' ' + row.getValue(StringConsts.LAST_NAME)));
-            printUtil.printAndLog("Added " + StringConsts.NAME + " field as " + "'<" + StringConsts.FIRST_NAME + "> <" + StringConsts.LAST_NAME + ">'"
-                + " since both " + StringConsts.FIRST_NAME + " and " + StringConsts.LAST_NAME + " were provided but "
-                + StringConsts.NAME + " was not.");
+
+            if (!nameFieldNotificationLogged) {
+                printUtil.printAndLog("Added " + StringConsts.NAME
+                    + " field as " + "'<" + StringConsts.FIRST_NAME + "> <" + StringConsts.LAST_NAME + ">'"
+                    + " since both " + StringConsts.FIRST_NAME + " and " + StringConsts.LAST_NAME + " were provided but "
+                    + StringConsts.NAME + " was not.");
+                nameFieldNotificationLogged = true;
+            }
         }
     }
 }
