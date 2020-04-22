@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.7.2](https://github.com/bullhorn/dataloader/compare/v4.7.1...v4.7.2) (2020-04-22)
+
+
+### Bug Fixes
+
+* **Name Field:** Only printing out the generated name field notice once ([#311](https://github.com/bullhorn/dataloader/issues/311)) ([dfb211e](https://github.com/bullhorn/dataloader/commit/dfb211e864d3d30787c60ed49e715eb64abad2f6))
+* **Search:** Fixed lookup by externalID when using wildcard searching ([#312](https://github.com/bullhorn/dataloader/issues/312)) ([795d398](https://github.com/bullhorn/dataloader/commit/795d3983810af4c7ad12da684b53441c55ee8501))
+
 ### [4.7.1](https://github.com/bullhorn/dataloader/compare/v4.7.0...v4.7.1) (2020-02-14)
 
 
