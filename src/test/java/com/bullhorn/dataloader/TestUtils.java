@@ -196,11 +196,11 @@ public class TestUtils {
      * Will recursively replace for all subdirectories.
      *
      * @param directory   The directory to recurse through
-     * @param replaceText The text to find
-     * @param findText    The text to replace the foundText with
+     * @param findText    The text to find
+     * @param replaceText The text to replace the foundText with
      * @throws IOException In case the directory is null
      */
-    public static void replaceTextInFiles(File directory, String replaceText, String findText) throws IOException {
+    public static void replaceTextInFiles(File directory, String findText, String replaceText) throws IOException {
         File[] directoryListing = directory.listFiles();
         if (directoryListing != null) {
             for (File file : directoryListing) {
@@ -210,7 +210,7 @@ public class TestUtils {
                     content = content.replaceAll(findText, replaceText);
                     FileUtils.writeStringToFile(file, content, "UTF-8");
                 } else if (file.isDirectory()) {
-                    replaceTextInFiles(file, replaceText, findText);
+                    replaceTextInFiles(file, findText, replaceText);
                 }
             }
         } else {

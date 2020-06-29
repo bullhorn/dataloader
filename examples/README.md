@@ -34,6 +34,9 @@ These example CSV files reference several reference only entities that must exis
     * Certification1
     * Certification2
 
+* Invoice Statement Template
+    * Ensure at least one Invoice Statement Template exists: https://confluence.bullhorn.com/display/WFR/Invoice+Template+Setup
+
 * Corp Settings
     * Enable leadAndOpportunityEnabled
     

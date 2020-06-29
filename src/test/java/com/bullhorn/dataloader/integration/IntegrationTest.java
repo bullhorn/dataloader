@@ -118,11 +118,11 @@ public class IntegrationTest {
 
         // Replace all external ID endings with unique ones based on the current timestamp
         String newExternalIdEnding = "-" + secondsSinceEpoch;
-        TestUtils.replaceTextInFiles(tempDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
+        TestUtils.replaceTextInFiles(tempDirectory, EXAMPLE_EXTERNAL_ID_ENDING, newExternalIdEnding);
 
         // Replace all UUIDs in with unique ones
         String uuid = UUID.randomUUID().toString();
-        TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
+        TestUtils.replaceTextInFiles(tempDirectory, EXAMPLE_UUID, uuid);
         // endregion
 
         // region LOAD - INSERT
@@ -179,6 +179,10 @@ public class IntegrationTest {
         // endregion
 
         // region LOAD - UPDATE
+
+        // Update the effectiveDate to allow effective dated entities to be updated
+        TestUtils.replaceTextInFiles(tempDirectory, "2001-01-01", "2002-02-02");
+
         FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
         consoleOutputCapturer.start();
