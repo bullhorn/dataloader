@@ -1,17 +1,18 @@
 package com.bullhorn.dataloader.integration;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+
 import com.bullhorn.dataloader.Main;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
 
 /**
  * TravisCI runs this as part of every build, using `maven verify`, which goes beyond `maven test` to run the integration test.
@@ -118,11 +119,11 @@ public class IntegrationTest {
 
         // Replace all external ID endings with unique ones based on the current timestamp
         String newExternalIdEnding = "-" + secondsSinceEpoch;
-        TestUtils.replaceTextInFiles(tempDirectory, newExternalIdEnding, EXAMPLE_EXTERNAL_ID_ENDING);
+        TestUtils.replaceTextInFiles(tempDirectory, EXAMPLE_EXTERNAL_ID_ENDING, newExternalIdEnding);
 
         // Replace all UUIDs in with unique ones
         String uuid = UUID.randomUUID().toString();
-        TestUtils.replaceTextInFiles(tempDirectory, uuid, EXAMPLE_UUID);
+        TestUtils.replaceTextInFiles(tempDirectory, EXAMPLE_UUID, uuid);
         // endregion
 
         // region LOAD - INSERT
@@ -179,6 +180,10 @@ public class IntegrationTest {
         // endregion
 
         // region LOAD - UPDATE
+
+        // Update the effectiveDate to allow effective dated entities to be updated
+        TestUtils.replaceTextInFiles(tempDirectory, "2001-01-01", "2002-02-02");
+
         FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
         consoleOutputCapturer.start();
@@ -208,7 +213,7 @@ public class IntegrationTest {
 
             // Test that we deleted the results files that were there previously (not the results of our delete)
             for (File file : resultsFiles) {
-                if (!file.getName().contains("ClientCorporation_")) {
+                if (TestUtils.isResultsFileDeletable(file)) {
                     TestUtils.checkResultsFile(file, Command.DELETE);
                 }
             }

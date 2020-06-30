@@ -28,6 +28,7 @@ import java.util.Map;
  */
 public enum EntityInfo {
 
+    // Standard Entities
     APPOINTMENT(BullhornEntityInfo.APPOINTMENT, 8),
     APPOINTMENT_ATTENDEE(BullhornEntityInfo.APPOINTMENT_ATTENDEE, 9),
     BUSINESS_SECTOR(BullhornEntityInfo.BUSINESS_SECTOR, 0),
@@ -64,6 +65,14 @@ public enum EntityInfo {
     WORKERS_COMPENSATION(BullhornEntityInfo.WORKERS_COMPENSATION, 0),
     WORKERS_COMPENSATION_RATE(BullhornEntityInfo.WORKERS_COMPENSATION_RATE, 0),
 
+    // Pay Bill Entities
+    GENERAL_LEDGER_ACCOUNT(BullhornEntityInfo.GENERAL_LEDGER_ACCOUNT, 50),
+    INVOICE_STATEMENT_MESSAGE_TEMPLATE(BullhornEntityInfo.INVOICE_STATEMENT_MESSAGE_TEMPLATE, 51),
+    LOCATION(BullhornEntityInfo.LOCATION, 52),
+    INVOICE_TERM(BullhornEntityInfo.INVOICE_TERM, 53),
+    BILLING_PROFILE(BullhornEntityInfo.BILLING_PROFILE, 54),
+
+    // Custom Objects
     CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1(BullhornEntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_1, 100),
     CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2(BullhornEntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_2, 101),
     CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_3(BullhornEntityInfo.CLIENT_CORPORATION_CUSTOM_OBJECT_INSTANCE_3, 102),
@@ -140,14 +149,13 @@ public enum EntityInfo {
     PLACEMENT_CUSTOM_OBJECT_INSTANCE_9(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_9, 173),
     PLACEMENT_CUSTOM_OBJECT_INSTANCE_10(BullhornEntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10, 174),
 
-    // Abstract base class
+    // Entities that are not loaded directly
     PERSON(BullhornEntityInfo.PERSON, 1000),
-
-    // Compound class
     ADDRESS(BullhornEntityInfo.ADDRESS, 1001),
-
-    // File Class - Handles Setting/Getting File Meta
-    FILE(BullhornEntityInfo.FILE, 1002);
+    FILE(BullhornEntityInfo.FILE, 1002),
+    INVOICE_STATEMENT_TEMPLATE(BullhornEntityInfo.INVOICE_STATEMENT_TEMPLATE, 1003),
+    CURRENCY_UNIT(BullhornEntityInfo.CURRENCY_UNIT, 1004),
+    ;
 
     /**
      * Comparator for sorting EntityInfo objects in a sorted collection.
@@ -211,6 +219,7 @@ public enum EntityInfo {
      *
      * @return the address class for use in DataLoader, since we are not loading directly, but need it to be available
      */
+    @SuppressWarnings("rawtypes")
     public Class getEntityClass() {
         if (bullhornEntityInfo == BullhornEntityInfo.ADDRESS) {
             return Address.class;

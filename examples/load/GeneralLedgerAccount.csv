@@ -1,0 +1,2 @@
+externalAccountNumber,externalAccountName,externalAccountType,externalAccountDetailType,isPay,isBill,isAccountsReceivable,isActive,isDeleted
+gla-ext-1            ,QuickBooks         ,Corporate Ledger   ,Owned by Dept. 312       ,TRUE ,FALSE ,TRUE                ,TRUE    ,FALSE
