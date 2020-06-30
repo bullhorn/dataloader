@@ -1,17 +1,18 @@
 package com.bullhorn.dataloader.integration;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.UUID;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.junit.Test;
+
 import com.bullhorn.dataloader.Main;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
 
 /**
  * TravisCI runs this as part of every build, using `maven verify`, which goes beyond `maven test` to run the integration test.
@@ -212,7 +213,7 @@ public class IntegrationTest {
 
             // Test that we deleted the results files that were there previously (not the results of our delete)
             for (File file : resultsFiles) {
-                if (!file.getName().contains("ClientCorporation_")) {
+                if (TestUtils.isResultsFileDeletable(file)) {
                     TestUtils.checkResultsFile(file, Command.DELETE);
                 }
             }

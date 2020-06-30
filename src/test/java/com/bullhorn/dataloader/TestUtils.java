@@ -1,5 +1,22 @@
 package com.bullhorn.dataloader;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.json.JSONObject;
+import org.junit.Assert;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
@@ -21,22 +38,6 @@ import com.bullhornsdk.data.model.response.crud.AbstractCrudResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
 import com.bullhornsdk.data.model.response.list.StandardListWrapper;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.json.JSONObject;
-import org.junit.Assert;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 /**
  * Utilities used in tests
@@ -216,6 +217,18 @@ public class TestUtils {
         } else {
             throw new IllegalArgumentException("Integration Test Failure: Cannot access the directory: '" + directory + "' for testing.");
         }
+    }
+
+    /**
+     * Given a results file, this will determine if the results file is for a deletable entity
+     *
+     * @param file The results file to check
+     * @return true if the entity is invalid or can be deleted, false if non-deletable
+     */
+    public static boolean isResultsFileDeletable(File file) {
+        String fileName = file.getName();
+        EntityInfo entityInfo = EntityInfo.fromString(fileName.substring(0, fileName.indexOf("_")));
+        return entityInfo == null || entityInfo.isDeletable();
     }
 
     /**
