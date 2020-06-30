@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.8.0](https://github.com/bullhorn/dataloader/compare/v4.7.2...v4.8.0) (2020-06-30)
+
+
+### Features
+
+* **PayBill:** Added initial Pay Bill entities ([#315](https://github.com/bullhorn/dataloader/issues/315)) ([3c2ac0b](https://github.com/bullhorn/dataloader/commit/3c2ac0bfb64297a2bcfc66f2eae3497725ddf99c))
+
 ### [4.7.2](https://github.com/bullhorn/dataloader/compare/v4.7.1...v4.7.2) (2020-04-22)
 
 
