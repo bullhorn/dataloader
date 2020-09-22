@@ -16,6 +16,7 @@ import java.util.Set;
 
 public class MethodUtilTest {
 
+    @SuppressWarnings("InstantiationOfUtilityClass")
     @Test
     public void testConstructor() {
         MethodUtil methodUtil = new MethodUtil();
@@ -25,7 +26,7 @@ public class MethodUtilTest {
     @Test
     public void testGetSetterMethodMapAddress() {
         Map<String, Method> setterMethodMap = MethodUtil.getSetterMethodMap(Address.class);
-        Assert.assertEquals(setterMethodMap.size(), 7);
+        Assert.assertEquals(setterMethodMap.size(), 8);
     }
 
     @Test
