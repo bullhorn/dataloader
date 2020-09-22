@@ -9,6 +9,7 @@ import java.util.Set;
 
 public class FindUtilTest {
 
+    @SuppressWarnings("InstantiationOfUtilityClass")
     @Test
     public void testConstructor() {
         FindUtil findUtil = new FindUtil();
@@ -67,16 +68,6 @@ public class FindUtilTest {
     public void testGetCorrectedFieldSet() {
         Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(Sets.newHashSet("id", "firstName", "lastName"));
         Assert.assertEquals(Sets.newHashSet("id", "firstName", "lastName"), correctedFieldSet);
-    }
-
-    @Test
-    public void testGetCorrectedFieldSetTooManyFields() {
-        Set<String> originalFieldSet = Sets.newHashSet();
-        for (int i = 0; i < 50; i++) {
-            originalFieldSet.add("customText" + i);
-        }
-        Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(originalFieldSet);
-        Assert.assertEquals(Sets.newHashSet("*"), correctedFieldSet);
     }
 
     @Test
