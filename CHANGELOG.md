@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.8.1](https://github.com/bullhorn/dataloader/compare/v4.8.0...v4.8.1) (2020-09-23)
+
+
+### Bug Fixes
+
+* **Location:** Fixed bugs in loading Location ([#322](https://github.com/bullhorn/dataloader/issues/322)) ([e958f86](https://github.com/bullhorn/dataloader/commit/e958f8656e07fac59d7e05900f9dca712b83da82))
+
 ## [4.8.0](https://github.com/bullhorn/dataloader/compare/v4.7.2...v4.8.0) (2020-06-30)
 
 
