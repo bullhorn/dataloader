@@ -7,7 +7,10 @@ import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -80,11 +83,29 @@ public class Record {
      *
      * For direct fields, returns just the name of the field: firstName
      * For primary entity compound fields, the full name of the field, in the form of: "candidate(firstName)"
+     * For multiple compound fields, in the form of: "candidate(firstName,lastName)"
      *
-     * @param isPrimaryEntity true = use the full name of the field if compound, false = use only the field name
      * @return the set of fields that will pull from Rest
      */
-    public Set<String> getFieldsParameter(Boolean isPrimaryEntity) {
-        return fields.stream().map(field -> field.getFieldParameterName(isPrimaryEntity)).collect(Collectors.toSet());
+    public Set<String> getFieldsParameter() {
+        Set<String> fieldNames = new HashSet<>();
+
+        Map<String, List<String>> fieldToSubfieldMap = new HashMap<>();
+        for (Field field : fields) {
+            if (field.getCell().isAssociation()) {
+                String baseName = field.getCell().getAssociationBaseName();
+                List<String> subFields = fieldToSubfieldMap.getOrDefault(baseName, new ArrayList<>());
+                subFields.add(field.getCell().getAssociationFieldName());
+                fieldToSubfieldMap.put(baseName, subFields);
+            } else {
+                fieldNames.add(field.getName());
+            }
+        }
+
+        for (Map.Entry<String, List<String>> entry : fieldToSubfieldMap.entrySet()) {
+            fieldNames.add(entry.getKey() + "(" + String.join(",", entry.getValue()) + ")");
+        }
+
+        return fieldNames;
     }
 }

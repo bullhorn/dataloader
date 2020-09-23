@@ -17,8 +17,6 @@ import java.util.stream.Collectors;
  * Utility for constructing find call syntax (Search/Query statements)
  */
 public class FindUtil {
-    private static final Integer MAX_NUM_FIELDS = 30; // A safe, low number, since actual number depends on total length of the query string
-
     // Returns the format of a single term in a lucene search
     @SuppressWarnings("rawtypes")
     private static String getLuceneSearch(String field, String value, Class fieldType, EntityInfo fieldEntityInfo,
@@ -206,17 +204,13 @@ public class FindUtil {
     }
 
     /**
-     * Ensures that the fieldSet will work properly in rest calls and is not too long or missing an id.
-     *
-     * Returns the given set of fields as is or converts the set to a search for all fields (*) if the fields parameter is too large.
-     * A field parameter that is too large will result in the call failing because it goes beyond the supported query param string length.
-     * Also, adds the id field if it is not already specified, so that any follow on calls that require the id will work.
+     * Ensures that the fieldSet will work properly in rest calls and is not missing an id.
      */
     public static Set<String> getCorrectedFieldSet(Set<String> fieldSet) {
-        if (fieldSet == null || fieldSet.size() > MAX_NUM_FIELDS) {
-            return Sets.newHashSet(StringConsts.ALL_FIELDS);
+        if (fieldSet == null) {
+            return Sets.newHashSet(StringConsts.ID);
         }
-        if (!fieldSet.contains(StringConsts.ALL_FIELDS) && !fieldSet.contains(StringConsts.ID)) {
+        if (!fieldSet.contains(StringConsts.ID)) {
             Set<String> correctedFieldSet = Sets.newHashSet(fieldSet);
             correctedFieldSet.add(StringConsts.ID);
             return correctedFieldSet;

@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
@@ -44,7 +45,7 @@ public class RecordTest {
         Assert.assertEquals(new Integer(1), record.getNumber());
         Assert.assertEquals(6, record.getFields().size());
         Assert.assertEquals(1, record.getToManyFields().size());
-        Assert.assertEquals(expectedParameters, record.getFieldsParameter(true));
+        Assert.assertEquals(expectedParameters, record.getFieldsParameter());
     }
 
     @Test
@@ -86,5 +87,19 @@ public class RecordTest {
 
         Assert.assertEquals(6, record.getFields().size());
         Assert.assertEquals(0, record.getEntityExistFields().size());
+    }
+
+    @Test
+    public void testGetFieldsParameter() throws IOException {
+        Row row = TestUtils.createRow(
+            "externalID,firstName,lastName,primarySkills.id,address.address1,address.city,address.state,address.zip",
+            "ext-1,Data,Loader,1;2;3,100 Summer St.,Boston,MA,01250");
+        HashSet<String> expected = Sets.newHashSet(
+            "externalID", "firstName", "lastName", "primarySkills(id)", "address(address1,city,state,zip)");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Lists.newArrayList());
+
+        Record record = new Record(EntityInfo.CANDIDATE, row, propertyFileUtilMock);
+
+        Assert.assertEquals(expected, record.getFieldsParameter());
     }
 }
