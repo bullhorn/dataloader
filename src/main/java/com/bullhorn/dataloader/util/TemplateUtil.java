@@ -10,6 +10,7 @@ import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.util.ReadOnly;
 import com.csvreader.CsvWriter;
+import com.google.common.collect.Sets;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -74,8 +75,8 @@ public class TemplateUtil<B extends BullhornEntity> {
 
     @SuppressWarnings("unchecked")
     private Set<Field> getMetaFieldSet(EntityInfo entityInfo) {
-        MetaData metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, null);
-        Set<Field> metaFieldSet = new HashSet<>(metaData.getFields());
+        MetaData metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, Sets.newHashSet(StringConsts.ALL_FIELDS));
+        Set<Field> metaFieldSet = Sets.newHashSet(metaData.getFields());
         Set<Field> associationFields = metaFieldSet.stream()
             .filter(n -> n.getAssociatedEntity() != null)
             .collect(Collectors.toSet());
@@ -108,7 +109,7 @@ public class TemplateUtil<B extends BullhornEntity> {
     }
 
     private HashSet<String> getEntityFields(EntityInfo entityInfo) {
-        HashSet<String> methodSet = new HashSet<>();
+        HashSet<String> methodSet = Sets.newHashSet();
         for (Method method : entityInfo.getEntityClass().getMethods()) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))
                 && !method.isAnnotationPresent(ReadOnly.class)) {

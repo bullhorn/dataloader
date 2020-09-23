@@ -14,7 +14,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
-import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.csvreader.CsvReader;
 import org.junit.Assert;
 import org.junit.Before;
@@ -28,7 +27,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -74,8 +75,8 @@ public class TemplateServiceTest {
         leadMeta.setFields(Collections.singletonList(commentsField));
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(candidateMeta);
-        when(restApiMock.getMetaData(Lead.class, MetaParameter.FULL, null)).thenReturn(leadMeta);
+        when(restApiMock.getMetaData(eq(Candidate.class), any(), any())).thenReturn(candidateMeta);
+        when(restApiMock.getMetaData(eq(Lead.class), any(), any())).thenReturn(leadMeta);
     }
 
     @Test
@@ -148,7 +149,7 @@ public class TemplateServiceTest {
 
     @Test
     public void testRunMetaCallException() {
-        when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null))
+        when(restApiMock.getMetaData(eq(Candidate.class), any(), any()))
             .thenThrow(new RestApiException("Meta Error"));
 
         templateService.run(new String[]{Command.TEMPLATE.getMethodName(), "Candidate"});
@@ -159,7 +160,7 @@ public class TemplateServiceTest {
 
     @Test
     public void testRunMetaCallExceptionExampleFile() {
-        when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null))
+        when(restApiMock.getMetaData(eq(Candidate.class), any(), any()))
             .thenThrow(new RestApiException("Meta Error"));
 
         String filePath = TestUtils.getResourceFilePath("Candidate.csv");

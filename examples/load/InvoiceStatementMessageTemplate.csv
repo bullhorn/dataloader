@@ -1,2 +1,2 @@
-name                                 ,subject          ,messageText
-invoiceStatementMessageTemplate-ext-1,Invoice Statement,To whom it may concern: Here is your invoice. Please pay appropriately
+name                                 ,subject          ,messageText                                                           ,owner
+invoiceStatementMessageTemplate-ext-1,Invoice Statement,To whom it may concern: Here is your invoice. Please pay appropriately,Sales CorporateUser
