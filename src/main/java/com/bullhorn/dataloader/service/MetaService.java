@@ -11,6 +11,8 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
+import com.google.common.collect.Sets;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -41,7 +43,7 @@ public class MetaService implements Action {
 
         try {
             printUtil.log("Getting meta for " + Objects.requireNonNull(entityInfo).getEntityName() + "...");
-            MetaData<?> metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, null);
+            MetaData<?> metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, Sets.newHashSet(StringConsts.ALL_FIELDS));
             enrichMeta(metaData);
             JSONObject jsonMeta = metaToJson(metaData);
             printUtil.print(jsonMeta.toString());
