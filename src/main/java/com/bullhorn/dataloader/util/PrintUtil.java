@@ -1,17 +1,18 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.data.ActionTotals;
-import com.bullhorn.dataloader.data.Result;
-import com.bullhorn.dataloader.enums.Command;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.enums.Command;
 
 /**
  * Methods that provide feedback to the user on the command line.

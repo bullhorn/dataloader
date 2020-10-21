@@ -1,11 +1,5 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.data.Cell;
-import com.bullhorn.dataloader.data.Row;
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.ArrayUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.bullhorn.dataloader.data.Cell;
+import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.util.ArrayUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 
 /**
  * The data from a Row applied to a specific entity and set of fields (direct or associated to-one) on an entity.

@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.task;
 
+import java.util.List;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
@@ -21,8 +23,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
-
-import java.util.List;
 
 /**
  * Finds current values for existing entity in Rest and overwrites the value in the row with values from Rest.

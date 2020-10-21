@@ -1,5 +1,15 @@
 package com.bullhorn.dataloader.rest;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.util.AssociationUtil;
@@ -8,15 +18,6 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.google.common.collect.Lists;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The data from a Cell applied to a specific entity and field (direct or associated to-one) on an entity.

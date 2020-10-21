@@ -1,9 +1,10 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
+import java.io.File;
+
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
+import com.bullhorn.dataloader.enums.EntityInfo;
 
 /**
  * Low level methods for validating the user's input, returning true/false,

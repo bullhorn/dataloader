@@ -1,12 +1,5 @@
 package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.util.ArrayUtil;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.csvreader.CsvReader;
-import com.google.common.collect.Sets;
-import org.apache.commons.io.input.BOMInputStream;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -14,6 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.io.input.BOMInputStream;
+
+import com.bullhorn.dataloader.util.ArrayUtil;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.csvreader.CsvReader;
+import com.google.common.collect.Sets;
 
 /**
  * An extension to the CsvFileReader that adds our extra functionality, like duplicate checking and returning the CSV

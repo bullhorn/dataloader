@@ -1,5 +1,9 @@
 package com.bullhorn.dataloader.enums;
 
+import java.lang.reflect.Method;
+import java.util.Comparator;
+import java.util.Map;
+
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhornsdk.data.model.entity.core.customobjectinstances.CustomObjectInstance;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
@@ -16,10 +20,6 @@ import com.bullhornsdk.data.model.entity.core.type.UpdateEntity;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import com.bullhornsdk.data.model.file.FileMeta;
-
-import java.lang.reflect.Method;
-import java.util.Comparator;
-import java.util.Map;
 
 /**
  * The list of all entities in SDK-REST supported by DataLoader.

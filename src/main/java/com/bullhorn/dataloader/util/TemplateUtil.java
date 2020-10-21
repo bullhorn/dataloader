@@ -1,5 +1,14 @@
 package com.bullhorn.dataloader.util;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import com.bullhorn.dataloader.data.CsvFileReader;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -11,15 +20,6 @@ import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.util.ReadOnly;
 import com.csvreader.CsvWriter;
 import com.google.common.collect.Sets;
-
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Utility for querying meta and creating an example file that includes all potential fields for an entity.

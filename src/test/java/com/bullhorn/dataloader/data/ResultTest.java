@@ -1,11 +1,12 @@
 package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.util.Timer;
-import com.google.common.collect.Sets;
+import java.util.Set;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Set;
+import com.bullhorn.dataloader.util.Timer;
+import com.google.common.collect.Sets;
 
 public class ResultTest {
 

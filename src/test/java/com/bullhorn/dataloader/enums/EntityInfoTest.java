@@ -1,8 +1,9 @@
 package com.bullhorn.dataloader.enums;
 
-import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.bullhornsdk.data.model.enums.BullhornEntityInfo;
 
 public class EntityInfoTest {
 

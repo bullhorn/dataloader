@@ -1,5 +1,9 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Objects;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
@@ -10,10 +14,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Objects;
 
 /**
  * Handles converting attachments

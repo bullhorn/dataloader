@@ -1,16 +1,5 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.data.Row;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhornsdk.data.model.entity.core.standard.Country;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
-
-import java.io.IOException;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -19,6 +8,18 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.internal.matchers.apachecommons.ReflectionEquals;
+
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhornsdk.data.model.entity.core.standard.Country;
 
 public class PreloaderTest {
 

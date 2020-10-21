@@ -1,16 +1,17 @@
 package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.csvreader.CsvReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.csvreader.CsvReader;
 
 public class CsvFileWriterTest {
 

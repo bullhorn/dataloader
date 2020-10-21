@@ -1,12 +1,13 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.enums.Property;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
-import java.util.List;
-import java.util.Map;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.Property;
 
 /**
  * Validates the user's entries in the properties file.

@@ -1,18 +1,19 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhornsdk.data.exception.RestApiException;
-import com.bullhornsdk.data.model.entity.embedded.Address;
+import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.util.Map;
+import java.util.Set;
+
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 
-import java.lang.reflect.Method;
-import java.text.ParseException;
-import java.util.Map;
-import java.util.Set;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.embedded.Address;
 
 public class MethodUtilTest {
 
