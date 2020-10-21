@@ -6,12 +6,14 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
+import com.google.common.collect.Sets;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -23,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -71,7 +74,8 @@ public class MetaServiceTest {
         candidateMeta.setFields(new ArrayList<>(Arrays.asList(idField, emailField, commentsField, customTextField, customIntField, ownerField, addressField)));
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
-        when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null)).thenReturn(candidateMeta);
+        when(restApiMock.getMetaData(eq(Candidate.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
+            .thenReturn(candidateMeta);
     }
 
     @Test
@@ -128,7 +132,7 @@ public class MetaServiceTest {
 
     @Test
     public void testRunMetaCallException() {
-        when(restApiMock.getMetaData(Candidate.class, MetaParameter.FULL, null))
+        when(restApiMock.getMetaData(eq(Candidate.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
             .thenThrow(new RestApiException("Meta Error"));
 
         metaService.run(new String[]{Command.META.getMethodName(), "Candidate"});
