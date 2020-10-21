@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.data;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -36,7 +36,7 @@ public class CsvFileReader extends CsvReader {
      */
     public CsvFileReader(String filePath, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) throws IOException {
         super(new BOMInputStream(new FileInputStream(filePath)), ',',
-            propertyFileUtil.getSingleByteEncoding() ? Charset.forName("ISO-8859-1") : Charset.forName("UTF-8"));
+            propertyFileUtil.getSingleByteEncoding() ? StandardCharsets.ISO_8859_1 : StandardCharsets.UTF_8);
         this.filePath = filePath;
         this.propertyFileUtil = propertyFileUtil;
         this.printUtil = printUtil;

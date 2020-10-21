@@ -46,9 +46,8 @@ public class ProcessRunnerTest {
     private ExecutorService executorServiceMock;
     private PropertyFileUtil propertyFileUtilMock;
     private PrintUtil printUtilMock;
-    private Cache cacheMock;
     private ProcessRunner processRunner;
-    private String idExistFieldWarning = "WARNING: The 'id' column is not being used for "
+    private final String idExistFieldWarning = "WARNING: The 'id' column is not being used for "
         + "duplicate checking. The id value will be ignored.";
 
     @Before
@@ -59,7 +58,7 @@ public class ProcessRunnerTest {
         Preloader preloaderMock = mock(Preloader.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
         printUtilMock = mock(PrintUtil.class);
-        cacheMock = mock(Cache.class);
+        Cache cacheMock = mock(Cache.class);
         CompleteUtil completeUtilMock = mock(CompleteUtil.class);
         ThreadPoolUtil threadPoolUtilMock = mock(ThreadPoolUtil.class);
 

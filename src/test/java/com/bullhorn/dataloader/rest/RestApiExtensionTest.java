@@ -221,8 +221,8 @@ public class RestApiExtensionTest {
 
         CrudResponse actualCrudResponse = restApiExtension.postDelete(restApiMock, crudResponse);
 
-        Assert.assertThat(crudResponse, new ReflectionEquals(actualCrudResponse));
-        Assert.assertTrue(!actualCrudResponse.isError());
+        Assert.assertTrue(new ReflectionEquals(crudResponse).matches(actualCrudResponse));
+        Assert.assertFalse(actualCrudResponse.isError());
         verify(restApiMock, never()).deleteEntity(eq(JobSubmissionHistory.class), any());
     }
 

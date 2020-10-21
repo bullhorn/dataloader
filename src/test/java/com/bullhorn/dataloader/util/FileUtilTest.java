@@ -19,6 +19,7 @@ import org.junit.Test;
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.enums.EntityInfo;
 
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class FileUtilTest {
 
     private PropertyFileUtil propertyFileUtilMock;

@@ -15,6 +15,7 @@ import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class AssociationUtilTest {
 
     @Test

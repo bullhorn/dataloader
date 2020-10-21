@@ -49,7 +49,7 @@ public class PreloaderTest {
         Row convertedRow = preloader.convertRow(row);
 
         for (int i = 0; i < expectedRow.getCells().size(); ++i) {
-            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+            Assert.assertTrue(new ReflectionEquals(expectedRow.getCells().get(i)).matches(convertedRow.getCells().get(i)));
         }
         verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
     }
@@ -64,7 +64,7 @@ public class PreloaderTest {
         Row convertedRow = preloader.convertRow(row);
 
         for (int i = 0; i < expectedRow.getCells().size(); ++i) {
-            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+            Assert.assertTrue(new ReflectionEquals(expectedRow.getCells().get(i)).matches(convertedRow.getCells().get(i)));
         }
         verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
     }
@@ -79,7 +79,7 @@ public class PreloaderTest {
         Row convertedRow = preloader.convertRow(row);
 
         for (int i = 0; i < expectedRow.getCells().size(); ++i) {
-            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+            Assert.assertTrue(new ReflectionEquals(expectedRow.getCells().get(i)).matches(convertedRow.getCells().get(i)));
         }
         verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
     }
@@ -90,7 +90,7 @@ public class PreloaderTest {
 
         Row convertedRow = preloader.convertRow(row);
 
-        Assert.assertThat(convertedRow, new ReflectionEquals(row));
+        Assert.assertTrue(new ReflectionEquals(convertedRow).matches(row));
         verify(restApiMock, never()).queryForList(any(), any(), any(), any());
     }
 
@@ -104,7 +104,7 @@ public class PreloaderTest {
         Row convertedRow = preloader.convertRow(row);
 
         for (int i = 0; i < expectedRow.getCells().size(); ++i) {
-            Assert.assertThat(convertedRow.getCells().get(i), new ReflectionEquals(expectedRow.getCells().get(i)));
+            Assert.assertTrue(new ReflectionEquals(expectedRow.getCells().get(i)).matches(convertedRow.getCells().get(i)));
         }
         verify(restApiMock, times(1)).queryForList(any(), any(), any(), any());
         verify(printUtilMock, times(1)).printAndLog(
@@ -117,7 +117,7 @@ public class PreloaderTest {
 
         Row convertedRow = preloader.convertRow(row);
 
-        Assert.assertThat(convertedRow, new ReflectionEquals(row));
+        Assert.assertTrue(new ReflectionEquals(convertedRow).matches(row));
         verify(restApiMock, never()).queryForList(any(), any(), any(), any());
         verify(printUtilMock, never()).printAndLog(anyString());
     }
@@ -128,7 +128,7 @@ public class PreloaderTest {
 
         Row convertedRow = preloader.convertRow(row);
 
-        Assert.assertThat(convertedRow, new ReflectionEquals(row));
+        Assert.assertTrue(new ReflectionEquals(convertedRow).matches(row));
         verify(restApiMock, never()).queryForList(any(), any(), any(), any());
         verify(printUtilMock, never()).printAndLog(anyString());
     }
@@ -139,7 +139,7 @@ public class PreloaderTest {
 
         Row convertedRow = preloader.convertRow(row);
 
-        Assert.assertThat(convertedRow, new ReflectionEquals(row));
+        Assert.assertTrue(new ReflectionEquals(convertedRow).matches(row));
         verify(restApiMock, never()).queryForList(any(), any(), any(), any());
         verify(printUtilMock, never()).printAndLog(anyString());
     }

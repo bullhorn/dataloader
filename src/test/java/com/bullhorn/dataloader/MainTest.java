@@ -8,6 +8,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class MainTest {
 
     private PrintStream originalSystemOut;

@@ -106,6 +106,7 @@ public class ResultTest {
         Assert.assertEquals(result1, result1);
     }
 
+    @SuppressWarnings("AssertBetweenInconvertibleTypes")
     @Test
     public void testEquals_type() {
         Result result = Result.insert(99);

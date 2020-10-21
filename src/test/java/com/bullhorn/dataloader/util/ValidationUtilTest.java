@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import com.bullhorn.dataloader.TestUtils;
 
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class ValidationUtilTest {
 
     private PrintUtil printUtilMock;

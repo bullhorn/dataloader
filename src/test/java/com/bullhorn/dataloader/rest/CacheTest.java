@@ -257,8 +257,6 @@ public class CacheTest {
             propertyFileUtilMock);
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
             propertyFileUtilMock);
-        Candidate candidateTwo = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,bar@baz.net,Active",
-            propertyFileUtilMock);
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
 
         cache.setEntry(entityInfo, recordOne.getEntityExistFields(), recordOne.getFieldsParameter(), expectedOne);

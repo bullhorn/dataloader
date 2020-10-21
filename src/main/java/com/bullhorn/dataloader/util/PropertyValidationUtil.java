@@ -47,9 +47,9 @@ class PropertyValidationUtil {
     }
 
     static Integer validateWaitSeconds(String waitSecondsString) {
-        Integer waitSeconds = 0;
+        int waitSeconds = 0;
         if (waitSecondsString != null) {
-            waitSeconds = Integer.valueOf(waitSecondsString);
+            waitSeconds = Integer.parseInt(waitSecondsString);
         }
         if (waitSeconds < 0 || waitSeconds > MAX_WAIT_SECONDS) {
             throw new IllegalArgumentException(
@@ -68,7 +68,7 @@ class PropertyValidationUtil {
     }
 
     static Boolean validateBooleanProperty(Boolean value) {
-        return value == null ? false : value;
+        return value != null && value;
     }
 
     static String validateRequiredStringField(String name, String value) {

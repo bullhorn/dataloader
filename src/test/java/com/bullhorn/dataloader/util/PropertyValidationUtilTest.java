@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import com.bullhorn.dataloader.enums.Property;
 
-@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+@SuppressWarnings({"ArraysAsListWithZeroOrOneArgument", "InstantiationOfUtilityClass"})
 public class PropertyValidationUtilTest {
 
     private Map<String, List<String>> entityExistFieldsMap;

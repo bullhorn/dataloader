@@ -122,7 +122,7 @@ public class TemplateUtilTest {
     @Test
     public void testIsNotCompositeType() {
         final Field random = new Field();
-        Assert.assertTrue(!templateUtil.isCompositeType(random));
+        Assert.assertFalse(templateUtil.isCompositeType(random));
     }
 
     @Test
