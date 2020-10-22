@@ -1,5 +1,8 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.File;
+import java.io.InputStream;
+
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -10,9 +13,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.TemplateUtil;
 import com.bullhorn.dataloader.util.Timer;
 import com.bullhorn.dataloader.util.ValidationUtil;
-
-import java.io.File;
-import java.io.InputStream;
 
 /**
  * Create example template implementation

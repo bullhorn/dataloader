@@ -1,15 +1,16 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.data.ActionTotals;
-import com.bullhorn.dataloader.data.Result;
-import com.bullhorn.dataloader.data.Row;
-import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.Timer;
-import com.bullhornsdk.data.exception.RestApiException;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -20,16 +21,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
+import com.bullhornsdk.data.exception.RestApiException;
 
 public class CompleteUtilTest {
 

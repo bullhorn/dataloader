@@ -1,13 +1,13 @@
 package com.bullhorn.dataloader.service;
 
+import java.io.InputStream;
+
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
-
-import java.io.InputStream;
 
 /**
  * Given a command, this class returns an action that can execute that command.

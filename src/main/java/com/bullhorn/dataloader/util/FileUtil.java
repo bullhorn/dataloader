@@ -1,8 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.data.Row;
-import com.bullhorn.dataloader.enums.EntityInfo;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,6 +9,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+
+import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.enums.EntityInfo;
 
 /**
  * Utility for getting CSV files from disk.

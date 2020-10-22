@@ -1,11 +1,6 @@
 package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -13,7 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.mockito.Mockito.mock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
 
 public class CsvFileReaderTest {
 

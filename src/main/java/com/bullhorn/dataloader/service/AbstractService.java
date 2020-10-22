@@ -1,18 +1,18 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.CompleteUtil;
-import com.bullhorn.dataloader.rest.RestSession;
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhorn.dataloader.util.Timer;
-
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.SortedMap;
+
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.CompleteUtil;
+import com.bullhorn.dataloader.rest.RestSession;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhorn.dataloader.util.Timer;
 
 /**
  * Base class for all command line actions that convert user input to a process that executes and reports results.

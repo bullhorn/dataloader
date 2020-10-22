@@ -1,16 +1,17 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.Property;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.bullhorn.dataloader.enums.Property;
+
+@SuppressWarnings({"ArraysAsListWithZeroOrOneArgument", "InstantiationOfUtilityClass"})
 public class PropertyValidationUtilTest {
 
     private Map<String, List<String>> entityExistFieldsMap;

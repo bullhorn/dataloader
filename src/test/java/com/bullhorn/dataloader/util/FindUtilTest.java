@@ -1,11 +1,11 @@
 package com.bullhorn.dataloader.util;
 
-import com.google.common.collect.Sets;
+import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Set;
+import com.google.common.collect.Sets;
 
 public class FindUtilTest {
 

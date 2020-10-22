@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.IOException;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
@@ -13,8 +15,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.response.file.FileApiResponse;
-
-import java.io.IOException;
 
 /**
  * Responsible for deleting a single row from a CSV input file.

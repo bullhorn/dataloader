@@ -1,5 +1,17 @@
 package com.bullhorn.dataloader.rest;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Set;
+
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
@@ -12,17 +24,6 @@ import com.bullhornsdk.data.model.entity.core.standard.Skill;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.List;
-import java.util.Set;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class CacheTest {
 
@@ -255,8 +256,6 @@ public class CacheTest {
         Record recordTwo = TestUtils.createRecord(entityInfo, "firstName,lastName,email,status", "Foo,Bar,bar@baz.net,Active",
             propertyFileUtilMock);
         Candidate candidateOne = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,foo@bar.com,Active",
-            propertyFileUtilMock);
-        Candidate candidateTwo = TestUtils.createEntity(entityInfo, "firstName,lastName,email,status", "Foo,Bar,bar@baz.net,Active",
             propertyFileUtilMock);
         List<BullhornEntity> expectedOne = TestUtils.getConcreteList(candidateOne);
 

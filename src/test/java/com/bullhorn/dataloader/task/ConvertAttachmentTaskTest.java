@@ -1,5 +1,18 @@
 package com.bullhorn.dataloader.task;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.junit.Before;
+import org.junit.Test;
+
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
@@ -11,18 +24,6 @@ import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ConvertAttachmentTaskTest {
 

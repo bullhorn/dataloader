@@ -1,12 +1,13 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.enums.Property;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
-import java.util.List;
-import java.util.Map;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.Property;
 
 /**
  * Validates the user's entries in the properties file.
@@ -46,9 +47,9 @@ class PropertyValidationUtil {
     }
 
     static Integer validateWaitSeconds(String waitSecondsString) {
-        Integer waitSeconds = 0;
+        int waitSeconds = 0;
         if (waitSecondsString != null) {
-            waitSeconds = Integer.valueOf(waitSecondsString);
+            waitSeconds = Integer.parseInt(waitSecondsString);
         }
         if (waitSeconds < 0 || waitSeconds > MAX_WAIT_SECONDS) {
             throw new IllegalArgumentException(
@@ -67,7 +68,7 @@ class PropertyValidationUtil {
     }
 
     static Boolean validateBooleanProperty(Boolean value) {
-        return value == null ? false : value;
+        return value != null && value;
     }
 
     static String validateRequiredStringField(String name, String value) {

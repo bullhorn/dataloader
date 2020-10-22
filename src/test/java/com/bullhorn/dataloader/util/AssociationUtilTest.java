@@ -1,5 +1,10 @@
 package com.bullhorn.dataloader.util;
 
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.Field;
@@ -9,11 +14,8 @@ import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import org.junit.Assert;
-import org.junit.Test;
 
-import java.util.List;
-
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class AssociationUtilTest {
 
     @Test

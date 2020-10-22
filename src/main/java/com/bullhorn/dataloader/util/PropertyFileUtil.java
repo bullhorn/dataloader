@@ -1,14 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.enums.Property;
-import com.google.common.base.CaseFormat;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.apache.commons.lang.WordUtils;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,6 +8,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.commons.lang.WordUtils;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.Property;
+import com.google.common.base.CaseFormat;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Wrapper around the properties that handles all interaction with properties throughout a session.

@@ -1,11 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhornsdk.data.exception.RestApiException;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormatter;
-
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -14,6 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhornsdk.data.exception.RestApiException;
 
 /**
  * Utility for low level method related methods used in DataLoader

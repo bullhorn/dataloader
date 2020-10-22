@@ -1,5 +1,26 @@
 package com.bullhorn.dataloader.task;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+
+import org.apache.commons.io.FileUtils;
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
+
 import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
@@ -35,26 +56,6 @@ import com.bullhornsdk.data.model.entity.embedded.OneToMany;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import org.apache.commons.io.FileUtils;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mockito;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class LoadTaskTest {
 

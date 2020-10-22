@@ -1,16 +1,17 @@
 package com.bullhorn.dataloader.rest;
 
 
-import com.bullhorn.dataloader.util.PrintUtil;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.exception.RestApiException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import com.bullhorn.dataloader.util.PrintUtil;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.exception.RestApiException;
 
 public class RestSessionTest {
 

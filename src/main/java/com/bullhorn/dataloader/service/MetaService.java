@@ -1,5 +1,14 @@
 package com.bullhorn.dataloader.service;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
@@ -12,15 +21,6 @@ import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.google.common.collect.Sets;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * Output meta data for a given entity

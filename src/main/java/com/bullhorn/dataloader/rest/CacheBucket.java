@@ -1,14 +1,14 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Provides multiple types of caching strategies within an individual bucket, where a bucket is all searches that have the same:
@@ -22,9 +22,9 @@ public class CacheBucket {
     // search term and number of results. One search term, such as "Java*" can result in several returned items. If those items are indexed by
     // their name to id map, then later on, lookups for: "Javascript" and "Java" can result in the concrete call without having to make a new
     // Rest call.
-    private Map<String, List<BullhornEntity>> individualValueCache;
+    private final Map<String, List<BullhornEntity>> individualValueCache;
 
-    private PropertyFileUtil propertyFileUtil;
+    private final PropertyFileUtil propertyFileUtil;
 
     CacheBucket(PropertyFileUtil propertyFileUtil) {
         this.propertyFileUtil = propertyFileUtil;

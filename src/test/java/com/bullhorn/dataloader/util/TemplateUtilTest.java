@@ -1,14 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.rest.RestApi;
-import com.bullhornsdk.data.model.entity.meta.Field;
-import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
-import com.google.common.collect.Sets;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +8,16 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.mockito.Mockito.mock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhornsdk.data.model.entity.meta.Field;
+import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
+import com.google.common.collect.Sets;
 
 public class TemplateUtilTest {
 
@@ -121,7 +122,7 @@ public class TemplateUtilTest {
     @Test
     public void testIsNotCompositeType() {
         final Field random = new Field();
-        Assert.assertTrue(!templateUtil.isCompositeType(random));
+        Assert.assertFalse(templateUtil.isCompositeType(random));
     }
 
     @Test

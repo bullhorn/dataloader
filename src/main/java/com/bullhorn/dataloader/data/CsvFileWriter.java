@@ -1,16 +1,17 @@
 package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.util.StringConsts;
-import com.csvreader.CsvWriter;
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import org.apache.commons.io.FilenameUtils;
+
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.util.StringConsts;
+import com.csvreader.CsvWriter;
 
 /**
  * A thread-safe file writer for outputting results into both a success and a failure CSV file.

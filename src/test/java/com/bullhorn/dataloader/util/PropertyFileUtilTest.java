@@ -1,11 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.enums.EntityInfo;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -16,7 +11,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.mockito.Mockito.mock;
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.enums.EntityInfo;
 
 public class PropertyFileUtilTest {
 

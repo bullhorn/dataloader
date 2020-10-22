@@ -1,23 +1,24 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.data.Row;
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import org.joda.time.format.DateTimeFormat;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.joda.time.format.DateTimeFormat;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 public class RecordTest {
 

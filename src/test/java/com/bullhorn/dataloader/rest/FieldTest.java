@@ -1,5 +1,15 @@
 package com.bullhorn.dataloader.rest;
 
+import java.math.BigDecimal;
+import java.text.ParseException;
+
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -9,15 +19,6 @@ import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmission;
 import com.bullhornsdk.data.model.entity.core.standard.Note;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.text.ParseException;
 
 public class FieldTest {
 

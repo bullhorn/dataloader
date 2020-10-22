@@ -1,13 +1,13 @@
 package com.bullhorn.dataloader.util;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.ExecutorService;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ThreadPoolUtilTest {
 

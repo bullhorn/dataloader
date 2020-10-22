@@ -1,5 +1,9 @@
 package com.bullhorn.dataloader;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Preloader;
@@ -12,9 +16,6 @@ import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ThreadPoolUtil;
 import com.bullhorn.dataloader.util.Timer;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 
 public class Main {
 

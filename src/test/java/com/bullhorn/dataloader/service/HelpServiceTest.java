@@ -1,14 +1,15 @@
 package com.bullhorn.dataloader.service;
 
-import com.bullhorn.dataloader.enums.Command;
-import com.bullhorn.dataloader.util.PrintUtil;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.util.PrintUtil;
 
 public class HelpServiceTest {
 

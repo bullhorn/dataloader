@@ -1,6 +1,10 @@
 package com.bullhorn.dataloader.rest;
 
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -8,10 +12,6 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.model.entity.core.standard.Country;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.google.common.collect.Sets;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Pre-loads data into memory prior to performing a process in order to avoid the cost of lookup calls.

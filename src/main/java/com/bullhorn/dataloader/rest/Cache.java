@@ -1,15 +1,15 @@
 package com.bullhorn.dataloader.rest;
 
-import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
-import com.google.common.collect.Maps;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.util.PropertyFileUtil;
+import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
+import com.google.common.collect.Maps;
 
 /**
  * Cache takes the parts of a query or search call and boils it down to a bucket of cached data:

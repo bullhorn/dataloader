@@ -1,16 +1,18 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.TestUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import com.bullhorn.dataloader.TestUtils;
+
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class ValidationUtilTest {
 
     private PrintUtil printUtilMock;

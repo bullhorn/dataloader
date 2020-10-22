@@ -1,5 +1,19 @@
 package com.bullhorn.dataloader.rest;
 
+import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.io.FileUtils;
+import org.apache.http.client.utils.URIBuilder;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
@@ -10,19 +24,6 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.Timer;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.io.FileUtils;
-import org.apache.http.client.utils.URIBuilder;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Utility class for sending DataLoader complete call to REST and optionally outputting results file

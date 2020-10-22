@@ -1,5 +1,14 @@
 package com.bullhorn.dataloader.rest;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.api.helper.RestJsonConverter;
@@ -12,14 +21,6 @@ import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
 import com.bullhornsdk.data.model.response.crud.Message;
 import com.google.common.collect.Sets;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Performs additional REST behavior details for operations in the RestApi.

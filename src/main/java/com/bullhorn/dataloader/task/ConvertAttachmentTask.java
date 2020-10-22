@@ -1,5 +1,19 @@
 package com.bullhorn.dataloader.task;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.commons.lang.WordUtils;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.AutoDetectParser;
+import org.apache.tika.sax.ToXMLContentHandler;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
@@ -12,19 +26,6 @@ import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import org.apache.commons.lang.WordUtils;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.parser.AutoDetectParser;
-import org.apache.tika.sax.ToXMLContentHandler;
-import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Responsible for converting a single row from a CSV input file.
@@ -44,7 +45,7 @@ public class ConvertAttachmentTask extends AbstractTask {
 
     protected Result handle() throws Exception {
         String isResumeValue = row.getValue(StringConsts.IS_RESUME);
-        if (isResumeValue != null && (Boolean.valueOf(isResumeValue) || isResumeValue.equals("1") || isResumeValue.equalsIgnoreCase("Yes"))) {
+        if (isResumeValue != null && (Boolean.parseBoolean(isResumeValue) || isResumeValue.equals("1") || isResumeValue.equalsIgnoreCase("Yes"))) {
             String html = convertAttachmentToHtml();
             writeHtmlToFile(html);
             return Result.convert();

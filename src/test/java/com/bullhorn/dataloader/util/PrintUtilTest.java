@@ -1,14 +1,5 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.data.ActionTotals;
-import com.bullhorn.dataloader.data.Result;
-import com.bullhorn.dataloader.enums.Command;
-import org.junit.Assert;
-import org.junit.Test;
-import org.mockito.Matchers;
-
-import java.io.PrintStream;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
@@ -18,6 +9,16 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.io.PrintStream;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.mockito.Matchers;
+
+import com.bullhorn.dataloader.data.ActionTotals;
+import com.bullhorn.dataloader.data.Result;
+import com.bullhorn.dataloader.enums.Command;
 
 public class PrintUtilTest {
 

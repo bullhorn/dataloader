@@ -1,10 +1,6 @@
 package com.bullhorn.dataloader.util;
 
-import com.bullhorn.dataloader.TestUtils;
-import com.bullhorn.dataloader.enums.EntityInfo;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.util.Arrays;
@@ -16,8 +12,14 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import static org.mockito.Mockito.mock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
+import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.enums.EntityInfo;
+
+@SuppressWarnings("InstantiationOfUtilityClass")
 public class FileUtilTest {
 
     private PropertyFileUtil propertyFileUtilMock;

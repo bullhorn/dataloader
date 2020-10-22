@@ -59,7 +59,7 @@ public class TestUtils {
      */
     @SuppressWarnings("unchecked")
     public static <B extends BullhornEntity> List<BullhornEntity> getConcreteList(B... entityList) {
-        return (List<BullhornEntity>) TestUtils.getList(entityList);
+        return TestUtils.getList(entityList);
     }
 
     /**

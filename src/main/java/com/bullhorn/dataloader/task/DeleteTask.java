@@ -1,5 +1,9 @@
 package com.bullhorn.dataloader.task;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.data.CsvFileWriter;
@@ -16,10 +20,6 @@ import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Sets;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Responsible for deleting a single row from a CSV input file.
