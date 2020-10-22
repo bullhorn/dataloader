@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.8.2](https://github.com/bullhorn/dataloader/compare/v4.8.1...v4.8.2) (2020-10-22)
+
+
+### Bug Fixes
+
+* **Meta:** Fix meta call to work with latest Rest SDK ([#329](https://github.com/bullhorn/dataloader/issues/329)) ([0824f88](https://github.com/bullhorn/dataloader/commit/0824f8899281e10631c32bf164fc34868e4b910b))
+
 ### [4.8.1](https://github.com/bullhorn/dataloader/compare/v4.8.0...v4.8.1) (2020-09-23)
 
 
