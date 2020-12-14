@@ -7,7 +7,7 @@ package com.bullhorn.dataloader.data;
  */
 public class Cell {
 
-    private final String name;
+    private String name;
     private final String value;
 
     /**
@@ -23,6 +23,25 @@ public class Cell {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * Allows for overriding the field name in the case of incorrect capitalization
+     *
+     * @param name corrected direct field name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * Allows for overriding the field names in the case of incorrect capitalization
+     *
+     * @param associationBaseName corrected association base field name
+     * @param associationFieldName corrected association field name
+     */
+    public void setAssociationNames(String associationBaseName, String associationFieldName) {
+        this.name = associationBaseName + "." + associationFieldName;
     }
 
     public String getValue() {

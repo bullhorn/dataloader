@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
@@ -146,6 +147,19 @@ public class MethodUtil {
         }
 
         return null;
+    }
+
+    /**
+     * Returns the name of the field associated with the getter or setter.
+     *
+     * For example, the method: Candidate:getExternalID() will return the field name: 'externalID'
+     * that can be used as a valid field name in Rest.
+
+     * @param method A getter or setter method
+     * @return the field name in rest that corresponds to that getter or setter
+     */
+    public static String getFieldNameFromMethod(Method method) {
+        return WordUtils.uncapitalize(method.getName().substring(3));
     }
 
     private static Method getMethod(EntityInfo entityInfo, String fieldName, Map<String, Method> methodMap) {

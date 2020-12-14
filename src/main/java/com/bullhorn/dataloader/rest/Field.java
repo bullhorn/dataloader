@@ -39,6 +39,8 @@ public class Field {
     /**
      * Constructor which takes the type of entity and the raw cell data.
      *
+     * Raw cell data may be modified to match the correct field name if the capitalization is incorrect.
+     *
      * @param entityInfo        the type of entity that this cell is for
      * @param cell              the raw data from the spreadsheet
      * @param existField        set to true if this field is to be used for determining if the entity exists (a.k.a.
@@ -61,14 +63,27 @@ public class Field {
         //  'candidates.id' => Candidate:getId() / Candidate:setId()
         this.getMethod = MethodUtil.getGetterMethod(getFieldEntity(), getName());
         this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
+        final String verifiedFieldName = MethodUtil.getFieldNameFromMethod(getMethod);
 
         // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
         if (cell.isAssociation()) {
             this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
             this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
+            final String verifiedAssociationBaseName = MethodUtil.getFieldNameFromMethod(getAssociationMethod);
+
+            // Correct capitalization mistakes for the association cell
+            if (!this.cell.getAssociationBaseName().equals(verifiedAssociationBaseName)
+                || !this.cell.getAssociationFieldName().equals(verifiedFieldName)) {
+                this.cell.setAssociationNames(verifiedAssociationBaseName, verifiedFieldName);
+            }
         } else {
             this.getAssociationMethod = null;
             this.setAssociationMethod = null;
+
+            // Correct capitalization mistakes for the direct cell
+            if (!this.cell.getName().equals(verifiedFieldName)) {
+                this.cell.setName(verifiedFieldName);
+            }
         }
     }
 

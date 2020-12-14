@@ -75,4 +75,18 @@ public class CellTest {
 
         Assert.assertNull(cell.getAssociationFieldName());
     }
+
+    @Test
+    public void testSetAssociationNames() {
+        Cell cell = new Cell("candidate.BadCAPiTALiZATioN", "test");
+
+        Assert.assertEquals(cell.getAssociationBaseName(), "candidate");
+        Assert.assertEquals(cell.getAssociationFieldName(), "BadCAPiTALiZATioN");
+
+        cell.setAssociationNames("clientContact", "firstName");
+
+        Assert.assertEquals(cell.getAssociationBaseName(), "clientContact");
+        Assert.assertEquals(cell.getAssociationFieldName(), "firstName");
+        Assert.assertEquals(cell.getValue(), "test");
+    }
 }

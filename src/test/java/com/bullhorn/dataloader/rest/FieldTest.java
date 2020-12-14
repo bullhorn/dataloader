@@ -61,6 +61,37 @@ public class FieldTest {
     }
 
     @Test
+    public void testDirectStringFieldWithBadCapitalization() throws Exception {
+        Cell cell = new Cell("FIRSTName", "Jack");
+        Field field = new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE);
+        Assert.assertEquals(field.isExistField(), false);
+        Assert.assertEquals(field.isToOne(), false);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "firstName");
+        Assert.assertEquals(field.getFieldParameterName(true), "firstName");
+        Assert.assertEquals(field.getFieldParameterName(false), "firstName");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
+        Assert.assertEquals(field.getFieldType(), String.class);
+        Assert.assertEquals(field.getValue(), "Jack");
+        Assert.assertEquals(field.getStringValue(), "Jack");
+
+        Candidate candidate = new Candidate();
+
+        Assert.assertNull(candidate.getFirstName());
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
+
+        field.populateFieldOnEntity(candidate);
+
+        Assert.assertEquals(candidate.getFirstName(), "Jack");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "Jack");
+
+        field.setExistField(true);
+        Assert.assertEquals(field.isExistField(), true);
+    }
+
+    @Test
     public void testDirectBooleanField() throws Exception {
         Cell cell = new Cell("isDeleted", "");
         Field field = new Field(EntityInfo.JOB_SUBMISSION, cell, true, dateTimeFormatter);
@@ -148,8 +179,71 @@ public class FieldTest {
     }
 
     @Test
+    public void testToOneBooleanFieldWithBadCapitalization() throws Exception {
+        Cell cell = new Cell("CANDidate.isDeleted", "true");
+        Field field = new Field(EntityInfo.CANDIDATE_WORK_HISTORY, cell, true, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE_WORK_HISTORY);
+        Assert.assertEquals(field.isExistField(), true);
+        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "isDeleted");
+        Assert.assertEquals(field.getFieldParameterName(true), "candidate(isDeleted)");
+        Assert.assertEquals(field.getFieldParameterName(false), "isDeleted");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
+        Assert.assertEquals(field.getFieldType(), Boolean.class);
+        Assert.assertEquals(field.getValue(), true);
+        Assert.assertEquals(field.getStringValue(), "true");
+
+        CandidateWorkHistory candidateWorkHistory = new CandidateWorkHistory();
+        Candidate candidate = new Candidate();
+
+        Assert.assertNull(candidateWorkHistory.getCandidate());
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
+
+        field.populateAssociationOnEntity(candidateWorkHistory, candidate);
+
+        Assert.assertEquals(candidateWorkHistory.getCandidate().getIsDeleted(), true);
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "true");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "true");
+    }
+
+    @Test
     public void testToOneBigDecimalField() throws Exception {
         Cell cell = new Cell("candidate.salary", "123.45");
+        Field field = new Field(EntityInfo.CANDIDATE_WORK_HISTORY, cell, false, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE_WORK_HISTORY);
+        Assert.assertEquals(field.isExistField(), false);
+        Assert.assertEquals(field.isToOne(), true);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "salary");
+        Assert.assertEquals(field.getFieldParameterName(true), "candidate(salary)");
+        Assert.assertEquals(field.getFieldParameterName(false), "salary");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.CANDIDATE);
+        Assert.assertEquals(field.getFieldType(), BigDecimal.class);
+        BigDecimal actual = (BigDecimal) field.getValue();
+        Assert.assertEquals(actual.doubleValue(), 123.45, 0.0);
+        Assert.assertEquals(field.getStringValue(), "123.45");
+
+        CandidateWorkHistory candidateWorkHistory = new CandidateWorkHistory();
+        Candidate candidate = new Candidate();
+
+        Assert.assertNull(candidateWorkHistory.getCandidate());
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "");
+
+        field.populateAssociationOnEntity(candidateWorkHistory, candidate);
+
+        Assert.assertEquals(candidateWorkHistory.getCandidate().getSalary().doubleValue(), 123.45, 0.1);
+        Assert.assertEquals(field.getStringValueFromEntity(candidateWorkHistory, ";"), "123.45");
+        Assert.assertEquals(field.getStringValueFromEntity(candidate, ";"), "123.45");
+    }
+
+    @Test
+    public void testToOneBigDecimalFieldWithBadCapitalization() throws Exception {
+        Cell cell = new Cell("candidate.SALary", "123.45");
         Field field = new Field(EntityInfo.CANDIDATE_WORK_HISTORY, cell, false, dateTimeFormatter);
 
         Assert.assertEquals(field.getEntityInfo(), EntityInfo.CANDIDATE_WORK_HISTORY);
@@ -315,9 +409,9 @@ public class FieldTest {
         Assert.assertEquals(field.isExistField(), true);
         Assert.assertEquals(field.isToOne(), false);
         Assert.assertEquals(field.isToMany(), false);
-        Assert.assertEquals(field.getName(), "countryId");
-        Assert.assertEquals(field.getFieldParameterName(true), "address(countryId)");
-        Assert.assertEquals(field.getFieldParameterName(false), "countryId");
+        Assert.assertEquals(field.getName(), "countryID");
+        Assert.assertEquals(field.getFieldParameterName(true), "address(countryID)");
+        Assert.assertEquals(field.getFieldParameterName(false), "countryID");
         Assert.assertEquals(field.getFieldEntity(), EntityInfo.ADDRESS);
         Assert.assertEquals(field.getFieldType(), Integer.class);
         Assert.assertEquals(field.getValue(), 1234);
