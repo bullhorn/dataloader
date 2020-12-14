@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [4.8.3](https://github.com/bullhorn/dataloader/compare/v4.8.2...v4.8.3) (2020-12-14)
+
+
+### Bug Fixes
+
+* **Java 11:** Added dependency to allow Data Loader to work with Java 11 ([#339](https://github.com/bullhorn/dataloader/issues/339)) ([c080b95](https://github.com/bullhorn/dataloader/commit/c080b9527fe69a49229443a9335a7dd7db2c4826))
+
 ### [4.8.2](https://github.com/bullhorn/dataloader/compare/v4.8.1...v4.8.2) (2020-10-22)
 
 
