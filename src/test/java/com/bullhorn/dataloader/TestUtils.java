@@ -272,7 +272,7 @@ public class TestUtils {
     /**
      * Checks that the command line output has only the desired action.
      *
-     * @param output the command line output
+     * @param output         the command line output
      * @param expectedAction the action that should be in the output (and only that action)
      */
     public static void checkCommandLineOutput(String output, Result.Action expectedAction) {
@@ -281,10 +281,7 @@ public class TestUtils {
         Assert.assertFalse("Failed to process any records during " + actionString + " step", output.contains("processed: 0"));
         Assert.assertTrue("There are failures during " + actionString + " step", output.contains("failed: 0"));
 
-        if (Result.Action.CONVERT.equals(expectedAction)) {
-            Assert.assertFalse("No conversions performed", output.contains("converted: 0"));
-            Assert.assertTrue("Skip performed during " + actionString + " step", output.contains("skipped: 0"));
-        } else if (Result.Action.DELETE.equals(expectedAction)) {
+        if (Result.Action.DELETE.equals(expectedAction)) {
             Assert.assertFalse("No deletes performed", output.contains("deleted: 0"));
         } else if (Result.Action.EXPORT.equals(expectedAction)) {
             Assert.assertFalse("No exports performed", output.contains("exported: 0"));

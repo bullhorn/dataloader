@@ -110,6 +110,7 @@ public class CompleteUtil {
         updatedResults.put("processed", actionTotals.getAllActionsTotal());
         updatedResults.put("inserted", actionTotals.getActionTotal(Result.Action.INSERT));
         updatedResults.put("updated", actionTotals.getActionTotal(Result.Action.UPDATE));
+        updatedResults.put("skipped", actionTotals.getActionTotal(Result.Action.SKIP));
         updatedResults.put("deleted", actionTotals.getActionTotal(Result.Action.DELETE));
         updatedResults.put("failed", actionTotals.getActionTotal(Result.Action.FAILURE));
         updatedResults.put("successFile", CsvFileWriter.successFilePath);
