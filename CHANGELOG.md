@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.9.0](https://github.com/bullhorn/dataloader/compare/v4.8.3...v4.9.0) (2020-12-15)
+
+
+### Features
+
+* **Skip Duplicates:** Added skip duplicates option: https://github.com/bullhorn/dataloader/issues/317 ([#341](https://github.com/bullhorn/dataloader/issues/341)) ([1ff64c3](https://github.com/bullhorn/dataloader/commit/1ff64c3bd5790461c03057193a587f6f37ff8f1d))
+
+
+### Bug Fixes
+
+* **Capitalization:** Fix https://github.com/bullhorn/dataloader/issues/324 by not requiring exact capitalization ([#340](https://github.com/bullhorn/dataloader/issues/340)) ([19caace](https://github.com/bullhorn/dataloader/commit/19caace085aedc3eb794ee738cc62761aa4785ab))
+
 ### [4.8.3](https://github.com/bullhorn/dataloader/compare/v4.8.2...v4.8.3) (2020-12-14)
 
 
