@@ -62,13 +62,15 @@ public class PrintUtil {
         printAndLog("Total records processed: " + totalRecords);
         if (command.equals(Command.EXPORT)) {
             printAndLog("Total records exported: " + actionTotals.getActionTotal(Result.Action.EXPORT));
+        } else if (command.equals(Command.DELETE) || command.equals(Command.DELETE_ATTACHMENTS)) {
+            printAndLog("Total records deleted: " + actionTotals.getActionTotal(Result.Action.DELETE));
         } else if (command.equals(Command.CONVERT_ATTACHMENTS)) {
             printAndLog("Total records converted: " + actionTotals.getActionTotal(Result.Action.CONVERT));
             printAndLog("Total records skipped: " + actionTotals.getActionTotal(Result.Action.SKIP));
         } else {
             printAndLog("Total records inserted: " + actionTotals.getActionTotal(Result.Action.INSERT));
             printAndLog("Total records updated: " + actionTotals.getActionTotal(Result.Action.UPDATE));
-            printAndLog("Total records deleted: " + actionTotals.getActionTotal(Result.Action.DELETE));
+            printAndLog("Total records skipped: " + actionTotals.getActionTotal(Result.Action.SKIP));
         }
         printAndLog("Total records failed: " + actionTotals.getActionTotal(Result.Action.FAILURE));
     }

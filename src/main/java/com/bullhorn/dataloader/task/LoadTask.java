@@ -67,7 +67,7 @@ public class LoadTask extends AbstractTask {
         insertAttachmentToDescription();
         insertOrUpdateEntity();
         createAssociations();
-        return isNewEntity ? Result.insert(entityId) : Result.update(entityId);
+        return isNewEntity ? Result.insert(entityId) : propertyFileUtil.getSkipDuplicates() ? Result.skip(entityId) : Result.update(entityId);
     }
 
     /**
@@ -97,7 +97,11 @@ public class LoadTask extends AbstractTask {
             entity.setId(entityId);
             postProcessEntityInsert(entity.getId());
         } else {
-            restApi.updateEntity((UpdateEntity) entity);
+            if (propertyFileUtil.getSkipDuplicates()) {
+                printUtil.log("Row " + row.getNumber() + ": skipping update because skipDuplicates option is enabled.");
+            } else {
+                restApi.updateEntity((UpdateEntity) entity);
+            }
         }
     }
 

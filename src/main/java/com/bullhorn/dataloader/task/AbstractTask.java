@@ -39,7 +39,7 @@ public abstract class AbstractTask implements Runnable {
     private final CompleteUtil completeUtil;
     final EntityInfo entityInfo;
     Integer entityId;
-    private final PrintUtil printUtil;
+    protected final PrintUtil printUtil;
     final PropertyFileUtil propertyFileUtil;
     final RestApi restApi;
     private final Cache cache;

@@ -23,6 +23,7 @@ public enum Property {
     RESULTS_FILE_PATH("resultsFilePath"),
     RESULTS_FILE_WRITE_INTERVAL_MSEC("resultsFileWriteIntervalMsec"),
     SINGLE_BYTE_ENCODING("singleByteEncoding"),
+    SKIP_DUPLICATES("skipDuplicates"),
     TOKEN_URL("tokenUrl"),
     USERNAME("username"),
     VERBOSE("verbose"),

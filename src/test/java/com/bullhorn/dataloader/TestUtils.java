@@ -273,29 +273,33 @@ public class TestUtils {
      * Checks that the command line output has only the desired action.
      *
      * @param output the command line output
-     * @param action the action that should be in the output (and only that action)
+     * @param expectedAction the action that should be in the output (and only that action)
      */
-    public static void checkCommandLineOutput(String output, Result.Action action) {
-        String actionString = action.toString().toLowerCase();
+    public static void checkCommandLineOutput(String output, Result.Action expectedAction) {
+        String actionString = expectedAction.toString().toLowerCase();
         Assert.assertFalse("Error messages output during " + actionString + " step", output.contains("ERROR"));
         Assert.assertFalse("Failed to process any records during " + actionString + " step", output.contains("processed: 0"));
         Assert.assertTrue("There are failures during " + actionString + " step", output.contains("failed: 0"));
 
-        if (action == Result.Action.CONVERT) {
-            return; // Convert does not output inserted/updated/deleted, only converted/skipped/failed
-        }
-        if (action == Result.Action.EXPORT) {
+        if (Result.Action.CONVERT.equals(expectedAction)) {
+            Assert.assertFalse("No conversions performed", output.contains("converted: 0"));
+            Assert.assertTrue("Skip performed during " + actionString + " step", output.contains("skipped: 0"));
+        } else if (Result.Action.DELETE.equals(expectedAction)) {
+            Assert.assertFalse("No deletes performed", output.contains("deleted: 0"));
+        } else if (Result.Action.EXPORT.equals(expectedAction)) {
             Assert.assertFalse("No exports performed", output.contains("exported: 0"));
-            return; // Export does not output inserted/updated/deleted, only exported/failed
-        }
-        if (action != Result.Action.INSERT) {
-            Assert.assertTrue("Insert performed during " + actionString + " step", output.contains("inserted: 0"));
-        }
-        if (action != Result.Action.UPDATE) {
+        } else if (Result.Action.INSERT.equals(expectedAction)) {
+            Assert.assertFalse("No inserts performed", output.contains("inserted: 0"));
             Assert.assertTrue("Update performed during " + actionString + " step", output.contains("updated: 0"));
-        }
-        if (action != Result.Action.DELETE) {
-            Assert.assertTrue("Delete performed during " + actionString + " step", output.contains("deleted: 0"));
+            Assert.assertTrue("Skip performed during " + actionString + " step", output.contains("skipped: 0"));
+        } else if (Result.Action.UPDATE.equals(expectedAction)) {
+            Assert.assertFalse("No updates performed", output.contains("updated: 0"));
+            Assert.assertTrue("Insert performed during " + actionString + " step", output.contains("inserted: 0"));
+            Assert.assertTrue("Skip performed during " + actionString + " step", output.contains("skipped: 0"));
+        } else if (Result.Action.SKIP.equals(expectedAction)) {
+            Assert.assertFalse("No skips performed", output.contains("skipped: 0"));
+            Assert.assertTrue("Insert performed during " + actionString + " step", output.contains("inserted: 0"));
+            Assert.assertTrue("Update performed during " + actionString + " step", output.contains("updated: 0"));
         }
     }
 

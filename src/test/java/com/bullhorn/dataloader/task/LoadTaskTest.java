@@ -522,6 +522,31 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunUpdateSuccessSkipDuplicates() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
+            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
+            .thenReturn(Collections.singletonList("externalID"));
+        when(propertyFileUtilMock.getSkipDuplicates()).thenReturn(true);
+        when(restApiMock.updateEntity(any())).thenThrow(new RestApiException("This update should have been skipped!"));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1));
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
+            .thenReturn(TestUtils.getList(CorporateUser.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.SKIP, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.SKIP, 1);
+    }
+
+    @Test
     public void testRunUpdateSuccessForNote() throws Exception {
         Row row = TestUtils.createRow(
             "id,candidates.externalID,clientContacts.externalID,leads.customText1,jobOrders.externalID,"

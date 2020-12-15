@@ -87,12 +87,22 @@ public class Result {
     }
 
     /**
-     * Convert convenience constructor
+     * Skip convenience constructor
      *
      * @return The new Result object
      */
     public static Result skip() {
         return new Result(Status.SUCCESS, Action.SKIP, -1, "");
+    }
+
+    /**
+     * Skip convenience constructor
+     *
+     * @param bullhornId The bullhorn internal ID of the record
+     * @return The new Result object
+     */
+    public static Result skip(Integer bullhornId) {
+        return new Result(Status.SUCCESS, Action.SKIP, bullhornId, "");
     }
 
     /**
