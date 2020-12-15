@@ -692,6 +692,23 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunIncorrectCapitalizationField() throws Exception {
+        Row row = TestUtils.createRow("ID,NaME", "1,Should Fix Incorrect Capitalization");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("id"));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("id:1"), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
+    }
+
+    @Test
     public void testRunInvalidNoteField() throws Exception {
         Row row = TestUtils.createRow("clientCorporations.id", "1;2");
 
@@ -739,7 +756,7 @@ public class LoadTaskTest {
 
     @Test
     public void testRunValidAddressFieldForCountryID() throws Exception {
-        Row row = TestUtils.createRow("firstName,lastName,address.countryID", "Data,Loader,2216"); // 2216 = Canada
+        Row row = TestUtils.createRow("firstName,lastName,address.CountryID", "Data,Loader,2216"); // 2216 = Canada
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));
         when(restApiMock.queryForList(eq(Skill.class), eq("id=1"), any(), any()))

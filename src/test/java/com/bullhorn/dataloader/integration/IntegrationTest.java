@@ -59,6 +59,9 @@ public class IntegrationTest {
         // Test that column header name mapping is working properly
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("columnMapping"), false);
 
+        // Test that incorrect capitalization will be fixed instead of cause errors
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("capitalization"), false);
+
         // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
 
