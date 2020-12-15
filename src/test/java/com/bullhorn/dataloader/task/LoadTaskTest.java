@@ -93,6 +93,7 @@ public class LoadTaskTest {
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
             .thenReturn(Arrays.asList("firstName", "lastName", "email"));
+        when(propertyFileUtilMock.getSkipDuplicates()).thenReturn(true); // verify that this is ignored for inserts
         when(restApiMock.searchForList(eq(Candidate.class),
             eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class));
@@ -526,16 +527,13 @@ public class LoadTaskTest {
         Row row = TestUtils.createRow(
             "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
-        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
-            .thenReturn(Collections.singletonList("externalID"));
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("externalID"));
         when(propertyFileUtilMock.getSkipDuplicates()).thenReturn(true);
-        when(restApiMock.updateEntity(any())).thenThrow(new RestApiException("This update should have been skipped!"));
         when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class, 1));
-        when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
-            .thenReturn(TestUtils.getList(CorporateUser.class, 1));
-        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1)"), any(), any()))
-            .thenReturn(TestUtils.getList(Skill.class, 1));
+        when(restApiMock.updateEntity(any())).thenThrow(new RestApiException("This update should have been skipped!"));
+        when(restApiMock.queryForList(any(), any(), any(), any()))
+            .thenThrow(new RestApiException("This update should have been skipped!"));
 
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
