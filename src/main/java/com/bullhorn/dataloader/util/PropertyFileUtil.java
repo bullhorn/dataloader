@@ -42,6 +42,7 @@ public class PropertyFileUtil {
     private Boolean processEmptyAssociations;
     private Boolean wildcardMatching;
     private Boolean singleByteEncoding;
+    private Boolean skipDuplicates;
     private Boolean executeFormTriggers;
     private Integer numThreads;
     private Boolean caching;
@@ -198,6 +199,10 @@ public class PropertyFileUtil {
 
     public Boolean getSingleByteEncoding() {
         return singleByteEncoding;
+    }
+
+    public Boolean getSkipDuplicates() {
+        return skipDuplicates;
     }
 
     public Boolean getExecuteFormTriggers() {
@@ -359,6 +364,8 @@ public class PropertyFileUtil {
             Boolean.valueOf(properties.getProperty(Property.WILDCARD_MATCHING.getName())));
         singleByteEncoding = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.SINGLE_BYTE_ENCODING.getName())));
+        skipDuplicates = PropertyValidationUtil.validateBooleanProperty(
+            Boolean.valueOf(properties.getProperty(Property.SKIP_DUPLICATES.getName())));
         executeFormTriggers = PropertyValidationUtil.validateBooleanProperty(
             Boolean.valueOf(properties.getProperty(Property.EXECUTE_FORM_TRIGGERS.getName())));
         entity = PropertyValidationUtil.validateEntityInfoProperty(properties.getProperty(

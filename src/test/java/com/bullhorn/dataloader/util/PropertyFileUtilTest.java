@@ -71,6 +71,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSkipDuplicates());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertNull(propertyFileUtil.getEntity());
@@ -92,6 +93,7 @@ public class PropertyFileUtilTest {
         envVars.put("DATALOADER_LIST_DELIMITER", ",");
         envVars.put("DATALOADER_PROCESS_EMPTY_ASSOCIATIONS", "true");
         envVars.put("DATALOADER_SINGLE_BYTE_ENCODING", "TRUE");
+        envVars.put("DATALOADER_SKIP_DUPLICATES", "TRUE");
         envVars.put("DATALOADER_WildCard_Matching", "TRUE");
         envVars.put("DATALOADER_ENTITY", "");
         envVars.put("DATALOADER_NUM_THREADS", "5");
@@ -128,6 +130,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSkipDuplicates());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertNull(propertyFileUtil.getEntity());
@@ -165,6 +168,7 @@ public class PropertyFileUtilTest {
         systemProperties.setProperty("listDelimiter", "|");
         systemProperties.setProperty("processEmptyAssociations", "true");
         systemProperties.setProperty("singleByteEncoding", "false");
+        systemProperties.setProperty("skipDuplicates", "true");
         systemProperties.setProperty("entity", "");
         systemProperties.setProperty("numThreads", "6");
         systemProperties.setProperty("caching", "true");
@@ -184,6 +188,7 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(DateTimeFormat.forPattern("MM/dd/yyyy HH:mm:ss.SSS"), propertyFileUtil.getDateParser());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getProcessEmptyAssociations());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getSingleByteEncoding());
+        Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getSkipDuplicates());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertNull(propertyFileUtil.getEntity());

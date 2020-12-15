@@ -25,6 +25,10 @@ public class IntegrationTest {
 
     private ConsoleOutputCapturer consoleOutputCapturer;
 
+    // Used to turn off integration test features for a specific directory
+    private Boolean skipDuplicates = false;
+    private Boolean skipDeletes = false;
+
     /**
      * Tests all directories under: src/test/java/resources/integrationTest for specific use cases. Also tests the entire examples
      * directory, which contains all possible values for all loadable entities and their attachments (See examples/README.md).
@@ -40,52 +44,63 @@ public class IntegrationTest {
         consoleOutputCapturer = new ConsoleOutputCapturer();
 
         // Sanity to catch quick and obvious failures
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("sanity"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("sanity"));
 
         // Special character test to ensure that we are supporting them in query/search calls
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("specialCharacters"), true);
+        skipDeletes = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("specialCharacters"));
+        skipDeletes = false;
 
         // Test using more than 100,000 characters in a field
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("longFields"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("longFields"));
 
         // Test using more than 500 associations in a To-Many field - requires that wildcard matching is enabled
         System.setProperty("wildcardMatching", "true");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("associationsOver500"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("associationsOver500"));
         System.setProperty("wildcardMatching", "false");
 
         // Test for ignoring soft deleted entities
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("softDeletes"), true);
+        skipDeletes = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("softDeletes"));
+        skipDeletes = false;
 
         // Test that column header name mapping is working properly
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("columnMapping"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("columnMapping"));
 
         // Test that incorrect capitalization will be fixed instead of cause errors
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("capitalization"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("capitalization"));
 
         // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("byteOrderMark"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("byteOrderMark"));
 
         // Test that country names are case insensitive
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("countryNames"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("countryNames"));
+
+        // Run a test for skipping updates (with the setting turned on)
+        System.setProperty("skipDuplicates", "true");
+        skipDuplicates = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("skipDuplicates"));
+        skipDuplicates = false;
+        System.setProperty("skipDuplicates", "false");
 
         // Test for wildcard associations for candidates in a note
         System.setProperty("wildcardMatching", "true");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("wildcardMatching"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("wildcardMatching"));
         System.setProperty("wildcardMatching", "false");
 
         // Run a test for processing empty association fields (with the setting turned on)
         System.setProperty("processEmptyAssociations", "true");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("processEmptyFields"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("processEmptyFields"));
         System.setProperty("processEmptyAssociations", "false");
 
         // Run a test where the difference when caching is significant (manual inspection of timing for now)
         System.setProperty("caching", "false");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"));
         System.setProperty("caching", "true");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"), false);
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"));
 
         // Run the full test of all example files
-        runAllCommandsAgainstDirectory("examples/load", false);
+        runAllCommandsAgainstDirectory("examples/load");
     }
 
     /**
@@ -107,11 +122,10 @@ public class IntegrationTest {
      * in the index and database, so if indexing is lagging behind in production, it will cause the build to fail.
      *
      * @param directoryPath The path to the directory to load
-     * @param skipDelete    Set to true if the test directory contains intentionally deleted records
      * @throws IOException For directory cloning
      */
     @SuppressWarnings("ConstantConditions")
-    private void runAllCommandsAgainstDirectory(String directoryPath, Boolean skipDelete) throws IOException {
+    private void runAllCommandsAgainstDirectory(String directoryPath) throws IOException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
         long secondsSinceEpoch = System.currentTimeMillis() / 1000;
@@ -183,7 +197,6 @@ public class IntegrationTest {
         // endregion
 
         // region LOAD - UPDATE
-
         // Update the effectiveDate to allow effective dated entities to be updated
         TestUtils.replaceTextInFiles(tempDirectory, "2001-01-01", "2002-02-02");
 
@@ -191,11 +204,12 @@ public class IntegrationTest {
         System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
         consoleOutputCapturer.start();
         Main.main(new String[]{"load", tempDirPath});
-        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
+        Result.Action expectedAction = skipDuplicates ? Result.Action.SKIP : Result.Action.UPDATE;
+        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), expectedAction);
         TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
         // endregion
 
-        if (!skipDelete) {
+        if (!skipDeletes) {
             // region ~FIXME~
             // Deleting Placement records is failing!
             for (File file : resultsDir.listFiles()) {

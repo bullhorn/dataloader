@@ -63,7 +63,13 @@ public class LoadTask extends AbstractTask {
     protected Result handle() throws Exception {
         record = new Record(entityInfo, row, propertyFileUtil);
         getOrCreateEntity();
-        handleFields();
+
+        if (!isNewEntity && propertyFileUtil.getSkipDuplicates()) {
+            printUtil.log("Row " + row.getNumber() + ": skipping update because skipDuplicates option is enabled.");
+            return Result.skip(entityId);
+        }
+
+        populateFields();
         insertAttachmentToDescription();
         insertOrUpdateEntity();
         createAssociations();
@@ -108,7 +114,7 @@ public class LoadTask extends AbstractTask {
      * the field on the address. To-One Associations: Get the association object and populate the internal ID field.
      * To-Many Associations: Call the association REST method (unless we are loading notes)
      */
-    private void handleFields() throws Exception {
+    private void populateFields() throws Exception {
         for (Field field : record.getFields()) {
             if (field.isToMany()) {
                 if (entityInfo == EntityInfo.NOTE) {

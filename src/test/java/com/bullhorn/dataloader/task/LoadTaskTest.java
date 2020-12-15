@@ -93,6 +93,7 @@ public class LoadTaskTest {
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
             .thenReturn(Arrays.asList("firstName", "lastName", "email"));
+        when(propertyFileUtilMock.getSkipDuplicates()).thenReturn(true); // verify that this is ignored for inserts
         when(restApiMock.searchForList(eq(Candidate.class),
             eq("firstName:\"Data\" AND lastName:\"Loader\" AND email:\"dloader@bullhorn.com\""), any(), any()))
             .thenReturn(TestUtils.getList(Candidate.class));
@@ -519,6 +520,28 @@ public class LoadTaskTest {
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
+    }
+
+    @Test
+    public void testRunUpdateSuccessSkipDuplicates() throws Exception {
+        Row row = TestUtils.createRow(
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
+            "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE)).thenReturn(Collections.singletonList("externalID"));
+        when(propertyFileUtilMock.getSkipDuplicates()).thenReturn(true);
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1));
+        when(restApiMock.updateEntity(any())).thenThrow(new RestApiException("This update should have been skipped!"));
+        when(restApiMock.queryForList(any(), any(), any(), any()))
+            .thenThrow(new RestApiException("This update should have been skipped!"));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.SKIP, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.SKIP, 1);
     }
 
     @Test

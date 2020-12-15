@@ -57,6 +57,46 @@ public class PrintUtilTest {
     }
 
     @Test
+    public void testPrintActionTotalsDelete() {
+        final PrintUtil printUtil = spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+        final int total = 0;
+        final String[] args = {"delete", "candidate.csv"};
+        doNothing().when(printUtil).printAndLog(anyString());
+
+        printUtil.recordStart(args);
+        printUtil.printActionTotals(Command.DELETE, totals);
+
+        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog("Args: delete candidate.csv");
+        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
+        verify(printUtil, times(1)).printAndLog("Total records deleted: " + totals.getActionTotal(Result.Action.DELETE));
+        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
+    }
+
+    @Test
+    public void testPrintActionTotalsDeleteAttachments() {
+        final PrintUtil printUtil = spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+        final int total = 0;
+        final String[] args = {"deleteAttachments", "candidateAttachments.csv"};
+        doNothing().when(printUtil).printAndLog(anyString());
+
+        printUtil.recordStart(args);
+        printUtil.printActionTotals(Command.DELETE_ATTACHMENTS, totals);
+
+        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog("Args: deleteAttachments candidateAttachments.csv");
+        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
+        verify(printUtil, times(1)).printAndLog("Total records deleted: " + totals.getActionTotal(Result.Action.DELETE));
+        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
+    }
+
+    @Test
     public void testPrintActionTotalsExport() {
         final PrintUtil printUtil = spy(PrintUtil.class);
         ActionTotals totals = new ActionTotals();
@@ -94,7 +134,29 @@ public class PrintUtilTest {
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records inserted: " + totals.getActionTotal(Result.Action.INSERT));
         verify(printUtil, times(1)).printAndLog("Total records updated: " + totals.getActionTotal(Result.Action.UPDATE));
-        verify(printUtil, times(1)).printAndLog("Total records deleted: " + totals.getActionTotal(Result.Action.DELETE));
+        verify(printUtil, times(1)).printAndLog("Total records skipped: " + totals.getActionTotal(Result.Action.SKIP));
+        verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
+    }
+
+    @Test
+    public void testPrintActionTotalsLoadAttachments() {
+        final PrintUtil printUtil = spy(PrintUtil.class);
+        ActionTotals totals = new ActionTotals();
+        final int total = 0;
+        final String[] args = {"loadAttachments", "candidateAttachments.csv"};
+        doNothing().when(printUtil).printAndLog(anyString());
+
+        printUtil.recordStart(args);
+        printUtil.printActionTotals(Command.LOAD_ATTACHMENTS, totals);
+
+        verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog("Args: loadAttachments candidateAttachments.csv");
+        verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
+        verify(printUtil, times(1)).printAndLog("Total records inserted: " + totals.getActionTotal(Result.Action.INSERT));
+        verify(printUtil, times(1)).printAndLog("Total records updated: " + totals.getActionTotal(Result.Action.UPDATE));
+        verify(printUtil, times(1)).printAndLog("Total records skipped: " + totals.getActionTotal(Result.Action.SKIP));
         verify(printUtil, times(1)).printAndLog("Total records failed: " + totals.getActionTotal(Result.Action.FAILURE));
     }
 
