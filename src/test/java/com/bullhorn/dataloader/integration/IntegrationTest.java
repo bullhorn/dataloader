@@ -27,6 +27,8 @@ public class IntegrationTest {
 
     // Used to turn off integration test features for a specific directory
     private Boolean skipDuplicates = false;
+    private Boolean skipExports = false;
+    private Boolean skipUpdates = false;
     private Boolean skipDeletes = false;
 
     /**
@@ -56,7 +58,11 @@ public class IntegrationTest {
 
         // Test using more than 500 associations in a To-Many field - requires that wildcard matching is enabled
         System.setProperty("wildcardMatching", "true");
+        skipExports = true;
+        skipUpdates = true;
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("associationsOver500"));
+        skipUpdates = false;
+        skipExports = false;
         System.setProperty("wildcardMatching", "false");
 
         // Test for ignoring soft deleted entities
@@ -188,25 +194,29 @@ public class IntegrationTest {
         }
 
         // region EXPORT
-        FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
-        consoleOutputCapturer.start();
-        Main.main(new String[]{"export", tempDirPath});
-        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.EXPORT);
-        TestUtils.checkResultsFiles(tempDirectory, Command.EXPORT);
+        if (!skipExports) {
+            FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"export", tempDirPath});
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.EXPORT);
+            TestUtils.checkResultsFiles(tempDirectory, Command.EXPORT);
+        }
         // endregion
 
         // region LOAD - UPDATE
-        // Update the effectiveDate to allow effective dated entities to be updated
-        TestUtils.replaceTextInFiles(tempDirectory, "2001-01-01", "2002-02-02");
+        if (!skipUpdates) {
+            // Update the effectiveDate to allow effective dated entities to be updated
+            TestUtils.replaceTextInFiles(tempDirectory, "2001-01-01", "2002-02-02");
 
-        FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
-        consoleOutputCapturer.start();
-        Main.main(new String[]{"load", tempDirPath});
-        Result.Action expectedAction = skipDuplicates ? Result.Action.SKIP : Result.Action.UPDATE;
-        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), expectedAction);
-        TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+            FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"load", tempDirPath});
+            Result.Action expectedAction = skipDuplicates ? Result.Action.SKIP : Result.Action.UPDATE;
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), expectedAction);
+            TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+        }
         // endregion
 
         if (!skipDeletes) {
