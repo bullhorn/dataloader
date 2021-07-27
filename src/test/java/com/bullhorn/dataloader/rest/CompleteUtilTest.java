@@ -104,7 +104,7 @@ public class CompleteUtilTest {
         completeUtil = new CompleteUtil(restSessionMock, httpClientMock, propertyFileUtilMock, printUtilMock, timerMock);
         completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock);
 
-        verify(printUtilMock).printAndLog(restApiException);
+        verify(printUtilMock).log(restApiException);
     }
 
     @Test

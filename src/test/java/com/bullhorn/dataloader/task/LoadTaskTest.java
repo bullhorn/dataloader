@@ -167,14 +167,14 @@ public class LoadTaskTest {
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
         Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
     @Test
     public void testRunInsertSuccessWithNoExistField() throws Exception {
         Row row = TestUtils.createRow(
-            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID," +
-                "owner.id",
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(restApiMock.queryForList(eq(CorporateUser.class), eq("id=1"), any(), any()))
             .thenReturn(TestUtils.getList(CorporateUser.class, 1));

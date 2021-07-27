@@ -88,9 +88,7 @@ public class PrintUtil {
      */
     public void printAndLog(Exception exception) {
         print("ERROR: " + exception.toString());
-        StringWriter stackTrace = new StringWriter();
-        exception.printStackTrace(new PrintWriter(stackTrace));
-        log(Level.ERROR, stackTrace.toString());
+        log(exception);
     }
 
     /**
@@ -112,5 +110,14 @@ public class PrintUtil {
      */
     public void log(Level level, String line) {
         logger.log(level, line);
+    }
+
+    /**
+     * Logs an exception with stacktrace to the logfile
+     */
+    public void log(Exception exception) {
+        StringWriter stackTrace = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stackTrace));
+        log(Level.ERROR, stackTrace.toString());
     }
 }

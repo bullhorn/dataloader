@@ -93,7 +93,7 @@ public class CompleteUtil {
             postMethod.setRequestEntity(stringRequestEntity);
             httpClient.executeMethod(postMethod);
         } catch (Exception e) {
-            printUtil.printAndLog(e);
+            printUtil.log(e);
         }
     }
 
