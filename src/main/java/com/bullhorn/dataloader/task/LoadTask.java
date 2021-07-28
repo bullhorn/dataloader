@@ -23,6 +23,7 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -85,7 +86,8 @@ public class LoadTask extends AbstractTask {
         if (foundEntityList.isEmpty()) {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
         } else if (foundEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
+            throw new DataLoaderException(202,
+                FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
         } else {
             entity = foundEntityList.get(0);
             entityId = entity.getId();

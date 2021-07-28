@@ -1,8 +1,12 @@
 package com.bullhorn.dataloader.data;
 
+import com.bullhorn.dataloader.util.DataLoaderException;
+import com.bullhorn.dataloader.util.ErrorConsts;
+
 /**
  * Represents the result of processing a record using the REST API.
  *
+ * TODO: Finish flushing out this data type class
  * This class is a data type, not an instance type. Two different results can be considered identical if they contain
  * the same data values. They have no identity in and of themselves.
  */
@@ -12,12 +16,27 @@ public class Result {
     private Action action;
     private Integer bullhornId;
     private Integer bullhornParentId = -1;
+    private Integer errorCode;
+    private String errorTitle;
+    private String errorTipsToResolve;
     private String failureText;
 
     public Result(Status status, Action action, Integer bullhornId, String failureText) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
+        this.failureText = failureText;
+    }
+
+    // TODO: Smash into one constructor eventually?
+    public Result(Status status, Action action, Integer bullhornId, Integer errorCode, String errorTitle, String errorTipsToResolve,
+                  String failureText) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+        this.errorCode = errorCode;
+        this.errorTitle = errorTitle;
+        this.errorTipsToResolve = errorTipsToResolve;
         this.failureText = failureText;
     }
 
@@ -121,7 +140,20 @@ public class Result {
      * @return The new Result object
      */
     public static Result failure(Exception exception) {
+        // TODO: Attempt to identify the error code that comes back from the Rest API based on the exception class and message contents
+        // if (exception.getClass().equals(RestApiException.class)) {
+        //     // We know that this came from the Rest API, not from an internal failure (like a null pointer exception)
+        // }
         return new Result(Status.FAILURE, Action.FAILURE, -1, exception.toString());
+    }
+
+    /**
+     * Failure with an associated error code for looking up error
+     */
+    public static Result failure(DataLoaderException exception) {
+        return new Result(Status.FAILURE, Action.FAILURE, -1, exception.getErrorCode(),
+            ErrorConsts.getTitle(exception.getErrorCode()),
+            ErrorConsts.getTipsToResolve(exception.getErrorCode()), exception.toString());
     }
 
     /**
@@ -194,6 +226,29 @@ public class Result {
     }
 
     /**
+     * May be set if the record had an error in processing.
+     */
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+    public void setErrorCode(Integer errorCode) {
+        this.errorCode = errorCode;
+    }
+
+    public String getErrorTitle() {
+        return errorTitle;
+    }
+
+    public void setErrorTitle(String errorTitle) {
+        this.errorTitle = errorTitle;
+    }
+
+    public String getErrorTipsToResolve() {
+        return errorTipsToResolve;
+    }
+
+    /**
      * Will be set if the record had an error in processing.
      */
     public String getFailureText() {
@@ -202,6 +257,10 @@ public class Result {
 
     void setFailureText(String failureText) {
         this.failureText = failureText;
+    }
+
+    public void setErrorTipsToResolve(String errorTipsToResolve) {
+        this.errorTipsToResolve = errorTipsToResolve;
     }
 
     @Override

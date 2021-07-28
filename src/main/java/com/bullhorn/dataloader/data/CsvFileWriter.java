@@ -97,6 +97,7 @@ public class CsvFileWriter {
             }
         } else {
             csvWriter = getOrCreateFailureCsvWriter();
+            // TODO: add title and tipsToResolve columns here, and to ignore columns in properties file
             values.add(0, result.getFailureText());
             if (command.equals(Command.LOAD) || command.equals(Command.LOAD_ATTACHMENTS)) {
                 values.add(0, result.getBullhornId().toString());

@@ -123,6 +123,9 @@ public class CompleteUtil {
             error.put("row", row.getNumber());
             error.put("id", result.getBullhornId());
             error.put("message", result.getFailureText());
+            error.put("errorCode", result.getErrorCode());
+            error.put("title", result.getErrorTitle());
+            error.put("tipsToResolve", result.getErrorTipsToResolve());
             JSONArray errors = updatedResults.has("errors") ? updatedResults.getJSONArray("errors") : new JSONArray();
             errors.put(error);
             updatedResults.put("errors", errors);
