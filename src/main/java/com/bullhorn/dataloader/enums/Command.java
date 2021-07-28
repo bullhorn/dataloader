@@ -13,6 +13,7 @@ public enum Command {
     LOAD("load"),
     LOAD_ATTACHMENTS("loadAttachments"),
     LOGIN("login"),
+    PARSE_RESUMES("parseResumes"),
     META("meta"),
     TEMPLATE("template");
 

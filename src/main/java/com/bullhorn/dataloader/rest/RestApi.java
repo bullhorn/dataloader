@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Level;
+import org.apache.tika.Tika;
 
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -30,12 +33,16 @@ import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.bullhornsdk.data.model.file.FileMeta;
 import com.bullhornsdk.data.model.parameter.AssociationParams;
 import com.bullhornsdk.data.model.parameter.QueryParams;
+import com.bullhornsdk.data.model.parameter.ResumeAsNewEntityParams;
 import com.bullhornsdk.data.model.parameter.SearchParams;
+import com.bullhornsdk.data.model.parameter.standard.StandardResumeAsNewEntityParams;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.file.FileApiResponse;
 import com.bullhornsdk.data.model.response.file.FileContent;
 import com.bullhornsdk.data.model.response.file.FileWrapper;
 import com.bullhornsdk.data.model.response.list.ListWrapper;
+import com.bullhornsdk.data.model.response.resume.ParsedResumeAsEntity;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 
 /**
@@ -51,6 +58,7 @@ public class RestApi {
     private final StandardBullhornData bullhornData;
     private final RestApiExtension restApiExtension;
     private final PrintUtil printUtil;
+    private final Tika tika = new Tika();
 
     public RestApi(StandardBullhornData bullhornData,
                    RestApiExtension restApiExtension,
@@ -294,5 +302,62 @@ public class RestApi {
         C crudResponse = bullhornData.disassociateWithEntity(type, entityId, associationName, idSet);
         restApiExtension.checkForRestSdkErrorMessages(crudResponse);
         return crudResponse;
+    }
+
+    public ParsedResumeAsEntity parseResumeAsNewCandidateSdk(File file) throws IOException {
+        DataLoaderResume resume = DataLoaderResume.getInstance(file, tika.detect(file));
+        ResumeAsNewEntityParams resumeAsNewEntityParams = StandardResumeAsNewEntityParams.getInstance();
+
+        return bullhornData.parseResumeAsNewCandidate(resume, resumeAsNewEntityParams);
+    }
+
+    public ParseAsNewResult parseResumeAsNewCandidate(File file) throws IOException {
+        String fullUrl = buildUrl();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        MultipartUtility multipartUtility = new MultipartUtility(fullUrl);
+        multipartUtility.addFilePart("fileUpload", file, file.getName());
+        HttpResult result = multipartUtility.finish();
+        if (result.success) {
+            return objectMapper.readValue(result.body, ParseAsNewResult.class);
+        } else {
+            ParseAsNewResult parseAsNewResult = new ParseAsNewResult();
+            parseAsNewResult.setSuccess(false);
+            return parseAsNewResult;
+        }
+    }
+
+    /*private String buildUrl() {
+        ResumeAsNewEntityParams resumeAsNewEntityParams = StandardResumeAsNewEntityParams.getInstance();
+
+        resumeAsNewEntityParams.setEntityType("Candidate");
+        resumeAsNewEntityParams.setDuplicateCheckOnName(false);
+        resumeAsNewEntityParams.setOwnerID(0);
+        resumeAsNewEntityParams.setCategoryID(0);
+        resumeAsNewEntityParams.setStatus("");
+        resumeAsNewEntityParams.setExternalID("");
+
+        return bullhornData.getRestUrl() + "services/ParseAs/newEntity" + resumeAsNewEntityParams.getUrlString();
+    }*/
+
+    private String buildUrl() {
+        Parameters params = new Parameters();
+        params.put("BhRestToken", bullhornData.getBhRestToken());
+        params.put("entityType", "Candidate");
+        params.put("duplicateCheckOnName", false);
+
+        params.put("ownerID", 0);
+
+
+        params.put("categoryID", 0);
+
+
+        params.put("candidateSourceID", 0);
+
+        params.put("status", "");
+
+        params.put("externalID", "");
+
+        return bullhornData.getRestUrl() + "services/ParseAs/newEntity" + params.build();
     }
 }

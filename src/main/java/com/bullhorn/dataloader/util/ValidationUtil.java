@@ -1,7 +1,9 @@
 package com.bullhorn.dataloader.util;
 
 import java.io.File;
+import java.io.FilenameFilter;
 
+import com.bullhorn.dataloader.service.ParseResumeService;
 import org.apache.commons.io.FilenameUtils;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
@@ -44,6 +46,20 @@ public class ValidationUtil {
             throw new DataLoaderException(ErrorInfo.INVALID_FILE_EXTENSION, "Expected a '*.csv' file, but was provided: " + filePath);
         }
         return true;
+    }
+
+    /**
+     * Validates whether the given filePath is a valid resume file for processing
+     */
+    public static boolean validateResumeFolder(String filePath) {
+        File fileDirectory = new File(filePath);
+        if (fileDirectory.isDirectory()) {
+            File[] fileList = fileDirectory.listFiles();
+            if (fileList != null){
+                return fileList.length >= 1;
+            }
+        }
+        return false;
     }
 
     /**
@@ -96,5 +112,24 @@ public class ValidationUtil {
             printUtil.printAndLog("ERROR: " + entityInfo.getEntityName() + " entity does not support attachments.");
         }
         return entityInfo.isAttachmentEntity();
+    }
+
+    static class FilterFiles implements FilenameFilter {
+
+        private final String[] extensions;
+
+        public FilterFiles(String... extensions) {
+            this.extensions = extensions;
+        }
+
+        @Override
+        public boolean accept(File dir, String name) {
+            for (String ext: extensions) {
+                if (name.endsWith(ext)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }
