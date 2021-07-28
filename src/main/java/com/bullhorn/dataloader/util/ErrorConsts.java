@@ -11,7 +11,7 @@ import com.google.common.collect.Maps;
  */
 public class ErrorConsts {
 
-    // (Error Code, Title, Tips to Resolve)
+    // Format: new ErrorDetails(Error Code, Title, Tips to Resolve),
     public static final List<ErrorDetails> errorDetailsList = Arrays.asList(
         new ErrorDetails(101, "Failure to login",
             "Check that your credentials are valid"),
