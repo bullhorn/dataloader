@@ -26,9 +26,9 @@ public class ErrorConsts {
             "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
                 + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
         new ErrorDetails(203, "Cannot find associated entity",
-            "TODO"),
+            "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
         new ErrorDetails(301, "Internet connectivity issues",
-            "TODO"),
+            "Check your internet connection or try again later."),
         new ErrorDetails(400, "Bad Request",
             "The Bullhorn Rest API has responded with an error that indicates that the Data Loader made an invalid request."),
         new ErrorDetails(401, "Missing Required Property",
