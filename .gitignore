@@ -4,6 +4,7 @@
 results/
 coverage/
 convertedAttachments/
+integrationTest.sh
 /*.csv
 
 ######################
