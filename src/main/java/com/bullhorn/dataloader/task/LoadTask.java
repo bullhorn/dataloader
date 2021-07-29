@@ -17,6 +17,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
@@ -86,7 +87,7 @@ public class LoadTask extends AbstractTask {
         if (foundEntityList.isEmpty()) {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
         } else if (foundEntityList.size() > 1) {
-            throw new DataLoaderException(202,
+            throw new DataLoaderException(ErrorInfo.TOO_MANY_RECORDS,
                 FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
         } else {
             entity = foundEntityList.get(0);

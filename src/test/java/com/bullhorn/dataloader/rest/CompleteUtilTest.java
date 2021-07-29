@@ -27,6 +27,7 @@ import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -152,7 +153,7 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("bogus", "1;2");
-            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, ErrorInfo.MISSING_RECORD,
                 "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(0);

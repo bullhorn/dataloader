@@ -1,23 +1,25 @@
 package com.bullhorn.dataloader.util;
 
+import com.bullhorn.dataloader.enums.ErrorInfo;
+
 /**
  * Extends the basic exception to include a Data Loader specific error code that can be used to surface
  * human readable titles and tips to resolve.
  */
 public class DataLoaderException extends RuntimeException {
-    private final Integer errorCode;
+    private final ErrorInfo errorInfo;
 
-    public DataLoaderException(Integer errorCode, String message) {
+    public DataLoaderException(ErrorInfo errorInfo, String message) {
         super(message);
-        this.errorCode = errorCode;
+        this.errorInfo = errorInfo;
     }
 
-    public DataLoaderException(Integer errorCode, String message, Throwable cause) {
+    public DataLoaderException(ErrorInfo errorInfo, String message, Throwable cause) {
         super(message, cause);
-        this.errorCode = errorCode;
+        this.errorInfo = errorInfo;
     }
 
-    public Integer getErrorCode() {
-        return errorCode;
+    public ErrorInfo getErrorInfo() {
+        return errorInfo;
     }
 }

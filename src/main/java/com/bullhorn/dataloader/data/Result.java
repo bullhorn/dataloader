@@ -1,12 +1,10 @@
 package com.bullhorn.dataloader.data;
 
-import com.bullhorn.dataloader.util.DataLoaderException;
-import com.bullhorn.dataloader.util.ErrorConsts;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 
 /**
  * Represents the result of processing a record using the REST API.
  *
- * TODO: Finish flushing out this data type class
  * This class is a data type, not an instance type. Two different results can be considered identical if they contain
  * the same data values. They have no identity in and of themselves.
  */
@@ -16,11 +14,20 @@ public class Result {
     private Action action;
     private Integer bullhornId;
     private Integer bullhornParentId = -1;
-    private Integer errorCode;
-    private String errorTitle;
-    private String errorTipsToResolve;
+    private ErrorInfo errorInfo;
     private String failureText;
 
+    /**
+     * Successful state constructor arguments
+     */
+    public Result(Status status, Action action, Integer bullhornId) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+        this.failureText = "";
+    }
+
+    // TODO: DELETE ME
     public Result(Status status, Action action, Integer bullhornId, String failureText) {
         this.status = status;
         this.action = action;
@@ -28,15 +35,14 @@ public class Result {
         this.failureText = failureText;
     }
 
-    // TODO: Smash into one constructor eventually?
-    public Result(Status status, Action action, Integer bullhornId, Integer errorCode, String errorTitle, String errorTipsToResolve,
-                  String failureText) {
+    /**
+     * Failure state constructor arguments
+     */
+    public Result(Status status, Action action, Integer bullhornId, ErrorInfo errorInfo, String failureText) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
-        this.errorCode = errorCode;
-        this.errorTitle = errorTitle;
-        this.errorTipsToResolve = errorTipsToResolve;
+        this.errorInfo = errorInfo;
         this.failureText = failureText;
     }
 
@@ -47,7 +53,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result insert(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.INSERT, bullhornId);
     }
 
     /**
@@ -58,7 +64,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result insert(Integer bullhornId, Integer bullhornParentId) {
-        Result result = new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+        Result result = new Result(Status.SUCCESS, Action.INSERT, bullhornId);
         result.bullhornParentId = bullhornParentId;
         return result;
     }
@@ -70,7 +76,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result update(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId);
     }
 
     /**
@@ -81,7 +87,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result update(Integer bullhornId, Integer bullhornParentId) {
-        Result result = new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+        Result result = new Result(Status.SUCCESS, Action.UPDATE, bullhornId);
         result.bullhornParentId = bullhornParentId;
         return result;
     }
@@ -93,7 +99,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result delete(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.DELETE, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.DELETE, bullhornId);
     }
 
     /**
@@ -102,7 +108,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result convert() {
-        return new Result(Status.SUCCESS, Action.CONVERT, -1, "");
+        return new Result(Status.SUCCESS, Action.CONVERT, -1);
     }
 
     /**
@@ -111,7 +117,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result skip() {
-        return new Result(Status.SUCCESS, Action.SKIP, -1, "");
+        return new Result(Status.SUCCESS, Action.SKIP, -1);
     }
 
     /**
@@ -121,7 +127,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result skip(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.SKIP, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.SKIP, bullhornId);
     }
 
     /**
@@ -130,30 +136,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result export(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.EXPORT, bullhornId, "");
-    }
-
-    /**
-     * Failure convenience constructor
-     *
-     * @param exception The exception for this failure result
-     * @return The new Result object
-     */
-    public static Result failure(Exception exception) {
-        // TODO: Attempt to identify the error code that comes back from the Rest API based on the exception class and message contents
-        // if (exception.getClass().equals(RestApiException.class)) {
-        //     // We know that this came from the Rest API, not from an internal failure (like a null pointer exception)
-        // }
-        return new Result(Status.FAILURE, Action.FAILURE, -1, exception.toString());
-    }
-
-    /**
-     * Failure with an associated error code for looking up error
-     */
-    public static Result failure(DataLoaderException exception) {
-        return new Result(Status.FAILURE, Action.FAILURE, -1, exception.getErrorCode(),
-            ErrorConsts.getTitle(exception.getErrorCode()),
-            ErrorConsts.getTipsToResolve(exception.getErrorCode()), exception.toString());
+        return new Result(Status.SUCCESS, Action.EXPORT, bullhornId);
     }
 
     /**
@@ -164,7 +147,18 @@ public class Result {
      * @return The new Result object
      */
     public static Result failure(Exception exception, Integer bullhornId) {
-        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, exception.toString());
+        // TODO: Use exception:toMessage() - as long as the nullptr
+        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, ErrorInfo.fromException(exception), exception.toString());
+    }
+
+    /**
+     * Failure convenience constructor
+     *
+     * @param exception The exception for this failure result
+     * @return The new Result object
+     */
+    public static Result failure(Exception exception) {
+        return failure(exception, -1);
     }
 
     /**
@@ -226,29 +220,6 @@ public class Result {
     }
 
     /**
-     * May be set if the record had an error in processing.
-     */
-    public Integer getErrorCode() {
-        return errorCode;
-    }
-
-    public void setErrorCode(Integer errorCode) {
-        this.errorCode = errorCode;
-    }
-
-    public String getErrorTitle() {
-        return errorTitle;
-    }
-
-    public void setErrorTitle(String errorTitle) {
-        this.errorTitle = errorTitle;
-    }
-
-    public String getErrorTipsToResolve() {
-        return errorTipsToResolve;
-    }
-
-    /**
      * Will be set if the record had an error in processing.
      */
     public String getFailureText() {
@@ -259,8 +230,12 @@ public class Result {
         this.failureText = failureText;
     }
 
-    public void setErrorTipsToResolve(String errorTipsToResolve) {
-        this.errorTipsToResolve = errorTipsToResolve;
+    public ErrorInfo getErrorInfo() {
+        return errorInfo;
+    }
+
+    public void setErrorInfo(ErrorInfo errorInfo) {
+        this.errorInfo = errorInfo;
     }
 
     @Override
