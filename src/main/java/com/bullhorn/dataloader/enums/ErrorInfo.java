@@ -12,7 +12,6 @@ public enum ErrorInfo {
 
     // 100's - Setup errors (occurs during setup before interacting with the Bullhorn)
     GENERIC_SETUP(100, "Failure on Setup", "an error occurred in Data Loader before interacting with the Rest API"),
-    LOGIN_FAILED(101, "Failure to login", "Check that your credentials are valid"),
     INVALID_CSV_FILE(110, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
         + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
     DUPLICATE_COLUMNS(111, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
@@ -41,9 +40,10 @@ public enum ErrorInfo {
             + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
 
     // 300's - Connection errors (occurs during a run of data loader due to internet connectivity issues)
-    CONNECTION_FAILED(301, "Internet connectivity issues",
+    LOGIN_FAILED(301, "Failure to login", "Check that your credentials are valid and your internet connection is good."),
+    CONNECTION_FAILED(302, "Internet connectivity issues",
         "Check your internet connection or try again later."),
-    CONNECTION_TIMEOUT(302, "Internet connectivity issues",
+    CONNECTION_TIMEOUT(303, "Internet connectivity issues",
         "Check your internet connection or try again later."),
 
     // 400's - Bad data supplied (data cannot be loaded into Bullhorn because the supplied CSV file has invalid or missing data)
