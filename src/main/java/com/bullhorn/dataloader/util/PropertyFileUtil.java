@@ -272,10 +272,10 @@ public class PropertyFileUtil {
                 Property propertyEnum = Property.fromString(name);
                 if (propertyEnum != null) {
                     properties.setProperty(propertyEnum.getName(), value);
-                    printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
+                    printUtil.log("Using Environment Variable '" + key + "' to Override Property File Value");
                 } else if (name.endsWith(StringConsts.EXIST_FIELD_SUFFIX) || name.endsWith(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)) {
                     properties.setProperty(name, value);
-                    printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
+                    printUtil.log("Using Environment Variable '" + key + "' to Override Property File Value");
                 }
             }
         }
