@@ -21,6 +21,7 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
@@ -162,8 +163,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Parent Entity not found.");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+            "Parent Entity not found.");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -178,8 +179,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Multiple Records Exist. "
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+            "Multiple Records Exist. "
                 + "Found 2 Candidate records with the same ExistField criteria of: externalID=2011Ext AND isDeleted=0");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -194,8 +195,9 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "java.lang.IllegalArgumentException: Properties file is missing the 'candidateExistField' "
+        // TODO: Convert all new Result() constructors to static constructors in these results files. TODO: Make those constructors private?
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INVALID_SETTING,
+            "Properties file is missing the 'candidateExistField' "
                 + "property required to lookup the parent entity.");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -210,8 +212,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+            "'bogus' does not exist on Candidate");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 

@@ -1,5 +1,7 @@
 package com.bullhorn.dataloader.enums;
 
+import java.text.ParseException;
+
 import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhornsdk.data.exception.RestApiException;
 
@@ -8,7 +10,7 @@ import com.bullhornsdk.data.exception.RestApiException;
  */
 public enum ErrorInfo {
 
-    GENERIC_ERROR(1, "Error", "An error occurred when running Data Loader"),
+    GENERIC_ERROR(1, "Error", ""),
 
     // 100's - Setup errors (occurs during setup before interacting with the Bullhorn)
     GENERIC_SETUP(100, "Failure on Setup", "an error occurred in Data Loader before interacting with the Rest API"),
@@ -42,6 +44,7 @@ public enum ErrorInfo {
     TOO_MANY_TO_MANY_ASSOCIATIONS(212, "Too may matching records found for this row",
         "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
             + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
+    INVALID_DUPLICATE_CHECK(220, "Invalid Duplicate Check", ""),
 
     // 300's - Connection errors (occurs during a run of data loader due to internet connectivity issues)
     LOGIN_FAILED(301, "Failure to login", "Check that your credentials are valid and your internet connection is good."),
@@ -49,6 +52,9 @@ public enum ErrorInfo {
         "Check your internet connection or try again later."),
     CONNECTION_TIMEOUT(303, "Internet connectivity issues",
         "Check your internet connection or try again later."),
+    RUNTIME_FAILURE(310, "Internal Failure",
+        "Data Loader encountered an issue internally that caused a failure. Please try again. If issues still occurs, "
+            + "report log file as a data loader issue."),
 
     // 400's - Bad data supplied (data cannot be loaded into Bullhorn because the supplied CSV file has invalid or missing data)
     BAD_REQUEST(400, "Bad Request",
@@ -72,11 +78,18 @@ public enum ErrorInfo {
      * @return the closest matching error info
      */
     public static ErrorInfo fromException(Exception exception) {
+        // Check for information from most specific to most generic errors
         if (exception instanceof DataLoaderException) {
             return ((DataLoaderException) exception).getErrorInfo();
         } else if (exception instanceof RestApiException) {
             // TODO: Parse out meaning behind the errors and assign specific error info
             return ErrorInfo.GENERIC_SERVER_ERROR;
+        } else if (exception instanceof IllegalArgumentException) {
+            return ErrorInfo.INVALID_SETTING;
+        } else if (exception instanceof NullPointerException) {
+            return ErrorInfo.RUNTIME_FAILURE;
+        } else if (exception instanceof ParseException) {
+            return ErrorInfo.INVALID_DUPLICATE_CHECK;
         } else if (exception instanceof RuntimeException) {
             return ErrorInfo.CONNECTION_FAILED;
         }

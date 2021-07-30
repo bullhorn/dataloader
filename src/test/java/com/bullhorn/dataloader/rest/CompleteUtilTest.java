@@ -115,7 +115,7 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
-            Result result = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
+            Result result = new Result(Result.Status.SUCCESS, Result.Action.INSERT);
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(0);
@@ -153,8 +153,8 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("bogus", "1;2");
-            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, ErrorInfo.MISSING_RECORD,
-                "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+                "'bogus' does not exist on Candidate");
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(0);
             when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(0);
@@ -183,7 +183,7 @@ public class CompleteUtilTest {
             Assert.assertEquals(firstError.getInt("row"), 1);
             Assert.assertEquals(firstError.getInt("id"), -1);
             Assert.assertEquals(firstError.getString("message"),
-                "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+                "'bogus' does not exist on Candidate");
         } finally {
             // Reset resource file
             FileUtils.writeStringToFile(resultsFile, "{}");
@@ -193,13 +193,12 @@ public class CompleteUtilTest {
     @Test
     public void testResultsFileCannotWriteFile() throws IOException {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
-        Result result = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
         when(propertyFileUtilMock.getResultsFileEnabled()).thenReturn(true);
         when(propertyFileUtilMock.getResultsFilePath()).thenReturn("");
         when(propertyFileUtilMock.getResultsFileWriteIntervalMsec()).thenReturn(10000);
 
         completeUtil = new CompleteUtil(restSessionMock, httpClientMock, propertyFileUtilMock, printUtilMock, timerMock);
-        completeUtil.rowComplete(row, result, actionTotalsMock);
+        completeUtil.rowComplete(row, Result.insert(1), actionTotalsMock);
         completeUtil.complete(Command.LOAD, "Candidate.csv", EntityInfo.CANDIDATE, actionTotalsMock);
 
         verify(printUtilMock, times(1)).printAndLog(contains("Error writing results file: java.io.FileNotFoundException:"));

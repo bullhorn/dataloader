@@ -122,7 +122,7 @@ public class CompleteUtil {
             JSONObject error = new JSONObject();
             error.put("row", row.getNumber());
             error.put("id", result.getBullhornId());
-            error.put("message", result.getFailureText());
+            error.put("message", result.getErrorDetails());
             if (result.getErrorInfo() != null) {
                 error.put("errorCode", result.getErrorInfo().getCode());
                 error.put("title", result.getErrorInfo().getTitle());

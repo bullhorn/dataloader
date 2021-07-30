@@ -12,38 +12,47 @@ public class Result {
 
     private Status status;
     private Action action;
-    private Integer bullhornId;
+    private Integer bullhornId = -1;
     private Integer bullhornParentId = -1;
-    private ErrorInfo errorInfo;
-    private String failureText;
+    private ErrorInfo errorInfo = ErrorInfo.GENERIC_ERROR;
+    private String errorDetails = "";
 
     /**
      * Successful state constructor arguments
+     */
+    public Result(Status status, Action action) {
+        this.status = status;
+        this.action = action;
+    }
+
+    /**
+     * Successful state constructor with bullhorn internal ID
      */
     public Result(Status status, Action action, Integer bullhornId) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
-        this.failureText = "";
-    }
-
-    // TODO: DELETE ME
-    public Result(Status status, Action action, Integer bullhornId, String failureText) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-        this.failureText = failureText;
     }
 
     /**
      * Failure state constructor arguments
      */
-    public Result(Status status, Action action, Integer bullhornId, ErrorInfo errorInfo, String failureText) {
+    public Result(Status status, Action action, ErrorInfo errorInfo, String errorDetails) {
+        this.status = status;
+        this.action = action;
+        this.errorInfo = errorInfo;
+        this.errorDetails = errorDetails;
+    }
+
+    /**
+     * Failure state constructor arguments with bullhorn Internal ID
+     */
+    public Result(Status status, Action action, Integer bullhornId, ErrorInfo errorInfo, String errorDetails) {
         this.status = status;
         this.action = action;
         this.bullhornId = bullhornId;
         this.errorInfo = errorInfo;
-        this.failureText = failureText;
+        this.errorDetails = errorDetails;
     }
 
     /**
@@ -108,7 +117,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result convert() {
-        return new Result(Status.SUCCESS, Action.CONVERT, -1);
+        return new Result(Status.SUCCESS, Action.CONVERT);
     }
 
     /**
@@ -117,7 +126,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result skip() {
-        return new Result(Status.SUCCESS, Action.SKIP, -1);
+        return new Result(Status.SUCCESS, Action.SKIP);
     }
 
     /**
@@ -140,15 +149,14 @@ public class Result {
     }
 
     /**
-     * Failure convenience constructor
+     * Failure convenience constructor that converts any exception to the correct error info and details
      *
      * @param exception  The exception for this failure result
      * @param bullhornId The id of the Bullhorn entity
      * @return The new Result object
      */
     public static Result failure(Exception exception, Integer bullhornId) {
-        // TODO: Use exception:toMessage() - as long as the nullptr
-        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, ErrorInfo.fromException(exception), exception.toString());
+        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, ErrorInfo.fromException(exception), exception.getMessage());
     }
 
     /**
@@ -163,9 +171,11 @@ public class Result {
 
     /**
      * Will be set to uninitialized if not set.
+     *
+     * @return NOT_SET if the value is invalid or not present
      */
     public Status getStatus() {
-        return status;
+        return status != null ? status : Status.NOT_SET;
     }
 
     public void setStatus(Status success) {
@@ -181,9 +191,11 @@ public class Result {
 
     /**
      * Will be set to uninitialized if not set to either INSERT or UPDATE.
+     *
+     * @return NOT_SET if the value is invalid or not present
      */
     public Action getAction() {
-        return action;
+        return action != null ? action : Action.NOT_SET;
     }
 
     public void setAction(Action success) {
@@ -196,10 +208,7 @@ public class Result {
      * @return -1 if the value is invalid or not present
      */
     public Integer getBullhornId() {
-        if (bullhornId == null) {
-            return -1;
-        }
-        return bullhornId;
+        return bullhornId != null ? bullhornId : -1;
     }
 
     void setBullhornId(Integer bullhornId) {
@@ -212,7 +221,7 @@ public class Result {
      * @return -1 if the value is invalid or not present
      */
     Integer getBullhornParentId() {
-        return bullhornParentId;
+        return bullhornParentId != null ? bullhornParentId : -1;
     }
 
     void setBullhornParentId(Integer bullhornParentId) {
@@ -221,21 +230,28 @@ public class Result {
 
     /**
      * Will be set if the record had an error in processing.
+     *
+     * @return Generic error info if not previously set
      */
-    public String getFailureText() {
-        return failureText;
-    }
-
-    void setFailureText(String failureText) {
-        this.failureText = failureText;
-    }
-
     public ErrorInfo getErrorInfo() {
-        return errorInfo;
+        return errorInfo != null ? errorInfo : ErrorInfo.GENERIC_ERROR;
     }
 
     public void setErrorInfo(ErrorInfo errorInfo) {
         this.errorInfo = errorInfo;
+    }
+
+    /**
+     * Will be set if the record had an error in processing.
+     *
+     * @return Empty string if not previously set
+     */
+    public String getErrorDetails() {
+        return errorDetails != null ? errorDetails : "";
+    }
+
+    void setErrorDetails(String errorDetails) {
+        this.errorDetails = errorDetails;
     }
 
     @Override
@@ -254,7 +270,8 @@ public class Result {
             && getAction().equals(that.getAction())
             && getBullhornId().equals(that.getBullhornId())
             && getBullhornParentId().equals(that.getBullhornParentId())
-            && getFailureText().equals(that.getFailureText()));
+            && getErrorInfo().equals(that.getErrorInfo())
+            && getErrorDetails().equals(that.getErrorDetails()));
     }
 
     @Override
@@ -263,7 +280,8 @@ public class Result {
         result = 31 * result + getAction().hashCode();
         result = 31 * result + getBullhornId().hashCode();
         result = 31 * result + getBullhornParentId().hashCode();
-        result = 31 * result + getFailureText().hashCode();
+        result = 31 * result + getErrorInfo().hashCode();
+        result = 31 * result + getErrorDetails().hashCode();
         return result;
     }
 
@@ -274,7 +292,8 @@ public class Result {
             + ", action=" + getAction()
             + ", bullhornId=" + getBullhornId()
             + ", bullhornParentId=" + getBullhornParentId()
-            + ", failureText='" + getFailureText() + "'"
+            + ", errorInfo='" + getErrorInfo() + "'"
+            + ", errorDetails='" + getErrorDetails() + "'"
             + '}';
     }
 
