@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 
 /**
  * Methods that provide feedback to the user on the command line.
@@ -87,7 +88,14 @@ public class PrintUtil {
      * Prints an error to the console and logs the error with stacktrace to the logfile
      */
     public void printAndLog(Exception exception) {
-        print("ERROR: " + exception.toString());
+        if (exception instanceof DataLoaderException) {
+            ErrorInfo errorInfo = ((DataLoaderException) exception).getErrorInfo();
+            print("ERROR: " + errorInfo.getTitle());
+            print("       " + exception.getMessage());
+            print("       " + errorInfo.getTipsToResolve());
+        } else {
+            print("ERROR: " + exception.getMessage());
+        }
         log(exception);
     }
 

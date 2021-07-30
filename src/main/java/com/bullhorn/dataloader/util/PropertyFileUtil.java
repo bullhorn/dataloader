@@ -14,6 +14,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.enums.Property;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
@@ -63,13 +64,13 @@ public class PropertyFileUtil {
      * @param systemProperties the system properties to use (overrides the properties file and envVars)
      * @param args             the command line arguments (overrides all others)
      * @param printUtil        for logging properties
-     * @throws IOException for file not found
+     * @throws DataLoaderException for property file not found
      */
     public PropertyFileUtil(String fileName,
                             Map<String, String> envVars,
                             Properties systemProperties,
                             String[] args,
-                            PrintUtil printUtil) throws IOException {
+                            PrintUtil printUtil) throws DataLoaderException {
         this.printUtil = printUtil;
 
         // If the users has specified a -Dpropertyfile command line parameter, use that fileName instead
@@ -238,14 +239,18 @@ public class PropertyFileUtil {
      *
      * @param fileName the name of the file to parse
      * @return the properties
-     * @throws IOException for File not found
+     * @throws DataLoaderException for File not found
      */
-    private Properties getFileProperties(String fileName) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(fileName);
-        Properties properties = new Properties();
-        properties.load(fileInputStream);
-        fileInputStream.close();
-        return properties;
+    private Properties getFileProperties(String fileName) throws DataLoaderException {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(fileName);
+            Properties properties = new Properties();
+            properties.load(fileInputStream);
+            fileInputStream.close();
+            return properties;
+        } catch (IOException exception) {
+            throw new DataLoaderException(ErrorInfo.PROPERTIES_FILE_NOT_FOUND, "Cannot find the properties file: " + fileName);
+        }
     }
 
     /**

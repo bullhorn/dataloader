@@ -218,7 +218,7 @@ public class CommandLineInterfaceTest {
         verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
-    @Test
+    @Test(expected = InterruptedException.class)
     public void testStartCatchException() throws Exception {
         final String[] testArgs = {Command.LOAD.getMethodName(), "Candidate.csv"};
         when(loadServiceMock.isValidArguments(testArgs)).thenReturn(true);
@@ -226,8 +226,6 @@ public class CommandLineInterfaceTest {
         doThrow(interruptedException).when(loadServiceMock).run(testArgs);
 
         commandLineInterface.start(testArgs);
-
-        verify(printUtilMock, times(1)).printAndLog(interruptedException);
     }
 
     /**

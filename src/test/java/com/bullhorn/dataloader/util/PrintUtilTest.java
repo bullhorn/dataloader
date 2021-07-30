@@ -195,7 +195,7 @@ public class PrintUtilTest {
 
         printUtil.printAndLog(e);
 
-        final String expected = "ERROR: java.lang.Exception: Test Exception";
+        final String expected = "ERROR: Test Exception";
         verify(printUtil, times(1)).print(contains(expected));
     }
 

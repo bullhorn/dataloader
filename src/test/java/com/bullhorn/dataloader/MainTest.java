@@ -55,6 +55,7 @@ public class MainTest {
 
         Main.main(args);
 
-        Assert.assertTrue(outputStream.toString().contains("ERROR: java.io.FileNotFoundException: bogus.properties"));
+        Assert.assertTrue(outputStream.toString().contains("ERROR: Properties file not found"));
+        Assert.assertTrue(outputStream.toString().contains("Cannot find the properties file: bogus.properties"));
     }
 }

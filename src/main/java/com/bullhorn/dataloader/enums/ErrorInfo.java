@@ -12,6 +12,10 @@ public enum ErrorInfo {
 
     // 100's - Setup errors (occurs during setup before interacting with the Bullhorn)
     GENERIC_SETUP(100, "Failure on Setup", "an error occurred in Data Loader before interacting with the Rest API"),
+    PROPERTIES_FILE_NOT_FOUND(101, "Properties file not found", "Verify that the properties file exists on disk in "
+        + "the correct directory."),
+    CSV_FILE_NOT_FOUND(102, "CSV file not found", "Verify that the CSV file exists on disk in the correct directory "
+        + "and can be read by Data Loader."),
     INVALID_CSV_FILE(110, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
         + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
     DUPLICATE_COLUMNS(111, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
