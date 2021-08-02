@@ -130,7 +130,7 @@ public abstract class AbstractTask implements Runnable {
     }
 
     /**
-     * Abstract find call that checks to see if the records being searched for already exist in the client side cache.
+     * Abstract find call that checks to see if the records searched for already exist in the client side cache.
      *
      * Find calls must be different between primary and associated entities. This affects custom objects, primarily.
      * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
