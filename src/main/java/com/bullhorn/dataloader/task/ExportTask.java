@@ -53,7 +53,7 @@ public class ExportTask extends AbstractTask {
         if (foundEntityList.isEmpty()) {
             throw new RestApiException(FindUtil.getNoMatchingRecordsExistMessage(entityInfo, record.getEntityExistFields()));
         } else if (foundEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
+            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList));
         }
         BullhornEntity entity = foundEntityList.get(0);
         entityId = entity.getId();

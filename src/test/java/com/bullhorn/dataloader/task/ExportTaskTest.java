@@ -186,7 +186,7 @@ public class ExportTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Found 2 Candidate records with firstName Data and lastName Loader and email dloader@bullhorn.com"));
+            "Found 2 Candidate records with firstName Data and lastName Loader and email dloader@bullhorn.com. IDs: 101, 102."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }

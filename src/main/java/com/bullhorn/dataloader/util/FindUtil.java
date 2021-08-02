@@ -179,10 +179,11 @@ public class FindUtil {
     /**
      * Returns a nicely formatted user message about multiple existing records to choose from.
      */
-    public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, Integer numRecords) {
-        return "Found " + numRecords + " " + entityInfo.getEntityName() + " records with " + entityExistFields.stream()
+    public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, List<BullhornEntity> foundEntityList) {
+        return "Found " + foundEntityList.size() + " " + entityInfo.getEntityName() + " records with " + entityExistFields.stream()
             .map(field -> field.getCell().getName() + " " + field.getStringValue())
-            .collect(Collectors.joining(" and "));
+            .collect(Collectors.joining(" and ")) + ". IDs: "
+            + foundEntityList.stream().map(entity -> entity.getId().toString()).collect(Collectors.joining(", ")) + ".";
     }
 
     /**

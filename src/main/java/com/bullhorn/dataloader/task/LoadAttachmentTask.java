@@ -72,7 +72,7 @@ public class LoadAttachmentTask extends AbstractTask {
         if (foundParentEntityList.isEmpty()) {
             throw new RestApiException("Parent Entity not found.");
         } else if (foundParentEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, parentEntityExistFields, foundParentEntityList.size()));
+            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, parentEntityExistFields, foundParentEntityList));
         } else {
             entityId = foundParentEntityList.get(0).getId();
         }

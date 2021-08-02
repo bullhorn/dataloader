@@ -88,7 +88,7 @@ public class LoadTask extends AbstractTask {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
         } else if (foundEntityList.size() > 1) {
             throw new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
-                FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
+                FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList));
         } else {
             entity = foundEntityList.get(0);
             entityId = entity.getId();

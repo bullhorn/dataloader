@@ -180,7 +180,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Found 2 Candidate records with externalID 2011Ext and isDeleted 0");
+            "Found 2 Candidate records with externalID 2011Ext and isDeleted 0. IDs: 1001, 1002.");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
