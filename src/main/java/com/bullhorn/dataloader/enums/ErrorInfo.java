@@ -18,7 +18,6 @@ public enum ErrorInfo {
     MISSING_PROPERTIES_FILE(101, "Cannot Read Properties File", "Check that the properties file exists in the correct directory."),
     MISSING_SETTING(102, "Missing Setting", "Fill in the required setting value."),
     INVALID_SETTING(103, "Invalid Setting", "Adjust the setting value."),
-
     MISSING_CSV_FILE(110, "Cannot Read CSV File", "Check that the properties file exists in the correct directory."),
     CANNOT_PROCESS_DIRECTORY(111, "Cannot Process Directory", "Provide a CSV file instead of a directory."),
     INVALID_FILE_EXTENSION(112, "Invalid File Extension", "Save the spreadsheet to load as a CSV file first."),

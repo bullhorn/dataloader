@@ -45,7 +45,7 @@ public class MainTest {
 
         Main.main(args);
 
-        Assert.assertTrue(outputStream.toString().contains("ERROR: Cannot access: file.bad"));
+        Assert.assertTrue(outputStream.toString().contains("ERROR"));
     }
 
     @Test

@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
 
@@ -57,7 +59,7 @@ public class FileUtil {
             Arrays.sort(fileNames);
             for (String fileName : fileNames) {
                 String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
-                if (ValidationUtil.validateCsvFile(absoluteFilePath)) {
+                if (isCsvFile(absoluteFilePath)) {
                     EntityInfo entityInfo = extractEntityFromFileName(fileName);
                     if (entityInfo != null) {
                         if (!entityToFileListMap.containsKey(entityInfo)) {
@@ -86,7 +88,7 @@ public class FileUtil {
                                                                                     Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
-        if (ValidationUtil.validateCsvFile(filePath)) {
+        if (isCsvFile(filePath)) {
             EntityInfo entityInfo = extractEntityFromFileNameOrProperty(filePath, propertyFileUtil);
             if (entityInfo != null) {
                 entityToFileListMap.put(entityInfo, Collections.singletonList(filePath));
@@ -110,6 +112,14 @@ public class FileUtil {
             .filter(e -> e.getKey().isDeletable())
             .forEach(e -> deletableEntityToFileListMap.put(e.getKey(), e.getValue()));
         return deletableEntityToFileListMap;
+    }
+
+    /**
+     * Returns true if the given file path references a CSV file.
+     */
+    static boolean isCsvFile(String filePath) {
+        File file = new File(filePath);
+        return file.exists() && !file.isDirectory() && FilenameUtils.getExtension(filePath).equalsIgnoreCase(StringConsts.CSV);
     }
 
     /**

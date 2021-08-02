@@ -21,6 +21,7 @@ import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -120,25 +121,13 @@ public class ConvertAttachmentsServiceTest {
         verify(printUtilMock, times(1)).printAndLog(anyString());
     }
 
-    @Test
+    @Test(expected = DataLoaderException.class)
     public void testIsValidArgumentsInvalidFile() {
-        final String filePath = "filePath";
-        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
-
-        final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
-
-        Assert.assertFalse(actualResult);
-        verify(printUtilMock, times(2)).printAndLog(anyString());
+        convertAttachmentsService.isValidArguments(new String[]{Command.CONVERT_ATTACHMENTS.getMethodName(), "filePath"});
     }
 
-    @Test
+    @Test(expected = DataLoaderException.class)
     public void testIsValidArgumentsEmptyFile() {
-        final String filePath = "";
-        final String[] testArgs = {Command.CONVERT_ATTACHMENTS.getMethodName(), filePath};
-
-        final boolean actualResult = convertAttachmentsService.isValidArguments(testArgs);
-
-        Assert.assertFalse(actualResult);
-        verify(printUtilMock, times(2)).printAndLog(anyString());
+        convertAttachmentsService.isValidArguments(new String[]{Command.CONVERT_ATTACHMENTS.getMethodName(), ""});
     }
 }

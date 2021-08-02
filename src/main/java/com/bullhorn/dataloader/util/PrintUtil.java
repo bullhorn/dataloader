@@ -100,8 +100,8 @@ public class PrintUtil {
         if (exception instanceof DataLoaderException) {
             ErrorInfo errorInfo = ((DataLoaderException) exception).getErrorInfo();
             print("ERROR " + errorInfo.getCode() + ": " + errorInfo.getTitle());
-            print("       " + exception.getMessage());
-            print("       " + errorInfo.getTipsToResolve());
+            print("      " + exception.getMessage());
+            print("      " + errorInfo.getTipsToResolve());
         } else {
             print("ERROR: " + exception.getMessage());
         }

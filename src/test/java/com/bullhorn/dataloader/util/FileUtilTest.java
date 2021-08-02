@@ -124,4 +124,26 @@ public class FileUtilTest {
         final SortedMap<EntityInfo, List<String>> actualMap = FileUtil.getDeletableCsvFilesFromPath(TestUtils.getResourceFilePath("testResume"), propertyFileUtilMock);
         Assert.assertTrue(actualMap.isEmpty());
     }
+
+    @Test
+    public void testIsCsvFileSuccess() {
+        Assert.assertFalse(FileUtil.isCsvFile("loadFromDirectory/Candidate_Valid_File.csv"));
+    }
+
+    @Test
+    public void testIsCsvFileBadFile() {
+        Assert.assertFalse(FileUtil.isCsvFile("bogus/file/path.csv"));
+    }
+
+    @Test
+    public void testIsCsvFileDirectory() {
+        String path = TestUtils.getResourceFilePath(".");
+        Assert.assertFalse(FileUtil.isCsvFile(path));
+    }
+
+    @Test
+    public void testIsCsvFileNonCsvFile() {
+        String path = TestUtils.getResourceFilePath("unitTest.properties");
+        Assert.assertFalse(FileUtil.isCsvFile(path));
+    }
 }

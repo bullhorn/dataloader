@@ -77,7 +77,7 @@ public class LoadService extends AbstractService implements Action {
             return true;
         }
 
-        return ValidationUtil.validateCsvFile(filePath, printUtil)
+        return ValidationUtil.validateCsvFile(filePath)
             && ValidationUtil.validateEntityFromFileNameOrProperty(filePath, propertyFileUtil, printUtil)
             && ValidationUtil.validateLoadableEntity(FileUtil.extractEntityFromFileNameOrProperty(filePath, propertyFileUtil), printUtil);
     }

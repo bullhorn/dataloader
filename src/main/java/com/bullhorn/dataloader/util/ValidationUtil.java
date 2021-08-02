@@ -5,6 +5,7 @@ import java.io.File;
 import org.apache.commons.io.FilenameUtils;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 
 /**
  * Low level methods for validating the user's input, returning true/false,
@@ -33,32 +34,16 @@ public class ValidationUtil {
     /**
      * Validates whether the given filePath is a valid CSV file for processing.
      */
-    public static boolean validateCsvFile(String filePath, PrintUtil printUtil) {
+    public static boolean validateCsvFile(String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
-            // TODO: Cannot find file
-            printUtil.printAndLog("ERROR: Cannot access: " + filePath);
-            printUtil.printAndLog("       Ensure path is correct.");
-            return false;
+            throw new DataLoaderException(ErrorInfo.MISSING_CSV_FILE, "Cannot read the CSV file: " + filePath);
         } else if (file.isDirectory()) {
-            // TODO: File is directory
-            printUtil.printAndLog("ERROR: Expected a file, but a directory was provided.");
-            return false;
+            throw new DataLoaderException(ErrorInfo.CANNOT_PROCESS_DIRECTORY, "Expected a file, but the directory: " + filePath + " was provided.");
         } else if (!FilenameUtils.getExtension(filePath).equalsIgnoreCase(StringConsts.CSV)) {
-            // TODO: Non-csv file
-            printUtil.printAndLog("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
-            printUtil.printAndLog("       Provide a csv file to load/update");
-            return false;
+            throw new DataLoaderException(ErrorInfo.INVALID_FILE_EXTENSION, "Expected a '*.csv' file, but was provided: " + filePath);
         }
         return true;
-    }
-
-    /**
-     * Validates whether the given filePath is a valid CSV file for processing, without printing.
-     */
-    static boolean validateCsvFile(String filePath) {
-        File file = new File(filePath);
-        return file.exists() && !file.isDirectory() && FilenameUtils.getExtension(filePath).equalsIgnoreCase(StringConsts.CSV);
     }
 
     /**

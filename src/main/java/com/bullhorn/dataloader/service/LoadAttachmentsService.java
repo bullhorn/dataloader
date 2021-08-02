@@ -46,7 +46,7 @@ public class LoadAttachmentsService extends AbstractService implements Action {
     @Override
     public boolean isValidArguments(String[] args) {
         return ValidationUtil.validateNumArgs(args, 2, printUtil)
-            && ValidationUtil.validateCsvFile(args[1], printUtil)
+            && ValidationUtil.validateCsvFile(args[1])
             && ValidationUtil.validateEntityFromFileNameOrProperty(args[1], propertyFileUtil, printUtil)
             && ValidationUtil.validateAttachmentEntity(FileUtil.extractEntityFromFileNameOrProperty(args[1], propertyFileUtil), printUtil);
     }
