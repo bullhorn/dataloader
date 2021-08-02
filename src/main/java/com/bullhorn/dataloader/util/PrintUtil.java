@@ -80,17 +80,26 @@ public class PrintUtil {
      * Prints to the console and logs to the logfile
      */
     public void printAndLog(String line) {
-        print(line);
-        log(line);
+        printAndLog(Level.INFO, line);
     }
 
     /**
-     * Prints an error to the console and logs the error with stacktrace to the logfile
+     * Prints to the console and logs to the logfile, using given severity
+     */
+    public void printAndLog(Level level, String line) {
+        print(line);
+        log(level, line);
+    }
+
+    /**
+     * Prints an error to the console and logs the error with stacktrace to the logfile. This only occurs when
+     * thrown from the main process - not from within a worker thread tasks processing a row, so it shows
+     * all error information on the console.
      */
     public void printAndLog(Exception exception) {
         if (exception instanceof DataLoaderException) {
             ErrorInfo errorInfo = ((DataLoaderException) exception).getErrorInfo();
-            print("ERROR: " + errorInfo.getTitle());
+            print("ERROR " + errorInfo.getCode() + ": " + errorInfo.getTitle());
             print("       " + exception.getMessage());
             print("       " + errorInfo.getTipsToResolve());
         } else {

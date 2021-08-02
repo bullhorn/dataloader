@@ -99,11 +99,9 @@ public abstract class AbstractTask implements Runnable {
      * @return a result object that captures the error text
      */
     private Result handleFailure(Exception exception) {
-        printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
-        if (entityId != null) {
-            return Result.failure(exception, entityId);
-        }
-        return Result.failure(exception);
+        Result result = entityId != null ? Result.failure(exception, entityId) : Result.failure(exception);
+        printUtil.printAndLog(Level.ERROR, "Row " + row.getNumber() + ": Error " + result.getErrorInfo().getCode() + ": " + result.getErrorDetails());
+        return result;
     }
 
     private void updateRowProcessedCounts() {
@@ -118,7 +116,7 @@ public abstract class AbstractTask implements Runnable {
         actionTotals.incrementActionTotal(result.getAction());
         updateRowProcessedCounts();
 
-        // Handle the situation where the results files are locked for a brief period of time
+        // Handle the situation where results files get locked for a brief period of time
         int attempts = 0;
         while (attempts < 3) {
             try {
