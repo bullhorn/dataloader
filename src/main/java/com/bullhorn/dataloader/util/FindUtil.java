@@ -180,11 +180,9 @@ public class FindUtil {
      * Returns a nicely formatted user message about multiple existing records to choose from.
      */
     public static String getMultipleRecordsExistMessage(EntityInfo entityInfo, List<Field> entityExistFields, Integer numRecords) {
-        return "Multiple Records Exist. Found "
-            + numRecords + " " + entityInfo.getEntityName()
-            + " records with the same ExistField criteria of: " + entityExistFields.stream()
-            .map(field -> field.getCell().getName() + "=" + field.getStringValue())
-            .collect(Collectors.joining(" AND "));
+        return "Found " + numRecords + " " + entityInfo.getEntityName() + " records with " + entityExistFields.stream()
+            .map(field -> field.getCell().getName() + " " + field.getStringValue())
+            .collect(Collectors.joining(" and "));
     }
 
     /**

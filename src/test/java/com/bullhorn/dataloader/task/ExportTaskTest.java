@@ -186,9 +186,7 @@ public class ExportTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Multiple Records Exist. "
-                + "Found 2 Candidate records with the same ExistField criteria of: "
-                + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com"));
+            "Found 2 Candidate records with firstName Data and lastName Loader and email dloader@bullhorn.com"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }

@@ -942,7 +942,7 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.DUPLICATE_RECORDS,
-            "Multiple Records Exist. Found 2 Candidate records with the same ExistField criteria of: externalID=11");
+            "Found 2 Candidate records with externalID 11");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
