@@ -36,13 +36,16 @@ public class ValidationUtil {
     public static boolean validateCsvFile(String filePath, PrintUtil printUtil) {
         File file = new File(filePath);
         if (!file.exists()) {
+            // TODO: Cannot find file
             printUtil.printAndLog("ERROR: Cannot access: " + filePath);
             printUtil.printAndLog("       Ensure path is correct.");
             return false;
         } else if (file.isDirectory()) {
+            // TODO: File is directory
             printUtil.printAndLog("ERROR: Expected a file, but a directory was provided.");
             return false;
         } else if (!FilenameUtils.getExtension(filePath).equalsIgnoreCase(StringConsts.CSV)) {
+            // TODO: Non-csv file
             printUtil.printAndLog("ERROR: Expected a '*.csv' file, but was provided: " + filePath);
             printUtil.printAndLog("       Provide a csv file to load/update");
             return false;

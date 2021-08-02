@@ -6,7 +6,7 @@ import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhornsdk.data.exception.RestApiException;
 
 /**
- * The list of all errors that Data Loader produces, along with additional user friendly information.
+ * The list of all errors that Data Loader produces, along with additional user-friendly information.
  */
 public enum ErrorInfo {
 
@@ -14,9 +14,8 @@ public enum ErrorInfo {
 
     // 100's - Setup errors (occurs during setup before interacting with the Bullhorn)
     GENERIC_SETUP(100, "Failure on Setup", "an error occurred in Data Loader before interacting with the Rest API"),
-    PROPERTIES_FILE_NOT_FOUND(101, "Properties file not found", "Verify that the properties file exists on disk in "
-        + "the correct directory."),
-    CSV_FILE_NOT_FOUND(102, "CSV file not found", "Verify that the CSV file exists on disk in the correct directory "
+    PROPERTIES_FILE(101, "Cannot read properties file", "Check that the properties file exists in the correct directory."),
+    CSV_FILE_NOT_FOUND(102, "Cannot read CSV File", "Verify that the CSV file exists on disk in the correct directory "
         + "and can be read by Data Loader."),
     INVALID_CSV_FILE(110, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
         + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
@@ -25,36 +24,36 @@ public enum ErrorInfo {
     INVALID_NUMBER_OF_COLUMNS(112, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
         + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
     INVALID_DATE_FORMAT(120, "Invalid Date Format", ""),
-
-    // 200's - Data lookup errors (occurs during lookup and before data is modified in Bullhorn)
     MISSING_SETTING(120, "Setting is missing", "Check your Data Loader settings and try again"),
     INVALID_SETTING(121, "Setting is invalid", "Check your Data Loader settings and try again"),
-    MISSING_RECORD(201, "Cannot locate entity for updating",
-        "Check that this row's value for the duplicate check is valid, and the record exists in Bullhorn."),
-    MISSING_TO_ONE_ASSOCIATION(203, "Cannot find associated entity",
-        "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
-    MISSING_TO_MANY_ASSOCIATION(204, "Cannot find associated entity",
-        "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
-    TOO_MANY_RECORDS(210, "Too may matching records found for this row",
-        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
-            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
-    TOO_MANY_TO_ONE_ASSOCIATIONS(211, "Too may matching records found for this row",
-        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
-            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
-    TOO_MANY_TO_MANY_ASSOCIATIONS(212, "Too may matching records found for this row",
-        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
-            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
-    INVALID_DUPLICATE_CHECK(220, "Invalid Duplicate Check", ""),
 
-    // 300's - Connection errors (occurs during a run of data loader due to internet connectivity issues)
-    LOGIN_FAILED(301, "Failure to login", "Check that your credentials are valid and your internet connection is good."),
-    CONNECTION_FAILED(302, "Internet connectivity issues",
+    // 200's - Connection errors (occurs during a run of data loader due to internet connectivity issues)
+    LOGIN_FAILED(201, "Login Failed", "Check that your credentials are valid and your internet connection is good."),
+    CONNECTION_FAILED(202, "Internet connectivity issues",
         "Check your internet connection or try again later."),
-    CONNECTION_TIMEOUT(303, "Internet connectivity issues",
+    CONNECTION_TIMEOUT(203, "Internet connectivity issues",
         "Check your internet connection or try again later."),
-    RUNTIME_FAILURE(310, "Internal Failure",
+    RUNTIME_FAILURE(210, "Internal Failure",
         "Data Loader encountered an issue internally that caused a failure. Please try again. If issues still occurs, "
             + "report log file as a data loader issue."),
+
+    // 300's - Data lookup errors (occurs during lookup and before data is modified in Bullhorn)
+    MISSING_RECORD(301, "Cannot locate entity for updating",
+        "Check that this row's value for the duplicate check is valid, and the record exists in Bullhorn."),
+    MISSING_TO_ONE_ASSOCIATION(303, "Cannot find associated entity",
+        "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
+    MISSING_TO_MANY_ASSOCIATION(304, "Cannot find associated entity",
+        "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
+    TOO_MANY_RECORDS(310, "Too may matching records found for this row",
+        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
+            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
+    TOO_MANY_TO_ONE_ASSOCIATIONS(311, "Too may matching records found for this row",
+        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
+            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
+    TOO_MANY_TO_MANY_ASSOCIATIONS(312, "Too may matching records found for this row",
+        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
+            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
+    INVALID_DUPLICATE_CHECK(320, "Invalid Duplicate Check", ""),
 
     // 400's - Bad data supplied (data cannot be loaded into Bullhorn because the supplied CSV file has invalid or missing data)
     BAD_REQUEST(400, "Bad Request",

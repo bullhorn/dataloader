@@ -249,7 +249,7 @@ public class PropertyFileUtil {
             fileInputStream.close();
             return properties;
         } catch (IOException exception) {
-            throw new DataLoaderException(ErrorInfo.PROPERTIES_FILE_NOT_FOUND, "Cannot find the properties file: " + fileName);
+            throw new DataLoaderException(ErrorInfo.PROPERTIES_FILE, "Cannot read the properties file: " + fileName);
         }
     }
 
