@@ -88,7 +88,7 @@ public class ResultTest {
         Assert.assertEquals(result.getAction(), Result.Action.UPDATE);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
         Assert.assertEquals(result.getBullhornParentId().intValue(), -1);
-        Assert.assertEquals(result.getErrorInfo(), ErrorInfo.GENERIC_ERROR);
+        Assert.assertEquals(result.getErrorInfo(), ErrorInfo.UNKNOWN_ERROR);
         Assert.assertEquals(result.getErrorDetails(), "");
 
         // Force data to null to ensure it still provides valid defaults
@@ -103,7 +103,7 @@ public class ResultTest {
         Assert.assertEquals(result.getAction(), Result.Action.NOT_SET);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
         Assert.assertEquals(result.getBullhornParentId().intValue(), -1);
-        Assert.assertEquals(result.getErrorInfo(), ErrorInfo.GENERIC_ERROR);
+        Assert.assertEquals(result.getErrorInfo(), ErrorInfo.UNKNOWN_ERROR);
         Assert.assertEquals(result.getErrorDetails(), "");
     }
 
@@ -126,7 +126,7 @@ public class ResultTest {
         Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET);
 
         Assert.assertEquals(result.toString(),
-            "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, bullhornParentId=-1, errorInfo='GENERIC_ERROR', errorDetails=''}");
+            "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, bullhornParentId=-1, errorInfo='UNKNOWN_ERROR', errorDetails=''}");
     }
 
     @Test

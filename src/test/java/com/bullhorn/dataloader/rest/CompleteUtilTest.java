@@ -153,7 +153,7 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("bogus", "1;2");
-            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
                 "'bogus' does not exist on Candidate");
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(0);

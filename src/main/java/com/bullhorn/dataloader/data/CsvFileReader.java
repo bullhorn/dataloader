@@ -71,7 +71,7 @@ public class CsvFileReader extends CsvReader {
     public Row getRow() throws IOException {
         if (getHeaderCount() != getValues().length) {
             throw new IOException("Row " + rowNumber + ": Header column count " + getHeaderCount()
-                + " is not equal to row column count " + getValues().length);
+                + " does not match row column count " + getValues().length);
         }
 
         Row row = new Row(filePath, rowNumber);

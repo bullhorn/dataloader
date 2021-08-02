@@ -14,7 +14,7 @@ public class Result {
     private Action action;
     private Integer bullhornId = -1;
     private Integer bullhornParentId = -1;
-    private ErrorInfo errorInfo = ErrorInfo.GENERIC_ERROR;
+    private ErrorInfo errorInfo = ErrorInfo.UNKNOWN_ERROR;
     private String errorDetails = "";
 
     /**
@@ -234,7 +234,7 @@ public class Result {
      * @return Generic error info if not previously set
      */
     public ErrorInfo getErrorInfo() {
-        return errorInfo != null ? errorInfo : ErrorInfo.GENERIC_ERROR;
+        return errorInfo != null ? errorInfo : ErrorInfo.UNKNOWN_ERROR;
     }
 
     public void setErrorInfo(ErrorInfo errorInfo) {

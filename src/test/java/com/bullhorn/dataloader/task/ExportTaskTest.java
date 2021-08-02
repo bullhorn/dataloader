@@ -141,7 +141,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.GENERIC_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
             ""
                 + "Cannot perform export because exist field is not specified for entity: Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -163,7 +163,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.GENERIC_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
             "No Matching Candidate Records Exist with ExistField criteria of: "
                 + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -185,7 +185,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.GENERIC_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
             "Multiple Records Exist. "
                 + "Found 2 Candidate records with the same ExistField criteria of: "
                 + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com"));

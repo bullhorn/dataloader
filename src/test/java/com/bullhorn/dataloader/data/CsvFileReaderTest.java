@@ -87,7 +87,7 @@ public class CsvFileReaderTest {
 
     @Test
     public void testMissingHeader() throws IOException {
-        IOException expectedException = new IOException("Row 1: Header column count 2 is not equal to row column count 3");
+        IOException expectedException = new IOException("Row 1: Header column count 2 does not match row column count 3");
         CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_MissingHeader.csv"), propertyFileUtil, printUtilMock);
 
         IOException actualException = null;

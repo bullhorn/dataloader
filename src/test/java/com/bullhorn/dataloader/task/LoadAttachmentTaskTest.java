@@ -163,7 +163,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
             "Parent Entity not found.");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -179,7 +179,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
             "Multiple Records Exist. "
                 + "Found 2 Candidate records with the same ExistField criteria of: externalID=2011Ext AND isDeleted=0");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -212,7 +212,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.GENERIC_SERVER_ERROR,
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
             "'bogus' does not exist on Candidate");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }

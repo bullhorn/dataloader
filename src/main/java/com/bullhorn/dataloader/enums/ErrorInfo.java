@@ -10,64 +10,55 @@ import com.bullhornsdk.data.exception.RestApiException;
  */
 public enum ErrorInfo {
 
-    GENERIC_ERROR(1, "Error", ""),
+    // 0-99 - Internal Errors (Unexpected errors during execution in Data Loader)
+    UNKNOWN_ERROR(1, "Error", ""),
+    NULL_POINTER_EXCEPTION(10, "Internal Error", "Restart and try again."),
 
-    // 100's - Setup errors (occurs during setup before interacting with the Bullhorn)
-    GENERIC_SETUP(100, "Failure on Setup", "an error occurred in Data Loader before interacting with the Rest API"),
-    PROPERTIES_FILE(101, "Cannot read properties file", "Check that the properties file exists in the correct directory."),
-    CSV_FILE_NOT_FOUND(102, "Cannot read CSV File", "Verify that the CSV file exists on disk in the correct directory "
-        + "and can be read by Data Loader."),
-    INVALID_CSV_FILE(110, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
-        + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
-    DUPLICATE_COLUMNS(111, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
-        + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
-    INVALID_NUMBER_OF_COLUMNS(112, "Invalid CSV file", "Verify that the CSV file has the correct number of columns "
-        + "and is saved in one of the supported formats: UTF-8 (recommended multi-byte format) or ISO-8859-1 (legacy single-byte support)."),
-    INVALID_DATE_FORMAT(120, "Invalid Date Format", ""),
-    MISSING_SETTING(120, "Setting is missing", "Check your Data Loader settings and try again"),
-    INVALID_SETTING(121, "Setting is invalid", "Check your Data Loader settings and try again"),
+    // 100's - Setup Errors (Errors during setup before interacting with the Bullhorn API)
+    MISSING_PROPERTIES_FILE(101, "Cannot Read Properties File", "Check that the properties file exists in the correct directory."),
+    MISSING_SETTING(102, "Missing Setting", "Fill in the required setting value."),
+    INVALID_SETTING(103, "Invalid Setting", "Adjust the setting value."),
 
-    // 200's - Connection errors (occurs during a run of data loader due to internet connectivity issues)
+    MISSING_CSV_FILE(110, "Cannot Read CSV File", "Check that the properties file exists in the correct directory."),
+    CANNOT_PROCESS_DIRECTORY(111, "Cannot Process Directory", "Provide a CSV file instead of a directory."),
+    INVALID_FILE_EXTENSION(112, "Invalid File Extension", "Save the spreadsheet to load as a CSV file first."),
+    INVALID_CSV_FILE(113, "Invalid CSV file", "Save CSV file as either: UTF-8 (recommended multi-byte format) or "
+        + "ISO-8859-1 (legacy single-byte support)."),
+    DUPLICATE_COLUMNS(114, "Duplicate Columns Provided", "Remove duplicate columns from CSV file."),
+    INVALID_NUMBER_OF_COLUMNS(115, "Invalid Number of Columns", "Ensure all rows have the same number of columns."),
+
+    // 200's - Connection Errors (Errors connecting to the Bullhorn API)
     LOGIN_FAILED(201, "Login Failed", "Check that your credentials are valid and your internet connection is good."),
-    CONNECTION_FAILED(202, "Internet connectivity issues",
-        "Check your internet connection or try again later."),
-    CONNECTION_TIMEOUT(203, "Internet connectivity issues",
-        "Check your internet connection or try again later."),
-    RUNTIME_FAILURE(210, "Internal Failure",
-        "Data Loader encountered an issue internally that caused a failure. Please try again. If issues still occurs, "
-            + "report log file as a data loader issue."),
+    CONNECTION_TIMEOUT(202, "Internet Connectivity Issues", "Check your internet connection or try again later."),
 
-    // 300's - Data lookup errors (occurs during lookup and before data is modified in Bullhorn)
-    MISSING_RECORD(301, "Cannot locate entity for updating",
-        "Check that this row's value for the duplicate check is valid, and the record exists in Bullhorn."),
-    MISSING_TO_ONE_ASSOCIATION(303, "Cannot find associated entity",
-        "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
-    MISSING_TO_MANY_ASSOCIATION(304, "Cannot find associated entity",
-        "Invalid or missing associated entity. Check CSV file for invalid or missing associated entity."),
-    TOO_MANY_RECORDS(310, "Too may matching records found for this row",
-        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
-            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
-    TOO_MANY_TO_ONE_ASSOCIATIONS(311, "Too may matching records found for this row",
-        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
-            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
-    TOO_MANY_TO_MANY_ASSOCIATIONS(312, "Too may matching records found for this row",
-        "The duplicate check found more than one existing record to update. Each row in the CSV file should correspond "
-            + "to a single record in Bullhorn. Narrow the search to only the single record that should be updated for the given row."),
-    INVALID_DUPLICATE_CHECK(320, "Invalid Duplicate Check", ""),
+    // 300's - Lookup Errors (Errors finding existing data in Bullhorn)
+    MISSING_RECORD(301, "Record Not Found", "Update duplicate check settings or remove row from file."),
+    MISSING_OR_DELETED_RECORD(302, "Record Not Found", "Check that data exists in Bullhorn or remove row."),
+    MISSING_TO_ONE_ASSOCIATION(303, "Record Not Found", "Check that data exists in Bullhorn or remove association."),
+    MISSING_TO_MANY_ASSOCIATION(304, "Record Not Found", "Check that data exists in Bullhorn or remove association."),
+    MISSING_PARENT_ENTITY(305, "Record Not Found", "Update duplicate check settings or remove row from file."),
+    DUPLICATE_RECORDS(310, "Duplicate Records Found", "Remove duplicates in Bullhorn or change duplicate check settings."),
+    DUPLICATE_TO_ONE_ASSOCIATIONS(311, "Duplicate Records Found", "Remove duplicates in Bullhorn or change association field."),
+    DUPLICATE_TO_MANY_ASSOCIATIONS(312, "Duplicate Records Found", "Remove duplicates in Bullhorn or change association field."),
 
-    // 400's - Bad data supplied (data cannot be loaded into Bullhorn because the supplied CSV file has invalid or missing data)
-    BAD_REQUEST(400, "Bad Request",
-        "The Bullhorn Rest API has responded with an error that indicates that the Data Loader made an invalid request."),
-    MISSING_REQUIRED_PROPERTY(401, "Missing Required Property",
-        "The Bullhorn Rest API has responded that there are required properties that have not been provided in the CSV file."
-            + " Please add these column(s) and try again."),
-    DUPLICATE_EFFECTIVE_DATE(410, "Duplicate Effective Date",
-        "When creating a new entity with an effective date, it must be unique - there cannot be more than one version on any given day."),
+    // 400's - Bad Data Provided (Bullhorn responded that there is missing or invalid data provided)
+    BAD_REQUEST(400, "Bad Request", "Correct the issue and try again."),
+    INCORRECT_COLUMN_NAME(401, "Incorrect Column Name", "Check csv column names."),
+    MISSING_REQUIRED_PROPERTY(402, "Empty Value Provided", "When adding new records of this type, include the additional column."),
+    DUPLICATE_EFFECTIVE_DATE(410, "Duplicate Effective Date", "Use a different effective date or update the current one."),
+    INVALID_DUPLICATE_SEARCH(420, "Invalid Duplicate Check", "Update duplicate check to use different fields."),
+    INVALID_DUPLICATE_QUERY(421, "Invalid Duplicate Check", "Update duplicate check to use different fields."),
+    INVALID_DATE_FORMAT(430, "Invalid Date Format", "Adjust the Date Format in settings to match the dates provided in the file. "
+        + "The most common formats are: \n\t1. US Short Date with Time:      MM/dd/yy HH:mm\n"
+        + "2. UK Short Date with Time:      dd/MM/yy HH:mm\n"
+        + "3. US Short Date:                         MM/dd/yyyy\n"
+        + "4. UK Short Date:                         dd/MM/yyyy\n"
+        + "For more options, see: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html"),
+    INVALID_ADDRESS_FORMAT(431, "Invalid address field format: 'city'", "Change 'city' to 'address.city'."),
 
-    // 500's - Server issues (Bullhorn has responded with an error indicating that it was unable to process the request internally)
-    GENERIC_SERVER_ERROR(500, "Generic Server Error",
-        "The Bullhorn Rest API has responded that an internal error has occurred."
-            + " Please try again, as this may resolve itself the next time around."),
+    // 500's - Server Errors (Bullhorn responded that there was an internal error)
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error",
+        "Oops, something went wrong after the data was uploaded to Bullhorn that prevented the data from saving. Please try again."),
     ;
 
     /**
@@ -82,18 +73,18 @@ public enum ErrorInfo {
             return ((DataLoaderException) exception).getErrorInfo();
         } else if (exception instanceof RestApiException) {
             // TODO: Parse out meaning behind the errors and assign specific error info
-            return ErrorInfo.GENERIC_SERVER_ERROR;
+            return ErrorInfo.INTERNAL_SERVER_ERROR;
         } else if (exception instanceof IllegalArgumentException) {
             return ErrorInfo.INVALID_SETTING;
         } else if (exception instanceof NullPointerException) {
-            return ErrorInfo.RUNTIME_FAILURE;
+            return ErrorInfo.NULL_POINTER_EXCEPTION;
         } else if (exception instanceof ParseException) {
-            return ErrorInfo.INVALID_DUPLICATE_CHECK;
+            return ErrorInfo.INVALID_DUPLICATE_QUERY;
         } else if (exception instanceof RuntimeException) {
-            return ErrorInfo.CONNECTION_FAILED;
+            return ErrorInfo.CONNECTION_TIMEOUT;
         }
 
-        return ErrorInfo.GENERIC_ERROR;
+        return ErrorInfo.UNKNOWN_ERROR;
     }
 
     private final Integer code;

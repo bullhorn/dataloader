@@ -87,7 +87,7 @@ public class LoadTask extends AbstractTask {
         if (foundEntityList.isEmpty()) {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
         } else if (foundEntityList.size() > 1) {
-            throw new DataLoaderException(ErrorInfo.TOO_MANY_RECORDS,
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
                 FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
         } else {
             entity = foundEntityList.get(0);
@@ -145,9 +145,11 @@ public class LoadTask extends AbstractTask {
 
         // Throw error if to-one entity does not exist or too many exist
         if (entities == null || entities.isEmpty()) {
+            // TODO: Missing To Many
             throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
                 + "' with value: '" + field.getStringValue() + "'");
         } else if (entities.size() > 1) {
+            // TODO: Duplicate To Many Associations
             throw new RestApiException("Found " + entities.size() + " duplicate To-One Associations: '" + field.getCell().getName()
                 + "' with value: '" + field.getStringValue() + "'");
         }

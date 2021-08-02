@@ -55,7 +55,7 @@ public class MainTest {
 
         Main.main(args);
 
-        Assert.assertTrue(outputStream.toString().contains("Cannot read properties file"));
+        Assert.assertTrue(outputStream.toString().contains("Cannot Read Properties File"));
         Assert.assertTrue(outputStream.toString().contains("Cannot read the properties file: bogus.properties"));
     }
 }
