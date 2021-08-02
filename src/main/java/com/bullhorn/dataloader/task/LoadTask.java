@@ -145,9 +145,8 @@ public class LoadTask extends AbstractTask {
 
         // Throw error if to-one entity does not exist or too many exist
         if (entities == null || entities.isEmpty()) {
-            // TODO: Missing To Many
-            throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
-                + "' with value: '" + field.getStringValue() + "'");
+            throw new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION, "Cannot find " + field.getFieldEntity().getEntityName()
+                + " with " + field.getFieldParameterName(false) + ": '" + field.getStringValue() + "'");
         } else if (entities.size() > 1) {
             // TODO: Duplicate To Many Associations
             throw new RestApiException("Found " + entities.size() + " duplicate To-One Associations: '" + field.getCell().getName()

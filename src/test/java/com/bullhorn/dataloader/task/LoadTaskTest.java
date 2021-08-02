@@ -31,6 +31,7 @@ import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -350,8 +351,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new RestApiException(
-            "Cannot find To-One Association: 'personReference.name' with value: 'Deleted Candidate'"));
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION,
+            "Cannot find Person with name: 'Deleted Candidate'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -692,8 +693,8 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new RestApiException(
-            "Cannot find To-One Association: 'person.customText1' with value: 'ext-1'"));
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION,
+            "Cannot find Person with customText1: 'ext-1'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
