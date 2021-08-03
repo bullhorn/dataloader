@@ -36,6 +36,7 @@ public class Result {
 
     /**
      * Failure state constructor arguments
+     * TODO: Can remove this and instead use only the exception version of failure - force exceptions throughout
      */
     public Result(Status status, Action action, ErrorInfo errorInfo, String errorDetails) {
         this.status = status;
