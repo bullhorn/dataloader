@@ -44,6 +44,7 @@ _The app handles loading data only. For features such as exporting and deleting 
 ## Documentation
 
 *  **[DataLoader Wiki](https://github.com/bullhorn/dataloader/wiki)**
+*  **[DataLoader Best Practices](https://docs.google.com/document/d/1ESwQCvuGwfQgsuFwFPtycfEVXInYduWEo4AWjIGUkeY)**
 *  **[Bullhorn Open Source](http://bullhorn.github.io)**
 *  **[Bullhorn Website](http://www.bullhorn.com)**
 
