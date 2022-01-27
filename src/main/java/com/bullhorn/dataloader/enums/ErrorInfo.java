@@ -67,20 +67,22 @@ public enum ErrorInfo {
      * @return the closest matching error info
      */
     public static ErrorInfo fromException(Exception exception) {
-        // Check for information from most specific to most generic errors
-        if (exception instanceof DataLoaderException) {
-            return ((DataLoaderException) exception).getErrorInfo();
-        } else if (exception instanceof RestApiException) {
-            // TODO: Parse out meaning behind the errors and assign specific error info
-            return ErrorInfo.INTERNAL_SERVER_ERROR;
-        } else if (exception instanceof IllegalArgumentException) {
-            return ErrorInfo.INVALID_SETTING;
-        } else if (exception instanceof NullPointerException) {
-            return ErrorInfo.NULL_POINTER_EXCEPTION;
-        } else if (exception instanceof ParseException) {
-            return ErrorInfo.INVALID_DUPLICATE_QUERY;
-        } else if (exception instanceof RuntimeException) {
-            return ErrorInfo.CONNECTION_TIMEOUT;
+        if (exception != null) {
+            // Check for information from most specific to most generic errors
+            if (exception instanceof DataLoaderException) {
+                return ((DataLoaderException) exception).getErrorInfo();
+            } else if (exception instanceof RestApiException) {
+                // Need to parse out meaning behind the errors and assign specific error info
+                return ErrorInfo.INTERNAL_SERVER_ERROR;
+            } else if (exception instanceof IllegalArgumentException) {
+                return ErrorInfo.INVALID_SETTING;
+            } else if (exception instanceof NullPointerException) {
+                return ErrorInfo.NULL_POINTER_EXCEPTION;
+            } else if (exception instanceof ParseException) {
+                return ErrorInfo.INVALID_DUPLICATE_QUERY;
+            } else if (exception instanceof RuntimeException) {
+                return ErrorInfo.CONNECTION_TIMEOUT;
+            }
         }
 
         return ErrorInfo.UNKNOWN_ERROR;

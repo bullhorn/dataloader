@@ -99,7 +99,7 @@ public abstract class AbstractTask implements Runnable {
      * @return a result object that captures the error text
      */
     private Result handleFailure(Exception exception) {
-        Result result = entityId != null ? Result.failure(exception, entityId) : Result.failure(exception);
+        Result result = Result.failure(exception, entityId);
         printUtil.printAndLog(Level.ERROR, "Row " + row.getNumber() + ": Error " + result.getErrorInfo().getCode() + ": " + result.getErrorDetails());
         return result;
     }

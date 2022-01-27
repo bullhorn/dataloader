@@ -474,9 +474,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Error occurred: "
-                + "primarySkills does not exist with id of the following values:\n\t3");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Error occurred: primarySkills does not exist with id of the following values:\n\t3"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -492,9 +491,8 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Error occurred: "
-                + "candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Error occurred: candidates does not exist with id of the following values:\n\t2"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -707,8 +705,8 @@ public class LoadTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -737,8 +735,8 @@ public class LoadTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "'clientCorporations' does not exist on Note");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "'clientCorporations' does not exist on Note"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -767,9 +765,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Invalid address field format: 'city'. "
-                + "Must use: 'address.city' to set an address field.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Invalid address field format: 'city'. Must use: 'address.city' to set an address field."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -823,8 +820,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INVALID_SETTING,
-            "For input string: \"BOGUS\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_SETTING,
+            "For input string: \"BOGUS\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -838,8 +835,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -853,8 +850,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "'bogus' does not exist on CorporateUser");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "'bogus' does not exist on CorporateUser"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -867,8 +864,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -924,8 +921,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "'bogus' does not exist on Address");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "'bogus' does not exist on Address"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -942,8 +939,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.DUPLICATE_RECORDS,
-            "Found 2 Candidate records with externalID 11. IDs: 1, 2.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+            "Found 2 Candidate records with externalID 11. IDs: 1, 2."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -954,7 +951,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.NULL_POINTER_EXCEPTION, "");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.NULL_POINTER_EXCEPTION, ""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1113,9 +1110,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Found 2 duplicate To-One Associations: " +
-                "'category.name' with value: 'hackers'");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Found 2 duplicate To-One Associations: 'category.name' with value: 'hackers'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1133,9 +1129,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Found 2 duplicate To-Many Associations: " +
-                "'primarySkills.name' with value:\n\thacking");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Found 2 duplicate To-Many Associations: 'primarySkills.name' with value:\n\thacking"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1194,8 +1189,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Flagrant Error");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR, "Flagrant Error"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1287,8 +1281,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INVALID_DUPLICATE_QUERY,
-            "Unparseable number: \"bogus\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY, "Unparseable number: \"bogus\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1302,9 +1295,8 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Failed to create lucene search string for: " +
-                "'migrateGUID' with unsupported field type: class java.lang.Object");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Failed to create lucene search string for: 'migrateGUID' with unsupported field type: class java.lang.Object"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1454,8 +1446,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INVALID_DUPLICATE_QUERY,
-            "Unparseable number: \"bogus\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY, "Unparseable number: \"bogus\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1470,8 +1461,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INVALID_SETTING,
-            "Invalid format: \"bogus\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_SETTING, "Invalid format: \"bogus\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1485,9 +1475,8 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Failed to create query where clause for: " +
-                "'migrateGUID' with unsupported field type: class java.lang.Object");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Failed to create query where clause for: 'migrateGUID' with unsupported field type: class java.lang.Object"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1553,9 +1542,8 @@ public class LoadTaskTest {
         task.run();
 
         verify(restApiMock, never()).queryForList(eq(Skill.class), any(), any(), any());
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1, ErrorInfo.INTERNAL_SERVER_ERROR,
-            "Error occurred: "
-                + "primarySkills does not exist with name of the following values:\n\tJava");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+            "Error occurred: primarySkills does not exist with name of the following values:\n\tJava"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }

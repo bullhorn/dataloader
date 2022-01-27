@@ -63,7 +63,7 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1);
+        Result expectedResult = Result.delete(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -77,7 +77,7 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1);
+        Result expectedResult = Result.delete(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -91,7 +91,7 @@ public class DeleteTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1);
+        Result expectedResult = Result.delete(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -105,7 +105,7 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1);
+        Result expectedResult = Result.delete(1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 

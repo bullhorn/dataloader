@@ -28,6 +28,7 @@ import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.Command;
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.ErrorInfo;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.Timer;
@@ -115,7 +116,7 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
-            Result result = new Result(Result.Status.SUCCESS, Result.Action.INSERT);
+            Result result = Result.insert(1);
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(0);
@@ -153,8 +154,8 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("bogus", "1;2");
-            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, ErrorInfo.INTERNAL_SERVER_ERROR,
-                "'bogus' does not exist on Candidate");
+            Result result = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+                "'bogus' does not exist on Candidate"));
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(0);
             when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(0);
@@ -196,8 +197,8 @@ public class CompleteUtilTest {
 
         try {
             Row row = TestUtils.createRow("bogus", "1;2");
-            Result result = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 101, ErrorInfo.INTERNAL_SERVER_ERROR,
-                "'bogus' does not exist on Candidate");
+            Result result = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+                "'bogus' does not exist on Candidate"), 101);
             when(actionTotalsMock.getAllActionsTotal()).thenReturn(1);
             when(actionTotalsMock.getActionTotal(Result.Action.INSERT)).thenReturn(0);
             when(actionTotalsMock.getActionTotal(Result.Action.UPDATE)).thenReturn(0);

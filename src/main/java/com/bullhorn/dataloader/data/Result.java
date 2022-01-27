@@ -7,54 +7,18 @@ import com.bullhorn.dataloader.enums.ErrorInfo;
  *
  * This class is a data type, not an instance type. Two different results can be considered identical if they contain
  * the same data values. They have no identity in and of themselves.
+ *
+ * Objects of this class should not be edited after creation - they should be created with all data needed, using a convenience
+ * constructor instead of the private constructors.
  */
 public class Result {
 
-    private Status status;
-    private Action action;
+    private final Status status;
+    private final Action action;
     private Integer bullhornId = -1;
     private Integer bullhornParentId = -1;
     private ErrorInfo errorInfo = ErrorInfo.UNKNOWN_ERROR;
     private String errorDetails = "";
-
-    /**
-     * Successful state constructor arguments
-     */
-    public Result(Status status, Action action) {
-        this.status = status;
-        this.action = action;
-    }
-
-    /**
-     * Successful state constructor with bullhorn internal ID
-     */
-    public Result(Status status, Action action, Integer bullhornId) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-    }
-
-    /**
-     * Failure state constructor arguments
-     * TODO: Can remove this and instead use only the exception version of failure - force exceptions throughout
-     */
-    public Result(Status status, Action action, ErrorInfo errorInfo, String errorDetails) {
-        this.status = status;
-        this.action = action;
-        this.errorInfo = errorInfo;
-        this.errorDetails = errorDetails;
-    }
-
-    /**
-     * Failure state constructor arguments with bullhorn Internal ID
-     */
-    public Result(Status status, Action action, Integer bullhornId, ErrorInfo errorInfo, String errorDetails) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-        this.errorInfo = errorInfo;
-        this.errorDetails = errorDetails;
-    }
 
     /**
      * Insert convenience constructor
@@ -157,7 +121,8 @@ public class Result {
      * @return The new Result object
      */
     public static Result failure(Exception exception, Integer bullhornId) {
-        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, ErrorInfo.fromException(exception), exception.getMessage());
+        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, ErrorInfo.fromException(exception),
+            exception != null ? exception.getMessage() : "");
     }
 
     /**
@@ -179,10 +144,6 @@ public class Result {
         return status != null ? status : Status.NOT_SET;
     }
 
-    public void setStatus(Status success) {
-        status = success;
-    }
-
     /**
      * Convenience method for determining if the result was successful.
      */
@@ -199,10 +160,6 @@ public class Result {
         return action != null ? action : Action.NOT_SET;
     }
 
-    public void setAction(Action success) {
-        action = success;
-    }
-
     /**
      * Will be set if the record was processed successfully. Valid values are 1 to n.
      *
@@ -210,10 +167,6 @@ public class Result {
      */
     public Integer getBullhornId() {
         return bullhornId != null ? bullhornId : -1;
-    }
-
-    void setBullhornId(Integer bullhornId) {
-        this.bullhornId = bullhornId;
     }
 
     /**
@@ -225,10 +178,6 @@ public class Result {
         return bullhornParentId != null ? bullhornParentId : -1;
     }
 
-    void setBullhornParentId(Integer bullhornParentId) {
-        this.bullhornParentId = bullhornParentId;
-    }
-
     /**
      * Will be set if the record had an error in processing.
      *
@@ -238,10 +187,6 @@ public class Result {
         return errorInfo != null ? errorInfo : ErrorInfo.UNKNOWN_ERROR;
     }
 
-    public void setErrorInfo(ErrorInfo errorInfo) {
-        this.errorInfo = errorInfo;
-    }
-
     /**
      * Will be set if the record had an error in processing.
      *
@@ -249,10 +194,6 @@ public class Result {
      */
     public String getErrorDetails() {
         return errorDetails != null ? errorDetails : "";
-    }
-
-    void setErrorDetails(String errorDetails) {
-        this.errorDetails = errorDetails;
     }
 
     @Override
@@ -313,5 +254,33 @@ public class Result {
         SKIP,
         EXPORT,
         FAILURE
+    }
+
+    /**
+     * Successful state constructor with bullhorn internal ID
+     */
+    private Result(Status status, Action action, Integer bullhornId) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+    }
+
+    /**
+     * Failure state constructor arguments with bullhorn Internal ID
+     */
+    private Result(Status status, Action action, Integer bullhornId, ErrorInfo errorInfo, String errorDetails) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+        this.errorInfo = errorInfo;
+        this.errorDetails = errorDetails;
+    }
+
+    /**
+     * Successful state constructor arguments
+     */
+    private Result(Status status, Action action) {
+        this.status = status;
+        this.action = action;
     }
 }

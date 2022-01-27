@@ -13,19 +13,6 @@ import com.google.common.collect.Sets;
 public class ResultTest {
 
     @Test
-    public void testConstructor() {
-        Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET);
-        result.setStatus(Result.Status.FAILURE);
-        result.setErrorDetails("Message 1");
-
-        Assert.assertEquals(result.isSuccess(), false);
-        Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
-        Assert.assertEquals(result.getAction(), Result.Action.NOT_SET);
-        Assert.assertEquals(result.getBullhornId().intValue(), -1);
-        Assert.assertEquals(result.getErrorDetails(), "Message 1");
-    }
-
-    @Test
     public void testInsert() {
         Result result = Result.insert(99);
 
@@ -81,26 +68,23 @@ public class ResultTest {
     }
 
     @Test
-    public void testNullGetterChecks() {
-        Result result = new Result(Result.Status.FAILURE, Result.Action.UPDATE);
+    public void testSuccessNullGetterChecks() {
+        Result result = Result.insert(null, null);
 
-        Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
-        Assert.assertEquals(result.getAction(), Result.Action.UPDATE);
+        Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
+        Assert.assertEquals(result.getAction(), Result.Action.INSERT);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
         Assert.assertEquals(result.getBullhornParentId().intValue(), -1);
         Assert.assertEquals(result.getErrorInfo(), ErrorInfo.UNKNOWN_ERROR);
         Assert.assertEquals(result.getErrorDetails(), "");
+    }
 
-        // Force data to null to ensure it still provides valid defaults
-        result.setStatus(null);
-        result.setAction(null);
-        result.setBullhornId(null);
-        result.setBullhornParentId(null);
-        result.setErrorInfo(null);
-        result.setErrorDetails(null);
+    @Test
+    public void testFailureNullGetterChecks() {
+        Result result = Result.failure(null, null);
 
-        Assert.assertEquals(result.getStatus(), Result.Status.NOT_SET);
-        Assert.assertEquals(result.getAction(), Result.Action.NOT_SET);
+        Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
+        Assert.assertEquals(result.getAction(), Result.Action.FAILURE);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
         Assert.assertEquals(result.getBullhornParentId().intValue(), -1);
         Assert.assertEquals(result.getErrorInfo(), ErrorInfo.UNKNOWN_ERROR);
@@ -123,10 +107,10 @@ public class ResultTest {
 
     @Test
     public void testToString() {
-        Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET);
+        Result result = Result.skip();
 
         Assert.assertEquals(result.toString(),
-            "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, bullhornParentId=-1, errorInfo='UNKNOWN_ERROR', errorDetails=''}");
+            "Result{status=SUCCESS, action=SKIP, bullhornId=-1, bullhornParentId=-1, errorInfo='UNKNOWN_ERROR', errorDetails=''}");
     }
 
     @Test
@@ -169,8 +153,7 @@ public class ResultTest {
     public void testEquals_action_setter() {
         Result result1 = Result.insert(1);
         Result result2 = Result.insert(1);
-        Result different = Result.insert(1);
-        different.setAction(Result.Action.UPDATE);
+        Result different = Result.insert(1, 2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -190,19 +173,7 @@ public class ResultTest {
     public void testEquals_bullhornId_setter() {
         Result result1 = Result.insert(1);
         Result result2 = Result.insert(1);
-        Result different = Result.insert(1);
-        different.setBullhornId(2);
-
-        Assert.assertEquals(result1, result2);
-        Assert.assertNotEquals(result1, different);
-    }
-
-    @Test
-    public void testEquals_bullhornParentId_setter() {
-        Result result1 = Result.insert(1);
-        Result result2 = Result.insert(1);
-        Result different = Result.insert(1);
-        different.setBullhornParentId(2);
+        Result different = Result.insert(1, 2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
