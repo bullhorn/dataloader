@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [4.10.0](https://github.com/bullhorn/dataloader/compare/v4.9.0...v4.10.0) (2022-01-27)
+
+
+### Features
+
+* **Fields:** Additional fields on JobOrder and ClientCorporation ([#373](https://github.com/bullhorn/dataloader/issues/373)) ([d320b5a](https://github.com/bullhorn/dataloader/commit/d320b5af65c92b25efd22e36fce0e4b4d87ad9a9))
+
 ## [4.9.0](https://github.com/bullhorn/dataloader/compare/v4.8.3...v4.9.0) (2020-12-15)
 
 
