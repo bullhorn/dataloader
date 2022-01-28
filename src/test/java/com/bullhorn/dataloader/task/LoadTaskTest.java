@@ -1095,7 +1095,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_TO_ONE_ASSOCIATIONS,
             "Found 2 duplicate To-One Associations: 'category.name' with value: 'hackers'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }

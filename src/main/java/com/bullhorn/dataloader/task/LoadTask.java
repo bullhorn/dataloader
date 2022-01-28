@@ -148,9 +148,8 @@ public class LoadTask extends AbstractTask {
             throw new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION, "Cannot find " + field.getFieldEntity().getEntityName()
                 + " with " + field.getFieldParameterName(false) + ": '" + field.getStringValue() + "'");
         } else if (entities.size() > 1) {
-            // TODO: Duplicate To Many Associations
-            throw new RestApiException("Found " + entities.size() + " duplicate To-One Associations: '" + field.getCell().getName()
-                + "' with value: '" + field.getStringValue() + "'");
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_TO_ONE_ASSOCIATIONS, "Found " + entities.size()
+                + " duplicate To-One Associations: '" + field.getCell().getName() + "' with value: '" + field.getStringValue() + "'");
         }
         return entities.get(0);
     }
