@@ -23,9 +23,11 @@ public enum ErrorInfo {
     INVALID_FILE_EXTENSION(112, "Invalid File Extension", "Save the spreadsheet to load as a CSV file first."),
     INVALID_CSV_FILE(113, "Invalid CSV file", "Save CSV file as either: UTF-8 (recommended multi-byte format) or "
         + "ISO-8859-1 (legacy single-byte support)."),
-    DUPLICATE_COLUMNS(114, "Duplicate Columns Provided", "Remove duplicate columns from CSV file."),
+    DUPLICATE_COLUMNS_PROVIDED(114, "Duplicate Columns Provided", "Remove duplicate columns from CSV file."),
     INVALID_NUMBER_OF_COLUMNS(115, "Invalid Number of Columns", "Ensure all rows have the same number of columns."),
+    MISSING_REQUIRED_COLUMN(116, "Missing Required Column", "Add the required column to the CSV file and try again."),
     MISSING_ATTACHMENT_FILE(120, "Cannot Read Attachment File", "Check that the file exists in the correct directory relative to the CSV file."),
+    CANNOT_PERFORM_DELETE(130, "Cannot Perform Delete", "This entity is not deletable in Bullhorn."),
 
     // 200's - Connection Errors (Errors connecting to the Bullhorn API)
     LOGIN_FAILED(201, "Login Failed", "Check that your credentials are valid and your internet connection is good."),
