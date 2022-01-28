@@ -160,7 +160,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY,
             "Parent Entity not found."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -176,7 +176,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
             "Found 2 Candidate records with externalID 2011Ext and isDeleted 0. IDs: 1001, 1002."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -242,7 +242,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(
-            new RestApiException("Cannot read file from disk: bogus/bogus.txt"), 1001);
+            new DataLoaderException(ErrorInfo.MISSING_ATTACHMENT_FILE, "Cannot read file from disk: bogus/bogus.txt"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 

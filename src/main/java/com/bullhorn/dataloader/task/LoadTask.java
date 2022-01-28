@@ -137,7 +137,7 @@ public class LoadTask extends AbstractTask {
      * Right now, we are only allowing a single field search for to-one entities
      *
      * @param field the field to use to search for an existing entity
-     * @return The entity if found, throws a RestApiException if not found
+     * @return The entity if found, otherwise throws an exception
      */
     private BullhornEntity findToOneEntity(Field field) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);

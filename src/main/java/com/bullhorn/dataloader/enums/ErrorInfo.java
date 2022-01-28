@@ -25,6 +25,7 @@ public enum ErrorInfo {
         + "ISO-8859-1 (legacy single-byte support)."),
     DUPLICATE_COLUMNS(114, "Duplicate Columns Provided", "Remove duplicate columns from CSV file."),
     INVALID_NUMBER_OF_COLUMNS(115, "Invalid Number of Columns", "Ensure all rows have the same number of columns."),
+    MISSING_ATTACHMENT_FILE(120, "Cannot Read Attachment File", "Check that the file exists in the correct directory relative to the CSV file."),
 
     // 200's - Connection Errors (Errors connecting to the Bullhorn API)
     LOGIN_FAILED(201, "Login Failed", "Check that your credentials are valid and your internet connection is good."),

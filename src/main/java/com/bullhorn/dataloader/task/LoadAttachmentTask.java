@@ -17,17 +17,18 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.core.type.FileEntity;
 import com.bullhornsdk.data.model.file.FileMeta;
@@ -70,9 +71,10 @@ public class LoadAttachmentTask extends AbstractTask {
             true, propertyFileUtil.getDateParser())).collect(Collectors.toList());
         List<BullhornEntity> foundParentEntityList = findActiveEntities(parentEntityExistFields, Sets.newHashSet(StringConsts.ID), false);
         if (foundParentEntityList.isEmpty()) {
-            throw new RestApiException("Parent Entity not found.");
+            throw new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY, "Parent Entity not found.");
         } else if (foundParentEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, parentEntityExistFields, foundParentEntityList));
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+                FindUtil.getMultipleRecordsExistMessage(entityInfo, parentEntityExistFields, foundParentEntityList));
         } else {
             entityId = foundParentEntityList.get(0).getId();
         }
@@ -111,7 +113,8 @@ public class LoadAttachmentTask extends AbstractTask {
                 fileMeta.setFileContent(fileContent);
                 fileMeta.setName(attachmentFile.getName());
             } catch (IOException e) {
-                throw new RestApiException("Cannot read file from disk: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));
+                throw new DataLoaderException(ErrorInfo.MISSING_ATTACHMENT_FILE,
+                    "Cannot read file from disk: " + row.getValue(StringConsts.RELATIVE_FILE_PATH));
             }
         } else {
             // When updating meta but not the file content, grab original fileContent because it is required for an update
