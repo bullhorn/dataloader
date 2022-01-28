@@ -30,9 +30,8 @@ public class RestApiExtension {
     private final PrintUtil printUtil;
     private final RestJsonConverter restJsonConverter;
 
-    // Whether or not the current user being used to load data is authorized with the 'SI Dataloader Administration'
-    // User Action Entitlement. Assume we are, until proven otherwise the first time through when a call that is
-    // hidden behind this entitlement fails.
+    // Whether the user has the 'SI Dataloader Administration' User Action Entitlement.
+    // Assume we are until proven otherwise when a call that is hidden behind this entitlement fails.
     private Boolean authorized = true;
 
     public RestApiExtension(PrintUtil printUtil) {
@@ -63,7 +62,7 @@ public class RestApiExtension {
      *
      * @param type       the entity type
      * @param externalId the string field to search for
-     * @param fieldSet   the fields to return in the results for each entity found with the given externalID
+     * @param fieldSet   the fields to return for each entity found with the given externalID
      * @param <S>        the search entity
      * @return SearchResults for checking if the call succeeded and the list of results
      */
@@ -129,7 +128,7 @@ public class RestApiExtension {
      * @return the updated crud response after additional behavior
      */
     <C extends CrudResponse> C postDelete(RestApi restApi, C crudResponse) {
-        // If the crud response is an updated response where we soft deleted the job submission record, then hard delete it's history records
+        // If the crud response is an updated response where we soft-deleted the job submission record, then hard delete its history records
         if (crudResponse != null
             && crudResponse.getMessages().isEmpty()
             && crudResponse.getChangeType().equals("UPDATE")
