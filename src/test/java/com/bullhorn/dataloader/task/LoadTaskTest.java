@@ -463,7 +463,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
             "Error occurred: primarySkills does not exist with id of the following values:\n\t3"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -480,7 +480,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
             "Error occurred: candidates does not exist with id of the following values:\n\t2"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -489,8 +489,7 @@ public class LoadTaskTest {
     @Test
     public void testRunUpdateSuccess() throws Exception {
         Row row = TestUtils.createRow(
-            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID," +
-                "owner.id",
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
             .thenReturn(Collections.singletonList("externalID"));
@@ -1114,7 +1113,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_TO_MANY_ASSOCIATIONS,
             "Found 2 duplicate To-Many Associations: 'primarySkills.name' with value:\n\thacking"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -1523,7 +1522,7 @@ public class LoadTaskTest {
         task.run();
 
         verify(restApiMock, never()).queryForList(eq(Skill.class), any(), any(), any());
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
             "Error occurred: primarySkills does not exist with name of the following values:\n\tJava"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);

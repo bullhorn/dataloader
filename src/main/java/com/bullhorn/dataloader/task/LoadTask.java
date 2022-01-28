@@ -30,7 +30,6 @@ import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
@@ -230,13 +229,14 @@ public class LoadTask extends AbstractTask {
                 }
                 if (associations.size() > values.size()) {
                     String duplicates = existingAssociationValues.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                    throw new RestApiException("Found " + associations.size()
+                    throw new DataLoaderException(ErrorInfo.DUPLICATE_TO_MANY_ASSOCIATIONS, "Found " + associations.size()
                         + " duplicate To-Many Associations: '" + field.getCell().getName() + "' with value:\n" + duplicates);
                 } else {
                     String missingAssociations = values.stream().filter(n -> !existingAssociationValues.contains(n))
                         .map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                    throw new RestApiException("Error occurred: " + field.getCell().getAssociationBaseName()
-                        + " does not exist with " + field.getName() + " of the following values:\n" + missingAssociations);
+                    throw new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION, "Error occurred: "
+                        + field.getCell().getAssociationBaseName() + " does not exist with " + field.getName()
+                        + " of the following values:\n" + missingAssociations);
                 }
             }
         }
