@@ -78,8 +78,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(0, 1001)));
     }
 
     @Test
@@ -97,8 +96,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(0, 1001)));
     }
 
     @Test
@@ -124,8 +122,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(0, 1001)));
     }
 
     @Test
@@ -151,8 +148,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(0, 1001)));
     }
 
     @Test

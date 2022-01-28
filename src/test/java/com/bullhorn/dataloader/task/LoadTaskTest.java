@@ -109,8 +109,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -139,8 +138,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(restApiMock).updateEntity(eq(clientContact));
     }
@@ -167,8 +165,7 @@ public class LoadTaskTest {
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
 
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
@@ -188,8 +185,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -257,8 +253,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -293,8 +288,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -329,8 +323,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -393,8 +386,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -415,8 +407,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
     }
 
     @Test
@@ -437,8 +428,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
     }
 
     @Test
@@ -459,8 +449,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
     }
 
     @Test
@@ -626,8 +615,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
     }
 
     @Test
@@ -648,8 +636,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
     }
 
     @Test
@@ -670,8 +657,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
     }
 
     @Test
@@ -807,8 +793,7 @@ public class LoadTaskTest {
         Candidate actualCandidate = entityArgumentCaptor.getValue();
         Assert.assertEquals(Integer.valueOf(2216), actualCandidate.getAddress().getCountryID());
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -884,8 +869,8 @@ public class LoadTaskTest {
         verify(restApiMock, never()).getAllAssociationsList(any(), any(), any(), any(), any());
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -907,8 +892,8 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, times(1)).disassociateWithEntity(eq(Candidate.class),
             eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1153,8 +1138,8 @@ public class LoadTaskTest {
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().businessSectors()), eq(Collections.singletonList(1)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
-        Result expectedResult = Result.insert(1); // TODO: Inline all static constructors of expectedResults in Test files
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1203,8 +1188,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(printUtilMock, times(1)).printAndLog("Processed: 111 records.");
     }
@@ -1226,8 +1210,8 @@ public class LoadTaskTest {
             + "customFloat1:123.45 AND customDate1:2017-08-01";
         verify(restApiMock, times(1)).searchForList(eq(Candidate.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1318,8 +1302,8 @@ public class LoadTaskTest {
             " AND startDate<1500144555510";
         verify(restApiMock, times(1)).queryForList(eq(CandidateWorkHistory.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1341,8 +1325,8 @@ public class LoadTaskTest {
         String expectedQuery = "salary1= AND isLastJob=false AND customInt1= AND companyName=''";
         verify(restApiMock, times(1)).queryForList(eq(CandidateWorkHistory.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1491,8 +1475,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(3)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(3)).writeRow(any(), eq(Result.insert(1)));
         verify(printUtilMock, times(3)).printAndLog(eq(ioException));
     }
 
@@ -1506,10 +1489,9 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
-        verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(expectedResult), eq(actionTotalsMock));
+        verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(Result.insert(1)), eq(actionTotalsMock));
     }
 
     @Test
@@ -1524,8 +1506,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(cacheMock, times(1)).getEntry(eq(EntityInfo.SKILL), any(), eq(Sets.newHashSet("id", "name")));
     }
@@ -1560,8 +1541,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(cacheMock, never()).getEntry(any(), any(), any());
     }
