@@ -75,7 +75,11 @@ public enum ErrorInfo {
             if (exception instanceof DataLoaderException) {
                 return ((DataLoaderException) exception).getErrorInfo();
             } else if (exception instanceof RestApiException) {
-                // Need to parse out meaning behind the errors and assign specific error info
+                // Parse out meaning behind SDK-REST errors and assign specific error info
+                if (exception.getMessage().startsWith("Error getting")
+                    || exception.getMessage().startsWith("Error posting")) {
+                    return ErrorInfo.CONNECTION_TIMEOUT;
+                }
                 return ErrorInfo.INTERNAL_SERVER_ERROR;
             } else if (exception instanceof IllegalArgumentException) {
                 return ErrorInfo.INVALID_SETTING;
@@ -83,8 +87,6 @@ public enum ErrorInfo {
                 return ErrorInfo.NULL_POINTER_EXCEPTION;
             } else if (exception instanceof ParseException) {
                 return ErrorInfo.INVALID_DUPLICATE_QUERY;
-            } else if (exception instanceof RuntimeException) {
-                return ErrorInfo.CONNECTION_TIMEOUT;
             }
         }
 

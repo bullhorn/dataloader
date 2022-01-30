@@ -1544,4 +1544,20 @@ public class LoadTaskTest {
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(cacheMock, never()).getEntry(any(), any(), any());
     }
+
+    @Test
+    public void testRunInternetConnectivityIssues() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName,email", "Data,Loader,data@example.com");
+        RestApiException internetConnectivityIssueException = new RestApiException("Error posting CreateResponse" +
+            " url variables {bhRestToken=xyz, entityType=Candidate, executeFormTriggers=false}");
+        when(restApiMock.insertEntity(any())).thenThrow(internetConnectivityIssueException);
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.CONNECTION_TIMEOUT,
+            internetConnectivityIssueException.getMessage()));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
 }

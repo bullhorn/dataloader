@@ -14,11 +14,6 @@ public class DataLoaderException extends RuntimeException {
         this.errorInfo = errorInfo;
     }
 
-    public DataLoaderException(ErrorInfo errorInfo, String message, Throwable cause) {
-        super(message, cause);
-        this.errorInfo = errorInfo;
-    }
-
     public ErrorInfo getErrorInfo() {
         return errorInfo;
     }
