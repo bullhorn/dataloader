@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.enums.Property;
 
 /**
@@ -26,19 +27,19 @@ class PropertyValidationUtil {
                 entityEntry.getValue().set(entityEntry.getValue().indexOf(value), trimmed);
             }
 
-            // Check that the exist field matches a real entity
+            // Check that exist field matches a real entity
             if (EntityInfo.fromString(entityEntry.getKey()) == null) {
-                throw new IllegalArgumentException("DataLoader Properties Error: "
+                throw new DataLoaderException(ErrorInfo.INVALID_SETTING, "DataLoader Properties Error: "
                     + WordUtils.uncapitalize(entityEntry.getKey())
-                    + "ExistField property does not match a supported entity - unrecognized entity: '"
-                    + entityEntry.getKey() + "'");
+                    + "ExistField property does not match a supported entity - unrecognized entity: '" + entityEntry.getKey() + "'");
             }
         }
     }
 
     static Integer validateNumThreads(Integer numThreads) {
         if (numThreads < 0 || numThreads > MAX_NUM_THREADS) {
-            throw new IllegalArgumentException("DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
+            throw new DataLoaderException(ErrorInfo.INVALID_SETTING,
+                "DataLoader Properties Error: numThreads property must be in the range of 1 to " + MAX_NUM_THREADS);
         }
         if (numThreads == 0) {
             numThreads = (Runtime.getRuntime().availableProcessors() * 2) + 1;
@@ -52,7 +53,7 @@ class PropertyValidationUtil {
             waitSeconds = Integer.parseInt(waitSecondsString);
         }
         if (waitSeconds < 0 || waitSeconds > MAX_WAIT_SECONDS) {
-            throw new IllegalArgumentException(
+            throw new DataLoaderException(ErrorInfo.INVALID_SETTING,
                 "DataLoader Properties Error: " + Property.WAIT_SECONDS_BETWEEN_FILES_IN_DIRECTORY.getName()
                     + " property must be in the range of 0 to " + MAX_WAIT_SECONDS);
         }
@@ -73,11 +74,11 @@ class PropertyValidationUtil {
 
     static String validateRequiredStringField(String name, String value) {
         if (value == null) {
-            throw new IllegalArgumentException("DataLoader Properties Error: missing '" + name + "' property");
+            throw new DataLoaderException(ErrorInfo.INVALID_SETTING, "DataLoader Properties Error: missing '" + name + "' property");
         }
         String trimmedUsername = value.trim();
         if (trimmedUsername.isEmpty()) {
-            throw new IllegalArgumentException("DataLoader Properties Error: '" + name + "' property must not be blank");
+            throw new DataLoaderException(ErrorInfo.INVALID_SETTING, "DataLoader Properties Error: '" + name + "' property must not be blank");
         }
         return value;
     }
@@ -87,7 +88,8 @@ class PropertyValidationUtil {
         if (!StringUtils.isEmpty(value)) {
             entityInfo = EntityInfo.fromString(value);
             if (entityInfo == null) {
-                throw new IllegalArgumentException("DataLoader Properties Error: Could not determine entity from entity property: '" + value + "'");
+                throw new DataLoaderException(ErrorInfo.INVALID_SETTING,
+                    "DataLoader Properties Error: Could not determine entity from entity property: '" + value + "'");
             }
         }
         return entityInfo;

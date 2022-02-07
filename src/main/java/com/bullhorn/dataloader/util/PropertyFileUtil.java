@@ -396,7 +396,7 @@ public class PropertyFileUtil {
         try {
             return DateTimeFormat.forPattern(properties.getProperty(Property.DATE_FORMAT.getName()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Provided dateFormat is invalid: cannot convert: '"
+            throw new DataLoaderException(ErrorInfo.INVALID_DATE_FORMAT, "Provided dateFormat is invalid: cannot convert: '"
                 + properties.getProperty(Property.DATE_FORMAT.getName()) + "' to a valid date format. "
                 + "Valid formats are specified here: "
                 + "http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html");

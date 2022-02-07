@@ -59,12 +59,12 @@ public class PropertyValidationUtilTest {
         Assert.assertNotNull(propertyValidationUtil);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testEmptyUserName() {
         PropertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), "");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testMissingUserName() {
         PropertyValidationUtil.validateRequiredStringField(Property.USERNAME.getName(), null);
     }
@@ -100,7 +100,7 @@ public class PropertyValidationUtilTest {
         PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testEntityExistFieldsBadEntity() {
         entityExistFieldsMap.put("BadEntity", Arrays.asList("externalID"));
         PropertyValidationUtil.validateEntityExistFields(entityExistFieldsMap);
@@ -153,12 +153,12 @@ public class PropertyValidationUtilTest {
         PropertyValidationUtil.validateNumThreads(Integer.valueOf(""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testLowerBoundNumThreads() {
         PropertyValidationUtil.validateNumThreads(-1);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testUpperBoundNumThreads() {
         PropertyValidationUtil.validateNumThreads(16);
     }
@@ -175,12 +175,12 @@ public class PropertyValidationUtilTest {
         Assert.assertEquals(Integer.valueOf(3000), waitSeconds);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testLowerBoundWaitSeconds() {
         PropertyValidationUtil.validateWaitSeconds("-1");
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testUpperBoundWaitSeconds() {
         PropertyValidationUtil.validateWaitSeconds("3601");
     }

@@ -431,7 +431,7 @@ public class PropertyFileUtilTest {
         new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = DataLoaderException.class)
     public void testBadEntityOverride() {
         systemProperties.setProperty("entity", "Cornidate");
         new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
@@ -445,10 +445,10 @@ public class PropertyFileUtilTest {
 
         systemProperties.setProperty("dateFormat", "MM/dd/bogus HH:mm");
 
-        IllegalArgumentException actualException = null;
+        DataLoaderException actualException = null;
         try {
             new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
-        } catch (IllegalArgumentException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 

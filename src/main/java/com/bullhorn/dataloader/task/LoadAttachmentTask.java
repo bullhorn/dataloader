@@ -60,7 +60,7 @@ public class LoadAttachmentTask extends AbstractTask {
         // In the column header, the parent entity exist field needs to be: "parentEntityName.field", for example: "candidate.externalID"
         List<String> parentEntityExistFieldNames = propertyFileUtil.getEntityExistFields(entityInfo);
         if (parentEntityExistFieldNames.isEmpty()) {
-            throw new IllegalArgumentException("Properties file is missing the '"
+            throw new DataLoaderException(ErrorInfo.MISSING_SETTING, "Properties file is missing the '"
                 + WordUtils.uncapitalize(entityInfo.getEntityName()) + StringConsts.EXIST_FIELD_SUFFIX
                 + "' property required to lookup the parent entity.");
         }

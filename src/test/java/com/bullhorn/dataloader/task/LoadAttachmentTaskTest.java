@@ -191,7 +191,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_SETTING,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_SETTING,
             "Properties file is missing the 'candidateExistField' property required to lookup the parent entity."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
