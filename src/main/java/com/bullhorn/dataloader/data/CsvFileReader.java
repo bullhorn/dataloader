@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.input.BOMInputStream;
 
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.util.ArrayUtil;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.csvreader.CsvReader;
@@ -70,8 +72,8 @@ public class CsvFileReader extends CsvReader {
      */
     public Row getRow() throws IOException {
         if (getHeaderCount() != getValues().length) {
-            throw new IOException("Row " + rowNumber + ": Header column count " + getHeaderCount()
-                + " does not match row column count " + getValues().length);
+            throw new DataLoaderException(ErrorInfo.INVALID_NUMBER_OF_COLUMNS, "Row " + rowNumber + ": Header column count "
+                + getHeaderCount() + " does not match row column count " + getValues().length);
         }
 
         Row row = new Row(filePath, rowNumber);
@@ -116,7 +118,7 @@ public class CsvFileReader extends CsvReader {
     private void checkForDuplicateHeaders() {
         Set<String> uniqueHeaders = Sets.newHashSet(mappedHeaders);
         if (mappedHeaders.size() != uniqueHeaders.size()) {
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n"
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_COLUMNS_PROVIDED, "Provided CSV file contains the following duplicate headers:\n"
                 + ArrayUtil.getDuplicates(mappedHeaders).stream().map(s -> "\t" + s + "\n").collect(Collectors.joining()));
         }
     }
