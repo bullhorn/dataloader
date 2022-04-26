@@ -1,6 +1,6 @@
 package com.bullhorn.dataloader.rest;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

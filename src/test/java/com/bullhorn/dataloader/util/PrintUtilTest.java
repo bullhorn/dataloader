@@ -1,8 +1,9 @@
 package com.bullhorn.dataloader.util;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
+import static org.mockito.ArgumentMatchers.startsWith;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.contains;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -14,7 +15,6 @@ import java.io.PrintStream;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Result;
@@ -47,8 +47,8 @@ public class PrintUtilTest {
         printUtil.printActionTotals(Command.CONVERT_ATTACHMENTS, totals);
 
         verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("End time: "));
         verify(printUtil, times(1)).printAndLog("Args: convertAttachments candidateAttachFile.csv");
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records converted: " + totals.getActionTotal(Result.Action.CONVERT));
@@ -68,8 +68,8 @@ public class PrintUtilTest {
         printUtil.printActionTotals(Command.DELETE, totals);
 
         verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("End time: "));
         verify(printUtil, times(1)).printAndLog("Args: delete candidate.csv");
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records deleted: " + totals.getActionTotal(Result.Action.DELETE));
@@ -88,8 +88,8 @@ public class PrintUtilTest {
         printUtil.printActionTotals(Command.DELETE_ATTACHMENTS, totals);
 
         verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("End time: "));
         verify(printUtil, times(1)).printAndLog("Args: deleteAttachments candidateAttachments.csv");
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records deleted: " + totals.getActionTotal(Result.Action.DELETE));
@@ -108,8 +108,8 @@ public class PrintUtilTest {
         printUtil.printActionTotals(Command.EXPORT, totals);
 
         verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("End time: "));
         verify(printUtil, times(1)).printAndLog("Args: export candidate.csv");
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records exported: " + totals.getActionTotal(Result.Action.CONVERT));
@@ -128,8 +128,8 @@ public class PrintUtilTest {
         printUtil.printActionTotals(Command.LOAD, totals);
 
         verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("End time: "));
         verify(printUtil, times(1)).printAndLog("Args: load candidate.csv");
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records inserted: " + totals.getActionTotal(Result.Action.INSERT));
@@ -150,8 +150,8 @@ public class PrintUtilTest {
         printUtil.printActionTotals(Command.LOAD_ATTACHMENTS, totals);
 
         verify(printUtil, times(1)).printAndLog("Results of DataLoader run");
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("Start time: "));
-        verify(printUtil, times(1)).printAndLog(Matchers.startsWith("End time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("Start time: "));
+        verify(printUtil, times(1)).printAndLog(startsWith("End time: "));
         verify(printUtil, times(1)).printAndLog("Args: loadAttachments candidateAttachments.csv");
         verify(printUtil, times(1)).printAndLog("Total records processed: " + total);
         verify(printUtil, times(1)).printAndLog("Total records inserted: " + totals.getActionTotal(Result.Action.INSERT));

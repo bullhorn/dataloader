@@ -75,9 +75,9 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertNull(propertyFileUtil.getEntity());
-        Assert.assertEquals(new Integer(10), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Integer.valueOf(10), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
-        Assert.assertEquals(new Integer(0), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
+        Assert.assertEquals(Integer.valueOf(0), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getVerbose());
     }
 
@@ -134,9 +134,9 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertNull(propertyFileUtil.getEntity());
-        Assert.assertEquals(new Integer(5), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Integer.valueOf(5), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
-        Assert.assertEquals(new Integer(15), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
+        Assert.assertEquals(Integer.valueOf(15), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getVerbose());
     }
 
@@ -192,12 +192,12 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getWildcardMatching());
         Assert.assertNull(propertyFileUtil.getEntity());
-        Assert.assertEquals(new Integer(6), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Integer.valueOf(6), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getCaching());
-        Assert.assertEquals(new Integer(20), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
+        Assert.assertEquals(Integer.valueOf(20), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getResultsFileEnabled());
         Assert.assertEquals("./results.json", propertyFileUtil.getResultsFilePath());
-        Assert.assertEquals(new Integer(500), propertyFileUtil.getResultsFileWriteIntervalMsec());
+        Assert.assertEquals(Integer.valueOf(500), propertyFileUtil.getResultsFileWriteIntervalMsec());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getVerbose());
     }
 
@@ -291,12 +291,12 @@ public class PropertyFileUtilTest {
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getExecuteFormTriggers());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getWildcardMatching());
         Assert.assertEquals(EntityInfo.CANDIDATE, propertyFileUtil.getEntity());
-        Assert.assertEquals(new Integer(7), propertyFileUtil.getNumThreads());
+        Assert.assertEquals(Integer.valueOf(7), propertyFileUtil.getNumThreads());
         Assert.assertEquals(Boolean.FALSE, propertyFileUtil.getCaching());
-        Assert.assertEquals(new Integer(25), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
+        Assert.assertEquals(Integer.valueOf(25), propertyFileUtil.getWaitSecondsBetweenFilesInDirectory());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getResultsFileEnabled());
         Assert.assertEquals("../results/output.json", propertyFileUtil.getResultsFilePath());
-        Assert.assertEquals(new Integer(100), propertyFileUtil.getResultsFileWriteIntervalMsec());
+        Assert.assertEquals(Integer.valueOf(100), propertyFileUtil.getResultsFileWriteIntervalMsec());
         Assert.assertEquals(Boolean.TRUE, propertyFileUtil.getVerbose());
     }
 

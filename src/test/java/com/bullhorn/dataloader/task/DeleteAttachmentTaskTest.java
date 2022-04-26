@@ -1,9 +1,8 @@
 package com.bullhorn.dataloader.task;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -55,7 +54,7 @@ public class DeleteAttachmentTaskTest {
             "testResume/TestResume.doc,0,1");
         StandardFileApiResponse fileApiResponse = new StandardFileApiResponse();
         fileApiResponse.setFileId(0);
-        when(restApiMock.deleteFile(anyObject(), anyInt(), anyInt())).thenReturn(fileApiResponse);
+        when(restApiMock.deleteFile(any(), anyInt(), anyInt())).thenReturn(fileApiResponse);
 
         DeleteAttachmentTask task = new DeleteAttachmentTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);

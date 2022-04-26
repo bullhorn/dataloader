@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.contains;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
