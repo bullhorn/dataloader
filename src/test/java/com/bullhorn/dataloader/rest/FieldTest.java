@@ -308,9 +308,9 @@ public class FieldTest {
         field.populateAssociationOnEntity(note, candidate2);
         field.populateAssociationOnEntity(note, candidate3);
 
-        Assert.assertEquals(note.getCandidates().getData().get(0).getId(), new Integer(101));
-        Assert.assertEquals(note.getCandidates().getData().get(1).getId(), new Integer(101));
-        Assert.assertEquals(note.getCandidates().getData().get(2).getId(), new Integer(101));
+        Assert.assertEquals(note.getCandidates().getData().get(0).getId(), Integer.valueOf(101));
+        Assert.assertEquals(note.getCandidates().getData().get(1).getId(), Integer.valueOf(101));
+        Assert.assertEquals(note.getCandidates().getData().get(2).getId(), Integer.valueOf(101));
 
         // The single value in the field will be set for each populated To-Many object
         Assert.assertEquals(field.getStringValueFromEntity(note, ";"), "101;101;101");
@@ -423,7 +423,7 @@ public class FieldTest {
 
         field.populateFieldOnEntity(candidate);
 
-        Assert.assertEquals(candidate.getAddress().getCountryID(), new Integer(1234));
+        Assert.assertEquals(candidate.getAddress().getCountryID(), Integer.valueOf(1234));
     }
 
     @Test

@@ -43,7 +43,7 @@ public class RecordTest {
         Set<String> expectedParameters = Sets.newHashSet("externalID", "firstName", "lastName", "name", "email", "primarySkills(id)");
 
         Assert.assertEquals(EntityInfo.CANDIDATE, record.getEntityInfo());
-        Assert.assertEquals(new Integer(1), record.getNumber());
+        Assert.assertEquals(Integer.valueOf(1), record.getNumber());
         Assert.assertEquals(6, record.getFields().size());
         Assert.assertEquals(1, record.getToManyFields().size());
         Assert.assertEquals(expectedParameters, record.getFieldsParameter());

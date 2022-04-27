@@ -53,7 +53,7 @@ public class RestApiExtension {
                 sb.append("\tError occurred on field ").append(message.getPropertyName())
                     .append(" due to the following: ").append(message.getDetailMessage()).append("\n");
             }
-            throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb.toString());
+            throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb);
         }
     }
 

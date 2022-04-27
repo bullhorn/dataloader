@@ -1,7 +1,7 @@
 package com.bullhorn.dataloader.task;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,7 +85,7 @@ public class ExportTaskTest {
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.EXPORT, 1);
         Row actualRow = rowArgumentCaptor.getValue();
         Assert.assertEquals("path/to/fake/file.csv", actualRow.getFilePath());
-        Assert.assertEquals(new Integer(1), actualRow.getNumber());
+        Assert.assertEquals(Integer.valueOf(1), actualRow.getNumber());
         Assert.assertEquals(row.getNames(), actualRow.getNames());
         Assert.assertEquals(Arrays.asList("11", "", "Sir", "Lancelot", "lancelot@spam.egg", "bo staff skills;hacking skills", "", "12345", ""), actualRow.getValues());
     }
@@ -126,7 +126,7 @@ public class ExportTaskTest {
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.EXPORT, 1);
         Row actualRow = rowArgumentCaptor.getValue();
         Assert.assertEquals("path/to/fake/file.csv", actualRow.getFilePath());
-        Assert.assertEquals(new Integer(1), actualRow.getNumber());
+        Assert.assertEquals(Integer.valueOf(1), actualRow.getNumber());
         Assert.assertEquals(row.getNames(), actualRow.getNames());
         Assert.assertEquals(Arrays.asList("ext-1001", "skill_1;skill_2;skill_3;skill_4;skill_5;skill_6;skill_7"), actualRow.getValues());
     }

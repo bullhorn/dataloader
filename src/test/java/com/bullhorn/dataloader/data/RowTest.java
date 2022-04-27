@@ -13,7 +13,7 @@ public class RowTest {
     public void testConstructor() {
         Row row = new Row("data/Candidate.csv", 1);
 
-        Assert.assertEquals(row.getNumber(), new Integer(1));
+        Assert.assertEquals(row.getNumber(), Integer.valueOf(1));
         Assert.assertEquals(row.getCells().size(), 0);
     }
 

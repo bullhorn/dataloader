@@ -2,12 +2,12 @@ package com.bullhorn.dataloader.rest;
 
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.internal.util.reflection.Whitebox;
 
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -45,12 +45,13 @@ public class RestSessionTest {
     }
 
     @Test
-    public void testConnectExistingSession() {
-        RestSession restSessionPartialMock = mock(RestSession.class);
-        Whitebox.setInternalState(restSessionPartialMock, "restApi", restApiMock);
-        when(restSessionPartialMock.getRestApi()).thenCallRealMethod();
+    public void testConnectExistingSession() throws NoSuchFieldException, IllegalAccessException {
+        RestSession restSession = new RestSession(restApiExtensionMock, propertyFileUtilMock, printUtilMock);
+        Field privateField = restSession.getClass().getDeclaredField("restApi");
+        privateField.setAccessible(true);
+        privateField.set(restSession, restApiMock);
 
-        RestApi restApi = restSessionPartialMock.getRestApi();
+        RestApi restApi = restSession.getRestApi();
 
         Assert.assertEquals(restApi, restApiMock);
     }

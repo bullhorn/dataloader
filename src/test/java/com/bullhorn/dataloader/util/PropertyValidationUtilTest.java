@@ -133,19 +133,19 @@ public class PropertyValidationUtilTest {
     @Test
     public void testMissingIntervalMsec() {
         Integer value = PropertyValidationUtil.validateIntervalMsec(null);
-        Assert.assertEquals(new Integer(500), value);
+        Assert.assertEquals(Integer.valueOf(500), value);
     }
 
     @Test
     public void testValidIntervalMsec() {
         Integer value = PropertyValidationUtil.validateIntervalMsec("250");
-        Assert.assertEquals(new Integer(250), value);
+        Assert.assertEquals(Integer.valueOf(250), value);
     }
 
     @Test
     public void testValidateNumThreads() {
         Integer actual = PropertyValidationUtil.validateNumThreads(0);
-        Assert.assertNotEquals(actual, new Integer(0));
+        Assert.assertNotEquals(actual, Integer.valueOf(0));
     }
 
     @Test(expected = IllegalArgumentException.class)
