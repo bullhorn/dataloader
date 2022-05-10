@@ -16,7 +16,7 @@ _The app handles loading data only. For features such as exporting and deleting 
 
  1. Install Java if you don't have it already (you won't need the development kit for Windows) - [Windows](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210182) | [Mac](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
  
-    1. Verify that you have the latest version of java on the command line by typing: `java -version`, which should show: `java version "1.8"`
+    1. Verify that you have a compatible version of java on the command line by typing: `java -version`, which should show: `java version "11.x.x"` or newer
 
  2. Download the dataloader.zip file from the downloads section of the [Latest Release](https://github.com/bullhorn/dataloader/releases/latest)
  
