@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/bullhorn/dataloader/compare/v4.10.1...v5.0.0) (2022-05-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* Will require installing Java version 11 or higher before running.
+
+* Upgrade to Java 11 ([#381](https://github.com/bullhorn/dataloader/issues/381)) ([64c0912](https://github.com/bullhorn/dataloader/commit/64c0912d274af7c5dc12dbf386139ec9aa49dc41))
+
 ### [4.10.1](https://github.com/bullhorn/dataloader/compare/v4.10.0...v4.10.1) (2022-01-27)
 
 

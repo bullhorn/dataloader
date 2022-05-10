@@ -5,7 +5,7 @@
 
     <groupId>com.bullhorn</groupId>
     <artifactId>dataloader</artifactId>
-    <version>4.10.1</version>
+    <version>5.0.0</version>
     <packaging>jar</packaging>
 
     <name>dataloader</name>
