@@ -941,7 +941,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
+        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
+            "java.lang.NullPointerException: Cannot invoke \"com.bullhornsdk.data.model.response.crud.CrudResponse.getChangedEntityId()\" because \"response\" is null");
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
