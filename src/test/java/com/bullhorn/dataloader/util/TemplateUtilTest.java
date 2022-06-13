@@ -19,6 +19,7 @@ import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import com.google.common.collect.Sets;
 
+@SuppressWarnings("unchecked")
 public class TemplateUtilTest {
 
     private ArrayList<String> dataTypes;
