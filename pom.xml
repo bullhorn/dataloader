@@ -28,7 +28,7 @@
         <dependency>
             <groupId>com.bullhorn</groupId>
             <artifactId>sdk-rest</artifactId>
-            <version>1.4.31</version>
+            <version>1.4.44</version>
         </dependency>
 
         <dependency>
