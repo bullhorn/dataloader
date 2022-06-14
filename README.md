@@ -8,7 +8,7 @@ A Bullhorn Platform SDK tool. Quickly import CSV data into your Bullhorn CRM.
 
 ## There's an App for This!
 
-Check out the [Data Loader Desktop App](https://github.com/bullhorn/dataloader-app) for Windows and Mac that wraps the Data Loader in a convenient, user friendly app. 
+Check out the [Data Loader Desktop App](https://github.com/bullhorn/dataloader-app) for Windows and Mac that wraps the Data Loader in a convenient, user friendly app. Check out the [Getting Started Video](https://drive.google.com/file/d/1voimdi5vZOj7bmAU-WrGL2ht9C5oP8c1/view).
 
 _The app handles loading data only. For features such as exporting and deleting data, parsing and uploading resumes and files, continue on._
 
