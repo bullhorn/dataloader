@@ -220,15 +220,6 @@ public class IntegrationTest {
         // endregion
 
         if (!skipDeletes) {
-            // region ~FIXME~
-            // Deleting Placement records is failing!
-            for (File file : resultsDir.listFiles()) {
-                if (file.getName().contains("Placement_")) {
-                    file.delete();
-                }
-            }
-            // endregion
-
             // region DELETE
             // Capture results file directory state
             File[] resultsFiles = resultsDir.listFiles();

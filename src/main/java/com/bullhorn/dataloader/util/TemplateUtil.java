@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -88,7 +88,7 @@ public class TemplateUtil<B extends BullhornEntity> {
                            Set<Field> metaFieldSet,
                            List<String> headers,
                            List<String> dataTypes) {
-        HashSet<String> methodSet = getEntityFields(entityInfo);
+        Set<String> methodSet = getEntityFields(entityInfo);
 
         for (Field field : metaFieldSet) {
             if ((methodSet.contains(field.getName().toLowerCase()) && !field.getName().contains("."))) {
@@ -108,12 +108,12 @@ public class TemplateUtil<B extends BullhornEntity> {
         }
     }
 
-    private HashSet<String> getEntityFields(EntityInfo entityInfo) {
-        HashSet<String> methodSet = Sets.newHashSet();
-        for (Method method : entityInfo.getEntityClass().getMethods()) {
-            if ("set".equalsIgnoreCase(method.getName().substring(0, 3))
-                && !method.isAnnotationPresent(ReadOnly.class)) {
-                methodSet.add(method.getName().substring(3).toLowerCase());
+    private Set<String> getEntityFields(EntityInfo entityInfo) {
+        Set<String> methodSet = Sets.newHashSet();
+        Map<String, Method> methodMap = MethodUtil.getSetterMethodMap(entityInfo.getEntityClass());
+        for (Map.Entry<String, Method> entry : methodMap.entrySet()) {
+            if (!entry.getValue().isAnnotationPresent(ReadOnly.class)) {
+                methodSet.add(entry.getKey());
             }
         }
         return methodSet;
