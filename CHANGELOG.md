@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.2.0](https://github.com/bullhorn/dataloader/compare/v5.1.0...v5.2.0) (2022-06-16)
+
+
+### Features
+
+* **Java8:** Reverted back to Java version 8, since it has universal support. ([#388](https://github.com/bullhorn/dataloader/issues/388)) ([830902a](https://github.com/bullhorn/dataloader/commit/830902a0b72f65f65d634fd175a190be0ce691f2))
+
 ## [5.1.0](https://github.com/bullhorn/dataloader/compare/v5.0.0...v5.1.0) (2022-06-16)
 
 
