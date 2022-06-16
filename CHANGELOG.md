@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/bullhorn/dataloader/compare/v5.0.0...v5.1.0) (2022-06-16)
+
+
+### Features
+
+* **Entities:** Added General Ledger Segments 1-5 and General Ledger Service Code ([#387](https://github.com/bullhorn/dataloader/issues/387)) ([878ba60](https://github.com/bullhorn/dataloader/commit/878ba6053cfced7c708934309f027f5bbe18b302))
+* **Entities:** Added Person Custom Objects 11-25 ([#386](https://github.com/bullhorn/dataloader/issues/386)) ([ac687ec](https://github.com/bullhorn/dataloader/commit/ac687ec41e6842db1bf7c6a499fd34eb9dbed4a3))
+
 ## [5.0.0](https://github.com/bullhorn/dataloader/compare/v4.10.1...v5.0.0) (2022-05-10)
 
 
