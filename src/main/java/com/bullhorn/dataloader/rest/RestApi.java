@@ -12,7 +12,6 @@ import org.apache.logging.log4j.Level;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.api.StandardBullhornData;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Lead;
@@ -48,11 +47,11 @@ public class RestApi {
     private static final Integer MAX_ASSOCIATIONS_PER_CALL = 500;
     private static final Integer MAX_RECORDS_TO_RETURN_IN_ONE_PULL = 500;
     private static final Integer MAX_RECORDS_TO_RETURN_TOTAL = 20000;
-    private final StandardBullhornData bullhornData;
+    private final CustomBullhornData bullhornData;
     private final RestApiExtension restApiExtension;
     private final PrintUtil printUtil;
 
-    public RestApi(StandardBullhornData bullhornData,
+    public RestApi(CustomBullhornData bullhornData,
                    RestApiExtension restApiExtension,
                    PropertyFileUtil propertyFileUtil,
                    PrintUtil printUtil) {
@@ -91,6 +90,7 @@ public class RestApi {
         Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(fieldSet);
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Search): " + query
             + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
+        // TODO: Perform check based on externalID being present on the object
         boolean isSupportedEntity = type != JobOrder.class && type != Lead.class && type != Opportunity.class;
         String externalId = FindUtil.getExternalIdSearchValue(query);
         if (isSupportedEntity && !externalId.isEmpty()) {
@@ -211,8 +211,8 @@ public class RestApi {
     // endregion
 
     // region Methods used by RestApiExtension
-    <T> T performGetRequest(String url, Class<T> returnType, Map<String, String> uriVariables) {
-        return bullhornData.performGetRequest(url, returnType, uriVariables);
+    <T> T performPostRequest(String url, Object requestPayLoad, Class<T> returnType, Map<String, String> uriVariables) {
+        return bullhornData.performPostRequestPublic(url, requestPayLoad, returnType, uriVariables);
     }
     // endregion
 

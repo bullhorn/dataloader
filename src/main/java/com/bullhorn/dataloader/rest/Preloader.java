@@ -28,6 +28,8 @@ public class Preloader {
         this.printUtil = printUtil;
     }
 
+    // TODO: Lookup across all rows at the beginning using lookup by externalID or a fancy IN clause for regular search.
+
     /**
      * Called upon dataloader initialization (before tasks begin executing) in order to load any lookup data required
      * for entity to load.
@@ -106,5 +108,9 @@ public class Preloader {
                 nameFieldNotificationLogged = true;
             }
         }
+    }
+
+    public void preloadAllRows(List<Row> rows) {
+
     }
 }

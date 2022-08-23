@@ -4,7 +4,6 @@ package com.bullhorn.dataloader.rest;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.api.BullhornRestCredentials;
-import com.bullhornsdk.data.api.StandardBullhornData;
 
 /**
  * Dependency Injected Wrapper for obtaining the SDK-REST BullhornData class using DataLoader's properties Contains all
@@ -41,9 +40,9 @@ public class RestSession {
      *
      * @return a BullhornData object that is used to make rest calls.
      */
-    private StandardBullhornData createRestSession() {
+    private CustomBullhornData createRestSession() {
         BullhornRestCredentials bullhornRestCredentials = getBullhornRestCredentials(propertyFileUtil);
-        return new StandardBullhornData(bullhornRestCredentials);
+        return new CustomBullhornData(bullhornRestCredentials);
     }
 
     /**

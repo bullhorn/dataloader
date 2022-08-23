@@ -20,6 +20,7 @@ import com.bullhorn.dataloader.rest.Preloader;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.task.AbstractTask;
+import com.bullhorn.dataloader.task.PreloadTask;
 import com.bullhorn.dataloader.task.TaskFactory;
 import com.bullhorn.dataloader.util.ArrayUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
@@ -78,22 +79,51 @@ public class ProcessRunner {
             }
         }
 
-        // Loop over each row in the file
+        // Read all rows of the CSV file into memory
+        List<Row> rows = new ArrayList<>();
         while (csvFileReader.readRecord()) {
-            // Run preloader before loading only
-            Row row = command == Command.LOAD ? preloader.convertRow(csvFileReader.getRow()) : csvFileReader.getRow();
+            rows.add(csvFileReader.getRow());
+        }
 
+        // Run preloader before loading only
+        if (command == Command.LOAD) {
+            printUtil.printAndLog("Preloading...");
+
+            // Create preload task runner (thread) for every 500 rows of data to lookup in bulk
+            for (int i = 0; i < rows.size(); i += 500) {
+                PreloadTask preloadTask = new PreloadTask(entityInfo, null, csvFileWriter, propertyFileUtil,
+                    restApi, printUtil, actionTotals, cache, completeUtil);
+                //preloadTask.preloadAllRows(rows);
+
+                // Put the task in the thread pool so that it can be processed when a thread is available
+                //executorService.execute(task);
+            }
+
+            // Use Shutdown and AwaitTermination Wait to allow all current threads to complete
+            executorService.shutdown();
+            while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
+            }
+
+            // Preload is now complete
+        }
+
+        // Loop over each row in the file
+        for (Row row : rows) {
             // Create an individual task runner (thread) for the row
             AbstractTask task = taskFactory.getTask(command, row);
 
             // Put the task in the thread pool so that it can be processed when a thread is available
             executorService.execute(task);
         }
-        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete and then print totals
+
+        // Use Shutdown and AwaitTermination Wait to allow all current threads to complete
         executorService.shutdown();
         while (!executorService.awaitTermination(1, TimeUnit.MINUTES)) {
         }
+
+        // Print out the totals for this run
         printUtil.printActionTotals(command, actionTotals);
+
         return actionTotals;
     }
 }

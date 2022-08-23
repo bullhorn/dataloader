@@ -85,22 +85,24 @@ public class RestApiExtension {
         fieldSet = fieldSet == null ? Sets.newHashSet("id") : fieldSet;
 
         try {
-            String url = restApi.getRestUrl()
-                + "services/dataLoader/getByExternalID?entity={entity}&externalId={externalId}&fields={fields}&BhRestToken={BhRestToken}";
-
             Map<String, String> urlVariables = new LinkedHashMap<>();
             urlVariables.put("entity", type.getSimpleName());
-            urlVariables.put("externalId", externalId);
             urlVariables.put("fields", String.join(",", fieldSet));
             urlVariables.put("BhRestToken", restApi.getBhRestToken());
 
-            String jsonString = restApi.performGetRequest(url, String.class, urlVariables);
+            Map<String, Object> payload = new LinkedHashMap<>();
+            List<String> externalIds = new ArrayList<>();
+            payload.put("externalIds", externalIds);
+
+            String url = restApi.getRestUrl()
+                + "services/dataLoader/getByExternalIDs?entity={entity}&fields={fields}&BhRestToken={BhRestToken}";
+            String jsonString = restApi.performPostRequest(url, payload, String.class, urlVariables);
 
             List<S> list = new ArrayList<>();
             JSONArray jsonArray = new JSONArray(jsonString);
             for (int i = 0; i < jsonArray.length(); ++i) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
-                jsonObject.put(StringConsts.EXTERNAL_ID, externalId);
+                jsonObject.put(StringConsts.EXTERNAL_ID, externalId); // TODO: Request the external ID in payload now, not copied in afterwards
                 list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));
             }
             searchResult.setList(list);
