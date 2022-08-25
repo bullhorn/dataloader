@@ -38,7 +38,8 @@ These example CSV files reference several reference only entities that must exis
     * Ensure at least one Invoice Statement Template exists: https://confluence.bullhorn.com/display/WFR/Invoice+Template+Setup
 
 * Corp Settings
-    * Enable leadAndOpportunityEnabled
+    * Enable Lead And Opportunity Enabled
+    * Enable Novo Tax Info Tab Enabled
     
 * Custom Objects
     * Enable ClientCorporation Custom Object Instance 1
