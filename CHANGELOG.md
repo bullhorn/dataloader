@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.3.0](https://github.com/bullhorn/dataloader/compare/v5.2.0...v5.3.0) (2022-08-26)
+
+
+### Features
+
+* **TaxForms:** Added support for Tax Form entities ([#391](https://github.com/bullhorn/dataloader/issues/391)) ([b7418bd](https://github.com/bullhorn/dataloader/commit/b7418bd79e6aa2c6a2b35875ce5c6a381538a20d))
+
 ## [5.2.0](https://github.com/bullhorn/dataloader/compare/v5.1.0...v5.2.0) (2022-06-16)
 
 
