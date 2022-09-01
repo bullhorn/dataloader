@@ -103,9 +103,9 @@ public class IntegrationTest {
 
         // Run a test where the difference when caching is significant (manual inspection of timing for now)
         System.setProperty("caching", "false");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"));
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cacheOff"));
         System.setProperty("caching", "true");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"));
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cacheOn"));
 
         // Test for derived entities that are not independent but require that a parent entity exists.
         // Insert the parent entities during part 1 and do not delete them.
