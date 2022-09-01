@@ -1,0 +1,2 @@
+candidate.externalID     ,customDate1  ,customDate2,customDate3  ,customInt1,customInt2,customInt3,customText1           ,customText2,customText3,customText4,customText5,dateI9Expiration,dateOfBirth  ,i9OnFile,militaryDomicileExpiration,militaryDomicileState,ssn        ,taxID ,taxIDIndicator
+candidateForTaxInfo-ext-1,1/1/2016 0:00,           ,1/3/2016 0:00,1         ,2         ,3         ,candidateTaxInfo-ext-1,customText2,customText3,customText4,customText5,1/1/2026 0:00   ,1/1/1990 0:00,TRUE    ,2/2/2022 0:00             ,CA                   ,111-22-3333,123456,ABC
