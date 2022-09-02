@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.4.0](https://github.com/bullhorn/dataloader/compare/v5.3.0...v5.4.0) (2022-09-02)
+
+
+### Features
+
+* **CandidateTaxInfo:** Added support for Candidate Tax Info entity ([#392](https://github.com/bullhorn/dataloader/issues/392)) ([0cebdde](https://github.com/bullhorn/dataloader/commit/0cebdde2bb170354cfcd53a454a87e1796bf2bc8))
+
 ## [5.3.0](https://github.com/bullhorn/dataloader/compare/v5.2.0...v5.3.0) (2022-08-26)
 
 
