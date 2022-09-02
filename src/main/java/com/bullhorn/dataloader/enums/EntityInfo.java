@@ -46,6 +46,7 @@ public enum EntityInfo {
     FEDERAL_TAX_FORM(BullhornEntityInfo.FEDERAL_TAX_FORM, 131),
     STATE_TAX_FORM(BullhornEntityInfo.STATE_TAX_FORM, 132),
     LOCAL_TAX_FORM(BullhornEntityInfo.LOCAL_TAX_FORM, 133),
+    CANDIDATE_TAX_INFO(BullhornEntityInfo.CANDIDATE_TAX_INFO, 134),
     LOCATION(BullhornEntityInfo.LOCATION, 140),
     OPPORTUNITY(BullhornEntityInfo.OPPORTUNITY, 150),
     JOB_ORDER(BullhornEntityInfo.JOB_ORDER, 160),

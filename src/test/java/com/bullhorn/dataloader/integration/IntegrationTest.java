@@ -22,11 +22,13 @@ public class IntegrationTest {
 
     private static final String EXAMPLE_UUID = "12345678-1234-1234-1234-1234567890AB";
     private static final String EXAMPLE_EXTERNAL_ID_ENDING = "-ext-1";
+    private static long SECONDS_SINCE_EPOCH = System.currentTimeMillis() / 1000;
 
     private ConsoleOutputCapturer consoleOutputCapturer;
 
     // Used to turn off integration test features for a specific directory
     private Boolean skipDuplicates = false;
+    private Boolean skipInserts = false;
     private Boolean skipExports = false;
     private Boolean skipUpdates = false;
     private Boolean skipDeletes = false;
@@ -101,9 +103,19 @@ public class IntegrationTest {
 
         // Run a test where the difference when caching is significant (manual inspection of timing for now)
         System.setProperty("caching", "false");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"));
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cacheOff"));
         System.setProperty("caching", "true");
-        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cache"));
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("cacheOn"));
+
+        // Test for derived entities that are not independent but require that a parent entity exists.
+        // Insert the parent entities during part 1 and do not delete them.
+        // Update the derived entities that require the parent entity without performing inserts (since insert is not allowed).
+        skipDeletes = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("derivedEntitiesPart1"));
+        skipInserts = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("derivedEntitiesPart2"));
+        skipInserts = false;
+        skipDeletes = false;
 
         // Run the full test of all example files
         runAllCommandsAgainstDirectory("examples/load");
@@ -134,14 +146,13 @@ public class IntegrationTest {
     private void runAllCommandsAgainstDirectory(String directoryPath) throws IOException {
         // region SETUP
         // Copy example files to a temp directory located at: 'dataloader/target/test-classes/integrationTest_1234567890'
-        long secondsSinceEpoch = System.currentTimeMillis() / 1000;
         File resultsDir = new File(CsvFileWriter.RESULTS_DIR);
-        String tempDirPath = TestUtils.getResourceFilePath("") + "/integrationTest_" + secondsSinceEpoch;
+        String tempDirPath = TestUtils.getResourceFilePath("") + "/integrationTest_" + SECONDS_SINCE_EPOCH;
         File tempDirectory = new File(tempDirPath);
         FileUtils.copyDirectory(new File(directoryPath), tempDirectory);
 
         // Replace all external ID endings with unique ones based on the current timestamp
-        String newExternalIdEnding = "-" + secondsSinceEpoch;
+        String newExternalIdEnding = "-" + SECONDS_SINCE_EPOCH;
         TestUtils.replaceTextInFiles(tempDirectory, EXAMPLE_EXTERNAL_ID_ENDING, newExternalIdEnding);
 
         // Replace all UUIDs in with unique ones
@@ -150,14 +161,17 @@ public class IntegrationTest {
         // endregion
 
         // region LOAD - INSERT
-        FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-        System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
-        consoleOutputCapturer.start();
-        Main.main(new String[]{"load", tempDirPath});
-        TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
-        TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+        if (!skipInserts) {
+            FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
+            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            consoleOutputCapturer.start();
+            Main.main(new String[]{"load", tempDirPath});
+            TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
+            TestUtils.checkResultsFiles(tempDirectory, Command.LOAD);
+        }
         // endregion
 
+        // region ATTACHMENTS
         File tempAttachmentsDirectory = new File(tempDirectory + "/attachments");
         if (tempAttachmentsDirectory.exists()) {
             // region CONVERT ATTACHMENTS
@@ -192,6 +206,7 @@ public class IntegrationTest {
             TestUtils.checkResultsFile(successResultsFile, Command.DELETE_ATTACHMENTS);
             // endregion
         }
+        // endregion
 
         // region EXPORT
         if (!skipExports) {
@@ -219,8 +234,8 @@ public class IntegrationTest {
         }
         // endregion
 
+        // region DELETE
         if (!skipDeletes) {
-            // region DELETE
             // Capture results file directory state
             File[] resultsFiles = resultsDir.listFiles();
 
@@ -235,8 +250,8 @@ public class IntegrationTest {
                     TestUtils.checkResultsFile(file, Command.DELETE);
                 }
             }
-            // endregion
         }
+        // endregion
 
         // region TEARDOWN
         // Cleanup our temporary directory
