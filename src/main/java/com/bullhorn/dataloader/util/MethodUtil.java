@@ -16,6 +16,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
 
 /**
  * Utility for low level method related methods used in DataLoader
@@ -144,6 +145,10 @@ public class MethodUtil {
             DecimalFormat decimalFormat = new DecimalFormat();
             decimalFormat.setParseBigDecimal(true);
             return StringUtils.isEmpty(trimmedValue) ? decimalFormat.parse(String.valueOf(0.0)) : decimalFormat.parse(trimmedValue);
+        } else if (SimplifiedOptionsLookup.class.equals(type)) {
+            SimplifiedOptionsLookup simplifiedOptionsLookup = new SimplifiedOptionsLookup();
+            simplifiedOptionsLookup.setId(Integer.parseInt(value));
+            return simplifiedOptionsLookup;
         }
 
         return null;
