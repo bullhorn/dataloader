@@ -746,6 +746,23 @@ public class LoadTaskTest {
     }
 
     @Test
+    public void testRunSimplifiedOptionsLookup() throws Exception {
+        Row row = TestUtils.createRow("id,bteSyncStatus", "1,2");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.PLACEMENT)).thenReturn(Collections.singletonList("id"));
+        when(restApiMock.searchForList(eq(Placement.class), eq("id:1"), any(), any()))
+            .thenReturn(TestUtils.getList(Placement.class, 1));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.PLACEMENT, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
+    }
+
+    @Test
     public void testRunInvalidAddressField() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName,city", "Data,Loader,Failure");
 
