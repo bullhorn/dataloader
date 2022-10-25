@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.5.0](https://github.com/bullhorn/dataloader/compare/v5.4.0...v5.5.0) (2022-10-25)
+
+
+### Features
+
+* **Placement Fields:** Added bteSyncStatus and lastBteSyncDate ([#390](https://github.com/bullhorn/dataloader/issues/390)) ([e64f03c](https://github.com/bullhorn/dataloader/commit/e64f03c359915adc68ad7ea569bdb9a0a7ed7b2e))
+
 ## [5.4.0](https://github.com/bullhorn/dataloader/compare/v5.3.0...v5.4.0) (2022-09-02)
 
 
