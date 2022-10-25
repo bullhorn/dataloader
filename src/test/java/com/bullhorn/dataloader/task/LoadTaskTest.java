@@ -161,7 +161,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        // Verify that only one association call got made for all of the associated primarySkills
+        // Verify that only one association call got made for all associated primarySkills
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
@@ -768,8 +768,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -1133,7 +1132,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        // Verify that only returning a single business sector when two identical ones were entered in the field is OK
+        // Verify that only returning a single business sector for two identical ones entered is OK
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().businessSectors()), eq(Collections.singletonList(1)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
