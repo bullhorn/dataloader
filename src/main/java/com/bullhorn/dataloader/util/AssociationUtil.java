@@ -97,16 +97,23 @@ public class AssociationUtil {
      * @return either the current entity or the associated entity
      */
     public static EntityInfo getFieldEntity(EntityInfo entityInfo, Cell cell) {
+        EntityInfo fieldEntityInfo = entityInfo;
+
         if (cell.isAssociation()) {
             if (isToMany(entityInfo, cell.getAssociationBaseName())) {
                 AssociationField associationField = getToManyField(entityInfo, cell.getAssociationBaseName());
-                return EntityInfo.fromString(associationField.getAssociationType().getSimpleName());
+                fieldEntityInfo = EntityInfo.fromString(associationField.getAssociationType().getSimpleName());
             } else {
                 Method setMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
-                return EntityInfo.fromString(setMethod.getParameterTypes()[0].getSimpleName());
+                fieldEntityInfo = EntityInfo.fromString(setMethod.getParameterTypes()[0].getSimpleName());
             }
         }
-        return entityInfo;
+
+        if (fieldEntityInfo == null) {
+            throw new RestApiException("Error getting the associated entity for field: '" + cell.getName() + "'. Check that the field is valid.");
+        }
+
+        return fieldEntityInfo;
     }
 
     /**
