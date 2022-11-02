@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.6.0](https://github.com/bullhorn/dataloader/compare/v5.5.0...v5.6.0) (2022-11-02)
+
+
+### Features
+
+* **Meta:** Fixed meta for properly loading Simplified Options Lookup fields from the Desktop App ([#394](https://github.com/bullhorn/dataloader/issues/394)) ([5d5f9d5](https://github.com/bullhorn/dataloader/commit/5d5f9d5798ff67a4f0c6e8296316aad4539253a1))
+
 ## [5.5.0](https://github.com/bullhorn/dataloader/compare/v5.4.0...v5.5.0) (2022-10-25)
 
 
