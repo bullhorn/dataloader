@@ -17,6 +17,7 @@ import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ValidationUtil;
+import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
@@ -82,13 +83,19 @@ public class MetaService implements Action {
             List<Field> fields = metaData.getFields();
             Map<String, Method> setterMethodMap = MethodUtil.getSetterMethodMap(entityInfo.getEntityClass());
 
-            // Throw out fields in meta that are not in the SDK
             List<Field> fieldsToRemove = new ArrayList<>();
             for (Field field : fields) {
+                // Throw out fields in meta that are not in the SDK
                 if (!setterMethodMap.containsKey(field.getName().toLowerCase())) {
                     fieldsToRemove.add(field);
                     printUtil.log("Removed " + entityInfo.getEntityName() + " field: "
                         + field.getName() + " that does not exist in SDK-REST.");
+                }
+
+                // SimplifiedOptionsLookup should be treated as a direct field on the entity, since it is sent over as an id within an object
+                if (SimplifiedOptionsLookup.class.getSimpleName().equals(field.getDataType())) {
+                    field.setAssociatedEntity(null);
+                    field.setType(StringConsts.SCALAR);
                 }
             }
             fields.removeAll(fieldsToRemove);

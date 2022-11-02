@@ -26,8 +26,10 @@ import com.bullhorn.dataloader.rest.RestSession;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
@@ -48,7 +50,7 @@ public class MetaServiceTest {
 
         metaService = new MetaService(restSessionMock, printUtilMock);
 
-        // Mock out meta fields
+        // Mock out Candidate meta fields
         Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
         Field nameField = TestUtils.createField("name", "Name", "", "", "SCALAR", "String");
         Field emailField = TestUtils.createField("email", "Email", "", "", "SCALAR", "String");
@@ -74,9 +76,25 @@ public class MetaServiceTest {
         candidateMeta.setLabel("Employee");
         candidateMeta.setFields(new ArrayList<>(Arrays.asList(idField, emailField, commentsField, customTextField, customIntField, ownerField, addressField)));
 
+        // Mock out Placement meta fields
+        Field bteSyncStatusField = TestUtils.createField("bteSyncStatus", "Bte Sync Status", "A lookup field", "", "TO_ONE", "SimplifiedOptionsLookup");
+        StandardMetaData<SimplifiedOptionsLookup> bteSyncStatusMeta = new StandardMetaData<>();
+        bteSyncStatusMeta.setEntity("BteSyncStatusLookup");
+        bteSyncStatusMeta.setLabel("Bte Sync Status Lookup");
+        bteSyncStatusMeta.setFields(new ArrayList<>(Arrays.asList(idField, nameField)));
+        bteSyncStatusField.setAssociatedEntity(bteSyncStatusMeta);
+
+        // Mock out Placement meta data
+        StandardMetaData<Placement> placementMeta = new StandardMetaData<>();
+        placementMeta.setEntity("Placement");
+        placementMeta.setLabel("Placement");
+        placementMeta.setFields(new ArrayList<>(Arrays.asList(idField, bteSyncStatusField)));
+
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(restApiMock.getMetaData(eq(Candidate.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
             .thenReturn(candidateMeta);
+        when(restApiMock.getMetaData(eq(Placement.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
+            .thenReturn(placementMeta);
     }
 
     @Test
@@ -89,7 +107,6 @@ public class MetaServiceTest {
         verify(printUtilMock, times(1)).log("Getting meta for Candidate...");
         verify(printUtilMock, times(1)).log("Removed Candidate field: customInt100 that does not exist in SDK-REST.");
         verify(printUtilMock, times(1)).log("Added Candidate field: externalID that was not in Meta.");
-        verify(printUtilMock, times(1)).log("Done generating meta for Candidate");
         verify(printUtilMock, times(1)).log("Done generating meta for Candidate");
         verify(printUtilMock, times(1)).print(stringCaptor.capture());
 
@@ -120,6 +137,29 @@ public class MetaServiceTest {
         TestUtils.checkJsonObject(addressFields.getJSONObject(1), "name", "city");
 
         TestUtils.checkJsonObject(fields.getJSONObject(6), "name", "externalID");
+    }
+
+    @Test
+    public void testRunPlacement() {
+        String[] testArgs = {Command.META.getMethodName(), EntityInfo.PLACEMENT.getEntityName()};
+        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
+
+        metaService.run(testArgs);
+
+        verify(printUtilMock, times(1)).log("Getting meta for Placement...");
+        verify(printUtilMock, times(1)).log("Done generating meta for Placement");
+        verify(printUtilMock, times(1)).print(stringCaptor.capture());
+
+        String jsonPrinted = stringCaptor.getValue();
+        JSONObject meta = new JSONObject(jsonPrinted);
+        Assert.assertEquals(meta.get("entity"), "Placement");
+        Assert.assertEquals(meta.get("label"), "Placement");
+        JSONArray fields = meta.getJSONArray("fields");
+        TestUtils.checkJsonObject(fields.getJSONObject(0), "name", "id");
+
+        JSONObject bteSyncStatusField = fields.getJSONObject(1);
+        TestUtils.checkJsonObject(bteSyncStatusField, "name,label,description,type", "bteSyncStatus,Bte Sync Status,A lookup field,SCALAR");
+        Assert.assertFalse(bteSyncStatusField.has("associatedEntity"));
     }
 
     @Test(expected = RestApiException.class)

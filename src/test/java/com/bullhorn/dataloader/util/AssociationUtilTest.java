@@ -102,4 +102,10 @@ public class AssociationUtilTest {
         EntityInfo entityInfo = AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
         Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);
     }
+
+    @Test(expected = RestApiException.class)
+    public void testGetFieldEntityInvalidAssociation() {
+        Cell cell = new Cell("name.first", "bill");
+        AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);
+    }
 }
