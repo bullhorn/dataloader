@@ -51,7 +51,8 @@ public class PrintUtil {
 
     public void printActionTotals(Command command, ActionTotals actionTotals) {
         if (startTime == null || args == null) {
-            throw new IllegalStateException("recordStart() not called");
+            throw new DataLoaderException(ErrorInfo.NULL_POINTER_EXCEPTION,
+                "printActionTotals() failed because recordStart() was never called");
         }
         final Date endTime = new Date();
         final int totalRecords = actionTotals.getAllActionsTotal();

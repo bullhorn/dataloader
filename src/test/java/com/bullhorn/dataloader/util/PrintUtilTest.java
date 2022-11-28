@@ -19,6 +19,7 @@ import org.junit.Test;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 
 public class PrintUtilTest {
 
@@ -168,8 +169,9 @@ public class PrintUtilTest {
         try {
             printUtil.printActionTotals(Command.LOAD, totals);
             Assert.fail("Excepted Exception");
-        } catch (IllegalStateException e) {
-            Assert.assertEquals("recordStart() not called", e.getMessage());
+        } catch (DataLoaderException e) {
+            Assert.assertEquals(ErrorInfo.NULL_POINTER_EXCEPTION, e.getErrorInfo());
+            Assert.assertEquals("printActionTotals() failed because recordStart() was never called", e.getMessage());
         }
     }
 
