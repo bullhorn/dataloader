@@ -19,9 +19,11 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 
@@ -81,7 +83,8 @@ public class ConvertAttachmentTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new IOException("Missing the 'relativeFilePath' column required for attachments"));
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_REQUIRED_COLUMN,
+            "Missing the 'relativeFilePath' column required for attachments"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }

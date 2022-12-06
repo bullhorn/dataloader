@@ -8,8 +8,8 @@ import java.util.Map;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Field;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
@@ -29,7 +29,7 @@ import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 
 /**
  * Utility for determining the associated fields that are on a given entity.
- *
+ * <p>
  * These are used for checking which associations are possible in order to throw meaningful errors up front.
  */
 public class AssociationUtil {
@@ -40,7 +40,7 @@ public class AssociationUtil {
 
     /**
      * Returns the list of associated fields for the given SDK-REST entity class.
-     *
+     * <p>
      * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their different
      * threads, and all calling this method the first time through.
      *
@@ -79,7 +79,8 @@ public class AssociationUtil {
                 return associationField;
             }
         }
-        throw new RestApiException("'" + associationBaseName + "' does not exist on " + entityInfo.getEntityName());
+        throw new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'" + associationBaseName + "' does not exist on " + entityInfo.getEntityName());
     }
 
     public static AssociationField getToManyField(Field field) {
@@ -88,8 +89,8 @@ public class AssociationUtil {
 
     /**
      * Returns the associated entity for To-One or To-Many fields, or the current entity for direct fields.
-     *
-     * For To-Many associations, the AssociationFields are used. For To-One associations, the name of the field is used
+     * <p>
+     * For To-Many associations, the AssociationFields are used. For To-One associations, the name of the field will be used
      * to get the name of the associated entity.
      *
      * @param entityInfo the current entity
@@ -110,7 +111,8 @@ public class AssociationUtil {
         }
 
         if (fieldEntityInfo == null) {
-            throw new RestApiException("Error getting the associated entity for field: '" + cell.getName() + "'. Check that the field is valid.");
+            throw new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+                "Error getting the associated entity for field: '" + cell.getName() + "'. Check that the field is valid.");
         }
 
         return fieldEntityInfo;
@@ -132,7 +134,7 @@ public class AssociationUtil {
 
     /**
      * Returns the associations object from SDK-REST for the given entity
-     *
+     * <p>
      * Synchronized to avoid race condition when multiple tasks are initializing at the same time on their different
      * threads, and all calling this method the first time through.
      *

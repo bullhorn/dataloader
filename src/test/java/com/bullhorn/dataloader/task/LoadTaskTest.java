@@ -690,7 +690,7 @@ public class LoadTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -720,7 +720,7 @@ public class LoadTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'clientCorporations' does not exist on Note"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -750,7 +750,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "Invalid address field format: 'city'. Must use: 'address.city' to set an address field."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -818,7 +818,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -833,7 +833,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'bogus' does not exist on CorporateUser"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -847,7 +847,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -904,7 +904,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'bogus' does not exist on Address"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
@@ -1277,7 +1277,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_SEARCH,
             "Failed to create lucene search string for: 'migrateGUID' with unsupported field type: class java.lang.Object"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -1457,7 +1457,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY,
             "Failed to create query where clause for: 'migrateGUID' with unsupported field type: class java.lang.Object"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }

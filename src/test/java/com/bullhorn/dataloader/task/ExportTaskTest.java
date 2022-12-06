@@ -54,7 +54,6 @@ public class ExportTaskTest {
 
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
         when(cacheMock.getEntry(any(), any(), any())).thenReturn(null);
-
     }
 
     @Test
@@ -141,7 +140,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_SETTING,
             ""
                 + "Cannot perform export because exist field is not specified for entity: Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -163,7 +162,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_RECORD,
             "No Matching Candidate Records Exist with ExistField criteria of: "
                 + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
@@ -185,7 +184,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
             "Found 2 Candidate records with firstName Data and lastName Loader and email dloader@bullhorn.com. IDs: 101, 102."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);

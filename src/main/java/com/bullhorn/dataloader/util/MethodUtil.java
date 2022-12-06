@@ -15,7 +15,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
 
 /**
@@ -86,9 +86,10 @@ public class MethodUtil {
      */
     private static void checkMalformedAddressField(String fieldName) {
         if (ArrayUtil.containsIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)) {
-            throw new RestApiException("Invalid address field format: '" + fieldName + "'. Must use: 'address."
-                + ArrayUtil.getMatchingStringIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)
-                + "' to set an address field.");
+            throw new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+                "Invalid address field format: '" + fieldName + "'. Must use: 'address."
+                    + ArrayUtil.getMatchingStringIgnoreCase(StringConsts.ADDRESS_FIELDS, fieldName)
+                    + "' to set an address field.");
         }
     }
 
@@ -115,7 +116,7 @@ public class MethodUtil {
 
     /**
      * Converts the given string value to the given type, and if it's a date, using the given dateTimeFormatter.
-     *
+     * <p>
      * If the date is being used to query for existing records, then it does not need to be in the form of
      * the date time format, it can stay as a string until used in the find call.
      *
@@ -156,10 +157,10 @@ public class MethodUtil {
 
     /**
      * Returns the name of the field associated with the getter or setter.
-     *
+     * <p>
      * For example, the method: Candidate:getExternalID() will return the field name: 'externalID'
      * that can be used as a valid field name in Rest.
-
+     *
      * @param method A getter or setter method
      * @return the field name in rest that corresponds to that getter or setter
      */
@@ -174,6 +175,7 @@ public class MethodUtil {
             }
         }
         checkMalformedAddressField(fieldName);
-        throw new RestApiException("'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
+        throw new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'" + fieldName + "' does not exist on " + entityInfo.getEntityName());
     }
 }

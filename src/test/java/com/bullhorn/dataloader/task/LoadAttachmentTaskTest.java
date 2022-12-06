@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -160,7 +159,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY_FOR_ATTACHMENT,
             "Parent Entity not found."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -206,7 +205,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR,
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
@@ -222,7 +221,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(
-            new IOException("Missing the 'relativeFilePath' column required for attachments"), 1001);
+            new DataLoaderException(ErrorInfo.MISSING_REQUIRED_COLUMN, "Missing the 'relativeFilePath' column required for attachments"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 

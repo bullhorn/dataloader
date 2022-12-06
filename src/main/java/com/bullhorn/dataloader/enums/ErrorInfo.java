@@ -16,7 +16,7 @@ public enum ErrorInfo {
 
     // 100's - Setup Errors (Errors during setup before interacting with the Bullhorn API)
     MISSING_PROPERTIES_FILE(101, "Cannot Read Properties File", "Check that the properties file exists in the correct directory."),
-    MISSING_SETTING(102, "Missing Setting", "Fill in the required setting value."),
+    MISSING_SETTING(102, "Missing Setting", "Fill in the required setting value in the properties file."),
     INVALID_SETTING(103, "Invalid Setting", "Adjust the setting value."),
     MISSING_CSV_FILE(110, "Cannot Read CSV File", "Check that the properties file exists in the correct directory."),
     CANNOT_PROCESS_DIRECTORY(111, "Cannot Process Directory", "Provide a CSV file instead of a directory."),
@@ -30,6 +30,7 @@ public enum ErrorInfo {
     CANNOT_PERFORM_DELETE(130, "Cannot Perform Delete", "This entity is not deletable in Bullhorn."),
 
     // 200's - Connection Errors (Errors connecting to the Bullhorn API)
+    // TODO: NO USES
     LOGIN_FAILED(201, "Login Failed", "Check that your credentials are valid and your internet connection is good."),
     CONNECTION_TIMEOUT(202, "Internet Connectivity Issues", "Check your internet connection or try again later."),
 
@@ -38,16 +39,20 @@ public enum ErrorInfo {
     MISSING_OR_DELETED_RECORD(302, "Record Not Found", "Check that data exists in Bullhorn or remove row."),
     MISSING_TO_ONE_ASSOCIATION(303, "Record Not Found", "Check that data exists in Bullhorn or remove association."),
     MISSING_TO_MANY_ASSOCIATION(304, "Record Not Found", "Check that data exists in Bullhorn or remove association."),
-    MISSING_PARENT_ENTITY(305, "Record Not Found", "Update duplicate check settings or remove row from file."),
+    MISSING_PARENT_ENTITY_FOR_ATTACHMENT(305, "Record Not Found", "Update duplicate check settings or remove row from file."),
+    MISSING_PARENT_ENTITY_FOR_CUSTOM_OBJECT(306, "Record Not Found",
+        "Ensure that the parent entity exists and is found by the duplicate check settings."),
     DUPLICATE_RECORDS(310, "Duplicate Records Found", "Remove duplicates in Bullhorn or change duplicate check settings."),
     DUPLICATE_TO_ONE_ASSOCIATIONS(311, "Duplicate Records Found", "Remove duplicates in Bullhorn or change association field."),
     DUPLICATE_TO_MANY_ASSOCIATIONS(312, "Duplicate Records Found", "Remove duplicates in Bullhorn or change association field."),
 
     // 400's - Bad Data Provided (Bullhorn responded that there is missing or invalid data provided)
+    // TODO: NO USES
     BAD_REQUEST(400, "Bad Request", "Correct the issue and try again."),
     INCORRECT_COLUMN_NAME(401, "Incorrect Column Name", "Check csv column names."),
-    MISSING_REQUIRED_PROPERTY(402, "Empty Value Provided", "When adding new records of this type, include the additional column."),
+    // TODO: NO USES
     DUPLICATE_EFFECTIVE_DATE(410, "Duplicate Effective Date", "Use a different effective date or update the current one."),
+    // TODO: NO USES
     INVALID_DUPLICATE_SEARCH(420, "Invalid Duplicate Check", "Update duplicate check to use different fields."),
     INVALID_DUPLICATE_QUERY(421, "Invalid Duplicate Check", "Update duplicate check to use different fields."),
     INVALID_DATE_FORMAT(430, "Invalid Date Format", "Adjust the Date Format in settings to match the dates provided in the file. "
@@ -56,7 +61,6 @@ public enum ErrorInfo {
         + "3. US Short Date:                         MM/dd/yyyy\n"
         + "4. UK Short Date:                         dd/MM/yyyy\n"
         + "For more options, see: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html"),
-    INVALID_ADDRESS_FORMAT(431, "Invalid address field format: 'city'", "Change 'city' to 'address.city'."),
 
     // 500's - Server Errors (Bullhorn responded that there was an internal error)
     INTERNAL_SERVER_ERROR(500, "Internal Server Error",

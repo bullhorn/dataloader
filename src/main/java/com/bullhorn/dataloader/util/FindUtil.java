@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import org.joda.time.DateTime;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Field;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Person;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.google.common.collect.Sets;
@@ -37,7 +37,7 @@ public class FindUtil {
                 return field + ":\"" + value + "\""; // Literal match - equals quoted string
             }
         } else {
-            throw new RestApiException("Failed to create lucene search string for: '" + field
+            throw new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_SEARCH, "Failed to create lucene search string for: '" + field
                 + "' with unsupported field type: " + fieldType);
         }
     }
@@ -59,11 +59,11 @@ public class FindUtil {
 
     /**
      * Generates the lucene search string for a single field.
-     *
+     * <p>
      * For primary entity non-to-many fields: person.externalID: "1234567"
      * For association non-to-many fields: externalID: "1234567"
      * For to-many fields: (name:Jack OR name:Jill OR name:Spot)
-     *
+     * <p>
      * TODO: For to-many id fields, improve search string syntax by only including ids with spaces
      * separating them, like: "id: 1 2 3 4 5" in order to save space in Query String
      */
@@ -102,7 +102,7 @@ public class FindUtil {
         } else if (DateTime.class.equals(fieldType)) {
             return field + value; // Allow the cell value to dictate the operation: <, >, or =
         } else {
-            throw new RestApiException("Failed to create query where clause for: '" + field
+            throw new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY, "Failed to create query where clause for: '" + field
                 + "' with unsupported field type: " + fieldType);
         }
     }
@@ -124,7 +124,7 @@ public class FindUtil {
 
     /**
      * Generates the query where clause for a single field
-     *
+     * <p>
      * For primary entity non-to-many fields: person.externalID='1234567'
      * For association non-to-many fields: externalID='1234567'
      * For to-many fields: (name='Jack' OR name='Jill' OR name='Spot')

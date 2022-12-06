@@ -12,7 +12,8 @@ import org.junit.Test;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhorn.dataloader.enums.ErrorInfo;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateEducation;
 import com.bullhornsdk.data.model.entity.core.standard.CandidateWorkHistory;
@@ -464,14 +465,14 @@ public class FieldTest {
 
     @Test
     public void testMalformedAddressField() {
-        RestApiException expectedException = new RestApiException(
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "Invalid address field format: 'countryName'. Must use: 'address.countryName' to set an address field.");
-        RestApiException actualException = null;
+        DataLoaderException actualException = null;
 
         try {
             Cell cell = new Cell("countryName", "Canada");
             new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
-        } catch (RestApiException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 
@@ -481,14 +482,14 @@ public class FieldTest {
 
     @Test
     public void testMalformedAddressFieldCaseInsensitive() {
-        RestApiException expectedException = new RestApiException(
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "Invalid address field format: 'countryname'. Must use: 'address.countryName' to set an address field.");
-        RestApiException actualException = null;
+        DataLoaderException actualException = null;
 
         try {
             Cell cell = new Cell("countryname", "Canada");
             new Field(EntityInfo.CANDIDATE, cell, false, dateTimeFormatter);
-        } catch (RestApiException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 

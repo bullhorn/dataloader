@@ -56,7 +56,7 @@ public class LoadAttachmentTask extends AbstractTask {
 
     @SuppressWarnings("unchecked")
     protected Result handle() throws Exception {
-        // Verify that the parent entity exist field is set, for example: candidateExistField
+        // Verify that the parent entity exist field is valid, for example: candidateExistField
         // In the column header, the parent entity exist field needs to be: "parentEntityName.field", for example: "candidate.externalID"
         List<String> parentEntityExistFieldNames = propertyFileUtil.getEntityExistFields(entityInfo);
         if (parentEntityExistFieldNames.isEmpty()) {
@@ -71,7 +71,7 @@ public class LoadAttachmentTask extends AbstractTask {
             true, propertyFileUtil.getDateParser())).collect(Collectors.toList());
         List<BullhornEntity> foundParentEntityList = findActiveEntities(parentEntityExistFields, Sets.newHashSet(StringConsts.ID), false);
         if (foundParentEntityList.isEmpty()) {
-            throw new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY, "Parent Entity not found.");
+            throw new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY_FOR_ATTACHMENT, "Parent Entity not found.");
         } else if (foundParentEntityList.size() > 1) {
             throw new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
                 FindUtil.getMultipleRecordsExistMessage(entityInfo, parentEntityExistFields, foundParentEntityList));
