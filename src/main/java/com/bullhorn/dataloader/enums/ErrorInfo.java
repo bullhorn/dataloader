@@ -15,10 +15,10 @@ public enum ErrorInfo {
     NULL_POINTER_EXCEPTION(10, "Internal Error", "Restart and try again."),
 
     // 100's - Setup Errors (Errors during setup before interacting with the Bullhorn API)
-    MISSING_PROPERTIES_FILE(101, "Cannot Read Properties File", "Check that the properties file exists in the correct directory."),
+    MISSING_PROPERTIES_FILE(101, "Missing Properties File", "Check that the properties file exists in the correct directory."),
     MISSING_SETTING(102, "Missing Setting", "Fill in the required setting value in the properties file."),
     INVALID_SETTING(103, "Invalid Setting", "Adjust the setting value."),
-    MISSING_CSV_FILE(110, "Cannot Read CSV File", "Check that the properties file exists in the correct directory."),
+    MISSING_CSV_FILE(110, "Cannot Read CSV File", "Check that the CSV file exists in the correct directory."),
     CANNOT_PROCESS_DIRECTORY(111, "Cannot Process Directory", "Provide a CSV file instead of a directory."),
     INVALID_FILE_EXTENSION(112, "Invalid File Extension", "Save the spreadsheet to load as a CSV file first."),
     INVALID_CSV_FILE(113, "Invalid CSV file", "Save CSV file as either: UTF-8 (recommended multi-byte format) or "
@@ -30,7 +30,6 @@ public enum ErrorInfo {
     CANNOT_PERFORM_DELETE(130, "Cannot Perform Delete", "This entity is not deletable in Bullhorn."),
 
     // 200's - Connection Errors (Errors connecting to the Bullhorn API)
-    // TODO: NO USES
     LOGIN_FAILED(201, "Login Failed", "Check that your credentials are valid and your internet connection is good."),
     CONNECTION_TIMEOUT(202, "Internet Connectivity Issues", "Check your internet connection or try again later."),
 
@@ -47,12 +46,9 @@ public enum ErrorInfo {
     DUPLICATE_TO_MANY_ASSOCIATIONS(312, "Duplicate Records Found", "Remove duplicates in Bullhorn or change association field."),
 
     // 400's - Bad Data Provided (Bullhorn responded that there is missing or invalid data provided)
-    // TODO: NO USES
     BAD_REQUEST(400, "Bad Request", "Correct the issue and try again."),
     INCORRECT_COLUMN_NAME(401, "Incorrect Column Name", "Check csv column names."),
-    // TODO: NO USES
     DUPLICATE_EFFECTIVE_DATE(410, "Duplicate Effective Date", "Use a different effective date or update the current one."),
-    // TODO: NO USES
     INVALID_DUPLICATE_SEARCH(420, "Invalid Duplicate Check", "Update duplicate check to use different fields."),
     INVALID_DUPLICATE_QUERY(421, "Invalid Duplicate Check", "Update duplicate check to use different fields."),
     INVALID_DATE_FORMAT(430, "Invalid Date Format", "Adjust the Date Format in settings to match the dates provided in the file. "
