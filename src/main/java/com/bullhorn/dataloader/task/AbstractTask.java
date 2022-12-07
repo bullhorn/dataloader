@@ -69,7 +69,7 @@ public abstract class AbstractTask implements Runnable {
 
     /**
      * The public method that is called by the Task Executor on this Runnable object.
-     *
+     * <p>
      * Calls the handle method on the derived task, handles errors and writes the output files.
      */
     public void run() {
@@ -99,11 +99,10 @@ public abstract class AbstractTask implements Runnable {
      * @return a result object that captures the error text
      */
     private Result handleFailure(Exception exception) {
-        printUtil.printAndLog("Row " + row.getNumber() + ": " + exception);
-        if (entityId != null) {
-            return Result.failure(exception, entityId);
-        }
-        return Result.failure(exception);
+        Result result = Result.failure(exception, entityId);
+        printUtil.printAndLog(Level.ERROR, "Row " + row.getNumber() + ": Error " + result.getErrorInfo().getCode()
+            + " " + result.getErrorInfo().getTitle() + ": " + result.getErrorDetails());
+        return result;
     }
 
     private void updateRowProcessedCounts() {
@@ -118,7 +117,7 @@ public abstract class AbstractTask implements Runnable {
         actionTotals.incrementActionTotal(result.getAction());
         updateRowProcessedCounts();
 
-        // Handle the situation where the results files are locked for a brief period of time
+        // Handle the situation where results files get locked for a brief period of time
         int attempts = 0;
         while (attempts < 3) {
             try {
@@ -132,8 +131,8 @@ public abstract class AbstractTask implements Runnable {
     }
 
     /**
-     * Abstract find call that checks to see if the records being searched for already exist in the client side cache.
-     *
+     * Abstract find call that checks to see if the records searched for already exist in the client side cache.
+     * <p>
      * Find calls must be different between primary and associated entities. This affects custom objects, primarily.
      * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
      * - When looking for existing Person records to check for existence, we need a Person lookup for `externalID=`

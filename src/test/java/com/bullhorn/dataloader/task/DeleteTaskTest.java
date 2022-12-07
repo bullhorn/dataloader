@@ -18,9 +18,11 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.core.standard.Appointment;
@@ -61,8 +63,7 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.delete(1)));
     }
 
     @Test
@@ -75,8 +76,7 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.delete(1)));
     }
 
     @Test
@@ -89,8 +89,7 @@ public class DeleteTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.delete(1)));
     }
 
     @Test
@@ -103,8 +102,7 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.DELETE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.delete(1)));
     }
 
     @Test
@@ -117,8 +115,8 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
-            "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Candidate record with ID: 1 does not exist or has already been soft-deleted.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_OR_DELETED_RECORD,
+            "Candidate record with ID: 1 does not exist or has already been soft-deleted."), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -132,8 +130,8 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
-            "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: Placement record with ID: 1 does not exist or has already been soft-deleted.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_OR_DELETED_RECORD,
+            "Placement record with ID: 1 does not exist or has already been soft-deleted."), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -145,8 +143,8 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Cannot Perform Delete: ClientCorporation records are not deletable.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.CANNOT_PERFORM_DELETE,
+            "ClientCorporation records are not deletable."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -158,8 +156,8 @@ public class DeleteTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang" +
-            ".IllegalArgumentException: Cannot Perform Delete: missing 'id' column.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_REQUIRED_COLUMN,
+            "Missing the 'id' column."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

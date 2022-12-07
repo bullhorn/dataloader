@@ -1,10 +1,11 @@
 package com.bullhorn.dataloader.task;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.tika.exception.TikaException;
@@ -19,9 +20,11 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
@@ -59,7 +62,12 @@ public class ConvertAttachmentTask extends AbstractTask {
         AutoDetectParser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
         File attachmentFile = FileUtil.getAttachmentFile(row);
-        InputStream stream = new FileInputStream(attachmentFile);
+        InputStream stream;
+        try {
+            stream = Files.newInputStream(attachmentFile.toPath());
+        } catch (NoSuchFileException e) {
+            throw new DataLoaderException(ErrorInfo.MISSING_ATTACHMENT_FILE, "Cannot read file from disk: " + attachmentFile.toPath());
+        }
         parser.parse(stream, handler, metadata);
         return handler.toString();
     }

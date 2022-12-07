@@ -20,7 +20,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 /**
  * Delete service implementation
- *
+ * <p>
  * Takes the user's command line arguments and runs a delete process
  */
 public class DeleteService extends AbstractService implements Action {
@@ -69,7 +69,7 @@ public class DeleteService extends AbstractService implements Action {
             return true;
         }
 
-        return ValidationUtil.validateCsvFile(filePath, printUtil)
+        return ValidationUtil.validateCsvFile(filePath)
             && ValidationUtil.validateEntityFromFileNameOrProperty(filePath, propertyFileUtil, printUtil)
             && ValidationUtil.validateDeletableEntity(FileUtil.extractEntityFromFileNameOrProperty(filePath, propertyFileUtil), printUtil);
     }

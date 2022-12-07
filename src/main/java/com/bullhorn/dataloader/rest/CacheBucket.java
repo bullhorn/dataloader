@@ -85,7 +85,7 @@ public class CacheBucket {
 
     /**
      * Return a simple string for determining if we have cached this exact search before
-     *
+     * <p>
      * Handles reordering multiple values so that simple ordering doesn't cause a cache miss.
      *
      * @param entityExistFields the fields to search for

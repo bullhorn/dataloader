@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.bullhorn.dataloader.TestUtils;
+import com.bullhorn.dataloader.enums.ErrorInfo;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 
@@ -70,35 +72,38 @@ public class CsvFileReaderTest {
 
     @Test
     public void testDuplicateHeaders() throws IOException {
-        IllegalStateException expectedException = new IllegalStateException("Provided CSV file contains the following duplicate headers:\n"
-            + "\tname\n"
-            + "\tfirstName\n");
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.DUPLICATE_COLUMNS_PROVIDED,
+            "Provided CSV file contains the following duplicate headers:\n\tname\n\tfirstName\n");
 
-        IllegalStateException actualException = null;
+        DataLoaderException actualException = null;
         try {
             new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_DuplicateColumns.csv"), propertyFileUtil, printUtilMock);
-        } catch (IllegalStateException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 
         assert actualException != null;
+        Assert.assertEquals(expectedException.getErrorInfo(), actualException.getErrorInfo());
         Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
     }
 
     @Test
     public void testMissingHeader() throws IOException {
-        IOException expectedException = new IOException("Row 1: Header column count 2 is not equal to row column count 3");
-        CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_MissingHeader.csv"), propertyFileUtil, printUtilMock);
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INVALID_NUMBER_OF_COLUMNS,
+            "Row 1: Header column count 2 does not match row column count 3");
+        CsvFileReader csvFileReader = new CsvFileReader(TestUtils.getResourceFilePath("ClientCorporation_MissingHeader.csv"),
+            propertyFileUtil, printUtilMock);
 
-        IOException actualException = null;
+        DataLoaderException actualException = null;
         try {
             csvFileReader.readRecord();
             csvFileReader.getRow();
-        } catch (IOException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 
         assert actualException != null;
+        Assert.assertEquals(expectedException.getErrorInfo(), actualException.getErrorInfo());
         Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
     }
 }

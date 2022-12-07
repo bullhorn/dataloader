@@ -7,8 +7,8 @@ import org.junit.Test;
 
 import com.bullhorn.dataloader.data.Cell;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Field;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
@@ -55,12 +55,12 @@ public class AssociationUtilTest {
 
     @Test
     public void testGetFieldEntityException() {
-        RestApiException expectedException = new RestApiException("'trolls' does not exist on Candidate");
-        RestApiException actualException = null;
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME, "'trolls' does not exist on Candidate");
+        DataLoaderException actualException = null;
 
         try {
             AssociationUtil.getToManyField(EntityInfo.CANDIDATE, "trolls");
-        } catch (RestApiException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 
@@ -103,7 +103,7 @@ public class AssociationUtilTest {
         Assert.assertEquals(EntityInfo.CANDIDATE, entityInfo);
     }
 
-    @Test(expected = RestApiException.class)
+    @Test(expected = DataLoaderException.class)
     public void testGetFieldEntityInvalidAssociation() {
         Cell cell = new Cell("name.first", "bill");
         AssociationUtil.getFieldEntity(EntityInfo.CANDIDATE, cell);

@@ -45,7 +45,7 @@ public class MainTest {
 
         Main.main(args);
 
-        Assert.assertTrue(outputStream.toString().contains("ERROR: Cannot access: file.bad"));
+        Assert.assertTrue(outputStream.toString().contains("ERROR"));
     }
 
     @Test
@@ -55,6 +55,7 @@ public class MainTest {
 
         Main.main(args);
 
-        Assert.assertTrue(outputStream.toString().contains("ERROR: java.io.FileNotFoundException: bogus.properties"));
+        Assert.assertTrue(outputStream.toString().contains("Missing Properties File"));
+        Assert.assertTrue(outputStream.toString().contains("Cannot read the properties file: bogus.properties"));
     }
 }

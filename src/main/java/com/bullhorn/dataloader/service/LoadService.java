@@ -21,7 +21,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 /**
  * Load (Insert/Update) service implementation
- *
+ * <p>
  * Takes the user's command line arguments and runs a load process
  */
 public class LoadService extends AbstractService implements Action {
@@ -77,7 +77,7 @@ public class LoadService extends AbstractService implements Action {
             return true;
         }
 
-        return ValidationUtil.validateCsvFile(filePath, printUtil)
+        return ValidationUtil.validateCsvFile(filePath)
             && ValidationUtil.validateEntityFromFileNameOrProperty(filePath, propertyFileUtil, printUtil)
             && ValidationUtil.validateLoadableEntity(FileUtil.extractEntityFromFileNameOrProperty(filePath, propertyFileUtil), printUtil);
     }

@@ -17,18 +17,19 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.MethodUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
 import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
@@ -85,7 +86,8 @@ public class LoadTask extends AbstractTask {
         if (foundEntityList.isEmpty()) {
             entity = (BullhornEntity) entityInfo.getEntityClass().newInstance();
         } else if (foundEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+                FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList));
         } else {
             entity = foundEntityList.get(0);
             entityId = entity.getId();
@@ -109,7 +111,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Handles inserting/updating all cells in the row.
-     *
+     * <p>
      * Direct Fields: Populate the field on the entity. Compound Fields (address): Get the address object and populate
      * the field on the address. To-One Associations: Get the association object and populate the internal ID field.
      * To-Many Associations: Call the association REST method (unless we are loading notes)
@@ -135,25 +137,25 @@ public class LoadTask extends AbstractTask {
      * Right now, we are only allowing a single field search for to-one entities
      *
      * @param field the field to use to search for an existing entity
-     * @return The entity if found, throws a RestApiException if not found
+     * @return The entity if found, otherwise throws an exception
      */
     private BullhornEntity findToOneEntity(Field field) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = findActiveEntities(Lists.newArrayList(field), Sets.newHashSet(StringConsts.ID), false);
 
         // Throw error if to-one entity does not exist or too many exist
         if (entities == null || entities.isEmpty()) {
-            throw new RestApiException("Cannot find To-One Association: '" + field.getCell().getName()
-                + "' with value: '" + field.getStringValue() + "'");
+            throw new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION, "Cannot find " + field.getFieldEntity().getEntityName()
+                + " with " + field.getFieldParameterName(false) + ": '" + field.getStringValue() + "'");
         } else if (entities.size() > 1) {
-            throw new RestApiException("Found " + entities.size() + " duplicate To-One Associations: '" + field.getCell().getName()
-                + "' with value: '" + field.getStringValue() + "'");
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_TO_ONE_ASSOCIATIONS, "Found " + entities.size()
+                + " duplicate To-One Associations: '" + field.getCell().getName() + "' with value: '" + field.getStringValue() + "'");
         }
         return entities.get(0);
     }
 
     /**
      * Populates a given To-Many field for an entity before the entity has been created.
-     *
+     * <p>
      * Populates the To-Many in SDK-REST, in a fashion that only works for Notes currently. Eventually, convert everything
      * over to pre-populating To-Many fields in the correct "replace-all" way, so that our association calls go away.
      *
@@ -168,7 +170,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
-     *
+     * <p>
      * TODO: remove this method once prepopulating associations can be used for all entities
      */
     @SuppressWarnings("unchecked")
@@ -206,7 +208,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Returns the list of new entities with ID that match the search criteria in the given To-Many field.
-     *
+     * <p>
      * Given a field like: 'primarySkills' with a value like: 'Skill1;Skill2;Skill3;Skill4', this method will return the
      * list of Skill objects (in this case, four skills) with their ID field filled out from REST, one object per value.
      * If any of these associations do not exist in rest, or are duplicated in rest, an error is thrown, stopping the
@@ -227,13 +229,14 @@ public class LoadTask extends AbstractTask {
                 }
                 if (associations.size() > values.size()) {
                     String duplicates = existingAssociationValues.stream().map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                    throw new RestApiException("Found " + associations.size()
+                    throw new DataLoaderException(ErrorInfo.DUPLICATE_TO_MANY_ASSOCIATIONS, "Found " + associations.size()
                         + " duplicate To-Many Associations: '" + field.getCell().getName() + "' with value:\n" + duplicates);
                 } else {
                     String missingAssociations = values.stream().filter(n -> !existingAssociationValues.contains(n))
                         .map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                    throw new RestApiException("Error occurred: " + field.getCell().getAssociationBaseName()
-                        + " does not exist with " + field.getName() + " of the following values:\n" + missingAssociations);
+                    throw new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION, "Error occurred: "
+                        + field.getCell().getAssociationBaseName() + " does not exist with " + field.getName()
+                        + " of the following values:\n" + missingAssociations);
                 }
             }
         }
@@ -242,7 +245,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Sets a locator for the client contact created by default for a new ClientCorporation.
-     *
+     * <p>
      * Special case that handles setting the externalID of the defaultContact that is created on a ClientCorporation.
      * This allows for easily finding that contact later using the externalID, which will be of the format:
      * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
@@ -270,7 +273,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Inserts the HTML contents of converted resumes into the description field.
-     *
+     * <p>
      * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume file
      * or description file stored on disk, if a convertAttachments has been done previously. This only works if there is
      * an externalID being used in the input file.

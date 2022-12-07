@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,9 +20,11 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -76,8 +77,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(0, 1001)));
     }
 
     @Test
@@ -95,8 +95,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(0, 1001)));
     }
 
     @Test
@@ -122,8 +121,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(0, 1001)));
     }
 
     @Test
@@ -149,8 +147,7 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(0, 1001);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(0, 1001)));
     }
 
     @Test
@@ -162,8 +159,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Parent Entity not found.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_PARENT_ENTITY_FOR_ATTACHMENT,
+            "Parent Entity not found."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -178,9 +175,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Multiple Records Exist. "
-                + "Found 2 Candidate records with the same ExistField criteria of: externalID=2011Ext AND isDeleted=0");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+            "Found 2 Candidate records with externalID 2011Ext and isDeleted 0. IDs: 1001, 1002."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -194,9 +190,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "java.lang.IllegalArgumentException: Properties file is missing the 'candidateExistField' "
-                + "property required to lookup the parent entity.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_SETTING,
+            "Properties file is missing the 'candidateExistField' property required to lookup the parent entity."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -210,8 +205,8 @@ public class LoadAttachmentTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -226,7 +221,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(
-            new IOException("Missing the 'relativeFilePath' column required for attachments"), 1001);
+            new DataLoaderException(ErrorInfo.MISSING_REQUIRED_COLUMN, "Missing the 'relativeFilePath' column required for attachments"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -246,7 +241,7 @@ public class LoadAttachmentTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(
-            new RestApiException("Cannot read file from disk: bogus/bogus.txt"), 1001);
+            new DataLoaderException(ErrorInfo.MISSING_ATTACHMENT_FILE, "Cannot read file from disk: bogus/bogus.txt"), 1001);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 

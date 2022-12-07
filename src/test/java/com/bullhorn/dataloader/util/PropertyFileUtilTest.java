@@ -2,8 +2,6 @@ package com.bullhorn.dataloader.util;
 
 import static org.mockito.Mockito.mock;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,7 +35,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetConvertedAttachmentFileForCandidate() throws IOException {
+    public void testGetConvertedAttachmentFileForCandidate() {
         String expected = "convertedAttachments/Candidate/candidate-ext-1.html";
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
@@ -47,7 +45,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetConvertedAttachmentFileForClientContact() throws IOException {
+    public void testGetConvertedAttachmentFileForClientContact() {
         String expected = "convertedAttachments/ClientContact/12345.html";
 
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
@@ -57,7 +55,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGettersForPropertyFileValues() throws IOException {
+    public void testGettersForPropertyFileValues() {
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("john.smith", propertyFileUtil.getUsername());
@@ -82,7 +80,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGettersForEnvironmentVariableOverrides() throws IOException {
+    public void testGettersForEnvironmentVariableOverrides() {
         envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
         envVars.put("DATALOADER_PASSWORD", "password456");
         envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
@@ -141,7 +139,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGettersForSystemPropertyOverrides() throws IOException {
+    public void testGettersForSystemPropertyOverrides() {
         envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
         envVars.put("DATALOADER_PASSWORD", "password456");
         envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
@@ -202,7 +200,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGettersForArgumentPropertyOverrides() throws IOException {
+    public void testGettersForArgumentPropertyOverrides() {
         envVars.put("DATALOADER_USERNAME", "johnny.appleseed");
         envVars.put("DATALOADER_PASSWORD", "password456");
         envVars.put("DATALOADER_CLIENT_ID", "2234abcd-123a-123a-123a-acbd1234567");
@@ -301,7 +299,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetEntityExistFieldsPropertyFileValues() throws IOException {
+    public void testGetEntityExistFieldsPropertyFileValues() {
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals(Collections.singletonList("externalID"),
@@ -319,7 +317,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetEntityExistFieldsEnvironmentVariableOverrides() throws IOException {
+    public void testGetEntityExistFieldsEnvironmentVariableOverrides() {
         envVars.put("DATALOADER_CANDIDATE_EXIST_FIELD", "customTextField4,customTextField5");
         envVars.put("dataloader_candidateExistField", "bogus");
         envVars.put("candidateExistField", "bogus");
@@ -336,7 +334,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetEntityExistFieldsSystemPropertyOverrides() throws IOException {
+    public void testGetEntityExistFieldsSystemPropertyOverrides() {
         envVars.put("candidateExistField", "customTextField4,customTextField5");
         systemProperties.setProperty("candidateExistField", "one,two,buckle,shoe");
 
@@ -347,7 +345,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetEntityExistFieldsArgumentOverrides() throws IOException {
+    public void testGetEntityExistFieldsArgumentOverrides() {
         envVars.put("candidateExistField", "customTextField4,customTextField5");
         systemProperties.setProperty("clientContactExistField", "one,two,buckle,shoe");
         ArrayList<String> args = new ArrayList<>();
@@ -362,7 +360,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMappingPropertyFileValues() throws IOException {
+    public void testGetColumnNameMappingPropertyFileValues() {
         PropertyFileUtil propertyFileUtil = new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
 
         Assert.assertEquals("owner.id", propertyFileUtil.getColumnNameMapping("recruiterUserID"));
@@ -375,7 +373,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMappingEnvironmentVariableOverrides() throws IOException {
+    public void testGetColumnNameMappingEnvironmentVariableOverrides() {
         envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
         envVars.put("DATALOADER_statementUserID_Column", "billingUser.id");
         envVars.put("DATALOADER_sendingOwnerNameColumn", "reference.name");
@@ -394,7 +392,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMappingSystemPropertyOverrides() throws IOException {
+    public void testGetColumnNameMappingSystemPropertyOverrides() {
         envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
         envVars.put("DATALOADER_statementUserID_COLUMN", "billingUser.id");
         systemProperties.setProperty("oneColumn", "billingUser.id");
@@ -408,7 +406,7 @@ public class PropertyFileUtilTest {
     }
 
     @Test
-    public void testGetColumnNameMappingArgumentOverrides() throws IOException {
+    public void testGetColumnNameMappingArgumentOverrides() {
         envVars.put("DATALOADER_billingUserID_COLUMN", "billingUser.id");
         systemProperties.setProperty("columnOneColumn", "job.title");
         ArrayList<String> args = new ArrayList<>();
@@ -427,30 +425,30 @@ public class PropertyFileUtilTest {
         Assert.assertEquals("address.address1", propertyFileUtil.getColumnNameMapping("address.address1"));
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void testPropertyFileSystemPropertyOverride() throws IOException {
+    @Test(expected = DataLoaderException.class)
+    public void testPropertyFileSystemPropertyOverride() {
         systemProperties.setProperty("propertyfile", "bogus/file/path/to/dataloader.properties");
         new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testBadEntityOverride() throws IOException {
+    @Test(expected = DataLoaderException.class)
+    public void testBadEntityOverride() {
         systemProperties.setProperty("entity", "Cornidate");
         new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
     }
 
     @Test
-    public void testInvalidDateFormat() throws IOException {
+    public void testInvalidDateFormat() {
         IllegalArgumentException expectedException = new IllegalArgumentException(
             "Provided dateFormat is invalid: cannot convert: 'MM/dd/bogus HH:mm' to a valid date format. "
                 + "Valid formats are specified here: http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html");
 
         systemProperties.setProperty("dateFormat", "MM/dd/bogus HH:mm");
 
-        IllegalArgumentException actualException = null;
+        DataLoaderException actualException = null;
         try {
             new PropertyFileUtil(path, envVars, systemProperties, emptyArgs, printUtilMock);
-        } catch (IllegalArgumentException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 

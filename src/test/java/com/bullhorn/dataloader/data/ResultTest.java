@@ -5,23 +5,12 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.bullhorn.dataloader.enums.ErrorInfo;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.Timer;
 import com.google.common.collect.Sets;
 
 public class ResultTest {
-
-    @Test
-    public void testConstructor() {
-        Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
-        result.setStatus(Result.Status.FAILURE);
-        result.setFailureText("Message 1");
-
-        Assert.assertEquals(result.isSuccess(), false);
-        Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
-        Assert.assertEquals(result.getAction(), Result.Action.NOT_SET);
-        Assert.assertEquals(result.getBullhornId().intValue(), -1);
-        Assert.assertEquals(result.getFailureText(), "Message 1");
-    }
 
     @Test
     public void testInsert() {
@@ -31,7 +20,7 @@ public class ResultTest {
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
         Assert.assertEquals(result.getAction(), Result.Action.INSERT);
         Assert.assertEquals(result.getBullhornId().intValue(), 99);
-        Assert.assertEquals(result.getFailureText(), "");
+        Assert.assertEquals(result.getErrorDetails(), "");
     }
 
     @Test
@@ -42,7 +31,7 @@ public class ResultTest {
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
         Assert.assertEquals(result.getAction(), Result.Action.UPDATE);
         Assert.assertEquals(result.getBullhornId().intValue(), 99);
-        Assert.assertEquals(result.getFailureText(), "");
+        Assert.assertEquals(result.getErrorDetails(), "");
     }
 
     @Test
@@ -53,7 +42,7 @@ public class ResultTest {
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
         Assert.assertEquals(result.getAction(), Result.Action.DELETE);
         Assert.assertEquals(result.getBullhornId().intValue(), 99);
-        Assert.assertEquals(result.getFailureText(), "");
+        Assert.assertEquals(result.getErrorDetails(), "");
     }
 
     @Test
@@ -64,7 +53,7 @@ public class ResultTest {
         Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
         Assert.assertEquals(result.getAction(), Result.Action.FAILURE);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
-        Assert.assertEquals(result.getFailureText(), "java.lang.Exception: Message 1");
+        Assert.assertEquals(result.getErrorDetails(), "Message 1");
     }
 
     @Test
@@ -75,7 +64,31 @@ public class ResultTest {
         Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
         Assert.assertEquals(result.getAction(), Result.Action.UPDATE);
         Assert.assertEquals(result.getBullhornId().intValue(), -1);
-        Assert.assertEquals(result.getFailureText(), "");
+        Assert.assertEquals(result.getErrorDetails(), "");
+    }
+
+    @Test
+    public void testSuccessNullGetterChecks() {
+        Result result = Result.insert(null, null);
+
+        Assert.assertEquals(result.getStatus(), Result.Status.SUCCESS);
+        Assert.assertEquals(result.getAction(), Result.Action.INSERT);
+        Assert.assertEquals(result.getBullhornId().intValue(), -1);
+        Assert.assertEquals(result.getBullhornParentId().intValue(), -1);
+        Assert.assertEquals(result.getErrorInfo(), ErrorInfo.UNKNOWN_ERROR);
+        Assert.assertEquals(result.getErrorDetails(), "");
+    }
+
+    @Test
+    public void testFailureNullGetterChecks() {
+        Result result = Result.failure(null, null);
+
+        Assert.assertEquals(result.getStatus(), Result.Status.FAILURE);
+        Assert.assertEquals(result.getAction(), Result.Action.FAILURE);
+        Assert.assertEquals(result.getBullhornId().intValue(), -1);
+        Assert.assertEquals(result.getBullhornParentId().intValue(), -1);
+        Assert.assertEquals(result.getErrorInfo(), ErrorInfo.UNKNOWN_ERROR);
+        Assert.assertEquals(result.getErrorDetails(), "");
     }
 
     @Test
@@ -94,9 +107,10 @@ public class ResultTest {
 
     @Test
     public void testToString() {
-        Result result = new Result(Result.Status.NOT_SET, Result.Action.NOT_SET, -1, "");
+        Result result = Result.skip();
 
-        Assert.assertEquals(result.toString(), "Result{status=NOT_SET, action=NOT_SET, bullhornId=-1, bullhornParentId=-1, failureText=''}");
+        Assert.assertEquals(result.toString(),
+            "Result{status=SUCCESS, action=SKIP, bullhornId=-1, bullhornParentId=-1, errorInfo='UNKNOWN_ERROR', errorDetails=''}");
     }
 
     @Test
@@ -139,8 +153,7 @@ public class ResultTest {
     public void testEquals_action_setter() {
         Result result1 = Result.insert(1);
         Result result2 = Result.insert(1);
-        Result different = Result.insert(1);
-        different.setAction(Result.Action.UPDATE);
+        Result different = Result.insert(1, 2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
@@ -160,26 +173,24 @@ public class ResultTest {
     public void testEquals_bullhornId_setter() {
         Result result1 = Result.insert(1);
         Result result2 = Result.insert(1);
-        Result different = Result.insert(1);
-        different.setBullhornId(2);
+        Result different = Result.insert(1, 2);
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
     }
 
     @Test
-    public void testEquals_bullhornParentId_setter() {
-        Result result1 = Result.insert(1);
-        Result result2 = Result.insert(1);
-        Result different = Result.insert(1);
-        different.setBullhornParentId(2);
+    public void testEquals_errorInfo() {
+        Result result1 = Result.failure(new DataLoaderException(ErrorInfo.INVALID_CSV_FILE, "Generic Message"));
+        Result result2 = Result.failure(new DataLoaderException(ErrorInfo.INVALID_CSV_FILE, "Generic Message"));
+        Result different = Result.failure(new DataLoaderException(ErrorInfo.INVALID_SETTING, "Generic Message"));
 
         Assert.assertEquals(result1, result2);
         Assert.assertNotEquals(result1, different);
     }
 
     @Test
-    public void testEquals_failureText() {
+    public void testEquals_errorDetails() {
         Result result1 = Result.failure(new Exception("Message 1"));
         Result result2 = Result.failure(new Exception("Message 1"));
         Result different = Result.failure(new Exception("Message 2"));

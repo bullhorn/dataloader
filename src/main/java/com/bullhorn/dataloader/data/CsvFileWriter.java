@@ -20,7 +20,10 @@ public class CsvFileWriter {
 
     public static final String RESULTS_DIR = "results/";
     private static final String ACTION_COLUMN = "dataloader_action";
-    private static final String REASON_COLUMN = "failure_reason";
+    private static final String ERROR_CODE_COLUMN = "error_code";
+    private static final String ERROR_COLUMN = "error";
+    private static final String ERROR_DETAILS_COLUMN = "error_details";
+    private static final String TIPS_TO_RESOLVE_COLUMN = "tips_to_resolve";
     private static final String SUCCESS_CSV = "_success.csv";
     private static final String FAILURE_CSV = "_failure.csv";
     public static String successFilePath;
@@ -50,7 +53,7 @@ public class CsvFileWriter {
      * Error/Success CSV files are placed in a results folder in the current working directory. They are named
      * based on the original filename used. Given /path/to/MyCandidates.csv, this class will set up log files in
      * the current working directory (may not be the /path/to/ directory).
-     *
+     * <p>
      * Output Files:
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_failure.csv
      * - results/MyCandidates_yyyy-mm-dd_HH.MM.SS_success.csv
@@ -97,7 +100,10 @@ public class CsvFileWriter {
             }
         } else {
             csvWriter = getOrCreateFailureCsvWriter();
-            values.add(0, result.getFailureText());
+            values.add(0, result.getErrorInfo().getTipsToResolve());
+            values.add(0, result.getErrorDetails());
+            values.add(0, result.getErrorInfo().getTitle());
+            values.add(0, result.getErrorInfo().getCode().toString());
             if (command.equals(Command.LOAD) || command.equals(Command.LOAD_ATTACHMENTS)) {
                 values.add(0, result.getBullhornId().toString());
             }
@@ -134,7 +140,10 @@ public class CsvFileWriter {
             failureCsv = new CsvWriter(fileWriter, ',');
 
             List<String> headerList = new ArrayList<>(Arrays.asList(headers));
-            headerList.add(0, REASON_COLUMN);
+            headerList.add(0, TIPS_TO_RESOLVE_COLUMN);
+            headerList.add(0, ERROR_DETAILS_COLUMN);
+            headerList.add(0, ERROR_COLUMN);
+            headerList.add(0, ERROR_CODE_COLUMN);
             if (command.equals(Command.LOAD) || command.equals(Command.LOAD_ATTACHMENTS)) {
                 headerList.add(0, StringConsts.ID);
             }

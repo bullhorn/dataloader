@@ -14,6 +14,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.enums.Property;
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Lists;
@@ -63,13 +64,13 @@ public class PropertyFileUtil {
      * @param systemProperties the system properties to use (overrides the properties file and envVars)
      * @param args             the command line arguments (overrides all others)
      * @param printUtil        for logging properties
-     * @throws IOException for file not found
+     * @throws DataLoaderException for property file not found
      */
     public PropertyFileUtil(String fileName,
                             Map<String, String> envVars,
                             Properties systemProperties,
                             String[] args,
-                            PrintUtil printUtil) throws IOException {
+                            PrintUtil printUtil) throws DataLoaderException {
         this.printUtil = printUtil;
 
         // If the users has specified a -Dpropertyfile command line parameter, use that fileName instead
@@ -238,19 +239,23 @@ public class PropertyFileUtil {
      *
      * @param fileName the name of the file to parse
      * @return the properties
-     * @throws IOException for File not found
+     * @throws DataLoaderException for File not found
      */
-    private Properties getFileProperties(String fileName) throws IOException {
-        FileInputStream fileInputStream = new FileInputStream(fileName);
-        Properties properties = new Properties();
-        properties.load(fileInputStream);
-        fileInputStream.close();
-        return properties;
+    private Properties getFileProperties(String fileName) throws DataLoaderException {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(fileName);
+            Properties properties = new Properties();
+            properties.load(fileInputStream);
+            fileInputStream.close();
+            return properties;
+        } catch (IOException exception) {
+            throw new DataLoaderException(ErrorInfo.MISSING_PROPERTIES_FILE, "Cannot read the properties file: " + fileName);
+        }
     }
 
     /**
      * Parses the environment variables to pull out DataLoader specific properties
-     *
+     * <p>
      * Environment Variables must start with "DATALOADER_" in order to be used, and the log will show if an environment
      * variable has been used to override values from the property file.
      *
@@ -267,10 +272,10 @@ public class PropertyFileUtil {
                 Property propertyEnum = Property.fromString(name);
                 if (propertyEnum != null) {
                     properties.setProperty(propertyEnum.getName(), value);
-                    printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
+                    printUtil.log("Using Environment Variable '" + key + "' to Override Property File Value");
                 } else if (name.endsWith(StringConsts.EXIST_FIELD_SUFFIX) || name.endsWith(StringConsts.COLUMN_NAME_ALIAS_SUFFIX)) {
                     properties.setProperty(name, value);
-                    printUtil.printAndLog("Using Environment Variable '" + key + "' to Override Property File Value");
+                    printUtil.log("Using Environment Variable '" + key + "' to Override Property File Value");
                 }
             }
         }
@@ -391,7 +396,7 @@ public class PropertyFileUtil {
         try {
             return DateTimeFormat.forPattern(properties.getProperty(Property.DATE_FORMAT.getName()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Provided dateFormat is invalid: cannot convert: '"
+            throw new DataLoaderException(ErrorInfo.INVALID_DATE_FORMAT, "Provided dateFormat is invalid: cannot convert: '"
                 + properties.getProperty(Property.DATE_FORMAT.getName()) + "' to a valid date format. "
                 + "Valid formats are specified here: "
                 + "http://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html");

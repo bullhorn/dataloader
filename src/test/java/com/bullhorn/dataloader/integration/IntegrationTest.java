@@ -22,7 +22,7 @@ public class IntegrationTest {
 
     private static final String EXAMPLE_UUID = "12345678-1234-1234-1234-1234567890AB";
     private static final String EXAMPLE_EXTERNAL_ID_ENDING = "-ext-1";
-    private static long SECONDS_SINCE_EPOCH = System.currentTimeMillis() / 1000;
+    private static final long SECONDS_SINCE_EPOCH = System.currentTimeMillis() / 1000;
 
     private ConsoleOutputCapturer consoleOutputCapturer;
 
@@ -123,7 +123,7 @@ public class IntegrationTest {
 
     /**
      * Given a directory path, this method will attempt to run all commands against CSV input files in that directory:
-     *
+     * <p> <p>
      * 1. Load - Insert
      * 2. Convert Attachments
      * 3. Load Attachments - Insert
@@ -132,10 +132,10 @@ public class IntegrationTest {
      * 6. Export
      * 7. Load - Update
      * 8. Delete
-     *
+     * <p> <p>
      * The unique IDs of all of the entities are changed from `-ext-1` to something unique, after the examples have been
      * cloned to a test folder.
-     *
+     * <p> <p>
      * Test assertions of both command line output and results files created. These steps cover the presence of records
      * in the index and database, so if indexing is lagging behind in production, it will cause the build to fail.
      *

@@ -20,7 +20,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 /**
  * Exports service implementation
- *
+ * <p>
  * Takes the user's command line arguments and runs an export process
  * that pulls data from Rest in the form of a CSV file.
  */
@@ -71,7 +71,7 @@ public class ExportService extends AbstractService implements Action {
             return true;
         }
 
-        return ValidationUtil.validateCsvFile(filePath, printUtil)
+        return ValidationUtil.validateCsvFile(filePath)
             && ValidationUtil.validateEntityFromFileNameOrProperty(filePath, propertyFileUtil, printUtil);
     }
 }

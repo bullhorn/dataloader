@@ -121,8 +121,11 @@ public class CompleteUtil {
         if (!result.isSuccess()) {
             JSONObject error = new JSONObject();
             error.put("row", row.getNumber());
-            error.put("id", result.getBullhornId());
-            error.put("message", result.getFailureText());
+            error.put("id", result.getBullhornId() <= 0 ? null : result.getBullhornId());
+            error.put("errorCode", result.getErrorInfo().getCode());
+            error.put("title", result.getErrorInfo().getTitle());
+            error.put("message", result.getErrorDetails());
+            error.put("tipsToResolve", result.getErrorInfo().getTipsToResolve());
             JSONArray errors = updatedResults.has("errors") ? updatedResults.getJSONArray("errors") : new JSONArray();
             errors.put(error);
             updatedResults.put("errors", errors);

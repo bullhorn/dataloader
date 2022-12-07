@@ -1,25 +1,24 @@
 package com.bullhorn.dataloader.data;
 
+import com.bullhorn.dataloader.enums.ErrorInfo;
+
 /**
  * Represents the result of processing a record using the REST API.
- *
+ * <p>
  * This class is a data type, not an instance type. Two different results can be considered identical if they contain
  * the same data values. They have no identity in and of themselves.
+ * <p>
+ * Objects of this class should not be edited after creation - they should be created with all data needed, using a convenience
+ * constructor instead of the private constructors.
  */
 public class Result {
 
-    private Status status;
-    private Action action;
-    private Integer bullhornId;
+    private final Status status;
+    private final Action action;
+    private Integer bullhornId = -1;
     private Integer bullhornParentId = -1;
-    private String failureText;
-
-    public Result(Status status, Action action, Integer bullhornId, String failureText) {
-        this.status = status;
-        this.action = action;
-        this.bullhornId = bullhornId;
-        this.failureText = failureText;
-    }
+    private ErrorInfo errorInfo = ErrorInfo.UNKNOWN_ERROR;
+    private String errorDetails = "";
 
     /**
      * Insert convenience constructor
@@ -28,7 +27,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result insert(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.INSERT, bullhornId);
     }
 
     /**
@@ -39,7 +38,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result insert(Integer bullhornId, Integer bullhornParentId) {
-        Result result = new Result(Status.SUCCESS, Action.INSERT, bullhornId, "");
+        Result result = new Result(Status.SUCCESS, Action.INSERT, bullhornId);
         result.bullhornParentId = bullhornParentId;
         return result;
     }
@@ -51,7 +50,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result update(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.UPDATE, bullhornId);
     }
 
     /**
@@ -62,7 +61,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result update(Integer bullhornId, Integer bullhornParentId) {
-        Result result = new Result(Status.SUCCESS, Action.UPDATE, bullhornId, "");
+        Result result = new Result(Status.SUCCESS, Action.UPDATE, bullhornId);
         result.bullhornParentId = bullhornParentId;
         return result;
     }
@@ -74,7 +73,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result delete(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.DELETE, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.DELETE, bullhornId);
     }
 
     /**
@@ -83,7 +82,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result convert() {
-        return new Result(Status.SUCCESS, Action.CONVERT, -1, "");
+        return new Result(Status.SUCCESS, Action.CONVERT);
     }
 
     /**
@@ -92,7 +91,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result skip() {
-        return new Result(Status.SUCCESS, Action.SKIP, -1, "");
+        return new Result(Status.SUCCESS, Action.SKIP);
     }
 
     /**
@@ -102,7 +101,7 @@ public class Result {
      * @return The new Result object
      */
     public static Result skip(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.SKIP, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.SKIP, bullhornId);
     }
 
     /**
@@ -111,7 +110,19 @@ public class Result {
      * @return The new Result object
      */
     public static Result export(Integer bullhornId) {
-        return new Result(Status.SUCCESS, Action.EXPORT, bullhornId, "");
+        return new Result(Status.SUCCESS, Action.EXPORT, bullhornId);
+    }
+
+    /**
+     * Failure convenience constructor that converts any exception to the correct error info and details
+     *
+     * @param exception  The exception for this failure result
+     * @param bullhornId The id of the Bullhorn entity
+     * @return The new Result object
+     */
+    public static Result failure(Exception exception, Integer bullhornId) {
+        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, ErrorInfo.fromException(exception),
+            exception != null ? exception.getMessage() : "");
     }
 
     /**
@@ -121,29 +132,16 @@ public class Result {
      * @return The new Result object
      */
     public static Result failure(Exception exception) {
-        return new Result(Status.FAILURE, Action.FAILURE, -1, exception.toString());
-    }
-
-    /**
-     * Failure convenience constructor
-     *
-     * @param exception  The exception for this failure result
-     * @param bullhornId The id of the Bullhorn entity
-     * @return The new Result object
-     */
-    public static Result failure(Exception exception, Integer bullhornId) {
-        return new Result(Status.FAILURE, Action.FAILURE, bullhornId, exception.toString());
+        return failure(exception, -1);
     }
 
     /**
      * Will be set to uninitialized if not set.
+     *
+     * @return NOT_SET if the value is invalid or not present
      */
     public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status success) {
-        status = success;
+        return status != null ? status : Status.NOT_SET;
     }
 
     /**
@@ -155,13 +153,11 @@ public class Result {
 
     /**
      * Will be set to uninitialized if not set to either INSERT or UPDATE.
+     *
+     * @return NOT_SET if the value is invalid or not present
      */
     public Action getAction() {
-        return action;
-    }
-
-    public void setAction(Action success) {
-        action = success;
+        return action != null ? action : Action.NOT_SET;
     }
 
     /**
@@ -170,14 +166,7 @@ public class Result {
      * @return -1 if the value is invalid or not present
      */
     public Integer getBullhornId() {
-        if (bullhornId == null) {
-            return -1;
-        }
-        return bullhornId;
-    }
-
-    void setBullhornId(Integer bullhornId) {
-        this.bullhornId = bullhornId;
+        return bullhornId != null ? bullhornId : -1;
     }
 
     /**
@@ -186,22 +175,25 @@ public class Result {
      * @return -1 if the value is invalid or not present
      */
     Integer getBullhornParentId() {
-        return bullhornParentId;
-    }
-
-    void setBullhornParentId(Integer bullhornParentId) {
-        this.bullhornParentId = bullhornParentId;
+        return bullhornParentId != null ? bullhornParentId : -1;
     }
 
     /**
      * Will be set if the record had an error in processing.
+     *
+     * @return Generic error info if not previously set
      */
-    public String getFailureText() {
-        return failureText;
+    public ErrorInfo getErrorInfo() {
+        return errorInfo != null ? errorInfo : ErrorInfo.UNKNOWN_ERROR;
     }
 
-    void setFailureText(String failureText) {
-        this.failureText = failureText;
+    /**
+     * Will be set if the record had an error in processing.
+     *
+     * @return Empty string if not previously set
+     */
+    public String getErrorDetails() {
+        return errorDetails != null ? errorDetails : "";
     }
 
     @Override
@@ -220,7 +212,8 @@ public class Result {
             && getAction().equals(that.getAction())
             && getBullhornId().equals(that.getBullhornId())
             && getBullhornParentId().equals(that.getBullhornParentId())
-            && getFailureText().equals(that.getFailureText()));
+            && getErrorInfo().equals(that.getErrorInfo())
+            && getErrorDetails().equals(that.getErrorDetails()));
     }
 
     @Override
@@ -229,7 +222,8 @@ public class Result {
         result = 31 * result + getAction().hashCode();
         result = 31 * result + getBullhornId().hashCode();
         result = 31 * result + getBullhornParentId().hashCode();
-        result = 31 * result + getFailureText().hashCode();
+        result = 31 * result + getErrorInfo().hashCode();
+        result = 31 * result + getErrorDetails().hashCode();
         return result;
     }
 
@@ -240,7 +234,8 @@ public class Result {
             + ", action=" + getAction()
             + ", bullhornId=" + getBullhornId()
             + ", bullhornParentId=" + getBullhornParentId()
-            + ", failureText='" + getFailureText() + "'"
+            + ", errorInfo='" + getErrorInfo() + "'"
+            + ", errorDetails='" + getErrorDetails() + "'"
             + '}';
     }
 
@@ -259,5 +254,33 @@ public class Result {
         SKIP,
         EXPORT,
         FAILURE
+    }
+
+    /**
+     * Successful state constructor with bullhorn internal ID
+     */
+    private Result(Status status, Action action, Integer bullhornId) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+    }
+
+    /**
+     * Failure state constructor arguments with bullhorn Internal ID
+     */
+    private Result(Status status, Action action, Integer bullhornId, ErrorInfo errorInfo, String errorDetails) {
+        this.status = status;
+        this.action = action;
+        this.bullhornId = bullhornId;
+        this.errorInfo = errorInfo;
+        this.errorDetails = errorDetails;
+    }
+
+    /**
+     * Successful state constructor arguments
+     */
+    private Result(Status status, Action action) {
+        this.status = status;
+        this.action = action;
     }
 }

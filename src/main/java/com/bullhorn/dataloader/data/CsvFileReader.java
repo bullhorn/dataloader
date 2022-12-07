@@ -1,8 +1,9 @@
 package com.bullhorn.dataloader.data;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -10,7 +11,9 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.input.BOMInputStream;
 
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.util.ArrayUtil;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.csvreader.CsvReader;
@@ -35,7 +38,7 @@ public class CsvFileReader extends CsvReader {
      * @param filePath the path to the CSV file
      */
     public CsvFileReader(String filePath, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) throws IOException {
-        super(new BOMInputStream(new FileInputStream(filePath)), ',',
+        super(new BOMInputStream(Files.newInputStream(Paths.get(filePath))), ',',
             propertyFileUtil.getSingleByteEncoding() ? StandardCharsets.ISO_8859_1 : StandardCharsets.UTF_8);
         this.filePath = filePath;
         this.propertyFileUtil = propertyFileUtil;
@@ -61,7 +64,7 @@ public class CsvFileReader extends CsvReader {
 
     /**
      * Returns the data for the current row in the format of a row object.
-     *
+     * <p>
      * First, call csvFileReader.readRecord() to read the next row, and then call this method instead of getValues() to
      * return the Row object instead of the raw string array of values.
      *
@@ -70,8 +73,8 @@ public class CsvFileReader extends CsvReader {
      */
     public Row getRow() throws IOException {
         if (getHeaderCount() != getValues().length) {
-            throw new IOException("Row " + rowNumber + ": Header column count " + getHeaderCount()
-                + " is not equal to row column count " + getValues().length);
+            throw new DataLoaderException(ErrorInfo.INVALID_NUMBER_OF_COLUMNS, "Row " + rowNumber + ": Header column count "
+                + getHeaderCount() + " does not match row column count " + getValues().length);
         }
 
         Row row = new Row(filePath, rowNumber);
@@ -116,7 +119,7 @@ public class CsvFileReader extends CsvReader {
     private void checkForDuplicateHeaders() {
         Set<String> uniqueHeaders = Sets.newHashSet(mappedHeaders);
         if (mappedHeaders.size() != uniqueHeaders.size()) {
-            throw new IllegalStateException("Provided CSV file contains the following duplicate headers:\n"
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_COLUMNS_PROVIDED, "Provided CSV file contains the following duplicate headers:\n"
                 + ArrayUtil.getDuplicates(mappedHeaders).stream().map(s -> "\t" + s + "\n").collect(Collectors.joining()));
         }
     }

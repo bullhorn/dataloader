@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.mockito.internal.util.collections.Sets;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
-import com.bullhornsdk.data.exception.RestApiException;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhornsdk.data.model.entity.embedded.Address;
 
 public class MethodUtilTest {
@@ -56,13 +56,13 @@ public class MethodUtilTest {
 
     @Test
     public void testGetSetterMethodFailure() {
-        RestApiException expectedException = new RestApiException(
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "Invalid address field format: 'address1'. Must use: 'address.address1' to set an address field.");
-        RestApiException actualException = null;
+        DataLoaderException actualException = null;
 
         try {
             MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "address1");
-        } catch (RestApiException e) {
+        } catch (DataLoaderException e) {
             actualException = e;
         }
 

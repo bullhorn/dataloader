@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.enums.Command;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 
 /**
  * Methods that provide feedback to the user on the command line.
@@ -50,7 +51,8 @@ public class PrintUtil {
 
     public void printActionTotals(Command command, ActionTotals actionTotals) {
         if (startTime == null || args == null) {
-            throw new IllegalStateException("recordStart() not called");
+            throw new DataLoaderException(ErrorInfo.NULL_POINTER_EXCEPTION,
+                "printActionTotals() failed because recordStart() was never called");
         }
         final Date endTime = new Date();
         final int totalRecords = actionTotals.getAllActionsTotal();
@@ -79,15 +81,31 @@ public class PrintUtil {
      * Prints to the console and logs to the logfile
      */
     public void printAndLog(String line) {
-        print(line);
-        log(line);
+        printAndLog(Level.INFO, line);
     }
 
     /**
-     * Prints an error to the console and logs the error with stacktrace to the logfile
+     * Prints to the console and logs to the logfile, using given severity
+     */
+    public void printAndLog(Level level, String line) {
+        print(line);
+        log(level, line);
+    }
+
+    /**
+     * Prints an error to the console and logs the error with stacktrace to the logfile. This only occurs when
+     * thrown from the main process - not from within a worker thread tasks processing a row, so it shows
+     * all error information on the console.
      */
     public void printAndLog(Exception exception) {
-        print("ERROR: " + exception.toString());
+        if (exception instanceof DataLoaderException) {
+            ErrorInfo errorInfo = ((DataLoaderException) exception).getErrorInfo();
+            print("ERROR " + errorInfo.getCode() + ": " + errorInfo.getTitle());
+            print("      " + exception.getMessage());
+            print("      " + errorInfo.getTipsToResolve());
+        } else {
+            print("ERROR: " + exception.getMessage());
+        }
         log(exception);
     }
 

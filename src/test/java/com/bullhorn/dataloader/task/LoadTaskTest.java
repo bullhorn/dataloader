@@ -27,9 +27,11 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.exception.RestApiException;
@@ -107,8 +109,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -137,8 +138,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(restApiMock).updateEntity(eq(clientContact));
     }
@@ -161,12 +161,11 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        // Verify that only one association call got made for all of the associated primarySkills
+        // Verify that only one association call got made for all associated primarySkills
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
 
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
@@ -186,8 +185,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -255,8 +253,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -291,8 +288,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -327,8 +323,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -349,8 +344,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new RestApiException(
-            "Cannot find To-One Association: 'personReference.name' with value: 'Deleted Candidate'"));
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION,
+            "Cannot find Person with name: 'Deleted Candidate'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -391,8 +386,7 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -413,8 +407,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
     }
 
     @Test
@@ -435,8 +428,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
     }
 
     @Test
@@ -457,8 +449,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.insert(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
     }
 
     @Test
@@ -472,9 +463,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
-            "com.bullhornsdk.data.exception.RestApiException: Error occurred: "
-                + "primarySkills does not exist with id of the following values:\n\t3");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
+            "Error occurred: primarySkills does not exist with id of the following values:\n\t3"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -490,9 +480,8 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Error occurred: "
-                + "candidates does not exist with id of the following values:\n\t2");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
+            "Error occurred: candidates does not exist with id of the following values:\n\t2"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -500,8 +489,7 @@ public class LoadTaskTest {
     @Test
     public void testRunUpdateSuccess() throws Exception {
         Row row = TestUtils.createRow(
-            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID," +
-                "owner.id",
+            "externalID,customDate1,firstName,lastName,email,primarySkills.id,address.address1,address.countryID,owner.id",
             "11,2016-08-30,Data,Loader,dloader@bullhorn.com,1,test,1,1,");
         when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
             .thenReturn(Collections.singletonList("externalID"));
@@ -517,8 +505,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -539,8 +526,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.SKIP, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.skip(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.SKIP, 1);
     }
 
@@ -607,8 +593,7 @@ public class LoadTaskTest {
 
         verify(restApiMock, never()).insertEntity(any());
         verify(restApiMock, times(1)).updateEntity(any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -629,8 +614,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
     }
 
     @Test
@@ -651,8 +635,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
     }
 
     @Test
@@ -673,8 +656,7 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.update(1);
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
     }
 
     @Test
@@ -694,8 +676,8 @@ public class LoadTaskTest {
             csvFileWriterMock, propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new RestApiException(
-            "Cannot find To-One Association: 'person.customText1' with value: 'ext-1'"));
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_ONE_ASSOCIATION,
+            "Cannot find Person with customText1: 'ext-1'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -708,8 +690,8 @@ public class LoadTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -726,8 +708,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -739,8 +720,8 @@ public class LoadTaskTest {
             printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'clientCorporations' does not exist on Note");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'clientCorporations' does not exist on Note"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -757,8 +738,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -770,9 +750,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Invalid address field format: 'city'. "
-                + "Must use: 'address.city' to set an address field.");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "Invalid address field format: 'city'. Must use: 'address.city' to set an address field."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -789,8 +768,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.UPDATE, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 
@@ -813,8 +791,7 @@ public class LoadTaskTest {
         Candidate actualCandidate = entityArgumentCaptor.getValue();
         Assert.assertEquals(Integer.valueOf(2216), actualCandidate.getAddress().getCountryID());
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -826,8 +803,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "java.lang.NumberFormatException: For input string: \"BOGUS\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_SETTING,
+            "For input string: \"BOGUS\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -841,8 +818,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -856,8 +833,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on CorporateUser");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'bogus' does not exist on CorporateUser"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -870,8 +847,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'bogus' does not exist on Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -890,8 +867,8 @@ public class LoadTaskTest {
         verify(restApiMock, never()).getAllAssociationsList(any(), any(), any(), any(), any());
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -913,8 +890,8 @@ public class LoadTaskTest {
         verify(restApiMock, never()).associateWithEntity(any(), any(), any(), any());
         verify(restApiMock, times(1)).disassociateWithEntity(eq(Candidate.class),
             eq(1), eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -927,8 +904,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: 'bogus' does not exist on Address");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'bogus' does not exist on Address"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -945,20 +922,19 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Multiple Records Exist. "
-                + "Found 2 Candidate records with the same ExistField criteria of: externalID=11");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+            "Found 2 Candidate records with externalID 11. IDs: 1, 2."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
     @Test
-    public void testRunCatchException() throws Exception {
+    public void testRunCatchNullPointerException() throws Exception {
         Row row = TestUtils.createRow("firstName,lastName", "Data,Loader");
         LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock, propertyFileUtilMock,
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1, "java.lang.NullPointerException");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.NULL_POINTER_EXCEPTION, ""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1117,9 +1093,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Found 2 duplicate To-One Associations: " +
-                "'category.name' with value: 'hackers'");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_TO_ONE_ASSOCIATIONS,
+            "Found 2 duplicate To-One Associations: 'category.name' with value: 'hackers'"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1137,9 +1112,8 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
-            "com.bullhornsdk.data.exception.RestApiException: Found 2 duplicate To-Many Associations: " +
-                "'primarySkills.name' with value:\n\thacking");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_TO_MANY_ASSOCIATIONS,
+            "Found 2 duplicate To-Many Associations: 'primarySkills.name' with value:\n\thacking"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1158,12 +1132,12 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        // Verify that only returning a single business sector when two identical ones were entered in the field is OK
+        // Verify that only returning a single business sector for two identical ones entered is OK
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
             eq(CandidateAssociations.getInstance().businessSectors()), eq(Collections.singletonList(1)));
         verify(restApiMock, never()).disassociateWithEntity(any(), any(), any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1198,8 +1172,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
-            "com.bullhornsdk.data.exception.RestApiException: Flagrant Error");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INTERNAL_SERVER_ERROR, "Flagrant Error"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1213,8 +1186,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(printUtilMock, times(1)).printAndLog("Processed: 111 records.");
     }
@@ -1236,8 +1208,8 @@ public class LoadTaskTest {
             + "customFloat1:123.45 AND customDate1:2017-08-01";
         verify(restApiMock, times(1)).searchForList(eq(Candidate.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1255,8 +1227,7 @@ public class LoadTaskTest {
 
         String expectedQuery = "(companyName: Boeing*) AND isDeleted:0";
         verify(restApiMock, times(1)).searchForList(eq(Candidate.class), eq(expectedQuery), any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 90, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(90)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1277,8 +1248,7 @@ public class LoadTaskTest {
         String expectedQuery = "dayRate: AND isLockedOut: AND customInt1: AND customFloat1: AND customDate1:";
         verify(restApiMock, times(1)).searchForList(eq(Candidate.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1293,8 +1263,7 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "java.text.ParseException: Unparseable number: \"bogus\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY, "Unparseable number: \"bogus\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1308,9 +1277,8 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Failed to create lucene search string for: " +
-                "'migrateGUID' with unsupported field type: class java.lang.Object");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_SEARCH,
+            "Failed to create lucene search string for: 'migrateGUID' with unsupported field type: class java.lang.Object"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1332,8 +1300,8 @@ public class LoadTaskTest {
             " AND startDate<1500144555510";
         verify(restApiMock, times(1)).queryForList(eq(CandidateWorkHistory.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1355,8 +1323,8 @@ public class LoadTaskTest {
         String expectedQuery = "salary1= AND isLastJob=false AND customInt1= AND companyName=''";
         verify(restApiMock, times(1)).queryForList(eq(CandidateWorkHistory.class), eq(expectedQuery),
             eq(Sets.newHashSet("id")), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1382,8 +1350,7 @@ public class LoadTaskTest {
             any(), any());
         verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class),
             eq(100), eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(3, 4, 5, 6)));
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 100, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(100)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1404,8 +1371,7 @@ public class LoadTaskTest {
         String expectedQuery = "name like 'Sales%'";
         verify(restApiMock, times(1)).queryForList(eq(Category.class), eq(expectedQuery),
             any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 100, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(100)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1426,8 +1392,7 @@ public class LoadTaskTest {
         String expectedQuery = "name='Bob Smiley'";
         verify(restApiMock, times(1)).queryForList(eq(CorporateUser.class), eq(expectedQuery),
             any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 80, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(80)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1448,8 +1413,7 @@ public class LoadTaskTest {
         String expectedQuery = "name='*Bob Smiley*'";
         verify(restApiMock, times(1)).queryForList(eq(CorporateUser.class), eq(expectedQuery),
             any(), any());
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 80, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(80)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
     }
 
@@ -1464,8 +1428,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "java.text.ParseException: Unparseable number: \"bogus\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY, "Unparseable number: \"bogus\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1480,8 +1443,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "java.lang.IllegalArgumentException: Invalid format: \"bogus\"");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_SETTING, "Invalid format: \"bogus\""));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1495,9 +1457,8 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Failed to create query where clause for: " +
-                "'migrateGUID' with unsupported field type: class java.lang.Object");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.INVALID_DUPLICATE_QUERY,
+            "Failed to create query where clause for: 'migrateGUID' with unsupported field type: class java.lang.Object"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 
@@ -1512,8 +1473,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(3)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(3)).writeRow(any(), eq(Result.insert(1)));
         verify(printUtilMock, times(3)).printAndLog(eq(ioException));
     }
 
@@ -1527,10 +1487,9 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
-        verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(expectedResult), eq(actionTotalsMock));
+        verify(completeUtilMock, times(1)).rowComplete(eq(row), eq(Result.insert(1)), eq(actionTotalsMock));
     }
 
     @Test
@@ -1545,8 +1504,7 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(cacheMock, times(1)).getEntry(eq(EntityInfo.SKILL), any(), eq(Sets.newHashSet("id", "name")));
     }
@@ -1563,9 +1521,8 @@ public class LoadTaskTest {
         task.run();
 
         verify(restApiMock, never()).queryForList(eq(Skill.class), any(), any(), any());
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, 1,
-            "com.bullhornsdk.data.exception.RestApiException: Error occurred: "
-                + "primarySkills does not exist with name of the following values:\n\tJava");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
+            "Error occurred: primarySkills does not exist with name of the following values:\n\tJava"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -1582,9 +1539,24 @@ public class LoadTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.INSERT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
         verify(cacheMock, never()).getEntry(any(), any(), any());
+    }
+
+    @Test
+    public void testRunInternetConnectivityIssues() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName,email", "Data,Loader,data@example.com");
+        RestApiException internetConnectivityIssueException = new RestApiException("Error posting CreateResponse" +
+            " url variables {bhRestToken=xyz, entityType=Candidate, executeFormTriggers=false}");
+        when(restApiMock.insertEntity(any())).thenThrow(internetConnectivityIssueException);
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.CONNECTION_TIMEOUT,
+            internetConnectivityIssueException.getMessage()));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
     }
 }

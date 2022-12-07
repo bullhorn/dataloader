@@ -8,16 +8,17 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.Field;
 import com.bullhorn.dataloader.rest.Record;
 import com.bullhorn.dataloader.rest.RestApi;
 import com.bullhorn.dataloader.util.AssociationUtil;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.FindUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
-import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.type.AssociationEntity;
 import com.bullhornsdk.data.model.entity.core.type.BullhornEntity;
 import com.bullhornsdk.data.model.entity.embedded.OneToMany;
@@ -45,20 +46,23 @@ public class ExportTask extends AbstractTask {
         Record record = new Record(entityInfo, row, propertyFileUtil);
         List<Field> entityExistFields = record.getEntityExistFields();
         if (entityExistFields.isEmpty()) {
-            throw new RestApiException("Cannot perform export because exist field is not specified for entity: " + entityInfo.getEntityName());
+            throw new DataLoaderException(ErrorInfo.MISSING_SETTING,
+                "Cannot perform export because exist field is not specified for entity: " + entityInfo.getEntityName());
         }
 
         // Lookup existing entities
         List<BullhornEntity> foundEntityList = findEntities(entityExistFields, record.getFieldsParameter(), true);
         if (foundEntityList.isEmpty()) {
-            throw new RestApiException(FindUtil.getNoMatchingRecordsExistMessage(entityInfo, record.getEntityExistFields()));
+            throw new DataLoaderException(ErrorInfo.MISSING_RECORD,
+                FindUtil.getNoMatchingRecordsExistMessage(entityInfo, record.getEntityExistFields()));
         } else if (foundEntityList.size() > 1) {
-            throw new RestApiException(FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList.size()));
+            throw new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+                FindUtil.getMultipleRecordsExistMessage(entityInfo, record.getEntityExistFields(), foundEntityList));
         }
         BullhornEntity entity = foundEntityList.get(0);
         entityId = entity.getId();
 
-        // Follow on query for associated entities that have not returned the full number of records
+        // Follow-on query for associated entities that have not returned the full number of records
         for (Field field : record.getToManyFields()) {
             OneToMany existingToMany = field.getOneToManyFromEntity(entity);
             if (existingToMany != null && existingToMany.getTotal() > existingToMany.getData().size()) {

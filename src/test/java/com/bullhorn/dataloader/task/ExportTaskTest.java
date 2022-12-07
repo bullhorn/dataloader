@@ -21,9 +21,11 @@ import com.bullhorn.dataloader.data.CsvFileWriter;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.Cache;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestApi;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
@@ -52,7 +54,6 @@ public class ExportTaskTest {
 
         when(propertyFileUtilMock.getListDelimiter()).thenReturn(";");
         when(cacheMock.getEntry(any(), any(), any())).thenReturn(null);
-
     }
 
     @Test
@@ -80,8 +81,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.EXPORT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(rowArgumentCaptor.capture(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(rowArgumentCaptor.capture(), eq(Result.export(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.EXPORT, 1);
         Row actualRow = rowArgumentCaptor.getValue();
         Assert.assertEquals("path/to/fake/file.csv", actualRow.getFilePath());
@@ -121,8 +121,7 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.SUCCESS, Result.Action.EXPORT, 1, "");
-        verify(csvFileWriterMock, times(1)).writeRow(rowArgumentCaptor.capture(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(rowArgumentCaptor.capture(), eq(Result.export(1)));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.EXPORT, 1);
         Row actualRow = rowArgumentCaptor.getValue();
         Assert.assertEquals("path/to/fake/file.csv", actualRow.getFilePath());
@@ -141,9 +140,9 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: "
-                + "Cannot perform export because exist field is not specified for entity: Candidate");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_SETTING,
+            ""
+                + "Cannot perform export because exist field is not specified for entity: Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -163,9 +162,9 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: No Matching Candidate Records Exist with ExistField criteria of: "
-                + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_RECORD,
+            "No Matching Candidate Records Exist with ExistField criteria of: "
+                + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -185,10 +184,8 @@ public class ExportTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = new Result(Result.Status.FAILURE, Result.Action.FAILURE, -1,
-            "com.bullhornsdk.data.exception.RestApiException: Multiple Records Exist. "
-                + "Found 2 Candidate records with the same ExistField criteria of: "
-                + "firstName=Data AND lastName=Loader AND email=dloader@bullhorn.com");
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.DUPLICATE_RECORDS,
+            "Found 2 Candidate records with firstName Data and lastName Loader and email dloader@bullhorn.com. IDs: 101, 102."));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }

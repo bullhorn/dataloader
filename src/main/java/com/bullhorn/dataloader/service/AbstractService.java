@@ -16,7 +16,7 @@ import com.bullhorn.dataloader.util.Timer;
 
 /**
  * Base class for all command line actions that convert user input to a process that executes and reports results.
- *
+ * <p>
  * Contains common functionality.
  */
 abstract class AbstractService {

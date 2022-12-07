@@ -1,7 +1,6 @@
 package com.bullhorn.dataloader.util;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,12 +9,15 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FilenameUtils;
+
 import com.bullhorn.dataloader.data.Row;
 import com.bullhorn.dataloader.enums.EntityInfo;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 
 /**
  * Utility for getting CSV files from disk.
- *
+ * <p>
  * Handles validating and sorting individual files or all files in a directory.
  */
 public class FileUtil {
@@ -24,7 +26,7 @@ public class FileUtil {
      * For a directory:
      * Will determine all valid CSV files that can be used by Data Loader and collect them into a list indexed
      * by the entity that they correspond to based on the filename.
-     *
+     * <p>
      * For a file:
      * Will return the list containing exactly one matching entity to filename.
      *
@@ -57,7 +59,7 @@ public class FileUtil {
             Arrays.sort(fileNames);
             for (String fileName : fileNames) {
                 String absoluteFilePath = directory.getAbsolutePath() + File.separator + fileName;
-                if (ValidationUtil.validateCsvFile(absoluteFilePath)) {
+                if (isCsvFile(absoluteFilePath)) {
                     EntityInfo entityInfo = extractEntityFromFileName(fileName);
                     if (entityInfo != null) {
                         if (!entityToFileListMap.containsKey(entityInfo)) {
@@ -86,7 +88,7 @@ public class FileUtil {
                                                                                     Comparator<EntityInfo> comparator) {
         SortedMap<EntityInfo, List<String>> entityToFileListMap = new TreeMap<>(comparator);
 
-        if (ValidationUtil.validateCsvFile(filePath)) {
+        if (isCsvFile(filePath)) {
             EntityInfo entityInfo = extractEntityFromFileNameOrProperty(filePath, propertyFileUtil);
             if (entityInfo != null) {
                 entityToFileListMap.put(entityInfo, Collections.singletonList(filePath));
@@ -110,6 +112,14 @@ public class FileUtil {
             .filter(e -> e.getKey().isDeletable())
             .forEach(e -> deletableEntityToFileListMap.put(e.getKey(), e.getValue()));
         return deletableEntityToFileListMap;
+    }
+
+    /**
+     * Returns true if the given file path references a CSV file.
+     */
+    static boolean isCsvFile(String filePath) {
+        File file = new File(filePath);
+        return file.exists() && !file.isDirectory() && FilenameUtils.getExtension(filePath).equalsIgnoreCase(StringConsts.CSV);
     }
 
     /**
@@ -151,14 +161,14 @@ public class FileUtil {
      *
      * @param row a row of data for converting or loading attachments
      * @return the file, if found, throws exception if not found
-     * @throws IOException If the column is missing
      */
-    public static File getAttachmentFile(Row row) throws IOException {
+    public static File getAttachmentFile(Row row) {
         File attachmentFile;
         try {
             attachmentFile = new File(row.getValue(StringConsts.RELATIVE_FILE_PATH));
         } catch (NullPointerException e) {
-            throw new IOException("Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for attachments");
+            throw new DataLoaderException(ErrorInfo.MISSING_REQUIRED_COLUMN,
+                "Missing the '" + StringConsts.RELATIVE_FILE_PATH + "' column required for attachments");
         }
         // If the relativeFilePath is not relative to the current working directory, then try relative to the CSV file's directory
         if (!attachmentFile.exists()) {
