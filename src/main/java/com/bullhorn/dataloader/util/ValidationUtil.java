@@ -3,7 +3,6 @@ package com.bullhorn.dataloader.util;
 import java.io.File;
 import java.io.FilenameFilter;
 
-import com.bullhorn.dataloader.service.ParseResumeService;
 import org.apache.commons.io.FilenameUtils;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
@@ -55,7 +54,7 @@ public class ValidationUtil {
         File fileDirectory = new File(filePath);
         if (fileDirectory.isDirectory()) {
             File[] fileList = fileDirectory.listFiles();
-            if (fileList != null){
+            if (fileList != null) {
                 return fileList.length >= 1;
             }
         }
@@ -124,7 +123,7 @@ public class ValidationUtil {
 
         @Override
         public boolean accept(File dir, String name) {
-            for (String ext: extensions) {
+            for (String ext : extensions) {
                 if (name.endsWith(ext)) {
                     return true;
                 }

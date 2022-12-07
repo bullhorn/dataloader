@@ -1,12 +1,19 @@
 package com.bullhorn.dataloader.rest;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
 
 public class MultipartUtility {
     private static final Logger log = Logger.getLogger(MultipartUtility.class);
@@ -20,16 +27,12 @@ public class MultipartUtility {
     private PrintWriter writer;
 
     /**
-     * This constructor initializes a new HTTP PUT request with content type
-     * is set to multipart/form-data
-     *
-     * @param requestURL
-     * @throws IOException
+     * Initializes a new HTTP PUT request with content type set to multipart/form-data
      */
-    public MultipartUtility(String requestURL) throws IOException {
+    public MultipartUtility(String requestUrl) throws IOException {
         boundary = "===" + System.currentTimeMillis() + "===";
 
-        URL url = new URL(requestURL);
+        URL url = new URL(requestUrl);
         httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setUseCaches(false);
         httpConn.setRequestMethod("PUT");
@@ -40,7 +43,6 @@ public class MultipartUtility {
         outputStream = httpConn.getOutputStream();
         writer = new PrintWriter(new OutputStreamWriter(outputStream, CHARSET), true);
     }
-
 
     /**
      * Adds a form field to the request
@@ -59,13 +61,11 @@ public class MultipartUtility {
         writer.flush();
     }
 
-    
     /**
-     * Adds a upload file section to the request
+     * Adds an upload file section to the request
      *
      * @param fieldName  name attribute in <input type="file" name="..." />
      * @param uploadFile a File to be uploaded
-     * @throws IOException
      */
     public void addFilePart(String fieldName, File uploadFile) throws IOException {
         addFilePart(fieldName, uploadFile, uploadFile.getName());
@@ -73,11 +73,10 @@ public class MultipartUtility {
 
 
     /**
-     * Adds a upload file section to the request
+     * Adds an upload file section to the request
      *
      * @param fieldName  name attribute in <input type="file" name="..." />
      * @param uploadFile a File to be uploaded
-     * @throws IOException
      */
     public void addFilePart(String fieldName, File uploadFile, String fileName) throws IOException {
         writer.append("--" + boundary);
@@ -117,9 +116,7 @@ public class MultipartUtility {
     /**
      * Completes the request and receives response from the server.
      *
-     * @return a list of Strings as response in case the server returned
-     * status OK, otherwise an exception is thrown.
-     * @throws IOException
+     * @return a list of Strings as response when server returns OK status, exception otherwise.
      */
     public HttpResult finish() throws IOException {
         writer.append(LINE_FEED).flush();
@@ -154,5 +151,3 @@ public class MultipartUtility {
         return null;
     }
 }
-
-

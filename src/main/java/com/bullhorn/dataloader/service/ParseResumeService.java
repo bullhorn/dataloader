@@ -87,7 +87,7 @@ public class ParseResumeService implements Action {
             StringConsts.ResumeFileType.DOCX,
             StringConsts.ResumeFileType.HTML));
 
-        if (fileList != null && fileList.length > 0){
+        if (fileList != null && fileList.length > 0) {
             return Arrays.asList(fileList.clone());
         }
         return Lists.newArrayList();
@@ -112,7 +112,7 @@ public class ParseResumeService implements Action {
 
         @Override
         public boolean accept(File dir, String name) {
-            for (String ext: extensions) {
+            for (String ext : extensions) {
                 if (name.endsWith(ext)) {
                     return true;
                 }

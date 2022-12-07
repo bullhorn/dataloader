@@ -345,19 +345,11 @@ public class RestApi {
         params.put("BhRestToken", bullhornData.getBhRestToken());
         params.put("entityType", "Candidate");
         params.put("duplicateCheckOnName", false);
-
         params.put("ownerID", 0);
-
-
         params.put("categoryID", 0);
-
-
         params.put("candidateSourceID", 0);
-
         params.put("status", "");
-
         params.put("externalID", "");
-
         return bullhornData.getRestUrl() + "services/ParseAs/newEntity" + params.build();
     }
 }
