@@ -17,7 +17,7 @@ import com.bullhorn.dataloader.util.ValidationUtil;
 
 /**
  * Handles deleting attachments
- *
+ * <p>
  * Takes the user's command line arguments and runs a delete attachments process
  */
 public class DeleteAttachmentsService extends AbstractService implements Action {

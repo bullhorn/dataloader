@@ -2,7 +2,7 @@ package com.bullhorn.dataloader.data;
 
 /**
  * Represents the raw data from an individual cell of data in a spreadsheet.
- *
+ * <p>
  * Contains the contents of an individual cell (value) and the column header (name) for this cell.
  */
 public class Cell {

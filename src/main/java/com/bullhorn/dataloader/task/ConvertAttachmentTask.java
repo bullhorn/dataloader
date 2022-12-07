@@ -1,10 +1,10 @@
 package com.bullhorn.dataloader.task;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.apache.commons.lang.WordUtils;
 import org.apache.tika.exception.TikaException;
@@ -59,7 +59,7 @@ public class ConvertAttachmentTask extends AbstractTask {
         AutoDetectParser parser = new AutoDetectParser();
         Metadata metadata = new Metadata();
         File attachmentFile = FileUtil.getAttachmentFile(row);
-        InputStream stream = new FileInputStream(attachmentFile);
+        InputStream stream = Files.newInputStream(attachmentFile.toPath());
         parser.parse(stream, handler, metadata);
         return handler.toString();
     }

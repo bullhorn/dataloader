@@ -1,8 +1,9 @@
 package com.bullhorn.dataloader.data;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,7 @@ public class CsvFileReader extends CsvReader {
      * @param filePath the path to the CSV file
      */
     public CsvFileReader(String filePath, PropertyFileUtil propertyFileUtil, PrintUtil printUtil) throws IOException {
-        super(new BOMInputStream(new FileInputStream(filePath)), ',',
+        super(new BOMInputStream(Files.newInputStream(Paths.get(filePath))), ',',
             propertyFileUtil.getSingleByteEncoding() ? StandardCharsets.ISO_8859_1 : StandardCharsets.UTF_8);
         this.filePath = filePath;
         this.propertyFileUtil = propertyFileUtil;
@@ -63,7 +64,7 @@ public class CsvFileReader extends CsvReader {
 
     /**
      * Returns the data for the current row in the format of a row object.
-     *
+     * <p>
      * First, call csvFileReader.readRecord() to read the next row, and then call this method instead of getValues() to
      * return the Row object instead of the raw string array of values.
      *

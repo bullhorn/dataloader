@@ -23,7 +23,7 @@ import com.bullhornsdk.data.model.file.FileMeta;
 
 /**
  * The list of all entities in SDK-REST supported by DataLoader.
- *
+ * <p>
  * Load order must be unique. If entity B references entity A, then entity A should have a lower load order number.
  */
 public enum EntityInfo {
@@ -339,7 +339,7 @@ public enum EntityInfo {
 
     /**
      * Returns the setter methods that exist on the SDK-REST entity class as a map of field name to method.
-     *
+     * <p>
      * Since the methods do not change, we will only compute the map once.
      *
      * @return A map of field name to setter methods that can invoked generically using `method.invoke`

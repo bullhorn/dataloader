@@ -368,7 +368,7 @@ public class TestUtils {
 
     /**
      * Convenience constructor that builds up any entity object using the provided list of headers/values for the object
-     *
+     * <p>
      * Example use:
      * Candidate myCandidate = TestUtils.createEntity(EntityInfo.CANDIDATE, "id,firstName,lastName,email", "101,Foo,Bar,foo@bar.com");
      *

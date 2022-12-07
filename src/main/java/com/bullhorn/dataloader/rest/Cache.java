@@ -19,7 +19,7 @@ public class Cache {
 
     /**
      * The Cache is a tree of maps four layers deep of:
-     *
+     * <p>
      * entityInfo - the type of entity
      * --> returnFields - the comma separated list of fields used in the fields parameter
      * ----> entityExistFields (names) - the comma separated list of names of fields to search for in the query/where clause
@@ -35,10 +35,10 @@ public class Cache {
 
     /**
      * Returns a cached rest return of a search/query call if present, null if never cached.
-     *
+     * <p>
      * Maps the search/query call to a list of cached results. For example, here is how the method parameters map to a candidate search call:
-     *
-     * http://bullhorn-rest-endpoint/search/Candidate?fields=id,name&query=status:"Active"
+     * <p>
+     * bullhorn-rest-endpoint/search/Candidate?fields=id,name&query=status:"Active"
      *
      * @param entityInfo        the entity name to search for (ex: /Candidate)
      * @param entityExistFields the fields and values that make up the query/where clause (ex: status:"Active")

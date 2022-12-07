@@ -4,10 +4,10 @@ import com.bullhorn.dataloader.enums.ErrorInfo;
 
 /**
  * Represents the result of processing a record using the REST API.
- *
+ * <p>
  * This class is a data type, not an instance type. Two different results can be considered identical if they contain
  * the same data values. They have no identity in and of themselves.
- *
+ * <p>
  * Objects of this class should not be edited after creation - they should be created with all data needed, using a convenience
  * constructor instead of the private constructors.
  */

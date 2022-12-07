@@ -69,7 +69,7 @@ public abstract class AbstractTask implements Runnable {
 
     /**
      * The public method that is called by the Task Executor on this Runnable object.
-     *
+     * <p>
      * Calls the handle method on the derived task, handles errors and writes the output files.
      */
     public void run() {
@@ -132,7 +132,7 @@ public abstract class AbstractTask implements Runnable {
 
     /**
      * Abstract find call that checks to see if the records searched for already exist in the client side cache.
-     *
+     * <p>
      * Find calls must be different between primary and associated entities. This affects custom objects, primarily.
      * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
      * - When looking for existing Person records to check for existence, we need a Person lookup for `externalID=`

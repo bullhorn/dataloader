@@ -111,7 +111,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Handles inserting/updating all cells in the row.
-     *
+     * <p>
      * Direct Fields: Populate the field on the entity. Compound Fields (address): Get the address object and populate
      * the field on the address. To-One Associations: Get the association object and populate the internal ID field.
      * To-Many Associations: Call the association REST method (unless we are loading notes)
@@ -155,7 +155,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Populates a given To-Many field for an entity before the entity has been created.
-     *
+     * <p>
      * Populates the To-Many in SDK-REST, in a fashion that only works for Notes currently. Eventually, convert everything
      * over to pre-populating To-Many fields in the correct "replace-all" way, so that our association calls go away.
      *
@@ -170,7 +170,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Makes association REST calls for all To-Many relationships for the entity after the entity has been created.
-     *
+     * <p>
      * TODO: remove this method once prepopulating associations can be used for all entities
      */
     @SuppressWarnings("unchecked")
@@ -208,7 +208,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Returns the list of new entities with ID that match the search criteria in the given To-Many field.
-     *
+     * <p>
      * Given a field like: 'primarySkills' with a value like: 'Skill1;Skill2;Skill3;Skill4', this method will return the
      * list of Skill objects (in this case, four skills) with their ID field filled out from REST, one object per value.
      * If any of these associations do not exist in rest, or are duplicated in rest, an error is thrown, stopping the
@@ -245,7 +245,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Sets a locator for the client contact created by default for a new ClientCorporation.
-     *
+     * <p>
      * Special case that handles setting the externalID of the defaultContact that is created on a ClientCorporation.
      * This allows for easily finding that contact later using the externalID, which will be of the format:
      * `defaultContact1234`, where 1234 is the externalID that was set on the parent ClientCorporation.
@@ -273,7 +273,7 @@ public class LoadTask extends AbstractTask {
 
     /**
      * Inserts the HTML contents of converted resumes into the description field.
-     *
+     * <p>
      * Handles setting the description field of an entity (if one exists) to the previously converted HTML resume file
      * or description file stored on disk, if a convertAttachments has been done previously. This only works if there is
      * an externalID being used in the input file.

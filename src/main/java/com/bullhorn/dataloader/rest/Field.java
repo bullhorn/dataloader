@@ -21,7 +21,7 @@ import com.google.common.collect.Lists;
 
 /**
  * The data from a Cell applied to a specific entity and field (direct or associated to-one) on an entity.
- *
+ * <p>
  * This information is required for looking up entities in REST and is derived from the simple string value in the Cell.
  * It is derived from the simple Cell data and constructs a rich set of data required for making REST calls.
  */
@@ -38,7 +38,7 @@ public class Field {
 
     /**
      * Constructor which takes the type of entity and the raw cell data.
-     *
+     * <p>
      * Raw cell data may be modified to match the correct field name if the capitalization is incorrect.
      *
      * @param entityInfo        the type of entity that this cell is for
@@ -132,7 +132,7 @@ public class Field {
 
     /**
      * Returns the full name if the primaryEntity, the association name otherwise.
-     *
+     * <p>
      * Consider the column: `person.externalID` on the PersonCustomObjectInstance1 entity:
      * - When looking for existing Person records to check for existence, we need a Person lookup for `externalID=`
      * - When looking for existing PersonCustomObjectInstance1 records, we need a PersonCustomObjectInstance1 lookup for `person.externalID=`
@@ -146,7 +146,7 @@ public class Field {
 
     /**
      * Returns the name of the field that is valid within the field parameter of a Get call.
-     *
+     * <p>
      * For direct fields, just the name of the field: firstName
      * For compound fields, the name of the field
      * When a lookup for the association (isPrimaryEntity=false), then it is always just the name of the field
@@ -169,7 +169,7 @@ public class Field {
 
     /**
      * Returns the type of the field that this cell represents.
-     *
+     * <p>
      * This will be the simple data type. If an association, the data type will be that of the association's field.
      *
      * @return cannot be null, since that would throw an exception in the constructor.
@@ -198,7 +198,7 @@ public class Field {
 
     /**
      * Given a delimiter, returns the list of unique values, for example:
-     *
+     * <p>
      * 'Skill1;Skill2;Skill3' = ['Skill1', 'Skill2', 'Skill3']
      * 'Skill1;Skill1' = ['Skill1']
      *
@@ -211,7 +211,7 @@ public class Field {
 
     /**
      * Calls the appropriate get method on the given SDK-REST entity object in order to get the value from an entity.
-     *
+     * <p>
      * For Association fields, behaves differently when given a parent entity vs. the field entity.
      * For Example, when dealing with the Note field: `candidates.id`:
      * - When given a note entity, uses the given delimiter to combine all candidate ID values into one delimited string.
@@ -259,7 +259,7 @@ public class Field {
 
     /**
      * Calls the appropriate set method on the given SDK-REST entity object in order to send the entity in a REST call.
-     *
+     * <p>
      * This only applies to direct or compound (address) fields that have a simple value type.
      *
      * @param entity the entity object to populate

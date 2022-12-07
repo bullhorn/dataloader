@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Fun little output capture class, copied from:
- * http://stackoverflow.com/questions/8708342/redirect-console-output-to-string-in-java
+ * <a href="http://stackoverflow.com/questions/8708342/redirect-console-output-to-string-in-java">Example Source</a>
  */
 class ConsoleOutputCapturer {
     private ByteArrayOutputStream byteArrayOutputStream;

@@ -80,7 +80,7 @@ public class Record {
 
     /**
      * Returns all fields in a format that can be passed as the fields parameter of a Get call.
-     *
+     * <p>
      * For direct fields, returns just the name of the field: firstName
      * For primary entity compound fields, the full name of the field, in the form of: "candidate(firstName)"
      * For multiple compound fields, in the form of: "candidate(firstName,lastName)"
