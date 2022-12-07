@@ -7,7 +7,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.junit.Before;
@@ -99,7 +98,8 @@ public class ConvertAttachmentTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new FileNotFoundException("path/to/fake/testResume/TestResume.doc (No such file or directory)"));
+        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_ATTACHMENT_FILE,
+            "Cannot read file from disk: path/to/fake/testResume/TestResume.doc"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
