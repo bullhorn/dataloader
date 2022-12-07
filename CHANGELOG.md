@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.7.0](https://github.com/bullhorn/dataloader/compare/v5.6.0...v5.7.0) (2022-12-07)
+
+
+### Features
+
+* **Error Messages:** Improved feedback to users when an error occurs ([#361](https://github.com/bullhorn/dataloader/issues/361)) ([6d914a5](https://github.com/bullhorn/dataloader/commit/6d914a557f9be249d52d6f35f34b4961148b84ef))
+
 ## [5.6.0](https://github.com/bullhorn/dataloader/compare/v5.5.0...v5.6.0) (2022-11-02)
 
 
