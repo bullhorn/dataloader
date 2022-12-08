@@ -234,9 +234,8 @@ public class LoadTask extends AbstractTask {
                 } else {
                     String missingAssociations = values.stream().filter(n -> !existingAssociationValues.contains(n))
                         .map(n -> "\t" + n).collect(Collectors.joining("\n"));
-                    throw new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION, "Error occurred: "
-                        + field.getCell().getAssociationBaseName() + " does not exist with " + field.getName()
-                        + " of the following values:\n" + missingAssociations);
+                    throw new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
+                        field.getCell().getAssociationBaseName() + " not found with " + field.getName() + ":\n" + missingAssociations);
                 }
             }
         }
