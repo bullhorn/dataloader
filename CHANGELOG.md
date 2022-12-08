@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.7.1](https://github.com/bullhorn/dataloader/compare/v5.7.0...v5.7.1) (2022-12-08)
+
+
+### Bug Fixes
+
+* **Error Message:** Improved readability of missing records error ([#398](https://github.com/bullhorn/dataloader/issues/398)) ([2de93b8](https://github.com/bullhorn/dataloader/commit/2de93b8b3151f6d5d49dc4fefccee986698ca351))
+
 ## [5.7.0](https://github.com/bullhorn/dataloader/compare/v5.6.0...v5.7.0) (2022-12-07)
 
 
