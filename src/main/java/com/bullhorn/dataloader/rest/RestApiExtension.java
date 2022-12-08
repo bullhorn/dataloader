@@ -49,10 +49,9 @@ public class RestApiExtension {
         if (response != null && !response.getMessages().isEmpty() && response.getChangedEntityId() == null) {
             StringBuilder sb = new StringBuilder();
             for (Message message : response.getMessages()) {
-                sb.append("\tError occurred on field ").append(message.getPropertyName())
-                    .append(" due to the following: ").append(message.getDetailMessage()).append("\n");
+                sb.append("\tField ").append(message.getPropertyName()).append(": ").append(message.getDetailMessage()).append("\n");
             }
-            throw new RestApiException("Error occurred when making " + response.getChangeType() + " REST call:\n" + sb);
+            throw new RestApiException(response.getChangeType() + " REST call:\n" + sb);
         }
     }
 

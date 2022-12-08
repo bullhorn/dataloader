@@ -464,7 +464,7 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
-            "Error occurred: primarySkills does not exist with id of the following values:\n\t3"), 1);
+            "primarySkills not found with id:\n\t3"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -481,7 +481,7 @@ public class LoadTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
-            "Error occurred: candidates does not exist with id of the following values:\n\t2"));
+            "candidates not found with id:\n\t2"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
@@ -1522,7 +1522,7 @@ public class LoadTaskTest {
 
         verify(restApiMock, never()).queryForList(eq(Skill.class), any(), any(), any());
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_TO_MANY_ASSOCIATION,
-            "Error occurred: primarySkills does not exist with name of the following values:\n\tJava"), 1);
+            "primarySkills not found with name:\n\tJava"), 1);
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
