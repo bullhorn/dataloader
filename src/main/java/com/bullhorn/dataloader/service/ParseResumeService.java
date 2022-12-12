@@ -9,8 +9,10 @@ import java.util.List;
 import com.bullhorn.dataloader.data.ActionTotals;
 import com.bullhorn.dataloader.data.Result;
 import com.bullhorn.dataloader.data.Row;
+import com.bullhorn.dataloader.enums.ErrorInfo;
 import com.bullhorn.dataloader.rest.CompleteUtil;
 import com.bullhorn.dataloader.rest.RestSession;
+import com.bullhorn.dataloader.util.DataLoaderException;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.PropertyFileUtil;
 import com.bullhorn.dataloader.util.StringConsts;
@@ -21,7 +23,7 @@ import com.google.common.collect.Lists;
 
 /**
  * Potential feature enhancements
- *
+ * <p>
  * Good error handling with parse failures
  * Batch size limitations
  * File type limitation
@@ -66,7 +68,7 @@ public class ParseResumeService implements Action {
             if (parsedResumeAsEntity.getIsSuccess()) {
                 result = Result.insert(parsedResumeAsEntity.getEntityId());
             } else {
-                result = new Result(Result.Status.FAILURE, Result.Action.UPDATE, -1, "");
+                result = Result.failure(new DataLoaderException(ErrorInfo.CANNOT_PARSE_RESUME, parsedResumeAsEntity.getErrorMessage()));
             }
             actionTotals.incrementActionTotal(result.getAction());
 

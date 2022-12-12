@@ -17,12 +17,9 @@ public class StringConsts {
     public static final String CSV = "csv";
     public static final String DATALOADER_PREFIX = "DATALOADER_";
     public static final String DESCRIPTION = "description";
-    public static final String DOC = "doc";
-    public static final String DOCX = "docx";
     public static final String EXIST_FIELD_SUFFIX = "ExistField";
     public static final String EXTERNAL_ID = "externalID";
     public static final String FIRST_NAME = "firstName";
-    public static final String HTML = "html";
     public static final String ID = "id";
     public static final String IS_DELETED = "isDeleted";
     public static final String IS_RESUME = "isResume";
@@ -30,7 +27,6 @@ public class StringConsts {
     public static final String NAME = "name";
     public static final String NOTE_ID = "noteID";
     public static final String PARENT_ENTITY_ID = "parentEntityID";
-    public static final String PDF = "pdf";
     public static final String PROPERTY_FILE_ARG = "propertyfile";
     public static final String RELATIVE_FILE_PATH = "relativeFilePath";
     public static final String TIMESTAMP = DateUtil.getTimestamp();
@@ -38,7 +34,7 @@ public class StringConsts {
     public static final String TO_ONE = "TO_ONE";
     public static final String TO_MANY = "TO_MANY";
 
-    interface ResumeFileType {
+    public interface ResumeFileType {
         String DOC = "doc";
         String DOCX = "docx";
         String HTML = "html";
