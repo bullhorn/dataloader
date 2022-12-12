@@ -33,4 +33,11 @@ public class StringConsts {
     public static final String SCALAR = "SCALAR";
     public static final String TO_ONE = "TO_ONE";
     public static final String TO_MANY = "TO_MANY";
+
+    public interface ResumeFileType {
+        String DOC = "doc";
+        String DOCX = "docx";
+        String HTML = "html";
+        String PDF = "pdf";
+    }
 }

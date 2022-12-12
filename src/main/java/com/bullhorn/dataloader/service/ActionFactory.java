@@ -64,6 +64,8 @@ public class ActionFactory {
             action = new LoginService(restSession, printUtil);
         } else if (command.equals(Command.META)) {
             action = new MetaService(restSession, printUtil);
+        } else if (command.equals(Command.PARSE_RESUMES)) {
+            action = new ParseResumeService(restSession, propertyFileUtil, printUtil, completeUtil, timer);
         } else if (command.equals(Command.TEMPLATE)) {
             action = new TemplateService(printUtil, propertyFileUtil, completeUtil, restSession, processRunner, inputStream, timer);
         }

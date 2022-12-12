@@ -57,6 +57,7 @@ public enum ErrorInfo {
         + "3. US Short Date:                         MM/dd/yyyy\n"
         + "4. UK Short Date:                         dd/MM/yyyy\n"
         + "For more options, see: https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html"),
+    CANNOT_PARSE_RESUME(440, "Cannot Parse Resume", "Check that the resume file is valid and can be opened and try re-saving file."),
 
     // 500's - Server Errors (Bullhorn responded that there was an internal error)
     INTERNAL_SERVER_ERROR(500, "Internal Server Error",
