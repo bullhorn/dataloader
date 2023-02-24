@@ -1,2 +1,2 @@
-placement.customText1,effectiveDate,isDeleted
-placement-ext-1      ,2001-01-01   ,FALSE
+externalID													,placement.customText1,effectiveDate,isDeleted
+placementShiftSet-ext-1,placement-ext-1      ,2001-01-01   ,FALSE
