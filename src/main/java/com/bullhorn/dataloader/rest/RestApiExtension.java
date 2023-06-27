@@ -100,7 +100,7 @@ public class RestApiExtension {
             for (int i = 0; i < jsonArray.length(); ++i) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
                 jsonObject.put(StringConsts.EXTERNAL_ID, externalId);
-                list.add(restJsonConverter.jsonToEntityDoNotUnwrapRoot(jsonObject.toString(), type));
+                list.add(restJsonConverter.jsonToEntity(jsonObject.toString(), type));
             }
             searchResult.setList(list);
         } catch (Exception e) {
