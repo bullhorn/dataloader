@@ -13,6 +13,7 @@ import org.mockito.internal.util.collections.Sets;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.ErrorInfo;
+
 import com.bullhornsdk.data.model.entity.embedded.Address;
 
 public class MethodUtilTest {
@@ -55,7 +56,55 @@ public class MethodUtilTest {
     }
 
     @Test
+    public void testGetGetterMethodFailure() {
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'workFromHome' does not exist on Placement");
+        DataLoaderException actualException = null;
+
+        try {
+            MethodUtil.getGetterMethod(EntityInfo.PLACEMENT, "workFromHome");
+        } catch (DataLoaderException e) {
+            actualException = e;
+        }
+
+        Assert.assertNotNull(actualException);
+        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
+    }
+
+    @Test
     public void testGetSetterMethodFailure() {
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "'workFromHome' does not exist on Placement");
+        DataLoaderException actualException = null;
+
+        try {
+            MethodUtil.getSetterMethod(EntityInfo.PLACEMENT, "workFromHome");
+        } catch (DataLoaderException e) {
+            actualException = e;
+        }
+
+        Assert.assertNotNull(actualException);
+        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
+    }
+
+    @Test
+    public void testGetGetterMethodMalformedAddressFailure() {
+        DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
+            "Invalid address field format: 'address1'. Must use: 'address.address1' to set an address field.");
+        DataLoaderException actualException = null;
+
+        try {
+            MethodUtil.getSetterMethod(EntityInfo.CANDIDATE, "address1");
+        } catch (DataLoaderException e) {
+            actualException = e;
+        }
+
+        Assert.assertNotNull(actualException);
+        Assert.assertEquals(expectedException.getMessage(), actualException.getMessage());
+    }
+
+    @Test
+    public void testGetSetterMethodAddressFailure() {
         DataLoaderException expectedException = new DataLoaderException(ErrorInfo.INCORRECT_COLUMN_NAME,
             "Invalid address field format: 'address1'. Must use: 'address.address1' to set an address field.");
         DataLoaderException actualException = null;
@@ -105,5 +154,17 @@ public class MethodUtilTest {
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("MM/dd/yyyy");
         Object actual = MethodUtil.convertStringToObject("bogus", MethodUtil.class, dateTimeFormatter);
         Assert.assertNull(actual);
+    }
+
+    @Test
+    public void testAlternativeNameGetterMethods() {
+        Method method = MethodUtil.getGetterMethod(EntityInfo.PLACEMENT, "isWorkFromHome");
+        Assert.assertNotNull(method);
+    }
+
+    @Test
+    public void testAlternativeNameSetterMethods() {
+        Method method = MethodUtil.getSetterMethod(EntityInfo.PLACEMENT, "isWorkFromHome");
+        Assert.assertNotNull(method);
     }
 }

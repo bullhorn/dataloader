@@ -4,7 +4,9 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,6 +18,7 @@ import org.joda.time.format.DateTimeFormatter;
 
 import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.ErrorInfo;
+
 import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
 
 /**
@@ -25,32 +28,44 @@ public class MethodUtil {
 
     /**
      * Returns the map of getter methods (starting with "get") for the given class
+     * Account for methods that are named slightly different in the SDK-REST:
+     * isEnabled => getIsEnabled() / getEnabled() without the "is" prefix.
      *
      * @return A map of field names to getter methods that can invoked generically using `method.invoke`
      */
     private static Map<String, Method> getGetterMethodMap(Class anyClass) {
-        Map<String, Method> setterMethodMap = new HashMap<>();
+        Map<String, Method> getterMethodMap = new HashMap<>();
+        List<String> fieldNames = Arrays.stream(anyClass.getDeclaredFields())
+            .map(field -> field.getName().toLowerCase()).collect(Collectors.toList());
 
         for (Method method : anyClass.getMethods()) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
+                String name = method.getName().substring(3).toLowerCase();
+                String altName = "is" + name;
+                getterMethodMap.put(fieldNames.contains(altName) ? altName : name, method);
             }
         }
 
-        return setterMethodMap;
+        return getterMethodMap;
     }
 
     /**
      * Returns the map of setter methods (starting with "set") for the given class
+     * Account for methods that are named slightly different in the SDK-REST:
+     * isEnabled => getIsEnabled() / getEnabled() without the "is" prefix.
      *
      * @return A map of field names to setter methods that can invoked generically using `method.invoke`
      */
     public static Map<String, Method> getSetterMethodMap(Class anyClass) {
         Map<String, Method> setterMethodMap = new HashMap<>();
+        List<String> fieldNames = Arrays.stream(anyClass.getDeclaredFields())
+            .map(field -> field.getName().toLowerCase()).collect(Collectors.toList());
 
         for (Method method : anyClass.getMethods()) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
-                setterMethodMap.put(method.getName().substring(3).toLowerCase(), method);
+                String name = method.getName().substring(3).toLowerCase();
+                String altName = "is" + name;
+                setterMethodMap.put(fieldNames.contains(altName) ? altName : name, method);
             }
         }
 
