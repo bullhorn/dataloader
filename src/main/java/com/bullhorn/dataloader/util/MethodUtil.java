@@ -42,10 +42,10 @@ public class MethodUtil {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 String name = method.getName().substring(3).toLowerCase();
                 String altName = "is" + name;
-                if (fieldNames.contains(name)) {
-                    getterMethodMap.put(name, method);
-                } else if (fieldNames.contains(altName)) {
+                if (!fieldNames.contains(name) && fieldNames.contains(altName)) {
                     getterMethodMap.put(altName, method);
+                } else {
+                    getterMethodMap.put(name, method);
                 }
             }
         }
@@ -69,10 +69,10 @@ public class MethodUtil {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 String name = method.getName().substring(3).toLowerCase();
                 String altName = "is" + name;
-                if (fieldNames.contains(name)) {
-                    setterMethodMap.put(name, method);
-                } else if (fieldNames.contains(altName)) {
+                if (!fieldNames.contains(name) && fieldNames.contains(altName)) {
                     setterMethodMap.put(altName, method);
+                } else {
+                    setterMethodMap.put(name, method);
                 }
             }
         }
