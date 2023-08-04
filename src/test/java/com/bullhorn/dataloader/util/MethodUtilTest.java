@@ -158,13 +158,27 @@ public class MethodUtilTest {
 
     @Test
     public void testAlternativeNameGetterMethods() {
-        Method method = MethodUtil.getGetterMethod(EntityInfo.PLACEMENT, "isWorkFromHome");
-        Assert.assertNotNull(method);
+        // The getter is named without the word is: getWorkFromHome()
+        Method methodNameMismatch = MethodUtil.getGetterMethod(EntityInfo.PLACEMENT, "isWorkFromHome");
+        Assert.assertNotNull(methodNameMismatch);
+
+        Method clientContact = MethodUtil.getGetterMethod(EntityInfo.OPPORTUNITY, "clientContact");
+        Assert.assertNotNull(clientContact);
+
+        Method isClientContact = MethodUtil.getGetterMethod(EntityInfo.OPPORTUNITY, "isClientContact");
+        Assert.assertNotNull(isClientContact);
     }
 
     @Test
     public void testAlternativeNameSetterMethods() {
-        Method method = MethodUtil.getSetterMethod(EntityInfo.PLACEMENT, "isWorkFromHome");
-        Assert.assertNotNull(method);
+        // The setter is named without the word is: getWorkFromHome()
+        Method methodNameMismatch = MethodUtil.getSetterMethod(EntityInfo.PLACEMENT, "isWorkFromHome");
+        Assert.assertNotNull(methodNameMismatch);
+
+        Method clientContact = MethodUtil.getSetterMethod(EntityInfo.OPPORTUNITY, "clientContact");
+        Assert.assertNotNull(clientContact);
+
+        Method isClientContact = MethodUtil.getSetterMethod(EntityInfo.OPPORTUNITY, "isClientContact");
+        Assert.assertNotNull(isClientContact);
     }
 }
