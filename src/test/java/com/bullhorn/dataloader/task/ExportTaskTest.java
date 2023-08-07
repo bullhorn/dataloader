@@ -141,8 +141,7 @@ public class ExportTaskTest {
         task.run();
 
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_SETTING,
-            ""
-                + "Cannot perform export because exist field is not specified for entity: Candidate"));
+            "Cannot perform export because exist field is not specified for entity: Candidate"));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
