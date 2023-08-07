@@ -183,12 +183,17 @@ public class MethodUtil {
      * <p>
      * For example, the method: Candidate:getExternalID() will return the field name: 'externalID'
      * that can be used as a valid field name in Rest.
+     * Check if the name of the method is truncating the "is" prefix.
      *
      * @param method A getter or setter method
      * @return the field name in rest that corresponds to that getter or setter
      */
-    public static String getFieldNameFromMethod(Method method) {
-        return WordUtils.uncapitalize(method.getName().substring(3));
+    public static String getFieldNameFromMethod(Method method, String name) {
+        String nameFromMethod = method.getName().substring(3);
+        if (name.toLowerCase().equals("is" + nameFromMethod.toLowerCase())) {
+            return "is" + nameFromMethod;
+        }
+        return WordUtils.uncapitalize(nameFromMethod);
     }
 
     private static Method getMethod(EntityInfo entityInfo, String fieldName, Map<String, Method> methodMap) {

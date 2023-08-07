@@ -3,6 +3,7 @@ package com.bullhorn.dataloader.rest;
 import java.math.BigDecimal;
 import java.text.ParseException;
 
+import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -118,6 +119,34 @@ public class FieldTest {
 
         Assert.assertEquals(jobSubmission.getIsDeleted(), false);
         Assert.assertEquals(field.getStringValueFromEntity(jobSubmission, ";"), "false");
+    }
+
+    @Test
+    public void testNonStandardBooleanField() throws Exception {
+        Cell cell = new Cell("isWorkFROMHome", "true");
+        Field field = new Field(EntityInfo.PLACEMENT, cell, true, dateTimeFormatter);
+
+        Assert.assertEquals(field.getEntityInfo(), EntityInfo.PLACEMENT);
+        Assert.assertEquals(field.isExistField(), true);
+        Assert.assertEquals(field.isToOne(), false);
+        Assert.assertEquals(field.isToMany(), false);
+        Assert.assertEquals(field.getName(), "isWorkFromHome");
+        Assert.assertEquals(field.getFieldParameterName(true), "isWorkFromHome");
+        Assert.assertEquals(field.getFieldParameterName(false), "isWorkFromHome");
+        Assert.assertEquals(field.getFieldEntity(), EntityInfo.PLACEMENT);
+        Assert.assertEquals(field.getFieldType(), Boolean.class);
+        Assert.assertEquals(field.getValue(), true);
+        Assert.assertEquals(field.getStringValue(), "true");
+
+        Placement placement = new Placement();
+
+        Assert.assertNull(placement.getWorkFromHome());
+        Assert.assertEquals(field.getStringValueFromEntity(placement, ";"), "");
+
+        field.populateFieldOnEntity(placement);
+
+        Assert.assertEquals(placement.getWorkFromHome(), true);
+        Assert.assertEquals(field.getStringValueFromEntity(placement, ";"), "true");
     }
 
     @Test
