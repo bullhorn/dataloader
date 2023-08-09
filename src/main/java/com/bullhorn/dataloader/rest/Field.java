@@ -63,13 +63,13 @@ public class Field {
         //  'candidates.id' => Candidate:getId() / Candidate:setId()
         this.getMethod = MethodUtil.getGetterMethod(getFieldEntity(), getName());
         this.setMethod = MethodUtil.getSetterMethod(getFieldEntity(), getName());
-        final String verifiedFieldName = MethodUtil.getFieldNameFromMethod(getMethod);
+        final String verifiedFieldName = MethodUtil.getFieldNameFromMethod(getMethod, getName());
 
         // For all non-direct fields, store the get/set methods for the association, such as getAddress()/setAddress()
         if (cell.isAssociation()) {
             this.getAssociationMethod = MethodUtil.getGetterMethod(entityInfo, cell.getAssociationBaseName());
             this.setAssociationMethod = MethodUtil.getSetterMethod(entityInfo, cell.getAssociationBaseName());
-            final String verifiedAssociationBaseName = MethodUtil.getFieldNameFromMethod(getAssociationMethod);
+            final String verifiedAssociationBaseName = MethodUtil.getFieldNameFromMethod(getAssociationMethod, cell.getAssociationBaseName());
 
             // Correct capitalization mistakes for the association cell
             if (!this.cell.getAssociationBaseName().equals(verifiedAssociationBaseName)

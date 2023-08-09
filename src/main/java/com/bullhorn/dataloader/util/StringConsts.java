@@ -21,6 +21,7 @@ public class StringConsts {
     public static final String EXTERNAL_ID = "externalID";
     public static final String FIRST_NAME = "firstName";
     public static final String ID = "id";
+    public static final String IS = "is";
     public static final String IS_DELETED = "isDeleted";
     public static final String IS_RESUME = "isResume";
     public static final String LAST_NAME = "lastName";
