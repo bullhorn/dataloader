@@ -41,7 +41,7 @@ public class MethodUtil {
         for (Method method : anyClass.getMethods()) {
             if ("get".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 String name = method.getName().substring(3).toLowerCase();
-                String altName = "is" + name;
+                String altName = StringConsts.IS + name;
                 if (!fieldNames.contains(name) && fieldNames.contains(altName)) {
                     getterMethodMap.put(altName, method);
                 } else {
@@ -68,7 +68,7 @@ public class MethodUtil {
         for (Method method : anyClass.getMethods()) {
             if ("set".equalsIgnoreCase(method.getName().substring(0, 3))) {
                 String name = method.getName().substring(3).toLowerCase();
-                String altName = "is" + name;
+                String altName = StringConsts.IS + name;
                 if (!fieldNames.contains(name) && fieldNames.contains(altName)) {
                     setterMethodMap.put(altName, method);
                 } else {
@@ -190,8 +190,8 @@ public class MethodUtil {
      */
     public static String getFieldNameFromMethod(Method method, String name) {
         String nameFromMethod = method.getName().substring(3);
-        if (name.toLowerCase().equals("is" + nameFromMethod.toLowerCase())) {
-            return "is" + nameFromMethod;
+        if (name.toLowerCase().equals(StringConsts.IS + nameFromMethod.toLowerCase())) {
+            return StringConsts.IS + nameFromMethod;
         }
         return WordUtils.uncapitalize(nameFromMethod);
     }
