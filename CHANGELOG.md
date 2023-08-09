@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.8.0](https://github.com/bullhorn/dataloader/compare/v5.7.1...v5.8.0) (2023-08-09)
+
+
+### Features
+
+* **Fields:** New fields across multiple entities ([#413](https://github.com/bullhorn/dataloader/issues/413)) ([fe70ce3](https://github.com/bullhorn/dataloader/commit/fe70ce3d47668fe91c240b95c3b362f45480fe28))
+* **Person Custom Objects:** Adding person custom objects 26-35. ([#411](https://github.com/bullhorn/dataloader/issues/411)) ([74a47fe](https://github.com/bullhorn/dataloader/commit/74a47fedd2a7a1194a9abcbbb3c09833b2cc229d))
+
 ### [5.7.1](https://github.com/bullhorn/dataloader/compare/v5.7.0...v5.7.1) (2022-12-08)
 
 
