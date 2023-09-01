@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.8.1](https://github.com/bullhorn/dataloader/compare/v5.8.0...v5.8.1) (2023-09-01)
+
+
+### Bug Fixes
+
+* **Login:** Allow for login URLs to be correctly redirected ([60c02cf](https://github.com/bullhorn/dataloader/commit/60c02cfed37ec5566748cf55efb2827020d52c31))
+
 ## [5.8.0](https://github.com/bullhorn/dataloader/compare/v5.7.1...v5.8.0) (2023-08-09)
 
 
