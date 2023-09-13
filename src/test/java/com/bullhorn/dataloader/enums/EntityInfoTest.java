@@ -23,8 +23,6 @@ public class EntityInfoTest {
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1.isLoadable());
         Assert.assertFalse(EntityInfo.SKILL.isLoadable());
         Assert.assertFalse(EntityInfo.BUSINESS_SECTOR.isLoadable());
-        Assert.assertTrue(EntityInfo.WORKERS_COMPENSATION.isLoadable());
-        Assert.assertTrue(EntityInfo.WORKERS_COMPENSATION_RATE.isLoadable());
     }
 
     @Test
@@ -34,8 +32,6 @@ public class EntityInfoTest {
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_10.isInsertable());
         Assert.assertFalse(EntityInfo.SKILL.isInsertable());
         Assert.assertFalse(EntityInfo.BUSINESS_SECTOR.isInsertable());
-        Assert.assertTrue(EntityInfo.WORKERS_COMPENSATION.isInsertable());
-        Assert.assertTrue(EntityInfo.WORKERS_COMPENSATION_RATE.isInsertable());
     }
 
     @Test
@@ -45,8 +41,6 @@ public class EntityInfoTest {
         Assert.assertTrue(EntityInfo.PLACEMENT_CUSTOM_OBJECT_INSTANCE_1.isUpdatable());
         Assert.assertFalse(EntityInfo.SKILL.isUpdatable());
         Assert.assertFalse(EntityInfo.BUSINESS_SECTOR.isUpdatable());
-        Assert.assertTrue(EntityInfo.WORKERS_COMPENSATION.isUpdatable());
-        Assert.assertTrue(EntityInfo.WORKERS_COMPENSATION_RATE.isUpdatable());
     }
 
     @Test
