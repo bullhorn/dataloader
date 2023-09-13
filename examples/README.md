@@ -37,6 +37,10 @@ These example CSV files reference several reference only entities that must exis
 * Invoice Statement Template
     * Ensure at least one Invoice Statement Template exists: https://confluence.bullhorn.com/display/WFR/Invoice+Template+Setup
 
+* WorkersCompensationRate
+    * WorkersCompensation1
+    * DataLoaderTestPL PrivateLabel
+
 * Corp Settings
     * Enable Lead And Opportunity Enabled
     * Enable Novo Tax Info Tab Enabled
