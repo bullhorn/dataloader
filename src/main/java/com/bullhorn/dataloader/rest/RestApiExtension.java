@@ -86,11 +86,13 @@ public class RestApiExtension {
         List<T> list = null;
         if (type.equals(PrivateLabel.class)
             && where.startsWith(StringConsts.ID + "=")
-            && fieldSet.stream().toString().equals(StringConsts.ID)
+            && fieldSet.stream().findFirst().get().equals(StringConsts.ID)
         ) {
             list = new ArrayList<>();
             PrivateLabel privateLabel = new PrivateLabel();
-            privateLabel.setId(123); // get from the where clause
+            Integer id = Integer.valueOf(where.substring(3));
+            privateLabel.setId(id);
+            list.add((T)privateLabel);
         }
         return list;
     }

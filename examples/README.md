@@ -39,7 +39,7 @@ These example CSV files reference several reference only entities that must exis
 
 * WorkersCompensationRate
     * workersCompensation-ext-1 WorkersCompensation
-    * DataLoaderTestPL PrivateLabel
+    * PrivateLabel ID
 
 * Corp Settings
     * Enable Lead And Opportunity Enabled
