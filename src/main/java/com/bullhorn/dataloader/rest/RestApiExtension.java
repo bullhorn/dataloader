@@ -86,6 +86,7 @@ public class RestApiExtension {
         List<T> list = null;
         if (type.equals(PrivateLabel.class)
             && where.startsWith(StringConsts.ID + "=")
+            && !fieldSet.isEmpty()
             && fieldSet.stream().findFirst().get().equals(StringConsts.ID)
         ) {
             list = new ArrayList<>();
