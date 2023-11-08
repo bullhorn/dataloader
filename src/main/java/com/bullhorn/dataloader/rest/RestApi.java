@@ -109,6 +109,10 @@ public class RestApi {
                                                         String where,
                                                         Set<String> fieldSet,
                                                         QueryParams params) {
+        List<T> privateLabelList = restApiExtension.bypassPrivateLabelLookupById(type, where, fieldSet);
+        if (privateLabelList != null) {
+            return privateLabelList;
+        }
         Set<String> correctedFieldSet = FindUtil.getCorrectedFieldSet(fieldSet);
         printUtil.log(Level.DEBUG, "Find(" + type.getSimpleName() + " Query): " + where
             + ", fields: " + correctedFieldSet.stream().sorted().collect(Collectors.toList()));
