@@ -60,6 +60,7 @@ public class RestApiTest {
             new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse());
         when(bullhornDataMock.disassociateWithEntity(any(), any(), any(), any())).thenReturn(
             new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse(), new AbstractCrudResponse());
+        when(restApiExtensionMock.bypassPrivateLabelLookupById(any(), any(), any())).thenReturn(null);
     }
 
     @Test
