@@ -25,7 +25,9 @@ import com.bullhorn.dataloader.TestUtils;
 import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
+import com.bullhornsdk.data.model.entity.core.standard.ClientCorporation;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
+import com.bullhornsdk.data.model.entity.core.standard.PrivateLabel;
 import com.bullhornsdk.data.model.enums.ChangeType;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
 import com.bullhornsdk.data.model.response.crud.DeleteResponse;
@@ -185,6 +187,61 @@ public class RestApiExtensionTest {
             + "Will use a regular /search call instead. Error Message: Flagrant System Error";
         verify(printUtilMock, times(1)).printAndLog(eq(expected));
         verify(restApiMock, times(2)).performGetRequest(any(), any(), any());
+    }
+
+    @Test
+    public void testBypassPrivateLabelLookupById() {
+        Set<String> fieldSet = new HashSet<>();
+        fieldSet.add("id");
+
+        List<PrivateLabel> privateLabelList = restApiExtension.bypassPrivateLabelLookupById(
+            PrivateLabel.class, "id=123", fieldSet);
+
+        Assert.assertNotNull(privateLabelList);
+        Assert.assertEquals(privateLabelList.get(0).getId(), Integer.valueOf(123));
+    }
+
+    @Test
+    public void testBypassPrivateLabelLookupByIdNonPrivateLabelFailure() {
+        Set<String> fieldSet = new HashSet<>();
+        fieldSet.add("id");
+
+        List<ClientCorporation> privateLabelList = restApiExtension.bypassPrivateLabelLookupById(
+            ClientCorporation.class, "id=123", fieldSet);
+
+        Assert.assertNull(privateLabelList);
+    }
+
+    @Test
+    public void testBypassPrivateLabelLookupByIdWhereClauseFailure() {
+        Set<String> fieldSet = new HashSet<>();
+        fieldSet.add("id");
+
+        List<PrivateLabel> privateLabelList = restApiExtension.bypassPrivateLabelLookupById(
+            PrivateLabel.class, "name=PL1", fieldSet);
+
+        Assert.assertNull(privateLabelList);
+    }
+
+    @Test
+    public void testBypassPrivateLabelLookupByIdEmptyFieldSetFailure() {
+        Set<String> fieldSet = new HashSet<>();
+
+        List<PrivateLabel> privateLabelList = restApiExtension.bypassPrivateLabelLookupById(
+            PrivateLabel.class, "id=123", fieldSet);
+
+        Assert.assertNull(privateLabelList);
+    }
+
+    @Test
+    public void testBypassPrivateLabelLookupByIdNonIdFieldSetFailure() {
+        Set<String> fieldSet = new HashSet<>();
+        fieldSet.add("name");
+
+        List<PrivateLabel> privateLabelList = restApiExtension.bypassPrivateLabelLookupById(
+            PrivateLabel.class, "id=123", fieldSet);
+
+        Assert.assertNull(privateLabelList);
     }
 
     @Test

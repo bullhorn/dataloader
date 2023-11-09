@@ -117,6 +117,15 @@ public class IntegrationTest {
         skipInserts = false;
         skipDeletes = false;
 
+        skipDeletes = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("skipUpdatesEntitiesPart1"));
+        skipUpdates = true;
+        skipExports = true;
+        runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("skipUpdatesEntitiesPart2"));
+        skipUpdates = false;
+        skipDeletes = false;
+        skipExports = false;
+
         // Run the full test of all example files
         runAllCommandsAgainstDirectory("examples/load");
     }

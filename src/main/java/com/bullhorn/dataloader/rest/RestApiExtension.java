@@ -15,6 +15,8 @@ import com.bullhornsdk.data.api.helper.RestJsonConverter;
 import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmission;
 import com.bullhornsdk.data.model.entity.core.standard.JobSubmissionHistory;
+import com.bullhornsdk.data.model.entity.core.standard.PrivateLabel;
+import com.bullhornsdk.data.model.entity.core.type.QueryEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.parameter.standard.ParamFactory;
 import com.bullhornsdk.data.model.response.crud.CrudResponse;
@@ -74,6 +76,26 @@ public class RestApiExtension {
             authorized = searchResult.getAuthorized();
         }
         return searchResult;
+    }
+
+    /**
+     * Bypass the fast fail of verifying if an entity is already in the system. If we have an internal id, then skip the
+     * lookup, since the rest call itself will verify the id upon creation/update.
+     */
+    <T extends QueryEntity> List<T> bypassPrivateLabelLookupById(Class<T> type, String where, Set<String> fieldSet) {
+        List<T> list = null;
+        if (type.equals(PrivateLabel.class)
+            && where.startsWith(StringConsts.ID + "=")
+            && !fieldSet.isEmpty()
+            && fieldSet.stream().findFirst().get().equals(StringConsts.ID)
+        ) {
+            list = new ArrayList<>();
+            PrivateLabel privateLabel = new PrivateLabel();
+            Integer id = Integer.valueOf(where.substring(3));
+            privateLabel.setId(id);
+            list.add((T)privateLabel);
+        }
+        return list;
     }
 
     /**
