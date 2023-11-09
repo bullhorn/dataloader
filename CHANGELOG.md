@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.9.0](https://github.com/bullhorn/dataloader/compare/v5.8.1...v5.9.0) (2023-11-09)
+
+
+### Features
+
+* **Workers Comp:** Enable Create and Update for Workers Comp and Wor… ([#416](https://github.com/bullhorn/dataloader/issues/416)) ([8c2cb69](https://github.com/bullhorn/dataloader/commit/8c2cb693ddbfb657242089454506e22465c4ab29))
+
 ### [5.8.1](https://github.com/bullhorn/dataloader/compare/v5.8.0...v5.8.1) (2023-09-01)
 
 
