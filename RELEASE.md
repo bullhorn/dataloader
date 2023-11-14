@@ -23,7 +23,9 @@ which tells TravisCI to generate the build artifacts and publish them to the Git
 
 2. Run release script: `npm run release`. This will create a new commit and push to master.
 
-3. Create wiki zipfile (PDFs of the wiki pages)
+3. Wait for all Travis CI builds to complete. Once finished, it will create the draft release and attach installers.
+
+4. Create wiki zipfile (PDFs of the wiki pages)
 
     1. Clone the wiki repo: `git clone https://github.com/bullhorn/dataloader.wiki.git`
 
@@ -31,7 +33,7 @@ which tells TravisCI to generate the build artifacts and publish them to the Git
 
     3. Create wiki.zip file: `npm start`
 
-4. Update GitHub Release
+5. Update GitHub Release
 
     1. Copy the generated release notes for the latest version from `CHANGELOG.md`.
 
@@ -40,4 +42,4 @@ which tells TravisCI to generate the build artifacts and publish them to the Git
 
     3. In the "Attach Binaries" section of the release page, attach the wiki package file: `wiki.zip`
 
-5. Post a slack message in `#dataloader-community` that the new release is available with the release notes.
+6. Post a slack message in `#dataloader-community` that the new release is available with the release notes.
