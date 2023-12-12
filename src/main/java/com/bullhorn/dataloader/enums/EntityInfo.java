@@ -29,6 +29,7 @@ import com.bullhornsdk.data.model.file.FileMeta;
 public enum EntityInfo {
 
     // Entities that are referenced by other entities, but do not reference
+    BRANCH(BullhornEntityInfo.BRANCH, 0),
     GENERAL_LEDGER_ACCOUNT(BullhornEntityInfo.GENERAL_LEDGER_ACCOUNT, 10),
     GENERAL_LEDGER_SEGMENT_1(BullhornEntityInfo.GENERAL_LEDGER_SEGMENT_1, 20),
     GENERAL_LEDGER_SEGMENT_2(BullhornEntityInfo.GENERAL_LEDGER_SEGMENT_2, 30),
