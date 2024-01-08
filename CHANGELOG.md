@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.10.0](https://github.com/bullhorn/dataloader/compare/v5.9.0...v5.10.0) (2024-01-08)
+
+
+### Features
+
+* **Entities:** Add the Branch entity ([#426](https://github.com/bullhorn/dataloader/issues/426)) ([68701c3](https://github.com/bullhorn/dataloader/commit/68701c36d6b6da772af0f440eecf2f4b9e56e79a))
+
 ## [5.9.0](https://github.com/bullhorn/dataloader/compare/v5.8.1...v5.9.0) (2023-11-09)
 
 
