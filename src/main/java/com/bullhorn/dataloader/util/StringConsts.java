@@ -28,6 +28,7 @@ public class StringConsts {
     public static final String NAME = "name";
     public static final String NOTE_ID = "noteID";
     public static final String PARENT_ENTITY_ID = "parentEntityID";
+    public static final String PRIVATE_LABEL = "privateLabel";
     public static final String PROPERTY_FILE_ARG = "propertyfile";
     public static final String RELATIVE_FILE_PATH = "relativeFilePath";
     public static final String TIMESTAMP = DateUtil.getTimestamp();

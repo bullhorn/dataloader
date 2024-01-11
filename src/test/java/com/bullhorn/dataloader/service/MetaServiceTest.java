@@ -30,6 +30,7 @@ import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOp
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.CorporateUser;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
+import com.bullhornsdk.data.model.entity.core.standard.WorkersCompensationRate;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
@@ -51,7 +52,7 @@ public class MetaServiceTest {
         metaService = new MetaService(restSessionMock, printUtilMock);
 
         // Mock out Candidate meta fields
-        Field idField = TestUtils.createField("id", null, null, null, "SCALAR", "Integer");
+        Field idField = TestUtils.createField("id", "ID", null, null, "ID", "Integer");
         Field nameField = TestUtils.createField("name", "Name", "", "", "SCALAR", "String");
         Field emailField = TestUtils.createField("email", "Email", "", "", "SCALAR", "String");
         Field commentsField = TestUtils.createField("comments", "Comments", "General Comments",
@@ -60,6 +61,7 @@ public class MetaServiceTest {
             "Useful sometimes", "SCALAR", "String");
         Field customIntField = TestUtils.createField("customInt100", "Brand new field", "", "", "SCALAR", "Integer");
         Field ownerField = TestUtils.createField("owner", "Recruiter", "", "", "TO_ONE", "");
+        Field startDateField = TestUtils.createField("startDate", "Start Date", null, null, "SCALAR", "Timestamp");
         StandardMetaData<CorporateUser> corporateUserMeta = new StandardMetaData<>();
         corporateUserMeta.setEntity("CorporateUser");
         corporateUserMeta.setLabel("Recruiter");
@@ -70,7 +72,7 @@ public class MetaServiceTest {
         Field cityField = TestUtils.createField("city", "City", "", "", "SCALAR", "String");
         addressField.setFields(new ArrayList<>(Arrays.asList(address1Field, cityField)));
 
-        // Mock out Candidate meta data
+        // Mock out Candidate meta
         StandardMetaData<Candidate> candidateMeta = new StandardMetaData<>();
         candidateMeta.setEntity("Candidate");
         candidateMeta.setLabel("Employee");
@@ -84,17 +86,25 @@ public class MetaServiceTest {
         bteSyncStatusMeta.setFields(new ArrayList<>(Arrays.asList(idField, nameField)));
         bteSyncStatusField.setAssociatedEntity(bteSyncStatusMeta);
 
-        // Mock out Placement meta data
+        // Mock out Placement meta
         StandardMetaData<Placement> placementMeta = new StandardMetaData<>();
         placementMeta.setEntity("Placement");
         placementMeta.setLabel("Placement");
-        placementMeta.setFields(new ArrayList<>(Arrays.asList(idField, bteSyncStatusField)));
+        placementMeta.setFields(new ArrayList<>(Arrays.asList(idField, bteSyncStatusField, startDateField)));
+
+        // Mock out WorkersCompensationRate meta
+        StandardMetaData<WorkersCompensationRate> workersCompensationRateMeta = new StandardMetaData<>();
+        workersCompensationRateMeta.setEntity("WorkersCompensationRate");
+        workersCompensationRateMeta.setLabel("Workers Compensation Rate");
+        workersCompensationRateMeta.setFields(new ArrayList<>(Arrays.asList(idField, startDateField)));
 
         when(restSessionMock.getRestApi()).thenReturn(restApiMock);
         when(restApiMock.getMetaData(eq(Candidate.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
             .thenReturn(candidateMeta);
         when(restApiMock.getMetaData(eq(Placement.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
             .thenReturn(placementMeta);
+        when(restApiMock.getMetaData(eq(WorkersCompensationRate.class), eq(MetaParameter.FULL), eq(Sets.newHashSet(StringConsts.ALL_FIELDS))))
+            .thenReturn(workersCompensationRateMeta);
     }
 
     @Test
@@ -160,6 +170,34 @@ public class MetaServiceTest {
         JSONObject bteSyncStatusField = fields.getJSONObject(1);
         TestUtils.checkJsonObject(bteSyncStatusField, "name,label,description,type", "bteSyncStatus,Bte Sync Status,A lookup field,SCALAR");
         Assert.assertFalse(bteSyncStatusField.has("associatedEntity"));
+    }
+
+    @Test
+    public void testRunWorkersCompensationRate() {
+        String[] testArgs = {Command.META.getMethodName(), EntityInfo.WORKERS_COMPENSATION_RATE.getEntityName()};
+        ArgumentCaptor<String> stringCaptor = ArgumentCaptor.forClass(String.class);
+
+        metaService.run(testArgs);
+
+        verify(printUtilMock, times(1)).log("Getting meta for WorkersCompensationRate...");
+        verify(printUtilMock, times(1)).log("Added WorkersCompensationRate field: privateLabel that was not in Meta.");
+        verify(printUtilMock, times(1)).log("Done generating meta for WorkersCompensationRate");
+        verify(printUtilMock, times(1)).print(stringCaptor.capture());
+
+        String jsonPrinted = stringCaptor.getValue();
+        JSONObject meta = new JSONObject(jsonPrinted);
+        Assert.assertEquals(meta.get("entity"), "WorkersCompensationRate");
+        Assert.assertEquals(meta.get("label"), "Workers Compensation Rate");
+        JSONArray fields = meta.getJSONArray("fields");
+        TestUtils.checkJsonObject(fields.getJSONObject(0), "name,label,type,dataType", "id,ID,ID,Integer");
+        TestUtils.checkJsonObject(fields.getJSONObject(1), "name,label,type,dataType", "startDate,Start Date,SCALAR,Timestamp");
+
+        JSONObject privateLabelField = fields.getJSONObject(2);
+        TestUtils.checkJsonObject(privateLabelField, "name,label,type", "privateLabel,Private Label,TO_ONE");
+        JSONObject ownerAssociation = privateLabelField.getJSONObject("associatedEntity");
+        Assert.assertEquals(ownerAssociation.getString("entity"), "PrivateLabel");
+        JSONArray ownerAssociationFields = ownerAssociation.getJSONArray("fields");
+        TestUtils.checkJsonObject(ownerAssociationFields.getJSONObject(0), "name,label,type,dataType", "id,ID,ID,Integer");
     }
 
     @Test(expected = RestApiException.class)
