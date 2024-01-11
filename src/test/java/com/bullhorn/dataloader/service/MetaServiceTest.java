@@ -125,6 +125,7 @@ public class MetaServiceTest {
         Assert.assertEquals(meta.get("entity"), "Candidate");
         Assert.assertEquals(meta.get("label"), "Employee");
         JSONArray fields = meta.getJSONArray("fields");
+        Assert.assertEquals(7, fields.length());
         TestUtils.checkJsonObject(fields.getJSONObject(0), "name", "id");
         TestUtils.checkJsonObject(fields.getJSONObject(1), "name,label,description,hint", "email,Email,,");
         TestUtils.checkJsonObject(fields.getJSONObject(2), "name,label,description,hint",
@@ -165,6 +166,7 @@ public class MetaServiceTest {
         Assert.assertEquals(meta.get("entity"), "Placement");
         Assert.assertEquals(meta.get("label"), "Placement");
         JSONArray fields = meta.getJSONArray("fields");
+        Assert.assertEquals(2, fields.length());
         TestUtils.checkJsonObject(fields.getJSONObject(0), "name", "id");
 
         JSONObject bteSyncStatusField = fields.getJSONObject(1);
@@ -189,6 +191,7 @@ public class MetaServiceTest {
         Assert.assertEquals(meta.get("entity"), "WorkersCompensationRate");
         Assert.assertEquals(meta.get("label"), "Workers Compensation Rate");
         JSONArray fields = meta.getJSONArray("fields");
+        Assert.assertEquals(3, fields.length());
         TestUtils.checkJsonObject(fields.getJSONObject(0), "name,label,type,dataType", "id,ID,ID,Integer");
         TestUtils.checkJsonObject(fields.getJSONObject(1), "name,label,type,dataType", "startDate,Start Date,SCALAR,Timestamp");
 
