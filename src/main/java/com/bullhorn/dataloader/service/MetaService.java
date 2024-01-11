@@ -111,7 +111,6 @@ public class MetaService implements Action {
                     + StringConsts.EXTERNAL_ID + " that was not in Meta.");
             }
             if (entityInfo.equals(EntityInfo.WORKERS_COMPENSATION_RATE)
-                && setterMethodMap.containsKey(StringConsts.PRIVATE_LABEL.toLowerCase())
                 && fields.stream().noneMatch(field -> field.getName().equals(StringConsts.PRIVATE_LABEL))) {
                 StandardMetaData<PrivateLabel> associatedEntityMeta = new StandardMetaData<>();
                 associatedEntityMeta.setEntity("PrivateLabel");
