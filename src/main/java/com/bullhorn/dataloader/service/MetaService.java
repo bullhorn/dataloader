@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -18,8 +19,10 @@ import com.bullhorn.dataloader.util.PrintUtil;
 import com.bullhorn.dataloader.util.StringConsts;
 import com.bullhorn.dataloader.util.ValidationUtil;
 import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
+import com.bullhornsdk.data.model.entity.core.standard.PrivateLabel;
 import com.bullhornsdk.data.model.entity.meta.Field;
 import com.bullhornsdk.data.model.entity.meta.MetaData;
+import com.bullhornsdk.data.model.entity.meta.StandardMetaData;
 import com.bullhornsdk.data.model.enums.MetaParameter;
 import com.google.common.collect.Sets;
 
@@ -103,13 +106,22 @@ public class MetaService implements Action {
             // Add additional fields from SDK-REST that are not in meta
             if (setterMethodMap.containsKey(StringConsts.EXTERNAL_ID.toLowerCase())
                 && fields.stream().noneMatch(field -> field.getName().equals(StringConsts.EXTERNAL_ID))) {
-                Field externalIdField = new Field();
-                externalIdField.setName(StringConsts.EXTERNAL_ID);
-                externalIdField.setType("SCALAR");
-                externalIdField.setDataType("String");
-                fields.add(externalIdField);
+                fields.add(createField(StringConsts.EXTERNAL_ID, StringConsts.EXTERNAL_ID, "SCALAR", "String"));
                 printUtil.log("Added " + entityInfo.getEntityName() + " field: "
                     + StringConsts.EXTERNAL_ID + " that was not in Meta.");
+            }
+            if (entityInfo.equals(EntityInfo.WORKERS_COMPENSATION_RATE)
+                && fields.stream().noneMatch(field -> field.getName().equals(StringConsts.PRIVATE_LABEL))) {
+                StandardMetaData<PrivateLabel> associatedEntityMeta = new StandardMetaData<>();
+                associatedEntityMeta.setEntity("PrivateLabel");
+                associatedEntityMeta.setLabel("Private Label");
+                associatedEntityMeta.setFields(new ArrayList<>(Collections.singletonList(
+                    createField(StringConsts.ID, "ID", "ID", "Integer"))));
+                Field privateLabelField = createField(StringConsts.PRIVATE_LABEL, "Private Label", "TO_ONE", null);
+                privateLabelField.setAssociatedEntity(associatedEntityMeta);
+                fields.add(privateLabelField);
+                printUtil.log("Added " + entityInfo.getEntityName() + " field: "
+                    + StringConsts.PRIVATE_LABEL + " that was not in Meta.");
             }
         }
     }
@@ -147,5 +159,17 @@ public class MetaService implements Action {
             jsonFields.put(jsonField);
         }
         return jsonFields;
+    }
+
+    /**
+     * Convenience constructor that builds up a small Field object.
+     */
+    private static Field createField(String name, String label, String type, String dataType) {
+        Field field = new Field();
+        field.setName(name);
+        field.setLabel(label);
+        field.setType(type);
+        field.setDataType(dataType);
+        return field;
     }
 }
