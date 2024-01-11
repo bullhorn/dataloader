@@ -106,7 +106,7 @@ public class MetaService implements Action {
             // Add additional fields from SDK-REST that are not in meta
             if (setterMethodMap.containsKey(StringConsts.EXTERNAL_ID.toLowerCase())
                 && fields.stream().noneMatch(field -> field.getName().equals(StringConsts.EXTERNAL_ID))) {
-                fields.add(createField(StringConsts.PRIVATE_LABEL, StringConsts.EXTERNAL_ID, "SCALAR", "String"));
+                fields.add(createField(StringConsts.EXTERNAL_ID, StringConsts.EXTERNAL_ID, "SCALAR", "String"));
                 printUtil.log("Added " + entityInfo.getEntityName() + " field: "
                     + StringConsts.EXTERNAL_ID + " that was not in Meta.");
             }
