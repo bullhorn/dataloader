@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.1](https://github.com/bullhorn/dataloader/compare/v5.10.0...v5.10.1) (2024-01-11)
+
+
+### Bug Fixes
+
+* **WorkersCompensationRate:** Ensuring that privateLabel.id is available in meta ([#427](https://github.com/bullhorn/dataloader/issues/427)) ([0a6392a](https://github.com/bullhorn/dataloader/commit/0a6392aa888d539e24011bfb5b3739d58218e07e))
+
 ## [5.10.0](https://github.com/bullhorn/dataloader/compare/v5.9.0...v5.10.0) (2024-01-08)
 
 
