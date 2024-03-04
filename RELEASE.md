@@ -42,4 +42,4 @@ which tells TravisCI to generate the build artifacts and publish them to the Git
 
     3. In the "Attach Binaries" section of the release page, attach the wiki package file: `wiki.zip`
 
-6. Post a slack message in `#dataloader-community` that the new release is available with the release notes.
+6. Post a Slack message in `#sme_data_loader` that the new release is available with the release notes.
