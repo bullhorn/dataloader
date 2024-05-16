@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class LoadServiceTest {
         actionTotalsMock = mock(ActionTotals.class);
         completeUtilMock = mock(CompleteUtil.class);
         restSessionMock = mock(RestSession.class);
-        inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
+        inputStreamFake = IOUtils.toInputStream("Yes!", StandardCharsets.UTF_8);
         printUtilMock = mock(PrintUtil.class);
         processRunnerMock = mock(ProcessRunner.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
@@ -131,7 +132,7 @@ public class LoadServiceTest {
 
     @Test
     public void testRunDirectoryFourFilesContinueNo() throws IOException, InterruptedException {
-        inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
+        inputStreamFake = IOUtils.toInputStream("No", StandardCharsets.UTF_8);
         loadService = new LoadService(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");

@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.service;
 
 import com.bullhorn.dataloader.rest.RestSession;
+import com.bullhorn.dataloader.util.FileUtil;
 import com.bullhorn.dataloader.util.PrintUtil;
 
 /**
@@ -18,16 +19,22 @@ public class LoginService implements Action {
 
     @Override
     public void run(String[] args) {
-        try {
-            restSession.getRestApi();
-            printUtil.printAndLog("Login Successful");
-        } catch (Exception e) {
-            printUtil.printAndLog("Login Failed");
-        }
+        String output = isLoginSuccessful() ? "Login Successful" : "Login Failed";
+        printUtil.printAndLog(output);
+        FileUtil.writeStringToFileAndLogException("login.txt", output, printUtil);
     }
 
     @Override
     public boolean isValidArguments(String[] args) {
+        return true;
+    }
+
+    private boolean isLoginSuccessful() {
+        try {
+            restSession.getRestApi();
+        } catch (Exception e) {
+            return false;
+        }
         return true;
     }
 }

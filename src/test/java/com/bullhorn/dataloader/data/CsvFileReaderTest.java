@@ -27,7 +27,7 @@ public class CsvFileReaderTest {
     public void setup() throws IOException {
         printUtilMock = mock(PrintUtil.class);
 
-        // Normally, we would mock out these low level dependencies, but it's in fact easier and more
+        // Normally, we would mock out these low level dependencies, but it is in fact easier and more
         // straightforward to use the real objects when testing.
         String path = TestUtils.getResourceFilePath("unitTest.properties");
         Map<String, String> envVars = new HashMap<>();

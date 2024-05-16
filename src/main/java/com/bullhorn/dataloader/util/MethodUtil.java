@@ -138,7 +138,7 @@ public class MethodUtil {
     }
 
     /**
-     * Converts the given string value to the given type, and if it's a date, using the given dateTimeFormatter.
+     * Converts the given string value to the given type, and if it is a date, using the given dateTimeFormatter.
      * <p>
      * If the date is being used to query for existing records, then it does not need to be in the form of
      * the date time format, it can stay as a string until used in the find call.

@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.util;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import com.bullhorn.dataloader.data.Row;
@@ -176,5 +178,17 @@ public class FileUtil {
             attachmentFile = new File(currentCsvFile.getParent(), row.getValue(StringConsts.RELATIVE_FILE_PATH));
         }
         return attachmentFile;
+    }
+
+    /**
+     * Shortcut for writing to a file and logging exceptions
+     */
+    public static void writeStringToFileAndLogException(String filename, String output, PrintUtil printUtil) {
+        try {
+            File file = new File(filename);
+            FileUtils.writeStringToFile(file, output, StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            printUtil.log("Failed to write \"" + output + "\" to file: " + filename);
+        }
     }
 }

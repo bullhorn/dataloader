@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -45,7 +46,7 @@ public class ExportServiceTest {
         actionTotalsMock = mock(ActionTotals.class);
         completeUtilMock = mock(CompleteUtil.class);
         restSessionMock = mock(RestSession.class);
-        inputStreamFake = IOUtils.toInputStream("Yes!", "UTF-8");
+        inputStreamFake = IOUtils.toInputStream("Yes!", StandardCharsets.UTF_8);
         printUtilMock = mock(PrintUtil.class);
         processRunnerMock = mock(ProcessRunner.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
@@ -115,7 +116,7 @@ public class ExportServiceTest {
 
     @Test
     public void testRunDirectoryFourFilesContinueNo() throws Exception {
-        inputStreamFake = IOUtils.toInputStream("No", "UTF-8");
+        inputStreamFake = IOUtils.toInputStream("No", StandardCharsets.UTF_8);
         exportService = new ExportService(printUtilMock, propertyFileUtilMock, completeUtilMock, restSessionMock, processRunnerMock, inputStreamFake, timerMock);
 
         final String filePath = TestUtils.getResourceFilePath("loadFromDirectory");

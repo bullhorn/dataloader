@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -41,7 +42,7 @@ public class DeleteServiceTest {
         actionTotalsMock = mock(ActionTotals.class);
         completeUtilMock = mock(CompleteUtil.class);
         RestSession restSessionMock = mock(RestSession.class);
-        InputStream inputStreamFake = IOUtils.toInputStream("yes", "UTF-8");
+        InputStream inputStreamFake = IOUtils.toInputStream("yes", StandardCharsets.UTF_8);
         printUtilMock = mock(PrintUtil.class);
         processRunnerMock = mock(ProcessRunner.class);
         PropertyFileUtil propertyFileUtilMock = mock(PropertyFileUtil.class);
