@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.10.2](https://github.com/bullhorn/dataloader/compare/v5.10.1...v5.10.2) (2024-05-17)
+
+
+### Bug Fixes
+
+* **App:** Using file output to workaround issues in windows java ([#435](https://github.com/bullhorn/dataloader/issues/435)) ([8386fdc](https://github.com/bullhorn/dataloader/commit/8386fdc3b26557016f56ffb555b62c0993872ad3))
+
 ### [5.10.1](https://github.com/bullhorn/dataloader/compare/v5.10.0...v5.10.1) (2024-01-11)
 
 
