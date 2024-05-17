@@ -43,17 +43,19 @@ public class MetaService implements Action {
     @SuppressWarnings("unchecked")
     public void run(String[] args) {
         EntityInfo entityInfo = FileUtil.extractEntityFromFileName(args[1]);
+        String entityName = Objects.requireNonNull(entityInfo).getEntityName();
         RestApi restApi = restSession.getRestApi();
 
         try {
-            printUtil.log("Getting meta for " + Objects.requireNonNull(entityInfo).getEntityName() + "...");
+            printUtil.log("Getting meta for " + entityName + "...");
             MetaData<?> metaData = restApi.getMetaData(entityInfo.getEntityClass(), MetaParameter.FULL, Sets.newHashSet(StringConsts.ALL_FIELDS));
             enrichMeta(metaData);
-            JSONObject jsonMeta = metaToJson(metaData);
-            printUtil.print(jsonMeta.toString());
-            printUtil.log("Done generating meta for " + Objects.requireNonNull(entityInfo).getEntityName());
+            String jsonString = metaToJson(metaData).toString();
+            printUtil.print(jsonString);
+            FileUtil.writeStringToFileAndLogException("meta.json", jsonString, printUtil);
+            printUtil.log("Done generating meta for " + entityName);
         } catch (Exception e) {
-            printUtil.printAndLog("ERROR: Failed to get Meta for " + Objects.requireNonNull(entityInfo).getEntityName());
+            printUtil.printAndLog("ERROR: Failed to get Meta for " + entityName);
             printUtil.printAndLog(e);
         }
     }

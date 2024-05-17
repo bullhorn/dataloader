@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -207,9 +208,9 @@ public class TestUtils {
             for (File file : directoryListing) {
                 String extension = FilenameUtils.getExtension(file.getPath());
                 if (extension.equalsIgnoreCase(StringConsts.CSV)) {
-                    String content = FileUtils.readFileToString(file, "UTF-8");
+                    String content = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
                     content = content.replaceAll(findText, replaceText);
-                    FileUtils.writeStringToFile(file, content, "UTF-8");
+                    FileUtils.writeStringToFile(file, content, StandardCharsets.UTF_8);
                 } else if (file.isDirectory()) {
                     replaceTextInFiles(file, findText, replaceText);
                 }

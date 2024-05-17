@@ -1,6 +1,8 @@
 package com.bullhorn.dataloader.util;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.util.Arrays;
@@ -22,10 +24,12 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 @SuppressWarnings("InstantiationOfUtilityClass")
 public class FileUtilTest {
 
+    private PrintUtil printUtilMock;
     private PropertyFileUtil propertyFileUtilMock;
 
     @Before
     public void setup() {
+        printUtilMock = mock(PrintUtil.class);
         propertyFileUtilMock = mock(PropertyFileUtil.class);
     }
 
@@ -145,5 +149,11 @@ public class FileUtilTest {
     public void testIsCsvFileNonCsvFile() {
         String path = TestUtils.getResourceFilePath("unitTest.properties");
         Assert.assertFalse(FileUtil.isCsvFile(path));
+    }
+
+    @Test
+    public void testWriteStringToFileAndLogException() {
+        FileUtil.writeStringToFileAndLogException(null, "this should fail", printUtilMock);
+        verify(printUtilMock, times(1)).log("Failed to write \"this should fail\" to file: null");
     }
 }

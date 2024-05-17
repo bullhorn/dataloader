@@ -2,6 +2,7 @@ package com.bullhorn.dataloader.integration;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import org.apache.commons.io.FileUtils;
@@ -78,10 +79,10 @@ public class IntegrationTest {
         // Test that incorrect capitalization will be fixed instead of cause errors
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("capitalization"));
 
-        // Test that the byte order mark is ignored when it's present in the input file as the first (hidden) character
+        // Test that the byte order mark is ignored when it is present in the input file as the first (hidden) character
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("byteOrderMark"));
 
-        // Test that country names are case insensitive
+        // Test that country names are case-insensitive
         runAllCommandsAgainstDirectory(TestUtils.getResourceFilePath("countryNames"));
 
         // Run a test for skipping updates (with the setting turned on)
@@ -142,7 +143,7 @@ public class IntegrationTest {
      * 7. Load - Update
      * 8. Delete
      * <p> <p>
-     * The unique IDs of all of the entities are changed from `-ext-1` to something unique, after the examples have been
+     * The unique IDs of entities are changed from `-ext-1` to something unique, after the examples have been
      * cloned to a test folder.
      * <p> <p>
      * Test assertions of both command line output and results files created. These steps cover the presence of records
@@ -172,7 +173,7 @@ public class IntegrationTest {
         // region LOAD - INSERT
         if (!skipInserts) {
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            System.setIn(IOUtils.toInputStream("yes", StandardCharsets.UTF_8)); // Accepts command for entire directory
             consoleOutputCapturer.start();
             Main.main(new String[]{"load", tempDirPath});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.INSERT);
@@ -200,7 +201,7 @@ public class IntegrationTest {
             // endregion
 
             // region LOAD ATTACHMENTS - UPDATE
-            // Do not cleanup from previous run here - both Candidate and CandidateUpdate need to be present for delete step
+            // Do not clean up after previous run here - both Candidate and CandidateUpdate need to be present for delete step
             consoleOutputCapturer.start();
             Main.main(new String[]{"loadAttachments", tempAttachmentsDirectory.getPath() + "/CandidateUpdate.csv"});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.UPDATE);
@@ -220,7 +221,7 @@ public class IntegrationTest {
         // region EXPORT
         if (!skipExports) {
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            System.setIn(IOUtils.toInputStream("yes", StandardCharsets.UTF_8)); // Accepts command for entire directory
             consoleOutputCapturer.start();
             Main.main(new String[]{"export", tempDirPath});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.EXPORT);
@@ -234,7 +235,7 @@ public class IntegrationTest {
             TestUtils.replaceTextInFiles(tempDirectory, "2001-01-01", "2002-02-02");
 
             FileUtils.deleteQuietly(new File(CsvFileWriter.RESULTS_DIR)); // Cleanup from previous runs
-            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            System.setIn(IOUtils.toInputStream("yes", StandardCharsets.UTF_8)); // Accepts command for entire directory
             consoleOutputCapturer.start();
             Main.main(new String[]{"load", tempDirPath});
             Result.Action expectedAction = skipDuplicates ? Result.Action.SKIP : Result.Action.UPDATE;
@@ -248,7 +249,7 @@ public class IntegrationTest {
             // Capture results file directory state
             File[] resultsFiles = resultsDir.listFiles();
 
-            System.setIn(IOUtils.toInputStream("yes", "UTF-8")); // Accepts command for entire directory
+            System.setIn(IOUtils.toInputStream("yes", StandardCharsets.UTF_8)); // Accepts command for entire directory
             consoleOutputCapturer.start();
             Main.main(new String[]{"delete", CsvFileWriter.RESULTS_DIR});
             TestUtils.checkCommandLineOutput(consoleOutputCapturer.stop(), Result.Action.DELETE);

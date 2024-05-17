@@ -1,6 +1,7 @@
 package com.bullhorn.dataloader.rest;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -137,7 +138,7 @@ public class CompleteUtil {
         try {
             String resultsString = resultsWrapper.get().toString(2);
             File file = new File(propertyFileUtil.getResultsFilePath());
-            FileUtils.writeStringToFile(file, resultsString, "UTF-8");
+            FileUtils.writeStringToFile(file, resultsString, StandardCharsets.UTF_8);
         } catch (Exception e) {
             printUtil.printAndLog("Error writing results file: " + e);
         }
