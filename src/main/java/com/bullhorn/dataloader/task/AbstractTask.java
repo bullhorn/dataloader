@@ -149,6 +149,9 @@ public abstract class AbstractTask implements Runnable {
 
         if (!entityExistFields.isEmpty()) {
             EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
+            if (entityInfo.isEffectiveDatedEntity()) {
+                returnFields.add("versionID");
+            }
 
             if (propertyFileUtil.getCaching()) {
                 // When caching, return search fields so that entity results can be split apart into partial results for advanced caching

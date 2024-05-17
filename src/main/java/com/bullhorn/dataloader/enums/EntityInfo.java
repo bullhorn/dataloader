@@ -13,6 +13,7 @@ import com.bullhornsdk.data.model.entity.core.standard.JobOrder;
 import com.bullhornsdk.data.model.entity.core.standard.Opportunity;
 import com.bullhornsdk.data.model.entity.core.standard.Placement;
 import com.bullhornsdk.data.model.entity.core.type.CreateEntity;
+import com.bullhornsdk.data.model.entity.core.type.EffectiveDateEntity;
 import com.bullhornsdk.data.model.entity.core.type.HardDeleteEntity;
 import com.bullhornsdk.data.model.entity.core.type.SearchEntity;
 import com.bullhornsdk.data.model.entity.core.type.SoftDeleteEntity;
@@ -347,6 +348,10 @@ public enum EntityInfo {
             || JobOrder.class.isAssignableFrom(getEntityClass())
             || Opportunity.class.isAssignableFrom(getEntityClass())
             || Placement.class.isAssignableFrom(getEntityClass()));
+    }
+
+    public boolean isEffectiveDatedEntity() {
+        return EffectiveDateEntity.class.isAssignableFrom(getEntityClass());
     }
 
     /**
