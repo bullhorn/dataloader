@@ -12,7 +12,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
+import com.bullhornsdk.data.model.entity.core.paybill.BillingProfile;
+import com.bullhornsdk.data.model.entity.core.paybill.Location;
+import com.bullhornsdk.data.model.entity.core.paybill.invoice.InvoiceTerm;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Assert;
@@ -1558,5 +1563,151 @@ public class LoadTaskTest {
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.CONNECTION_TIMEOUT,
             internetConnectivityIssueException.getMessage()));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunInsertNewBillingProfile() throws Exception {
+
+        Row row = TestUtils.createRow("id,effectiveDate,billingCorporateUser.name,billingClientCorporation.name,billingLocation.title,invoiceTerm.title,status,title",
+            "1,2019-05-10,A. CorporateUser,ACME Corp,Boston,On Time Invoicing,Active,Test Billing Profile");
+
+        // Mock out all existing reference entities
+        CorporateUser corporateUser = new CorporateUser(123);
+        corporateUser.setName("A. CorporateUser");
+
+        ClientCorporation clientCorporation = new ClientCorporation(1);
+        clientCorporation.setName("ACME Corp");
+
+        Location location = new Location();
+        location.setId(2);
+        location.setTitle("Boston");
+
+        InvoiceTerm invoiceTerm = new InvoiceTerm();
+        invoiceTerm.setId(3);
+        invoiceTerm.setTitle("On Time Invoicing");
+
+        List<String> entityExistsFields = Collections.singletonList("title");
+        Set<String> expectedReturnFields = Sets.newHashSet("id");
+
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.BILLING_PROFILE))
+            .thenReturn(entityExistsFields);
+
+        when(restApiMock.queryForList(eq(BillingProfile.class),
+            eq("title='Test Billing Profile'"), eq(expectedReturnFields), any()))
+            .thenReturn(TestUtils.getList(BillingProfile.class));
+
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("name='A. CorporateUser'"), any(), any()))
+            .thenReturn(TestUtils.getList(CorporateUser.class, 123));
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("name:\"ACME Corp\""), any(), any()))
+            .thenReturn(TestUtils.getList(ClientCorporation.class, 1));
+        when(restApiMock.queryForList(eq(Location.class), eq("title='Boston' AND isDeleted=false"), any(), any()))
+            .thenReturn(TestUtils.getList(Location.class, 2));
+        when(restApiMock.queryForList(eq(InvoiceTerm.class), eq("title='On Time Invoicing' AND isDeleted=false"), any(), any()))
+            .thenReturn(TestUtils.getList(InvoiceTerm.class, 2));
+
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.BILLING_PROFILE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunUpdateExistingBillingProfile() throws Exception {
+
+        Row row = TestUtils.createRow("id,effectiveDate,title,billingCorporateUser.name",
+            "1,2019-05-10,Test Billing Profile,A. CorporateUser");
+
+        // Mock out all existing reference entities
+        CorporateUser corporateUser = new CorporateUser(123);
+        corporateUser.setName("A. CorporateUser");
+
+        ClientCorporation clientCorporation = new ClientCorporation(1);
+        clientCorporation.setExternalID("ACME Corp");
+
+        Location location = new Location();
+        location.setTitle("Boston");
+
+        InvoiceTerm invoiceTerm = new InvoiceTerm();
+        invoiceTerm.setTitle("On Time Invoicing");
+
+        List<String> entityExistsFields = Arrays.asList("title", "effectiveDate");
+        Set<String> expectedReturnFields = Sets.newHashSet("versionID", "id");
+
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.BILLING_PROFILE))
+            .thenReturn(entityExistsFields);
+
+        when(restApiMock.queryForList(eq(BillingProfile.class),
+            eq("effectiveDate='2019-05-10' AND title='Test Billing Profile'"), eq(expectedReturnFields), any()))
+            .thenReturn(TestUtils.getList(BillingProfile.class, 1));
+
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("name='A. CorporateUser'"), any(), any()))
+            .thenReturn(TestUtils.getList(CorporateUser.class, 123));
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("name:\"ACME Corp\""), any(), any()))
+            .thenReturn(TestUtils.getList(ClientCorporation.class, 1));
+        when(restApiMock.queryForList(eq(Location.class), eq("title='Boston' AND isDeleted=false"), any(), any()))
+            .thenReturn(TestUtils.getList(Location.class, 2));
+        when(restApiMock.queryForList(eq(InvoiceTerm.class), eq("title='On Time Invoicing' AND isDeleted=false"), any(), any()))
+            .thenReturn(TestUtils.getList(InvoiceTerm.class, 2));
+
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.BILLING_PROFILE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
+    }
+
+    @Test
+    public void testRunAddNewVersionToExistingBillingProfile() throws Exception {
+
+        Row row = TestUtils.createRow("id,effectiveDate,billingCorporateUser.name,billingClientCorporation.name,billingLocation.title,invoiceTerm.title,status,title",
+            "1,2019-05-10,A. CorporateUser,ACME Corp,Boston,On Time Invoicing,Active,Test Billing Profile");
+
+        // Mock out all existing reference entities
+        CorporateUser corporateUser = new CorporateUser(123);
+        corporateUser.setName("A. CorporateUser");
+
+        ClientCorporation clientCorporation = new ClientCorporation(1);
+        clientCorporation.setExternalID("ACME Corp");
+
+        Location location = new Location();
+        location.setTitle("Boston");
+
+        InvoiceTerm invoiceTerm = new InvoiceTerm();
+        invoiceTerm.setTitle("On Time Invoicing");
+
+        List<String> entityExistsFields = Arrays.asList("title");
+        Set<String> expectedReturnFields = Sets.newHashSet("id");
+
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.BILLING_PROFILE))
+            .thenReturn(entityExistsFields);
+
+        when(restApiMock.queryForList(eq(BillingProfile.class),
+            eq("title='Test Billing Profile'"), eq(expectedReturnFields), any()))
+            .thenReturn(TestUtils.getList(BillingProfile.class, 1));
+
+        when(restApiMock.queryForList(eq(CorporateUser.class), eq("name='A. CorporateUser'"), any(), any()))
+            .thenReturn(TestUtils.getList(CorporateUser.class, 123));
+        when(restApiMock.searchForList(eq(ClientCorporation.class), eq("name:\"ACME Corp\""), any(), any()))
+            .thenReturn(TestUtils.getList(ClientCorporation.class, 1));
+        when(restApiMock.queryForList(eq(Location.class), eq("title='Boston' AND isDeleted=false"), any(), any()))
+            .thenReturn(TestUtils.getList(Location.class, 2));
+        when(restApiMock.queryForList(eq(InvoiceTerm.class), eq("title='On Time Invoicing' AND isDeleted=false"), any(), any()))
+            .thenReturn(TestUtils.getList(InvoiceTerm.class, 2));
+
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.BILLING_PROFILE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 }

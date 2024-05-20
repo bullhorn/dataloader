@@ -146,11 +146,12 @@ public abstract class AbstractTask implements Runnable {
                                       Set<String> returnFields,
                                       Boolean isPrimaryEntity) throws InvocationTargetException, IllegalAccessException {
         List<BullhornEntity> entities = new ArrayList<>();
-
         if (!entityExistFields.isEmpty()) {
             EntityInfo entityInfo = entityExistFields.get(0).getEntityInfo(isPrimaryEntity);
-            if (entityInfo.isEffectiveDatedEntity()) {
-                returnFields.add("versionID");
+            Set<String> existsFields = entityExistFields.stream().map(Field::getName).collect(Collectors.toSet());
+
+            if (isUpdateForExistingEffectiveDatedEntityVersion(entityInfo, existsFields)) {
+                returnFields.add(StringConsts.VERSION_ID);
             }
 
             if (propertyFileUtil.getCaching()) {
@@ -175,6 +176,10 @@ public abstract class AbstractTask implements Runnable {
         }
 
         return entities;
+    }
+
+    private static boolean isUpdateForExistingEffectiveDatedEntityVersion(EntityInfo entityInfo, Set<String> existsFields) {
+        return entityInfo.isEffectiveDatedEntity() && existsFields.contains(StringConsts.EFFECTIVE_DATE);
     }
 
     /**

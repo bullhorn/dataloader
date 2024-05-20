@@ -17,6 +17,7 @@ public class StringConsts {
     public static final String CSV = "csv";
     public static final String DATALOADER_PREFIX = "DATALOADER_";
     public static final String DESCRIPTION = "description";
+    public static final String EFFECTIVE_DATE = "effectiveDate";
     public static final String EXIST_FIELD_SUFFIX = "ExistField";
     public static final String EXTERNAL_ID = "externalID";
     public static final String FIRST_NAME = "firstName";
@@ -35,4 +36,5 @@ public class StringConsts {
     public static final String SCALAR = "SCALAR";
     public static final String TO_ONE = "TO_ONE";
     public static final String TO_MANY = "TO_MANY";
+    public static final String VERSION_ID = "versionID";
 }
