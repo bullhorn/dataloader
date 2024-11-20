@@ -14,7 +14,7 @@ _The app handles loading data only. For features such as exporting and deleting 
 
 ## Quick Start Guide
 
- 1. Install Java if you don't have it already (you won't need the development kit for Windows) - [Windows](http://javadl.oracle.com/webapps/download/AutoDL?BundleId=210182) | [Mac](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+ 1. Install Java if you don't have it already (you won't need the development kit for Windows) - [Windows](https://www.azul.com/downloads/?version=java-8-lts&os=windows&package=jdk#zulu) | [Mac](https://www.azul.com/downloads/?version=java-8-lts&os=macos&package=jdk#zulu)
  
     1. Verify that you have a compatible version of java on the command line by typing: `java -version`, which should show: `java version "1.8.x"`
 
@@ -252,7 +252,7 @@ There are multiple ways to contribute to Bullhorn DataLoader:
 
 1. Install Prerequisites
  * [Apache Maven 3.0](https://maven.apache.org/)
- * [Java SDK 1.8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+ * [Java SDK 1.8](https://www.azul.com/downloads/?version=java-8-lts&package=jdk#zulu)
  * [Node.js](https://nodejs.org/en/)
 
 2. Clone the repo:
