@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.11.0](https://github.com/bullhorn/dataloader/compare/v5.10.2...v5.11.0) (2024-11-22)
+
+
+### Features
+
+* **Entities:** Add the PlacementCertification Entity ([#441](https://github.com/bullhorn/dataloader/issues/441)) ([fc5a17d](https://github.com/bullhorn/dataloader/commit/fc5a17d180a2b6641dc5fab1a5b4f4cb216f5162))
+
+
+### Bug Fixes
+
+* **Build:** Remove npm from travis build ([#442](https://github.com/bullhorn/dataloader/issues/442)) ([671d99d](https://github.com/bullhorn/dataloader/commit/671d99d356c758b3a2385497281fc5e4d63567b4))
+* **Date Expiration Test:** Removing a field from testing that is causing a false negative ([#436](https://github.com/bullhorn/dataloader/issues/436)) ([b3fb317](https://github.com/bullhorn/dataloader/commit/b3fb317f6d0521c33b0a57b8f42d5540a122e4b7))
+
 ### [5.10.2](https://github.com/bullhorn/dataloader/compare/v5.10.1...v5.10.2) (2024-05-17)
 
 
