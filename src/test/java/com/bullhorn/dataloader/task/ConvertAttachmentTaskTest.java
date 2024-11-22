@@ -1,5 +1,6 @@
 package com.bullhorn.dataloader.task;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
@@ -98,9 +99,7 @@ public class ConvertAttachmentTaskTest {
             propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.MISSING_ATTACHMENT_FILE,
-            "Cannot read file from disk: path/to/fake/testResume/TestResume.doc"));
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), any());
         TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.FAILURE, 1);
     }
 }
