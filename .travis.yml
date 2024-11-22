@@ -1,12 +1,5 @@
 language: java
 jdk: openjdk8
-cache:
-  directories:
-    - node_modules
-before_install:
-  - nvm install 16
-install:
-  - npm install
 script:
   - mvn verify
 after_success:
