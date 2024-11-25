@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.11.2](https://github.com/bullhorn/dataloader/compare/v5.11.1...v5.11.2) (2024-11-25)
+
+
+### Bug Fixes
+
+* **Build:** Fixing the travis build pre-deploy step ([d201926](https://github.com/bullhorn/dataloader/commit/d201926d46859d02ad20e2d54406e2c495fe27a5))
+
 ### [5.11.1](https://github.com/bullhorn/dataloader/compare/v5.11.0...v5.11.1) (2024-11-25)
 
 
