@@ -7,6 +7,10 @@ after_success:
 before_deploy:
   - mvn clean package
   - mvn assembly:single
+  - yes | gem update --system --force
+  - gem install bundler
+  - gem install uri
+  - gem install logger
 deploy:
   provider: releases
   api_key:

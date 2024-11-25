@@ -1,6 +1,5 @@
 package com.bullhorn.dataloader.task;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
