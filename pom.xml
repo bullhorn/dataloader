@@ -29,7 +29,6 @@
             <groupId>com.bullhorn</groupId>
             <artifactId>sdk-rest</artifactId>
             <version>2.4.1</version>
-
             <classifier>jdk8</classifier>
         </dependency>
 
