@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.11.5](https://github.com/bullhorn/dataloader/compare/v5.11.3...v5.11.5) (2025-06-26)
+
+
+### Bug Fixes
+
+* **BillingProfile:** updating sdk-rest version & resolving error in fieldtest file ([#450](https://github.com/bullhorn/dataloader/issues/450)) ([a10de89](https://github.com/bullhorn/dataloader/commit/a10de893ebcce0117192ba27db2b2675a706b983))
+
 ### [5.11.3](https://github.com/bullhorn/dataloader/compare/v5.11.2...v5.11.3) (2025-06-26)
 
 ### [5.11.2](https://github.com/bullhorn/dataloader/compare/v5.11.1...v5.11.2) (2024-11-25)
