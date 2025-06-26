@@ -140,12 +140,12 @@ public class FieldTest {
 
         Placement placement = new Placement();
 
-        Assert.assertNull(placement.getWorkFromHome());
+        Assert.assertNull(placement.getIsWorkFromHome());
         Assert.assertEquals(field.getStringValueFromEntity(placement, ";"), "");
 
         field.populateFieldOnEntity(placement);
 
-        Assert.assertEquals(placement.getWorkFromHome(), true);
+        Assert.assertEquals(placement.getIsWorkFromHome(), true);
         Assert.assertEquals(field.getStringValueFromEntity(placement, ";"), "true");
     }
 
