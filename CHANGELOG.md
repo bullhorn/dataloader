@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.11.6](https://github.com/bullhorn/dataloader/compare/v5.11.5...v5.11.6) (2025-07-22)
+
 ### [5.11.5](https://github.com/bullhorn/dataloader/compare/v5.11.3...v5.11.5) (2025-06-26)
 
 
