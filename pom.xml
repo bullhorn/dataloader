@@ -235,7 +235,7 @@
                 <configuration>
                     <!--suppress UnresolvedMavenProperty -->
                     <repoToken>${env.COVERALLS_REPO_TOKEN}</repoToken>
-                    <serviceName>travis-pro</serviceName>
+                    <serviceName>github</serviceName>
                     <sourceEncoding>UTF-8</sourceEncoding>
                 </configuration>
                 <dependencies>
