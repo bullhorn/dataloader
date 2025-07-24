@@ -36,10 +36,8 @@ jobs:
             - name: Run tests
               run: mvn verify -DskipITs=true
 
-            - name: Generate test report
-              run: mvn test jacoco:report coveralls:report
-              env:
-                  COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+            -   name: Generate test report
+                run: mvn test jacoco:report
 
     deploy:
         needs: test
