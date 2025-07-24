@@ -34,7 +34,7 @@ jobs:
                   restore-keys: ${{ runner.os }}-m2
 
             - name: Run tests
-              run: mvn verify  -DskipITs=true
+              run: mvn verify
 
             -   name: Generate test report
                 run: mvn test jacoco:report
