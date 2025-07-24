@@ -35,6 +35,11 @@ jobs:
 
             - name: Run tests
               run: mvn verify
+              env:
+                  DATALOADER_USERNAME: ${{ secrets.BULLHORN_USERNAME }}
+                  DATALOADER_PASSWORD: ${{ secrets.BULLHORN_PASSWORD }}
+                  DATALOADER_CLIENT_ID: ${{ secrets.BULLHORN_CLIENT_ID }}
+                  DATALOADER_CLIENT_SECRET: ${{ secrets.BULLHORN_CLIENT_SECRET }}
 
             -   name: Generate test report
                 run: mvn test jacoco:report
