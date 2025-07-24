@@ -33,6 +33,15 @@ jobs:
                   key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
                   restore-keys: ${{ runner.os }}-m2
 
+            - name: Create test properties
+              run: |
+                  cat > dataloader.properties << EOF
+                  username=${{ secrets.BULLHORN_USERNAME }}
+                  password=${{ secrets.BULLHORN_PASSWORD }}
+                  clientId=${{ secrets.BULLHORN_CLIENT_ID }}
+                  clientSecret=${{ secrets.BULLHORN_CLIENT_SECRET }}
+                  EOF
+
             - name: Run tests
               run: mvn verify
               env:
