@@ -33,8 +33,22 @@ jobs:
                   key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
                   restore-keys: ${{ runner.os }}-m2
 
+            - name: Create test properties
+              run: |
+                  cat > dataloader.properties << EOF
+                  username=${{ secrets.DATALOADER_USERNAME }}
+                  password=${{ secrets.DATALOADER_PASSWORD }}
+                  clientId=${{ secrets.DATALOADER_CLIENT_ID }}
+                  clientSecret=${{ secrets.DATALOADER_CLIENT_SECRET }}
+                  EOF
+
             - name: Run tests
-              run: mvn verify  -DskipITs=true
+              run: mvn verify
+              env:
+                  DATALOADER_USERNAME: ${{ secrets.DATALOADER_USERNAME }}
+                  DATALOADER_PASSWORD: ${{ secrets.DATALOADER_PASSWORD }}
+                  DATALOADER_CLIENT_ID: ${{ secrets.DATALOADER_CLIENT_ID }}
+                  DATALOADER_CLIENT_SECRET: ${{ secrets.DATALOADER_CLIENT_SECRET }}
 
             -   name: Generate test report
                 run: mvn test jacoco:report
