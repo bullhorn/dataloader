@@ -934,8 +934,13 @@ public class LoadTaskTest {
             restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
         task.run();
 
-        Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.NULL_POINTER_EXCEPTION, ""));
-        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+        ArgumentCaptor<Result> resultCaptor = ArgumentCaptor.forClass(Result.class);
+        verify(csvFileWriterMock, times(1)).writeRow(any(), resultCaptor.capture());
+        Result result = resultCaptor.getValue();
+        Assert.assertEquals(Result.Status.FAILURE, result.getStatus());
+        Assert.assertEquals(Result.Action.FAILURE, result.getAction());
+        Assert.assertEquals(ErrorInfo.NULL_POINTER_EXCEPTION, result.getErrorInfo());
+        Assert.assertEquals(-1, result.getBullhornId().intValue());
     }
 
     @Test

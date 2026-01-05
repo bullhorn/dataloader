@@ -13,6 +13,7 @@ import com.bullhorn.dataloader.rest.Field;
 import com.bullhornsdk.data.model.entity.association.AssociationFactory;
 import com.bullhornsdk.data.model.entity.association.AssociationField;
 import com.bullhornsdk.data.model.entity.association.EntityAssociations;
+import com.bullhornsdk.data.model.entity.core.paybill.BillingProfile;
 import com.bullhornsdk.data.model.entity.core.standard.Candidate;
 import com.bullhornsdk.data.model.entity.core.standard.Category;
 import com.bullhornsdk.data.model.entity.core.standard.ClientContact;
@@ -142,17 +143,18 @@ public class AssociationUtil {
      * @return The associations list
      */
     private static synchronized EntityAssociations getEntityAssociations(EntityInfo entityInfo) {
-        return (entityInfo.getEntityClass() == Candidate.class ? AssociationFactory.candidateAssociations() :
-            (entityInfo.getEntityClass() == Category.class ? AssociationFactory.categoryAssociations() :
-                (entityInfo.getEntityClass() == ClientContact.class ? AssociationFactory.clientContactAssociations() :
-                    (entityInfo.getEntityClass() == ClientCorporation.class ? AssociationFactory.clientCorporationAssociations() :
-                        (entityInfo.getEntityClass() == CorporateUser.class ? AssociationFactory.corporateUserAssociations() :
-                            (entityInfo.getEntityClass() == JobOrder.class ? AssociationFactory.jobOrderAssociations() :
-                                (entityInfo.getEntityClass() == Note.class ? AssociationFactory.noteAssociations() :
-                                    (entityInfo.getEntityClass() == Placement.class ? AssociationFactory.placementAssociations() :
-                                        (entityInfo.getEntityClass() == Opportunity.class ? AssociationFactory.opportunityAssociations() :
-                                            (entityInfo.getEntityClass() == Lead.class ? AssociationFactory.leadAssociations() :
-                                                entityInfo.getEntityClass() == Tearsheet.class ? AssociationFactory.tearsheetAssociations()
-                                                    : null))))))))));
+        return (entityInfo.getEntityClass() == BillingProfile.class ? AssociationFactory.billingProfileAssociations() :
+            (entityInfo.getEntityClass() == Candidate.class ? AssociationFactory.candidateAssociations() :
+                (entityInfo.getEntityClass() == Category.class ? AssociationFactory.categoryAssociations() :
+                    (entityInfo.getEntityClass() == ClientContact.class ? AssociationFactory.clientContactAssociations() :
+                        (entityInfo.getEntityClass() == ClientCorporation.class ? AssociationFactory.clientCorporationAssociations() :
+                            (entityInfo.getEntityClass() == CorporateUser.class ? AssociationFactory.corporateUserAssociations() :
+                                (entityInfo.getEntityClass() == JobOrder.class ? AssociationFactory.jobOrderAssociations() :
+                                    (entityInfo.getEntityClass() == Note.class ? AssociationFactory.noteAssociations() :
+                                        (entityInfo.getEntityClass() == Placement.class ? AssociationFactory.placementAssociations() :
+                                            (entityInfo.getEntityClass() == Opportunity.class ? AssociationFactory.opportunityAssociations() :
+                                                (entityInfo.getEntityClass() == Lead.class ? AssociationFactory.leadAssociations() :
+                                                    entityInfo.getEntityClass() == Tearsheet.class ? AssociationFactory.tearsheetAssociations()
+                                                        : null)))))))))));
     }
 }

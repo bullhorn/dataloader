@@ -49,6 +49,7 @@ public class LoadTask extends AbstractTask {
     private BullhornEntity entity;
     private boolean isNewEntity = true;
     private Record record;
+    private boolean hasDirectFieldsToPopulate = false;
 
     public LoadTask(EntityInfo entityInfo,
                     Row row,
@@ -72,7 +73,12 @@ public class LoadTask extends AbstractTask {
 
         populateFields();
         insertAttachmentToDescription();
-        insertOrUpdateEntity();
+
+        // Only call insertOrUpdateEntity if there are direct fields to persist, or if it's a new entity
+        if (isNewEntity || hasDirectFieldsToPopulate) {
+            insertOrUpdateEntity();
+        }
+
         createAssociations();
         return isNewEntity ? Result.insert(entityId) : Result.update(entityId);
     }
@@ -119,16 +125,18 @@ public class LoadTask extends AbstractTask {
     private void populateFields() throws Exception {
         for (Field field : record.getFields()) {
             if (field.isToMany()) {
-                if (entityInfo == EntityInfo.NOTE) {
+                if (entityInfo == EntityInfo.NOTE || entityInfo == EntityInfo.BILLING_PROFILE) {
                     prepopulateAssociation(field);
                 }
             } else if (field.isToOne()) {
                 if (!field.getStringValue().isEmpty()) {
                     BullhornEntity toOneEntity = findToOneEntity(field);
                     field.populateAssociationOnEntity(entity, toOneEntity);
+                    hasDirectFieldsToPopulate = true;
                 }
             } else {
                 field.populateFieldOnEntity(entity);
+                hasDirectFieldsToPopulate = true;
             }
         }
     }
@@ -175,8 +183,8 @@ public class LoadTask extends AbstractTask {
      */
     @SuppressWarnings("unchecked")
     private void createAssociations() throws IllegalAccessException, InvocationTargetException {
-        // Note associations are filled out in the create call
-        if (entityInfo == EntityInfo.NOTE) {
+        // Note and BillingProfile associations are filled out in the create call
+        if (entityInfo == EntityInfo.NOTE || entityInfo == EntityInfo.BILLING_PROFILE) {
             return;
         }
 
