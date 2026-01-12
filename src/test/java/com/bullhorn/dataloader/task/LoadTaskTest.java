@@ -38,6 +38,8 @@ import com.bullhornsdk.data.exception.RestApiException;
 import com.bullhornsdk.data.model.entity.association.standard.CandidateAssociations;
 import com.bullhornsdk.data.model.entity.core.customobjectinstances.clientcorporation.ClientCorporationCustomObjectInstance2;
 import com.bullhornsdk.data.model.entity.core.customobjectinstances.person.PersonCustomObjectInstance2;
+import com.bullhornsdk.data.model.entity.core.paybill.BillingProfile;
+import com.bullhornsdk.data.model.entity.core.paybill.invoice.InvoiceStatement;
 import com.bullhornsdk.data.model.entity.core.standard.Appointment;
 import com.bullhornsdk.data.model.entity.core.standard.AppointmentAttendee;
 import com.bullhornsdk.data.model.entity.core.standard.BusinessSector;
@@ -1563,5 +1565,104 @@ public class LoadTaskTest {
         Result expectedResult = Result.failure(new DataLoaderException(ErrorInfo.CONNECTION_TIMEOUT,
             internetConnectivityIssueException.getMessage()));
         verify(csvFileWriterMock, times(1)).writeRow(any(), eq(expectedResult));
+    }
+
+    @Test
+    public void testRunBillingProfileInsertSuccess() throws Exception {
+        Row row = TestUtils.createRow("externalID,billingContact.id", "1,2");
+        when(restApiMock.searchForList(eq(ClientContact.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(ClientContact.class, 2));
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.BILLING_PROFILE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunBillingProfileUpdateSuccess() throws Exception {
+        Row row = TestUtils.createRow("externalID,billingContact.externalID", "1,2");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.BILLING_PROFILE))
+            .thenReturn(Collections.singletonList("externalID"));
+        when(restApiMock.queryForList(eq(BillingProfile.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(BillingProfile.class, 1));
+        when(restApiMock.searchForList(eq(ClientContact.class),any(), any(), any()))
+            .thenReturn(TestUtils.getList(ClientContact.class,  2));
+
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.BILLING_PROFILE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(restApiMock, times(1)).updateEntity(any());
+        verify(restApiMock, never()).insertEntity(any());
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
+    }
+
+    @Test
+    public void testUpdateWithoutDirectFieldsSkipsInsertOrUpsertEntity() throws Exception {
+        Row row = TestUtils.createRow("id, businessSectors.id", "1,33");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.JOB_ORDER))
+            .thenReturn(Collections.singletonList("id"));
+        when(restApiMock.searchForList(eq(JobOrder.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(JobOrder.class, 1));
+        when(restApiMock.queryForList(eq(BusinessSector.class), any(), any(), any()))
+            .thenReturn(TestUtils.getList(BusinessSector.class, 33));
+
+        LoadTask task = new LoadTask(EntityInfo.JOB_ORDER, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(restApiMock, never()).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+    }
+
+    @Test
+    public void testRunInsertEntityWithDirectFields() throws Exception {
+        Row row = TestUtils.createRow("firstName,lastName,primarySkills.id", "Data,Loader,1;2;3");
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1 OR id=2 OR id=3)"), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
+        when(restApiMock.insertEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.INSERT, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(restApiMock, times(1)).insertEntity(any());
+        verify(restApiMock, never()).updateEntity(any());
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
+            eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.insert(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.INSERT, 1);
+    }
+
+    @Test
+    public void testRunUpdateEntityWithDirectFields() throws Exception {
+        Row row = TestUtils.createRow("externalID,firstName,primarySkills.id", "11,UpdatedName,1;2;3");
+        when(propertyFileUtilMock.getEntityExistFields(EntityInfo.CANDIDATE))
+            .thenReturn(Collections.singletonList("externalID"));
+        when(restApiMock.searchForList(eq(Candidate.class), eq("externalID:\"11\""), any(), any()))
+            .thenReturn(TestUtils.getList(Candidate.class, 1));
+        when(restApiMock.queryForList(eq(Skill.class), eq("(id=1 OR id=2 OR id=3)"), any(), any()))
+            .thenReturn(TestUtils.getList(Skill.class, 1, 2, 3));
+        when(restApiMock.updateEntity(any())).thenReturn(TestUtils.getResponse(ChangeType.UPDATE, 1));
+
+        LoadTask task = new LoadTask(EntityInfo.CANDIDATE, row, csvFileWriterMock,
+            propertyFileUtilMock, restApiMock, printUtilMock, actionTotalsMock, cacheMock, completeUtilMock);
+        task.run();
+
+        verify(restApiMock, never()).insertEntity(any());
+        verify(restApiMock, times(1)).updateEntity(any());
+        verify(restApiMock, times(1)).associateWithEntity(eq(Candidate.class), eq(1),
+            eq(CandidateAssociations.getInstance().primarySkills()), eq(Arrays.asList(1, 2, 3)));
+        verify(csvFileWriterMock, times(1)).writeRow(any(), eq(Result.update(1)));
+        TestUtils.verifyActionTotals(actionTotalsMock, Result.Action.UPDATE, 1);
     }
 }
