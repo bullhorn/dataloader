@@ -20,6 +20,7 @@ import com.bullhorn.dataloader.enums.EntityInfo;
 import com.bullhorn.dataloader.enums.ErrorInfo;
 
 import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SimplifiedOptionsLookup;
+import com.bullhornsdk.data.model.entity.core.paybill.optionslookup.SpecializedOptionsLookup;
 
 /**
  * Utility for low level method related methods used in DataLoader
@@ -173,6 +174,10 @@ public class MethodUtil {
             SimplifiedOptionsLookup simplifiedOptionsLookup = new SimplifiedOptionsLookup();
             simplifiedOptionsLookup.setId(Integer.parseInt(value));
             return simplifiedOptionsLookup;
+        } else if (SpecializedOptionsLookup.class.isAssignableFrom(type)) {
+            SpecializedOptionsLookup specializedOptionsLookup = new SpecializedOptionsLookup();
+            specializedOptionsLookup.setId(Integer.parseInt(value));
+            return specializedOptionsLookup;
         }
 
         return null;
