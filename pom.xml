@@ -35,7 +35,7 @@
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-parsers</artifactId>
-            <version>1.14</version>
+            <version>1.28</version>
         </dependency>
 
         <dependency>
@@ -120,8 +120,7 @@
                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced.xml
                             </dependencyReducedPomLocation>
                             <transformers>
-                                <transformer
-                                    implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Main-Class>com.bullhorn.dataloader.Main</Main-Class>
                                         <Build-Number>${project.version}</Build-Number>
